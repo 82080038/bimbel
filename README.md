@@ -1,6 +1,311 @@
 # Aplikasi Tryout & Simulasi Ujian
 
-## Blueprint Lengkap (Markdown / MD)
+Aplikasi web untuk simulasi ujian online dengan sistem CAT (Computer Adaptive Testing), bank soal dinamis, dan analisa hasil berbasis AI. Dirancang untuk mendukung UTBK, SNBT, CPNS, ujian sekolah, dan berbagai jenis tryout lainnya.
+
+## 🎯 Fitur Utama
+
+### Untuk Peserta
+- ✅ Simulasi ujian real-time dengan timer otomatis
+- ✅ Random soal adaptif berdasarkan kesulitan
+- ✅ Sistem CAT dengan status visual soal (belum dijawab, dijawab, ragu-ragu)
+- ✅ Auto-save jawaban dan submit otomatis
+- ✅ Pembahasan soal langsung setelah selesai
+- ✅ Ranking & history tryout
+- ✅ Sertifikat digital
+- ✅ Anti-cheat system
+
+### Untuk Admin
+- ✅ CRUD soal dengan dukungan gambar, audio, dan PDF
+- ✅ Import soal dari Excel/CSV
+- ✅ Generator soal otomatis dengan template
+- ✅ Analisa hasil peserta mendalam
+- ✅ Manajemen kategori, paket, dan user
+- ✅ Statistik komprehensif
+
+### Teknologi AI (Opsional)
+- 🤖 AI Generator Soal otomatis
+- 🤖 AI Pembahasan soal
+- 🤖 OCR foto soal (Tesseract/Google Vision)
+- 🤖 Generator distraktor cerdas
+- 🤖 Adaptive difficulty (naik-turun level berdasarkan jawaban)
+
+---
+
+## 🛠️ Tech Stack
+
+### Stack Ringan (Rekomendasi untuk Pemula)
+```
+Frontend: HTML + Bootstrap + jQuery
+Backend: PHP Native / PHP OOP
+Database: MySQL / MariaDB
+```
+
+### Stack Modern (Rekomendasi untuk Scale-up)
+```
+Frontend: React / Vue
+Backend: Laravel / Node.js
+Database: PostgreSQL
+Realtime: Socket.IO
+```
+
+---
+
+## 📋 Target Paket Ujian
+
+- **UTBK / SNBT** - Ujian masuk perguruan tinggi
+- **Sekolah Kedinasan** - STPN, IPDN, dll
+- **CPNS / CAT** - Ujian seleksi PNS
+- **Sekolah** - SD, SMP, SMA, ujian semester
+- **TOEFL Dasar** - Test bahasa Inggris
+- **Psikotes** - Tes psikologi
+- **Olimpiade** - Ujian olimpiade
+- **Tryout Umum** - Paket custom
+
+---
+
+## 📁 Struktur Folder
+
+```
+/project-root
+├── /admin              # Panel admin untuk manajemen
+├── /api                # API endpoints (JSON)
+├── /assets             # Statis files
+│   ├── /images         # Gambar soal & jawaban
+│   ├── /audio          # File audio soal
+│   ├── /pdf            # File PDF soal
+│   └── /uploads        # Upload user
+├── /config             # Konfigurasi database & env
+├── /database           # SQL scripts & backup
+├── /modules            # Logic bisnis
+├── /templates          # HTML templates
+├── /tryout             # Halaman ujian
+├── /user               # Dashboard user
+├── /vendor             # Dependencies (Composer)
+└── index.php           # Entry point
+```
+
+---
+
+## 💾 Struktur Database Utama
+
+### Tabel Users
+```sql
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100),
+    email VARCHAR(100),
+    password VARCHAR(255),
+    role ENUM('admin','guru','siswa'),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Tabel Soal
+```sql
+CREATE TABLE soal (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    kategori_id INT,
+    paket_id INT,
+    tipe ENUM('pilihan_ganda','essay','gambar','audio'),
+    tingkat ENUM('mudah','sedang','sulit'),
+    soal LONGTEXT,
+    gambar VARCHAR(255),
+    audio VARCHAR(255),
+    pembahasan LONGTEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Tabel Hasil Ujian
+```sql
+CREATE TABLE hasil_ujian (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    paket_id INT,
+    nilai DECIMAL(5,2),
+    benar INT,
+    salah INT,
+    kosong INT,
+    waktu_mulai DATETIME,
+    waktu_selesai DATETIME
+);
+```
+
+---
+
+## 🚀 Alur Ujian
+
+```
+Login
+  ↓
+Pilih Paket Tryout
+  ↓
+Mulai Ujian (Timer Jalan)
+  ↓
+Jawab Soal
+  ↓
+Submit Ujian
+  ↓
+Hitung Nilai
+  ↓
+Tampilkan Hasil + Pembahasan
+  ↓
+Ranking & Sertifikat
+```
+
+---
+
+## 📊 Sistem Analisa
+
+Aplikasi memberikan insight mendalam:
+- Rata-rata nilai per kategori
+- Soal tersulit & waktu pengerjaan
+- Analisa kelemahan siswa
+- Grafik progress dari waktu ke waktu
+- Ranking kompetitif antar peserta
+
+---
+
+## 🔐 Keamanan Sistem
+
+- `password_hash()` untuk enkripsi password
+- Prepared statements (SQL injection prevention)
+- CSRF token protection
+- Session security
+- HTTPS support
+- Validasi upload file
+
+---
+
+## 🚦 Sistem Anti Cheat
+
+- Disable copy-paste
+- Disable klik kanan
+- Deteksi tab pindah → auto logout
+- Token ujian unik per sesi
+- Limit 1 device per user
+
+---
+
+## 🎯 Roadmap Pengembangan
+
+### Tahap 1 (MVP)
+- ✅ Login & register
+- ✅ Bank soal
+- ✅ Ujian dasar
+
+### Tahap 2
+- [ ] Random soal per kategori
+- [ ] Timer & countdown
+- [ ] Ranking sistem
+
+### Tahap 3
+- [ ] Soal bergambar & audio
+- [ ] Import Excel/CSV
+- [ ] Pembahasan otomatis
+
+### Tahap 4
+- [ ] AI Generator soal
+- [ ] OCR foto soal
+- [ ] Adaptive testing
+
+### Tahap 5
+- [ ] Mobile app (React Native)
+- [ ] Realtime analytics
+- [ ] Machine learning prediction
+
+---
+
+## 🖥️ Requirement Server
+
+**Minimal:**
+- 4 Core CPU
+- 8 GB RAM
+- SSD Storage
+- PHP 8.0+
+- MySQL 5.7+ / MariaDB 10.3+
+
+---
+
+## 📝 Import Format Excel
+
+Format untuk import soal via Excel:
+
+| soal | A | B | C | D | E | jawaban |
+|------|---|---|---|---|---|---------|
+| Apa ibu kota Indonesia? | Jakarta | Bandung | Surabaya | Medan | Bali | A |
+
+**Supported format:** `.xlsx`, `.csv`
+
+---
+
+## 🔌 API Endpoints
+
+```
+POST   /api/login.php           → Autentikasi user
+GET    /api/get-soal.php        → Ambil soal ujian
+POST   /api/save-jawaban.php    → Simpan jawaban (auto-save)
+POST   /api/submit.php          → Submit ujian
+GET    /api/hasil.php           → Hasil ujian & pembahasan
+```
+
+Response format: **JSON**
+
+---
+
+## 🎓 Cocok Untuk
+
+- 👨‍👩‍👧‍👦 Belajar keluarga
+- 🏫 Sekolah & bimbingan belajar (bimbel)
+- 👥 Komunitas & forum belajar
+- 💼 Pelatihan korporat
+- 🎓 Lembaga pendidikan
+- 📚 Penggunaan pribadi
+
+---
+
+## 📄 Blueprint Lengkap
+
+Dokumentasi teknis detail tersedia di section Blueprint di atas. Mencakup:
+- Tabel database lengkap
+- Sistem random & timer
+- Implementasi CAT & OCR
+- Generator soal otomatis
+- Fitur masa depan
+
+---
+
+## 🤝 Kontribusi
+
+Silakan fork, buat branch fitur, dan submit pull request untuk improvement.
+
+```bash
+git checkout -b feature/nama-fitur
+git commit -am "Add: deskripsi fitur"
+git push origin feature/nama-fitur
+```
+
+---
+
+## 📞 Support & Feedback
+
+Untuk issue, saran, atau pertanyaan → buka GitHub Issue
+
+---
+
+## 📜 Lisensi
+
+[MIT License](LICENSE) - Bebas digunakan untuk komersial maupun non-komersial
+
+---
+
+## 👨‍💻 Pengembang
+
+Made with ❤️ by [82080038](https://github.com/82080038)
+
+---
+
+## 📌 Blueprint Lengkap (Markdown / MD)
 
 ```md
 # APLIKASI TRYOUT & SIMULASI UJIAN
