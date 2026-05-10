@@ -1,1 +1,514 @@
-# bimbel
+# Aplikasi Tryout & Simulasi Ujian
+
+## Blueprint Lengkap (Markdown / MD)
+
+```md
+# APLIKASI TRYOUT & SIMULASI UJIAN
+## Blueprint Sistem Lengkap
+
+Versi: 1.0
+Target:
+- UTBK / SNBT
+- Sekolah Kedinasan
+- CPNS / CAT
+- SD / SMP / SMA
+- TOEFL Dasar
+- Psikotes
+- Olimpiade
+- Tryout Umum
+
+Teknologi:
+- Backend: PHP Native / PHP OOP
+- Database: MySQL / MariaDB
+- Frontend: HTML, CSS, JavaScript, jQuery
+- Optional:
+  - React
+  - Node.js Microservice
+  - OCR
+  - AI Generator Soal
+
+---
+
+# 1. TUJUAN SISTEM
+
+Membuat aplikasi:
+- simulasi ujian nyata
+- tryout online
+- bank soal adaptif
+- CAT simulator
+- pembelajaran berbasis analisa hasil
+
+Sistem harus:
+- cepat
+- ringan
+- aman
+- mudah dikembangkan
+- support soal bergambar
+- support ribuan soal
+
+---
+
+# 2. FITUR UTAMA
+
+## 2.1 Fitur Peserta
+
+- Login
+- Register
+- Pilih paket tryout
+- Mulai ujian
+- Timer otomatis
+- Random soal
+- Navigasi soal
+- Tandai ragu-ragu
+- Auto save jawaban
+- Submit otomatis
+- Pembahasan
+- Ranking
+- History tryout
+- Sertifikat
+
+---
+
+## 2.2 Fitur Admin
+
+- CRUD soal
+- Upload gambar soal
+- Upload gambar jawaban
+- Upload audio
+- Upload PDF
+- Import Excel
+- Generate soal otomatis
+- Analisa hasil peserta
+- Kelola kategori
+- Kelola paket tryout
+- Kelola user
+- Statistik
+
+---
+
+## 2.3 Fitur AI
+
+- AI Generator Soal
+- AI Pembahasan
+- OCR Foto Soal
+- Generator Distraktor
+- Adaptive Difficulty
+- Analisa kelemahan siswa
+
+---
+
+# 3. STRUKTUR FOLDER
+
+/project-root
+│
+├── /admin
+├── /api
+├── /assets
+│   ├── /images
+│   ├── /audio
+│   ├── /pdf
+│   └── /uploads
+│
+├── /config
+├── /database
+├── /modules
+├── /templates
+├── /tryout
+├── /user
+├── /vendor
+└── index.php
+
+---
+
+# 4. STRUKTUR DATABASE
+
+## 4.1 users
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100),
+    email VARCHAR(100),
+    password VARCHAR(255),
+    role ENUM('admin','guru','siswa'),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+---
+
+## 4.2 kategori
+
+CREATE TABLE kategori (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama_kategori VARCHAR(100)
+);
+
+Contoh:
+- Matematika
+- Bahasa Indonesia
+- TWK
+- TIU
+- TKP
+
+---
+
+## 4.3 paket_tryout
+
+CREATE TABLE paket_tryout (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama_paket VARCHAR(200),
+    deskripsi TEXT,
+    durasi INT,
+    total_soal INT,
+    kategori_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+---
+
+## 4.4 soal
+
+CREATE TABLE soal (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    kategori_id INT,
+    paket_id INT,
+    tipe ENUM('pilihan_ganda','essay','gambar','audio'),
+    tingkat ENUM('mudah','sedang','sulit'),
+    soal LONGTEXT,
+    gambar VARCHAR(255),
+    audio VARCHAR(255),
+    pembahasan LONGTEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+---
+
+## 4.5 pilihan_jawaban
+
+CREATE TABLE pilihan_jawaban (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    soal_id BIGINT,
+    opsi ENUM('A','B','C','D','E'),
+    isi_jawaban TEXT,
+    gambar VARCHAR(255),
+    benar TINYINT(1)
+);
+
+---
+
+## 4.6 hasil_ujian
+
+CREATE TABLE hasil_ujian (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    paket_id INT,
+    nilai DECIMAL(5,2),
+    benar INT,
+    salah INT,
+    kosong INT,
+    waktu_mulai DATETIME,
+    waktu_selesai DATETIME
+);
+
+---
+
+## 4.7 jawaban_user
+
+CREATE TABLE jawaban_user (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    hasil_id BIGINT,
+    soal_id BIGINT,
+    jawaban VARCHAR(10),
+    benar TINYINT(1)
+);
+
+---
+
+# 5. SISTEM RANDOM SOAL
+
+Metode:
+- shuffle soal
+- random per kategori
+- random per tingkat kesulitan
+
+Contoh:
+- 20 mudah
+- 30 sedang
+- 10 sulit
+
+---
+
+# 6. SISTEM TIMER
+
+Fitur:
+- countdown
+- auto submit
+- warning waktu habis
+- save realtime
+
+Teknologi:
+- JavaScript Timer
+- AJAX Auto Save
+
+---
+
+# 7. SISTEM SIMULASI CAT
+
+Tampilan:
+- nomor soal
+- warna status
+- tombol ragu-ragu
+- progress pengerjaan
+
+Warna:
+- putih = belum dijawab
+- hijau = dijawab
+- kuning = ragu-ragu
+
+---
+
+# 8. SOAL BERGAMBAR
+
+## Struktur
+
+/assets/images/soal/
+/assets/images/jawaban/
+
+Database:
+- gambar pada tabel soal
+- gambar pada tabel pilihan_jawaban
+
+---
+
+# 9. OCR FOTO SOAL
+
+Alur:
+Foto → OCR → Parsing → Database
+
+Teknologi:
+- Tesseract OCR
+- Google Vision API
+- OpenCV
+
+---
+
+# 10. IMPORT EXCEL
+
+Format:
+
+| soal | A | B | C | D | E | jawaban |
+
+Import:
+- PHPSpreadsheet
+- CSV
+- XLSX
+
+---
+
+# 11. GENERATOR SOAL OTOMATIS
+
+Contoh template:
+
+Jika {a}x + {b} = {c}, maka x = ?
+
+Generator:
+- random angka
+- random jawaban
+- random distraktor
+
+---
+
+# 12. SISTEM ANALISA NILAI
+
+Analisa:
+- rata-rata nilai
+- tingkat kesulitan
+- soal tersulit
+- waktu pengerjaan
+- ranking
+
+---
+
+# 13. ADAPTIVE TESTING
+
+Jika user:
+- benar terus → naik level
+- salah terus → turun level
+
+Level:
+- mudah
+- sedang
+- sulit
+
+---
+
+# 14. SISTEM ANTI CHEAT
+
+- disable copy paste
+- disable klik kanan
+- deteksi tab pindah
+- auto logout
+- token ujian
+- limit device
+
+---
+
+# 15. KEAMANAN SISTEM
+
+- password_hash()
+- prepared statement
+- CSRF token
+- session security
+- HTTPS
+- validasi upload
+
+---
+
+# 16. API STRUKTUR
+
+/api/login.php
+/api/get-soal.php
+/api/save-jawaban.php
+/api/submit.php
+/api/hasil.php
+
+Format:
+JSON API
+
+---
+
+# 17. STRUKTUR FRONTEND
+
+Halaman:
+- login
+- dashboard
+- daftar tryout
+- halaman ujian
+- hasil ujian
+- ranking
+
+---
+
+# 18. ALUR UJIAN
+
+Login
+↓
+Pilih Paket
+↓
+Mulai Ujian
+↓
+Timer Jalan
+↓
+Jawab Soal
+↓
+Submit
+↓
+Hitung Nilai
+↓
+Tampilkan Hasil
+
+---
+
+# 19. ROADMAP PENGEMBANGAN
+
+## Tahap 1
+- login
+- bank soal
+- ujian dasar
+
+## Tahap 2
+- random soal
+- timer
+- ranking
+
+## Tahap 3
+- soal bergambar
+- import excel
+- pembahasan
+
+## Tahap 4
+- AI generator
+- OCR
+- adaptive testing
+
+## Tahap 5
+- mobile app
+- realtime analytics
+- machine learning
+
+---
+
+# 20. REKOMENDASI SERVER
+
+Minimal:
+- 4 Core CPU
+- 8 GB RAM
+- SSD
+- PHP 8+
+- MariaDB 10+
+
+---
+
+# 21. REKOMENDASI STACK
+
+## Stack Ringan
+
+Frontend:
+- HTML
+- Bootstrap
+- jQuery
+
+Backend:
+- PHP Native
+
+Database:
+- MySQL
+
+---
+
+## Stack Modern
+
+Frontend:
+- React
+
+Backend:
+- Node.js / Laravel
+
+Database:
+- PostgreSQL
+
+Realtime:
+- Socket.IO
+
+---
+
+# 22. FITUR MASA DEPAN
+
+- voice question
+- AI tutor
+- AI pembahasan suara
+- leaderboard nasional
+- multiplayer quiz
+- live class
+- video pembelajaran
+
+---
+
+# 23. KESIMPULAN
+
+Sistem ini dirancang:
+- modular
+- scalable
+- ringan
+- cocok untuk ribuan soal
+- support gambar
+- support AI
+- support simulasi CAT
+
+Sangat cocok untuk:
+- keluarga
+- sekolah
+- bimbel
+- komunitas belajar
+- penggunaan pribadi
+
+```
