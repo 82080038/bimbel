@@ -1,0 +1,9 @@
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+<FilesMatch "\.(html|htm)$">
+    ForceType text/html
+</FilesMatch>
+
+Options +Indexes

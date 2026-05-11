@@ -2,7 +2,7 @@
 // Database configuration
 define('DB_HOST', '127.0.0.1');
 define('DB_USER', 'root');
-define('DB_PASS', 'root');
+define('DB_PASS', '8208');
 define('DB_NAME', 'ujian_sekolah_kedinasan');
 
 // Create database connection

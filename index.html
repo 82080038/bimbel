@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplikasi Ujian Sekolah Kedinasan</title>
+    <meta name="description" content="Sistem Seleksi Kompetensi Dasar (SKD) untuk sekolah kedinasan">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Ujian Kedinasan">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon-192.svg">
+    <link rel="apple-touch-icon" href="icon-192.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -34,10 +42,18 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            margin: 2rem auto;
+            margin: 1rem auto;
             max-width: 1200px;
-            padding: 2rem;
+            padding: 1.5rem;
             transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 0;
+                border-radius: 0;
+                padding: 1rem;
+            }
         }
 
         body.dark-mode .main-container {
@@ -60,6 +76,15 @@
             margin-bottom: 0.5rem;
         }
 
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 1.5rem;
+            }
+            .header-section p {
+                font-size: 0.9rem;
+            }
+        }
+
         .header-section p {
             font-size: 1.1rem;
             opacity: 0.9;
@@ -77,6 +102,13 @@
             animation: pulse 2s infinite;
         }
 
+        @media (max-width: 768px) {
+            .timer-display {
+                font-size: 1.8rem;
+                padding: 0.8rem;
+            }
+        }
+
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.02); }
@@ -89,6 +121,13 @@
             margin-bottom: 1.5rem;
             border-left: 5px solid var(--primary-color);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .question-card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
         }
 
         .question-number {
@@ -121,6 +160,12 @@
             line-height: 1.6;
         }
 
+        @media (max-width: 768px) {
+            .question-text {
+                font-size: 1rem;
+            }
+        }
+
         .option-label {
             display: block;
             padding: 1rem;
@@ -130,6 +175,14 @@
             cursor: pointer;
             transition: all 0.3s ease;
             background: white;
+        }
+
+        @media (max-width: 768px) {
+            .option-label {
+                padding: 0.8rem;
+                margin-bottom: 0.6rem;
+                font-size: 0.9rem;
+            }
         }
 
         .option-label:hover {
@@ -153,6 +206,16 @@
             justify-content: space-between;
             margin-top: 2rem;
             gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .navigation-buttons button {
+                width: 100%;
+            }
         }
 
         .btn-custom {
@@ -198,6 +261,30 @@
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
         }
 
+        .btn-info-custom {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+        }
+
+        .btn-info-custom:hover {
+            background: #0284c7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-purple-custom {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+        }
+
+        .btn-purple-custom:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
         .question-nav {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
@@ -206,6 +293,14 @@
             padding: 1rem;
             background: var(--light-bg);
             border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .question-nav {
+                grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+                gap: 0.3rem;
+                padding: 0.5rem;
+            }
         }
 
         .nav-item {
@@ -222,6 +317,14 @@
             background: white;
         }
 
+        @media (max-width: 768px) {
+            .nav-item {
+                width: 35px;
+                height: 35px;
+                font-size: 0.85rem;
+            }
+        }
+
         .nav-item:hover {
             border-color: var(--secondary-color);
             transform: scale(1.1);
@@ -231,6 +334,16 @@
             background: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
+        }
+
+        .nav-item.doubtful {
+            background: #fef08a;
+            border-color: #fbbf24;
+        }
+
+        .nav-item.doubtful.answered {
+            background: #a3e635;
+            border-color: #84cc16;
         }
 
         .nav-item.answered {
@@ -541,18 +654,28 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="namaPeserta" class="form-label fw-bold">Nama Peserta:</label>
+                    <label class="form-label fw-bold">Nama Peserta:</label>
                     <input type="text" class="form-control form-control-lg" id="namaPeserta" placeholder="Masukkan nama lengkap Anda">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Pilih Paket Ujian:</label>
+                    <select class="form-select form-select-lg" id="paketSelection">
+                        <option value="">Loading paket...</option>
+                    </select>
                 </div>
 
                 <div class="text-center mt-4">
                     <button class="btn btn-primary-custom btn-custom btn-lg" onclick="mulaiUjian()">
                         <i class="fas fa-play"></i> Mulai Ujian
                     </button>
+                    <button class="btn btn-success-custom btn-custom btn-lg" onclick="mulaiLatihan()">
+                        <i class="fas fa-dumbbell"></i> Mode Latihan
+                    </button>
                     <button class="btn btn-warning-custom btn-custom btn-lg" onclick="lihatTips()">
                         <i class="fas fa-book"></i> Lihat Tips & Trik
                     </button>
-                    <button class="btn btn-success-custom btn-custom btn-lg" onclick="lihatRiwayat()">
+                    <button class="btn btn-info-custom btn-custom btn-lg" onclick="lihatRiwayat()">
                         <i class="fas fa-history"></i> Riwayat Ujian
                     </button>
                 </div>
@@ -580,15 +703,24 @@
                 </div>
 
                 <div class="question-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <div>
-                            <span class="question-number" id="questionNumber">1</span>
-                            <span class="category-badge category-TWK" id="categoryBadge">TWK</span>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3>Soal <span id="questionNumber" class="badge bg-primary">1</span></h3>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-warning" onclick="flagQuestion('ragu')" id="flagButton_ragu">
+                                <i class="fas fa-question-circle"></i> Ragu
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="flagQuestion('skip')" id="flagButton_skip">
+                                <i class="fas fa-forward"></i> Skip
+                            </button>
+                            <button class="btn btn-outline-info" onclick="flagQuestion('review')" id="flagButton_review">
+                                <i class="fas fa-redo"></i> Review
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="toggleBookmark()" id="bookmarkBtn">
+                                <i class="fas fa-bookmark"></i> Bookmark
+                            </button>
                         </div>
-                        <button class="bookmark-btn" onclick="toggleBookmark()" id="bookmarkBtn">
-                            <i class="fas fa-bookmark"></i> Bookmark
-                        </button>
                     </div>
+                    <span class="category-badge category-TWK" id="categoryBadge">TWK</span>
                     <p class="question-text" id="questionText">Loading question...</p>
 
                     <div id="optionsContainer">
@@ -664,13 +796,52 @@
                     </div>
                 </div>
 
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">🏆 Ranking Anda</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h2 class="display-4" id="userRank">-</h2>
+                            <p class="text-muted">Peringkat Anda dari <span id="totalParticipants">0</span> peserta</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="text-center mt-4">
                     <button class="btn btn-primary-custom btn-custom btn-lg" onclick="lihatPembahasan()">
                         <i class="fas fa-book-open"></i> Lihat Pembahasan
                     </button>
-                    <button class="btn btn-warning-custom btn-custom btn-lg" onclick="ulangUjian()">
+                    <button class="btn btn-success-custom btn-custom btn-lg" onclick="lihatRekomendasiBelajar()">
+                        <i class="fas fa-lightbulb"></i> Rekomendasi Belajar
+                    </button>
+                    <button class="btn btn-success-custom btn-custom btn-lg" onclick="ulangUjian()">
                         <i class="fas fa-redo"></i> Ulangi Ujian
                     </button>
+                    <button class="btn btn-info-custom btn-custom btn-lg" onclick="exportPDF()">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button class="btn btn-purple-custom btn-custom btn-lg" onclick="downloadCertificate()">
+                        <i class="fas fa-certificate"></i> Sertifikat
+                    </button>
+                </div>
+            </div>
+
+            <!-- Learning Recommendations Screen -->
+            <div id="learningScreen" class="hidden">
+                <div class="header-section">
+                    <h2><i class="fas fa-lightbulb"></i> Rekomendasi Belajar</h2>
+                    <p>Bahan pelajaran untuk soal yang salah atau ragu-ragu</p>
+                </div>
+
+                <div class="mb-3">
+                    <button class="btn btn-secondary" onclick="kembaliKeHasil()">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Hasil
+                    </button>
+                </div>
+
+                <div id="learningRecommendations">
+                    <!-- Learning recommendations will be loaded here -->
                 </div>
             </div>
 
