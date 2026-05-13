@@ -6,6 +6,21 @@ Sistem ujian online modern dengan RBAC (Role-Based Access Control), dashboard ko
 **Status:** Production Ready ✅  
 **Last Updated:** 14 Mei 2026
 
+## 📚 Table of Contents
+- [Fitur Utama](#-fitur-utama)
+- [Tech Stack](#-tech-stack)
+- [Quick Start](#-quick-start)
+- [Setup Development Environment](#-setup-development-environment)
+- [Database Setup](#-database-setup)
+- [Running Migrations](#-running-migrations)
+- [Project Structure](#-project-structure)
+- [API Documentation](#-api-documentation)
+- [Development Workflow](#-development-workflow)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
+
+---
+
 ## 🎯 Fitur Utama
 
 ### Untuk Peserta
@@ -69,215 +84,502 @@ Realtime: Socket.IO
 
 ---
 
-## 📁 Struktur Folder
+## � Quick Start
+
+### Prerequisites
+- PHP 8.0 or higher
+- MySQL 5.7+ / MariaDB 10.3+
+- XAMPP (recommended) or WAMP for Windows
+- Git
+- Modern web browser
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/82080038/bimbel.git
+   cd bimbel
+   ```
+
+2. **Configure database**
+   - Open `config.php`
+   - Update database credentials:
+     ```php
+     define('DB_HOST', 'localhost');
+     define('DB_USER', 'root');
+     define('DB_PASS', ''); // Your MySQL password
+     define('DB_NAME', 'ujian_sekolah_kedinasan');
+     ```
+
+3. **Create database**
+   ```sql
+   CREATE DATABASE ujian_sekolah_kedinasan;
+   ```
+
+4. **Run migrations**
+   ```bash
+   # Run all migration scripts
+   php migrate_course_management.php
+   php migrate_gamification.php
+   php migrate_notifications.php
+   php migrate_analytics.php
+   php migrate_content_management.php
+   ```
+
+5. **Start the application**
+   - Open XAMPP Control Panel
+   - Start Apache and MySQL
+   - Open browser: `http://localhost/bimbel/login.html`
+
+---
+
+## 💻 Setup Development Environment
+
+### Windows with XAMPP
+
+1. **Install XAMPP**
+   - Download from https://www.apachefriends.org/
+   - Install to `C:\xampp`
+   - Start Apache and MySQL from XAMPP Control Panel
+
+2. **Configure PHP**
+   - PHP is already included in XAMPP at `C:\xampp\php`
+   - Add PHP to PATH: `C:\xampp\php`
+   - Enable required extensions in `php.ini`:
+     ```ini
+     extension=mysqli
+     extension=pdo_mysql
+     extension=gd
+     extension=mbstring
+     extension=curl
+     extension=json
+     extension=fileinfo
+     ```
+
+3. **Configure MySQL**
+   - Default credentials: root / (empty password)
+   - Access phpMyAdmin: `http://localhost/phpmyadmin`
+   - Create database: `ujian_sekolah_kedinasan`
+
+### Linux/Mac with MAMP
+
+1. **Install MAMP**
+   - Download from https://www.mamp.info/
+   - Install and start MAMP
+   - Configure Apache to point to project directory
+
+2. **Configure PHP and MySQL**
+   - Similar to XAMPP setup
+   - Update `config.php` with your credentials
+
+---
+
+## 🗄️ Database Setup
+
+### Initial Database Setup
+
+1. **Create database**
+   ```sql
+   CREATE DATABASE ujian_sekolah_kedinasan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+
+2. **Import base schema** (if available)
+   ```bash
+   mysql -u root -p ujian_sekolah_kedinasan < database.sql
+   ```
+
+### Database Structure
+
+The application uses the following main tables:
+- `users` - User accounts and authentication
+- `soal` - Exam questions
+- `riwayat_ujian` - Exam history
+- `kategori` - Question categories
+- `paket_tryout` - Exam packages
+- `user_xp` - Gamification XP system
+- `user_streak` - Learning streaks
+- `badges` - Achievement badges
+- `achievements` - User achievements
+- `daily_challenges` - Daily learning challenges
+- `notifications` - Notification system
+- `notification_preferences` - User notification settings
+- `question_analytics` - Question performance analytics
+- `user_analytics` - User performance analytics
+
+---
+
+## 🔄 Running Migrations
+
+The application uses migration scripts to apply database schema changes.
+
+### Available Migration Scripts
+
+| Migration Script | Purpose |
+|-----------------|---------|
+| `migrate_course_management.php` | Course management and learning paths |
+| `migrate_gamification.php` | Gamification system (XP, badges, achievements) |
+| `migrate_notifications.php` | Notification system |
+| `migrate_analytics.php` | Advanced analytics |
+| `migrate_content_management.php` | Content version control and translations |
+
+### Running Migrations
+
+```bash
+# Run a single migration
+php migrate_course_management.php
+
+# Run all migrations
+php migrate_course_management.php
+php migrate_gamification.php
+php migrate_notifications.php
+php migrate_analytics.php
+php migrate_content_management.php
+```
+
+### Exporting Database
+
+```bash
+# Export database with timestamp
+php export_database.php
+```
+
+---
+
+## 📁 Project Structure
 
 ```
 /project-root
 ├── /admin              # Panel admin untuk manajemen
+│   └── admin.html      # Admin dashboard
 ├── /api                # API endpoints (JSON)
+│   ├── auth.php        # Authentication API
+│   ├── soal.php        # Exam questions API
+│   ├── gamification.php # Gamification API
+│   ├── notifications.php # Notification API
+│   ├── analytics.php   # Analytics API
+│   ├── courses.php     # Course management API
+│   └── middleware.php  # Authentication middleware
 ├── /assets             # Statis files
 │   ├── /images         # Gambar soal & jawaban
 │   ├── /audio          # File audio soal
 │   ├── /pdf            # File PDF soal
 │   └── /uploads        # Upload user
 ├── /config             # Konfigurasi database & env
+│   └── config.php      # Main configuration file
 ├── /database           # SQL scripts & backup
-├── /modules            # Logic bisnis
-├── /templates          # HTML templates
-├── /tryout             # Halaman ujian
-├── /user               # Dashboard user
+│   ├── course_management.sql
+│   ├── gamification.sql
+│   ├── notifications.sql
+│   ├── analytics.sql
+│   ├── content_management.sql
+│   └── export_*.sql    # Database exports
+├── /js                 # JavaScript files
+│   ├── config.js       # Frontend configuration
+│   └── rbac.js         # Role-based access control
+├── /participant        # Participant dashboard
+│   ├── dashboard.html   # Main dashboard
+│   ├── ujian.html      # Exam interface
+│   └── materi.html     # Learning materials
+├── /scripts            # Utility scripts
+│   ├── check_reminders.php
+│   └── minify_assets.php
+├── /tests              # Test files
 ├── /vendor             # Dependencies (Composer)
+├── config.php          # Database configuration
+├── export_database.php # Database export script
+├── migrate_*.php       # Migration scripts
+├── README.md           # This file
+├── SYSTEM_OVERVIEW.md  # System documentation
+├── IMPROVEMENT_ROADMAP.md # Feature roadmap
 └── index.php           # Entry point
 ```
 
 ---
 
-## 💾 Struktur Database Utama
+## 🔌 API Documentation
 
-### Tabel Users
-```sql
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nama VARCHAR(100),
-    email VARCHAR(100),
-    password VARCHAR(255),
-    role ENUM('admin','guru','siswa'),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### Authentication
+
+All API endpoints require authentication using Bearer token in the Authorization header:
+```
+Authorization: Bearer {api_key}
 ```
 
-### Tabel Soal
-```sql
-CREATE TABLE soal (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    kategori_id INT,
-    paket_id INT,
-    tipe ENUM('pilihan_ganda','essay','gambar','audio'),
-    tingkat ENUM('mudah','sedang','sulit'),
-    soal LONGTEXT,
-    gambar VARCHAR(255),
-    audio VARCHAR(255),
-    pembahasan LONGTEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+### Main API Endpoints
 
-### Tabel Hasil Ujian
-```sql
-CREATE TABLE hasil_ujian (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    paket_id INT,
-    nilai DECIMAL(5,2),
-    benar INT,
-    salah INT,
-    kosong INT,
-    waktu_mulai DATETIME,
-    waktu_selesai DATETIME
-);
-```
+#### Authentication (`/api/auth.php`)
+- `POST /api/auth.php?action=login` - User login
+- `POST /api/auth.php?action=register` - User registration
+- `GET /api/auth.php?action=get_users` - Get all users (admin only)
 
----
+#### Exam Questions (`/api/soal.php`)
+- `GET /api/soal.php?action=get_soal` - Get exam questions
+- `POST /api/soal.php?action=save_jawaban` - Save answers (auto-save)
+- `POST /api/soal.php?action=complete_tryout` - Submit exam
+- `GET /api/soal.php?action=get_history` - Get exam history
 
-## 🚀 Alur Ujian
+#### Gamification (`/api/gamification.php`)
+- `GET /api/gamification.php?action=get_user_gamification` - Get user gamification data
+- `POST /api/gamification.php?action=add_xp` - Add XP to user
+- `POST /api/gamification.php?action=check_achievements` - Check for new achievements
+- `POST /api/gamification.php?action=claim_daily_challenge` - Claim daily challenge reward
 
-```
-Login
-  ↓
-Pilih Paket Tryout
-  ↓
-Mulai Ujian (Timer Jalan)
-  ↓
-Jawab Soal
-  ↓
-Submit Ujian
-  ↓
-Hitung Nilai
-  ↓
-Tampilkan Hasil + Pembahasan
-  ↓
-Ranking & Sertifikat
+#### Notifications (`/api/notifications.php`)
+- `GET /api/notifications.php?action=get_notifications` - Get user notifications
+- `POST /api/notifications.php?action=mark_read` - Mark notification as read
+- `GET /api/notifications.php?action=get_preferences` - Get notification preferences
+- `POST /api/notifications.php?action=update_preferences` - Update preferences
+- `GET /api/notifications.php?action=get_history` - Get notification history
+
+#### Analytics (`/api/analytics.php`)
+- `GET /api/analytics.php?action=get_question_analytics` - Get question performance
+- `GET /api/analytics.php?action=get_user_analytics` - Get user analytics
+- `GET /api/analytics.php?action=get_exam_analytics` - Get exam analytics (admin)
+- `GET /api/analytics.php?action=get_answer_heatmap` - Get answer patterns (admin)
+- `GET /api/analytics.php?action=export_analytics` - Export analytics data (admin)
+
+#### Course Management (`/api/courses.php`)
+- `GET /api/courses.php?action=get_courses` - Get all courses
+- `POST /api/courses.php?action=create_course` - Create new course
+- `GET /api/courses.php?action=get_progress` - Get user progress
+
+### Response Format
+
+All API responses follow this format:
+```json
+{
+    "success": true|false,
+    "data": { ... },
+    "error": "Error message (if failed)"
+}
 ```
 
 ---
 
-## 📊 Sistem Analisa
+## 🔨 Development Workflow
 
-Aplikasi memberikan insight mendalam:
-- Rata-rata nilai per kategori
-- Soal tersulit & waktu pengerjaan
-- Analisa kelemahan siswa
-- Grafik progress dari waktu ke waktu
-- Ranking kompetitif antar peserta
+### Adding a New Feature
 
----
+1. **Create a branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-## 🔐 Keamanan Sistem
+2. **Make your changes**
+   - Update code files
+   - Add/update database schema in `database/` folder
+   - Create migration script if needed
+   - Update documentation
 
-- `password_hash()` untuk enkripsi password
-- Prepared statements (SQL injection prevention)
-- CSRF token protection
-- Session security
-- HTTPS support
-- Validasi upload file
+3. **Test your changes**
+   - Run migration scripts
+   - Test API endpoints
+   - Test UI changes
 
----
+4. **Commit changes**
+   ```bash
+   git add .
+   git commit -m "feat: description of your feature"
+   ```
 
-## 🚦 Sistem Anti Cheat
+5. **Push and create pull request**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
 
-- Disable copy-paste
-- Disable klik kanan
-- Deteksi tab pindah → auto logout
-- Token ujian unik per sesi
-- Limit 1 device per user
+### Database Changes
 
----
+When making database changes:
+1. Create SQL schema file in `database/` folder
+2. Create migration script in root directory
+3. Run migration to test
+4. Document the change in README.md
+5. Export database after migration
 
-## 🎯 Roadmap Pengembangan
+### Code Style Guidelines
 
-### Tahap 1 (MVP)
-- ✅ Login & register
-- ✅ Bank soal
-- ✅ Ujian dasar
-
-### Tahap 2
-- [ ] Random soal per kategori
-- [ ] Timer & countdown
-- [ ] Ranking sistem
-
-### Tahap 3
-- [ ] Soal bergambar & audio
-- [ ] Import Excel/CSV
-- [ ] Pembahasan otomatis
-
-### Tahap 4
-- [ ] AI Generator soal
-- [ ] OCR foto soal
-- [ ] Adaptive testing
-
-### Tahap 5
-- [ ] Mobile app (React Native)
-- [ ] Realtime analytics
-- [ ] Machine learning prediction
+- Use PHP 8.0+ features
+- Follow PSR-12 coding standards
+- Use prepared statements for all SQL queries
+- Add comments for complex logic
+- Use descriptive variable names
 
 ---
 
-## 🖥️ Requirement Server
+## 🧪 Testing
 
-**Minimal:**
-- 4 Core CPU
-- 8 GB RAM
-- SSD Storage
+### Manual Testing Checklist
+
+- [ ] User registration and login
+- [ ] Exam creation and taking
+- [ ] Score calculation
+- [ ] Gamification XP awarding
+- [ ] Notification sending
+- [ ] Admin dashboard functionality
+- [ ] Mobile responsiveness
+- [ ] Accessibility features
+
+### API Testing
+
+Use curl or Postman to test API endpoints:
+```bash
+# Example: Login
+curl -X POST http://localhost/bimbel/api/auth.php?action=login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password"}'
+```
+
+---
+
+## 🚀 Deployment
+
+### Pre-Deployment Checklist
+
+- [ ] Update `config.php` with production database credentials
+- [ ] Change debug mode to false
+- [ ] Update API keys if any
+- [ ] Run all migrations
+- [ ] Test all functionality
+- [ ] Export database backup
+- [ ] Clear any cache/temporary files
+
+### Deployment Steps
+
+1. **Upload files to server**
+   - Use FTP, SFTP, or Git
+   - Ensure all files are uploaded
+   - Set proper file permissions (755 for directories, 644 for files)
+
+2. **Configure production environment**
+   ```php
+   // config.php
+   define('DB_HOST', 'your-production-host');
+   define('DB_USER', 'your-production-user');
+   define('DB_PASS', 'your-secure-password');
+   define('DB_NAME', 'your-production-database');
+   define('DEBUG_MODE', false);
+   ```
+
+3. **Create production database**
+   ```sql
+   CREATE DATABASE ujian_sekolah_kedinasan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+
+4. **Import database schema**
+   ```bash
+   # Import base schema
+   mysql -u username -p ujian_sekolah_kedinasan < database.sql
+   
+   # Run migrations
+   php migrate_course_management.php
+   php migrate_gamification.php
+   php migrate_notifications.php
+   php migrate_analytics.php
+   php migrate_content_management.php
+   ```
+
+5. **Configure web server**
+   - Apache: Ensure mod_rewrite is enabled
+   - Nginx: Configure PHP-FPM
+   - Set document root to project directory
+
+6. **Test production deployment**
+   - Test login functionality
+   - Test exam functionality
+   - Test admin panel
+   - Test API endpoints
+
+### Server Requirements
+
+**Minimum:**
 - PHP 8.0+
 - MySQL 5.7+ / MariaDB 10.3+
+- Apache 2.4+ / Nginx 1.18+
+- 2 GB RAM
+- 20 GB storage
+
+**Recommended:**
+- PHP 8.1+
+- MySQL 8.0+ / MariaDB 10.6+
+- Apache 2.4+ / Nginx 1.21+
+- 4 GB RAM
+- 50 GB storage
 
 ---
 
-## 📝 Import Format Excel
+## � Troubleshooting
 
-Format untuk import soal via Excel:
+### Common Issues
 
-| soal | A | B | C | D | E | jawaban |
-|------|---|---|---|---|---|---------|
-| Apa ibu kota Indonesia? | Jakarta | Bandung | Surabaya | Medan | Bali | A |
+#### Database Connection Failed
+**Error:** "Could not connect to database"
+**Solution:**
+- Check MySQL service is running
+- Verify credentials in `config.php`
+- Ensure database exists
+- Check firewall settings
 
-**Supported format:** `.xlsx`, `.csv`
+#### Migration Failed
+**Error:** "Migration failed"
+**Solution:**
+- Check SQL syntax in schema file
+- Ensure user has CREATE TABLE permissions
+- Check for existing tables with same name
+- Review error messages for specific issues
+
+#### API Returns 401 Unauthorized
+**Error:** "Invalid API key"
+**Solution:**
+- Ensure Authorization header is set
+- Check API key in database
+- Verify user role has permission
+- Check middleware.php for auth logic
+
+#### Session Not Persisting
+**Error:** User logged out automatically
+**Solution:**
+- Check session.save_path in php.ini
+- Ensure session directory is writable
+- Check cookie settings
+- Verify session timeout configuration
+
+### Getting Help
+
+1. Check `SYSTEM_OVERVIEW.md` for detailed system documentation
+2. Check `IMPROVEMENT_ROADMAP.md` for feature status
+3. Review error logs in XAMPP/logs/
+4. Check browser console for JavaScript errors
+5. Open GitHub Issue for bugs or questions
 
 ---
 
-## 🔌 API Endpoints
+## 📞 Support & Contact
 
-```
-POST   /api/login.php           → Autentikasi user
-GET    /api/get-soal.php        → Ambil soal ujian
-POST   /api/save-jawaban.php    → Simpan jawaban (auto-save)
-POST   /api/submit.php          → Submit ujian
-GET    /api/hasil.php           → Hasil ujian & pembahasan
-```
-
-Response format: **JSON**
+For issues, questions, or suggestions:
+- GitHub Issues: https://github.com/82080038/bimbel/issues
+- Email: (if available)
+- Documentation: Check `SYSTEM_OVERVIEW.md` and `IMPROVEMENT_ROADMAP.md`
 
 ---
 
-## 🎓 Cocok Untuk
+## 📜 Lisensi
 
-- 👨‍👩‍👧‍👦 Belajar keluarga
-- 🏫 Sekolah & bimbingan belajar (bimbel)
-- 👥 Komunitas & forum belajar
-- 💼 Pelatihan korporat
-- 🎓 Lembaga pendidikan
-- 📚 Penggunaan pribadi
+[MIT License](LICENSE) - Bebas digunakan untuk komersial maupun non-komersial
 
 ---
 
-## 📄 Blueprint Lengkap
+## 👨‍💻 Pengembang
 
-Dokumentasi teknis detail tersedia di section Blueprint di atas. Mencakup:
-- Tabel database lengkap
-- Sistem random & timer
-- Implementasi CAT & OCR
-- Generator soal otomatis
-- Fitur masa depan
+Made with ❤️ by [82080038](https://github.com/82080038)
+
+---
+
+## 📚 Additional Documentation
+
+- `SYSTEM_OVERVIEW.md` - Detailed system architecture and documentation
+- `IMPROVEMENT_ROADMAP.md` - Feature roadmap and implementation status
+- `DEVELOPER_GUIDE.md` - Detailed guide for developers (coming soon)
+- `API_DOCUMENTATION.md` - Complete API reference (coming soon)
 
 ---
 
@@ -290,6 +592,7 @@ git checkout -b feature/nama-fitur
 git commit -am "Add: deskripsi fitur"
 git push origin feature/nama-fitur
 ```
+
 
 ---
 
