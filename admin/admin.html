@@ -11,6 +11,12 @@
             --primary-color: #1e40af;
             --secondary-color: #3b82f6;
         }
+        
+        /* Hidden class for section switching */
+        .hidden {
+            display: none !important;
+        }
+        
         body {
             background: #f8fafc;
             min-height: 100vh;
@@ -21,15 +27,15 @@
             color: white;
         }
         .sidebar .nav-link {
-            color: white;
-            opacity: 0.8;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1rem;
             margin-bottom: 0.5rem;
             border-radius: 8px;
-            padding: 0.8rem 1rem;
+            transition: all 0.3s ease;
         }
         .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background: rgba(255,255,255,0.2);
-            opacity: 1;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
         }
         .card {
             border: none;
@@ -38,15 +44,64 @@
         }
         .stat-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 15px;
             padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .stat-card h3 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: bold;
             color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                width: 250px !important;
+            }
+            .sidebar.show {
+                left: 0;
+            }
+            .col-md-10 {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            .stat-card h3 {
+                font-size: 1.5rem;
+            }
+            .card-body {
+                padding: 1rem;
+            }
+            table {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stat-card h3 {
+                font-size: 1.2rem;
+            }
+            .stat-card p {
+                font-size: 0.8rem;
+            }
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            table {
+                font-size: 0.8rem;
+            }
+            .table-responsive {
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
@@ -98,6 +153,11 @@
 
             <!-- Main Content -->
             <div class="col-md-10 p-4">
+                <!-- Mobile Menu Toggle -->
+                <button class="btn btn-primary d-md-none mb-3" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
+                
                 <!-- Dashboard Section -->
                 <div id="dashboardSection">
                     <h2 class="mb-4">Dashboard</h2>
@@ -858,6 +918,7 @@
             }
             
             fetchCsrfToken();
+            hideAllSections();
             showSection('dashboard');
             
             // Update admin UI
@@ -1267,7 +1328,7 @@
                 }
             }
             
-            bootstrap.Modal.getInstance(document.getElementById('aiGeneratorModal')).hide();
+            safeModalHide('aiGeneratorModal');
             alert(`${generated} soal berhasil digenerate!`);
             loadQuestions(currentPage);
         }
@@ -1446,7 +1507,7 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('questionModal')).hide();
+                    safeModalHide('questionModal');
                     loadQuestions(currentPage);
                     alert('Soal berhasil disimpan');
                 } else {
@@ -1560,6 +1621,28 @@
         // Hide all sections helper
         function hideAllSections() {
             document.querySelectorAll('[id$="Section"]').forEach(el => el.classList.add('hidden'));
+        }
+
+        // Safe modal close helper to fix ARIA-hidden warning
+        function safeModalHide(modalId) {
+            const modalElement = document.getElementById(modalId);
+            if (modalElement) {
+                // Blur any focused element inside the modal before hiding
+                const focusedElement = modalElement.querySelector(':focus');
+                if (focusedElement) {
+                    focusedElement.blur();
+                }
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            }
+        }
+
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('show');
         }
 
         // Load soal statistics
@@ -1714,6 +1797,29 @@
             new bootstrap.Modal(document.getElementById('tipsModal')).show();
         }
 
+        async function editTips(id) {
+            // Fetch tips details
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_tips_tricks&id=${id}`);
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    const t = data.data;
+                    document.getElementById('tipsId').value = t.id;
+                    document.getElementById('tipsKategori').value = t.kategori_id || '';
+                    document.getElementById('tipsTipe').value = t.tipe_tips || 'teknik';
+                    document.getElementById('tipsJudul').value = t.judul || '';
+                    document.getElementById('tipsKonten').value = t.konten || '';
+                    document.getElementById('tipsContoh').value = t.contoh || '';
+                    document.getElementById('tipsPrioritas').value = t.prioritas || 0;
+                    new bootstrap.Modal(document.getElementById('tipsModal')).show();
+                }
+            } catch (error) {
+                console.error('Error loading tips details:', error);
+                alert('Gagal memuat detail tips');
+            }
+        }
+
         async function saveTips() {
             const tipsData = {
                 kategori_id: document.getElementById('tipsKategori').value || null,
@@ -1736,7 +1842,7 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('tipsModal')).hide();
+                    safeModalHide('tipsModal');
                     alert('Tips berhasil disimpan!');
                     loadTipsTricks();
                 } else {
@@ -1914,6 +2020,29 @@
             new bootstrap.Modal(document.getElementById('blueprintModal')).show();
         }
 
+        async function editBlueprint(id) {
+            // Fetch blueprint details
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_blueprints&id=${id}`);
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    const b = data.data;
+                    document.getElementById('blueprintId').value = b.id;
+                    document.getElementById('blueprintPaket').value = b.paket_id || '';
+                    document.getElementById('blueprintKategori').value = b.kategori_id || '';
+                    document.getElementById('blueprintTarget').value = b.target_count || '';
+                    document.getElementById('blueprintMinDifficulty').value = b.min_difficulty || 'sedang';
+                    document.getElementById('blueprintMaxDifficulty').value = b.max_difficulty || 'sedang';
+                    loadPaketOptions();
+                    new bootstrap.Modal(document.getElementById('blueprintModal')).show();
+                }
+            } catch (error) {
+                console.error('Error loading blueprint details:', error);
+                alert('Gagal memuat detail blueprint');
+            }
+        }
+
         async function loadPaketOptions() {
             try {
                 const response = await fetch(`${API_BASE}/soal.php?action=get_paket_tryout`, {
@@ -1957,7 +2086,7 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('blueprintModal')).hide();
+                    safeModalHide('blueprintModal');
                     alert('Blueprint berhasil disimpan!');
                     loadBlueprints();
                 } else {
@@ -2179,7 +2308,7 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('bahanPelajaranModal')).hide();
+                    safeModalHide('bahanPelajaranModal');
                     alert('Bahan pelajaran berhasil disimpan!');
                     loadBahanPelajaran();
                 } else {

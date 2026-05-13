@@ -947,6 +947,262 @@
     <script src="../js/rbac.js"></script>
     <script src="../app.js"></script>
     <script>
+        // Global variables
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let flaggedQuestions = {};
+        let bookmarkedQuestions = {};
+        let isPracticeMode = false;
+        let timerInterval = null;
+        let timeRemaining = 0;
+
+        // DOMContentLoaded handler
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check URL parameters to determine which screen to show
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            
+            if (action === 'start_exam') {
+                mulaiUjian();
+            } else if (action === 'history') {
+                lihatRiwayat();
+            } else {
+                // Show welcome screen by default
+            }
+        });
+
+        // Display current question
+        function displayQuestion() {
+            if (!currentQuestions[currentQuestionIndex]) return;
+            
+            const question = currentQuestions[currentQuestionIndex];
+            const questionContainer = document.querySelector('.question-card');
+            
+            questionContainer.innerHTML = `
+                <div class="question-number">Soal ${currentQuestionIndex + 1}/${currentQuestions.length}</div>
+                <span class="category-badge category-${question.kategori_id}">${getCategoryName(question.kategori_id)}</span>
+                <div class="question-text">${question.pertanyaan}</div>
+                <div class="options-container">
+                    <label class="option-label">
+                        <input type="radio" name="answer" value="A"> ${question.opsi_a}
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="answer" value="B"> ${question.opsi_b}
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="answer" value="C"> ${question.opsi_c}
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="answer" value="D"> ${question.opsi_d}
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="answer" value="E"> ${question.opsi_e}
+                    </label>
+                </div>
+            `;
+            
+            updateFlagButtons();
+            updateBookmarkButton();
+            updateQuestionNav();
+            
+            // Load expert assistant for current question
+            if (typeof expertAssistant !== 'undefined') {
+                expertAssistant.showForQuestion(question.id, question.kategori_id);
+            }
+        }
+
+        // Get category name
+        function getCategoryName(kategoriId) {
+            const categories = {
+                1: 'TWK',
+                2: 'TIU',
+                3: 'TKP',
+                4: 'TPA',
+                5: 'PSIKOLOGIS'
+            };
+            return categories[kategoriId] || 'UMUM';
+        }
+
+        // Start timer
+        function startTimer() {
+            timeRemaining = 60 * 60; // 60 minutes in seconds
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    selesaiUjian();
+                }
+            }, 1000);
+        }
+
+        // Update timer display
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const timerDisplay = document.querySelector('.timer-display');
+            if (timerDisplay) {
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Collect answers
+        function collectAnswers() {
+            const answers = {};
+            currentQuestions.forEach((question, index) => {
+                const selectedAnswer = document.querySelector(`input[name="answer"]:checked`);
+                answers[question.id] = selectedAnswer ? selectedAnswer.value : null;
+            });
+            return answers;
+        }
+
+        // Show result screen
+        function showResultScreen(resultData) {
+            document.getElementById('examScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+            
+            // Display results
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.innerHTML = `
+                <div class="result-summary">
+                    <h2>Hasil Ujian</h2>
+                    <div class="score-display">
+                        <div class="score-circle">
+                            <span class="score-value">${resultData.nilai_total || 0}</span>
+                            <span class="score-label">Nilai Total</span>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span class="score-label">TWK:</span>
+                            <span class="score-value">${resultData.nilai_twk || 0}</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">TIU:</span>
+                            <span class="score-value">${resultData.nilai_tiu || 0}</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">TKP:</span>
+                            <span class="score-value">${resultData.nilai_tkp || 0}</span>
+                        </div>
+                    </div>
+                    <div class="result-status">
+                        <span class="badge ${resultData.status_lulus === 'Lulus' ? 'bg-success' : 'bg-warning'}">
+                            ${resultData.status_lulus || 'Belum Dinilai'}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display tips
+        function displayTips(tipsData) {
+            const tipsContainer = document.getElementById('tipsContainer');
+            tipsContainer.innerHTML = tipsData.map(tip => `
+                <div class="tip-item">
+                    <div class="tip-header">
+                        <h4>${tip.judul}</h4>
+                        <span class="badge bg-info">${tip.tipe_tips}</span>
+                    </div>
+                    <div class="tip-content">${tip.konten}</div>
+                    ${tip.contoh ? `<div class="tip-example"><strong>Contoh:</strong> ${tip.contoh}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Display history
+        function displayHistory(historyData) {
+            const historyContainer = document.getElementById('historyContainer');
+            historyContainer.innerHTML = historyData.map(exam => `
+                <div class="history-item">
+                    <div class="history-header">
+                        <h4>${getCategoryName(exam.kategori)}</h4>
+                        <span class="history-date">${new Date(exam.tanggal_ujian).toLocaleDateString('id-ID')}</span>
+                    </div>
+                    <div class="history-details">
+                        <div class="history-detail">
+                            <span>Nilai:</span>
+                            <span class="badge ${exam.status_lulus === 'Lulus' ? 'bg-success' : 'bg-warning'}">${exam.nilai_total || 0}</span>
+                        </div>
+                        <div class="history-detail">
+                            <span>Status:</span>
+                            <span>${exam.status_lulus || 'Belum Dinilai'}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update flag buttons
+        function updateFlagButtons() {
+            if (!currentQuestions[currentQuestionIndex]) return;
+            
+            const questionId = currentQuestions[currentQuestionIndex].id;
+            const flags = flaggedQuestions[questionId] || [];
+            
+            ['ragu', 'skip', 'review'].forEach(flagType => {
+                const btn = document.getElementById(`flagButton_${flagType}`);
+                if (btn) {
+                    if (flags.includes(flagType)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // Update bookmark button
+        function updateBookmarkButton() {
+            if (!currentQuestions[currentQuestionIndex]) return;
+            
+            const questionId = currentQuestions[currentQuestionIndex].id;
+            const bookmarkBtn = document.getElementById('bookmarkBtn');
+            
+            if (bookmarkBtn) {
+                if (bookmarkedQuestions[questionId]) {
+                    bookmarkBtn.classList.add('btn-primary');
+                    bookmarkBtn.classList.remove('btn-outline-primary');
+                } else {
+                    bookmarkBtn.classList.remove('btn-primary');
+                    bookmarkBtn.classList.add('btn-outline-primary');
+                }
+            }
+        }
+
+        // Update question navigation
+        function updateQuestionNav() {
+            const questionNav = document.getElementById('questionNav');
+            if (!questionNav) return;
+            
+            questionNav.innerHTML = currentQuestions.map((question, index) => {
+                let classes = 'nav-item';
+                if (index === currentQuestionIndex) classes += ' current';
+                if (flaggedQuestions[question.id]?.length > 0) classes += ' doubtful';
+                if (bookmarkedQuestions[question.id]) classes += ' bookmarked';
+                
+                return `<button class="${classes}" onclick="goToQuestion(${index})">${index + 1}</button>`;
+            }).join('');
+        }
+
+        // Go to specific question
+        function goToQuestion(index) {
+            if (index >= 0 && index < currentQuestions.length) {
+                currentQuestionIndex = index;
+                displayQuestion();
+            }
+        }
+
+        // Show welcome screen
+        function showExamScreen() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('historyScreen').classList.add('hidden');
+            document.getElementById('examScreen').classList.remove('hidden');
+        }
+
         // Role-based UI updates on page load
         document.addEventListener('DOMContentLoaded', () => {
             const userRole = localStorage.getItem('userRole') || 'guest';
@@ -1017,6 +1273,475 @@
             document.getElementById('historyScreen').classList.add('hidden');
             document.getElementById('welcomeScreen').classList.remove('hidden');
         }
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('darkModeIcon');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        // Start exam
+        async function mulaiUjian() {
+            try {
+                const response = await fetch('../api/soal.php?action=get_soal&limit=20', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    currentQuestions = data.data;
+                    currentQuestionIndex = 0;
+                    showExamScreen();
+                    displayQuestion();
+                    startTimer();
+                } else {
+                    alert('Gagal memuat soal');
+                }
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                alert('Terjadi kesalahan saat memuat soal');
+            }
+        }
+
+        // Start practice mode
+        async function mulaiLatihan() {
+            try {
+                const response = await fetch('../api/soal.php?action=get_soal&limit=10', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    currentQuestions = data.data;
+                    currentQuestionIndex = 0;
+                    isPracticeMode = true;
+                    showExamScreen();
+                    displayQuestion();
+                } else {
+                    alert('Gagal memuat soal latihan');
+                }
+            } catch (error) {
+                console.error('Error loading practice questions:', error);
+                alert('Terjadi kesalahan saat memuat soal latihan');
+            }
+        }
+
+        // View tips
+        async function lihatTips() {
+            try {
+                const response = await fetch('../api/soal.php?action=get_tips_tricks', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    // Show tips screen
+                    document.getElementById('welcomeScreen').classList.add('hidden');
+                    document.getElementById('tipsScreen').classList.remove('hidden');
+                    displayTips(data.data);
+                } else {
+                    alert('Gagal memuat tips');
+                }
+            } catch (error) {
+                console.error('Error loading tips:', error);
+                alert('Terjadi kesalahan saat memuat tips');
+            }
+        }
+
+        // View history
+        async function lihatRiwayat() {
+            try {
+                const response = await fetch('../api/soal.php?action=get_riwayat_ujian', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showHistoryScreen();
+                    displayHistory(data.data);
+                } else {
+                    alert('Gagal memuat riwayat ujian');
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+                alert('Terjadi kesalahan saat memuat riwayat');
+            }
+        }
+
+        // Flag question
+        function flagQuestion(flagType) {
+            if (!currentQuestions[currentQuestionIndex]) return;
+            
+            const questionId = currentQuestions[currentQuestionIndex].id;
+            if (!flaggedQuestions[questionId]) {
+                flaggedQuestions[questionId] = [];
+            }
+            
+            const index = flaggedQuestions[questionId].indexOf(flagType);
+            if (index > -1) {
+                flaggedQuestions[questionId].splice(index, 1);
+            } else {
+                flaggedQuestions[questionId].push(flagType);
+            }
+            
+            updateFlagButtons();
+        }
+
+        // Toggle bookmark
+        function toggleBookmark() {
+            if (!currentQuestions[currentQuestionIndex]) return;
+            
+            const questionId = currentQuestions[currentQuestionIndex].id;
+            bookmarkedQuestions[questionId] = !bookmarkedQuestions[questionId];
+            
+            const bookmarkBtn = document.getElementById('bookmarkBtn');
+            if (bookmarkedQuestions[questionId]) {
+                bookmarkBtn.classList.add('btn-primary');
+                bookmarkBtn.classList.remove('btn-outline-primary');
+            } else {
+                bookmarkBtn.classList.remove('btn-primary');
+                bookmarkBtn.classList.add('btn-outline-primary');
+            }
+        }
+
+        // Previous question
+        function sebelumnya() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+            }
+        }
+
+        // Next question
+        function selanjutnya() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            }
+        }
+
+        // Complete exam
+        async function selesaiUjian() {
+            if (!confirm('Apakah Anda yakin ingin menyelesaikan ujian?')) return;
+            
+            try {
+                const answers = collectAnswers();
+                const response = await fetch('../api/soal.php?action=submit_ujian', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({
+                        answers: answers,
+                        is_practice: isPracticeMode
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showResultScreen(data.data);
+                } else {
+                    alert('Gagal menyelesaikan ujian');
+                }
+            } catch (error) {
+                console.error('Error submitting exam:', error);
+                alert('Terjadi kesalahan saat menyelesaikan ujian');
+            }
+        }
+
+        // View explanation
+        async function lihatPembahasan() {
+            try {
+                const response = await fetch('../api/soal.php?action=get_soal', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('resultScreen').classList.add('hidden');
+                    document.getElementById('discussionScreen').classList.remove('hidden');
+                    displayPembahasan(data.data);
+                } else {
+                    alert('Gagal memuat pembahasan');
+                }
+            } catch (error) {
+                console.error('Error loading pembahasan:', error);
+                alert('Terjadi kesalahan saat memuat pembahasan');
+            }
+        }
+
+        // Display pembahasan
+        function displayPembahasan(questions) {
+            const pembahasanContainer = document.getElementById('pembahasanContainer');
+            pembahasanContainer.innerHTML = questions.map((question, index) => `
+                <div class="pembahasan-item">
+                    <div class="pembahasan-header">
+                        <h5>Soal ${index + 1}</h5>
+                        <span class="badge bg-info">${getCategoryName(question.kategori_id)}</span>
+                    </div>
+                    <div class="pembahasan-question">${question.pertanyaan}</div>
+                    <div class="pembahasan-answer">
+                        <strong>Jawaban Benar:</strong> ${question.jawaban_benar}
+                    </div>
+                    <div class="pembahasan-explanation">
+                        <strong>Pembahasan:</strong>
+                        ${question.pemabahasan || 'Belum ada pembahasan'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // View learning recommendations
+        async function lihatRekomendasiBelajar() {
+            try {
+                // Fetch weakness data
+                const response = await fetch('../api/soal.php?action=analyze_weakness', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const weaknessData = await response.json();
+                
+                // Fetch all learning materials (without soal_id filter)
+                const materialsResponse = await fetch('../api/soal.php?action=get_all_bahan_pelajaran', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const materialsData = await materialsResponse.json();
+                
+                if (weaknessData.success && materialsData.success) {
+                    document.getElementById('resultScreen').classList.add('hidden');
+                    document.getElementById('learningScreen').classList.remove('hidden');
+                    displayRekomendasi(weaknessData.data, materialsData.data);
+                } else {
+                    alert('Gagal memuat rekomendasi belajar');
+                }
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+                alert('Terjadi kesalahan saat memuat rekomendasi');
+            }
+        }
+
+        // Display learning recommendations
+        function displayRekomendasi(weaknessData, materialsData) {
+            const recommendationsContainer = document.getElementById('learningRecommendations');
+            
+            // Filter materials based on weak categories
+            const weakCategories = weaknessData.filter(w => w.persen_benar < 70).map(w => w.nama_kategori);
+            const relevantMaterials = materialsData.filter(m => 
+                weakCategories.includes(m.kategori) || !m.kategori
+            );
+            
+            if (relevantMaterials.length === 0) {
+                recommendationsContainer.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-check-circle fa-3x mb-3"></i>
+                        <p>Tidak ada rekomendasi belajar saat ini</p>
+                        <small>Performa Anda sudah baik!</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            recommendationsContainer.innerHTML = relevantMaterials.map(material => {
+                // Construct file path based on the uploads folder structure
+                const filePath = material.file_path || `../uploads/bahan_pelajaran/text/${material.file_name}`;
+                
+                return `
+                <div class="recommendation-item">
+                    <div class="recommendation-header">
+                        <h5>${material.judul || material.nama}</h5>
+                        <span class="badge bg-primary">${material.kategori || 'Umum'}</span>
+                    </div>
+                    <div class="recommendation-content">
+                        <p>${material.deskripsi || material.konten || 'Bahan pelajaran untuk meningkatkan pemahaman'}</p>
+                        <a href="${filePath}" target="_blank" class="btn btn-primary-custom btn-sm">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        // Retry exam
+        function ulangUjian() {
+            kembaliKeWelcome();
+        }
+
+        // Export PDF
+        async function exportPDF() {
+            try {
+                const response = await fetch('../api/soal.php?action=get_riwayat_ujian&limit=1', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const examData = data.data[0];
+                    
+                    // Create PDF content
+                    const pdfContent = `
+                        HASIL UJIAN - SEKOLAH KEDINASAN
+                        =================================
+                        
+                        Nama Peserta: ${localStorage.getItem('username') || 'User'}
+                        Tanggal Ujian: ${new Date(examData.tanggal_ujian).toLocaleDateString('id-ID')}
+                        
+                        HASIL UJIAN
+                        -----------
+                        Nilai Total: ${examData.nilai_total || 0}
+                        Status: ${examData.status_lulus || 'Belum Dinilai'}
+                        
+                        DETAIL NILAI
+                        ------------
+                        TWK: ${examData.nilai_twk || 0}
+                        TIU: ${examData.nilai_tiu || 0}
+                        TKP: ${examData.nilai_tkp || 0}
+                        
+                        Keterangan:
+                        - Lulus jika nilai TWK >= 65, TIU >= 80, TKP >= 166
+                        - Hasil ini sah dan dapat digunakan sebagai referensi
+                    `;
+                    
+                    // Create download link
+                    const blob = new Blob([pdfContent], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `hasil_ujian_${new Date().toISOString().split('T')[0]}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    alert('Hasil ujian berhasil diexport!');
+                } else {
+                    alert('Tidak ada data ujian untuk diexport');
+                }
+            } catch (error) {
+                console.error('Error exporting PDF:', error);
+                alert('Terjadi kesalahan saat export PDF');
+            }
+        }
+
+        // Download certificate
+        async function downloadCertificate() {
+            try {
+                const response = await fetch('../api/soal.php?action=get_riwayat_ujian&limit=1', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const examData = data.data[0];
+                    
+                    if (examData.status_lulus !== 'Lulus') {
+                        alert('Sertifikat hanya tersedia untuk peserta yang lulus ujian');
+                        return;
+                    }
+                    
+                    // Check if certificate already exists
+                    const certResponse = await fetch(`../api/soal.php?action=get_sertifikat&hasil_id=${examData.id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        }
+                    });
+                    const certData = await certResponse.json();
+                    
+                    if (certData.success && certData.data) {
+                        // Certificate exists, download it
+                        const certificate = certData.data;
+                        
+                        // Create certificate content
+                        const certContent = `
+                            ╔══════════════════════════════════════════════════════════════╗
+                            ║              SERTIFIKAT KELULUSAN                      ║
+                            ║           UJIAN SEKOLAH KEDINASAN                     ║
+                            ╠══════════════════════════════════════════════════════════════╣
+                            ║                                                           ║
+                            ║  Diberikan kepada:                                       ║
+                            ║  ${localStorage.getItem('username') || 'Peserta'}           ║
+                            ║                                                           ║
+                            ║  Atas kelulusan dalam ujian Sekolah Kedinasan           ║
+                            ║                                                           ║
+                            ║  Nilai Total: ${examData.nilai_total || 0}                       ║
+                            ║  Tanggal: ${new Date(examData.tanggal_ujian).toLocaleDateString('id-ID')}              ║
+                            ║                                                           ║
+                            ║  Kode Verifikasi: ${certificate.verification_code || 'N/A'}                ║
+                            ║                                                           ║
+                            ╠══════════════════════════════════════════════════════════════╣
+                            ║  Sertifikat ini sah dan dapat digunakan sebagai bukti   ║
+                            ║  kelulusan peserta ujian Sekolah Kedinasan             ║
+                            ╚══════════════════════════════════════════════════════════════╝
+                        `;
+                        
+                        // Create download link
+                        const blob = new Blob([certContent], { type: 'text/plain' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `sertifikat_${new Date().toISOString().split('T')[0]}.txt`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                        
+                        alert('Sertifikat berhasil didownload!');
+                    } else {
+                        // Generate new certificate
+                        const generateResponse = await fetch('../api/soal.php?action=generate_sertifikat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                            },
+                            body: JSON.stringify({
+                                hasil_id: examData.id,
+                                nama_peserta: localStorage.getItem('username') || 'Peserta'
+                            })
+                        });
+                        const generateData = await generateResponse.json();
+                        
+                        if (generateData.success) {
+                            alert('Sertifikat berhasil dibuat! Silakan download kembali.');
+                        } else {
+                            alert('Gagal membuat sertifikat');
+                        }
+                    }
+                } else {
+                    alert('Tidak ada data ujian untuk sertifikat');
+                }
+            } catch (error) {
+                console.error('Error downloading certificate:', error);
+                alert('Terjadi kesalahan saat download sertifikat');
+            }
+        }
+
+        // Return to result screen
+        function kembaliKeHasil() {
+            document.getElementById('pembahasanScreen').classList.add('hidden');
+            document.getElementById('rekomendasiScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+        }
     </script>
+    <script src="expert_assistant.js"></script>
 </body>
 </html>

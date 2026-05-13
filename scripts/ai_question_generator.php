@@ -85,14 +85,16 @@ class AIQuestionGenerator {
         
         $new_question = [
             'topic_id' => $topic['id'],
+            'kategori_id' => $template['kategori_id'],
             'pertanyaan' => $this->modifyQuestion($template['pertanyaan'], $topic),
-            'jawaban_a' => $template['jawaban_a'] ?? '',
-            'jawaban_b' => $template['jawaban_b'] ?? '',
-            'jawaban_c' => $template['jawaban_c'] ?? '',
-            'jawaban_d' => $template['jawaban_d'] ?? '',
-            'jawaban_e' => $template['jawaban_e'] ?? '',
+            'opsi_a' => $template['opsi_a'] ?? '',
+            'opsi_b' => $template['opsi_b'] ?? '',
+            'opsi_c' => $template['opsi_c'] ?? '',
+            'opsi_d' => $template['opsi_d'] ?? '',
+            'opsi_e' => $template['opsi_e'] ?? '',
             'jawaban_benar' => $template['jawaban_benar'] ?? 'A',
             'pembahasan' => $this->generatePembahasan($template['pembahasan'], $topic),
+            'expert_tips' => $this->getExpertTips($template['kategori_id']),
             'difficulty' => $difficulty
         ];
         
@@ -133,6 +135,37 @@ class AIQuestionGenerator {
         ];
         
         return $contexts[$topic['topic_name']] ?? $contexts['default'];
+    }
+    
+    /**
+     * Get expert tips for a category
+     */
+    private function getExpertTips($kategori_id) {
+        $kategori_map = [1 => 'TWK', 2 => 'TIU', 3 => 'TKP', 4 => 'TPA', 5 => 'PSIKOLOGIS'];
+        $sub_kategori = $kategori_map[$kategori_id] ?? '';
+        
+        $sql = "SELECT judul, konten, jenis_pengetahuan 
+                FROM expert_knowledge 
+                WHERE sub_kategori = ? AND is_active = 1 
+                ORDER BY prioritas DESC 
+                LIMIT 3";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $sub_kategori);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $tips = [];
+        while ($row = $result->fetch_assoc()) {
+            $tips[] = [
+                'judul' => $row['judul'],
+                'konten' => $row['konten'],
+                'jenis' => $row['jenis_pengetahuan']
+            ];
+        }
+        
+        $stmt->close();
+        return $tips;
     }
     
     /**
@@ -181,19 +214,21 @@ class AIQuestionGenerator {
      */
     private function saveGeneratedQuestion($session_id, $question) {
         $topic_id = $question['topic_id'];
+        $kategori_id = $question['kategori_id'] ?? 1;
         $pertanyaan = $this->conn->real_escape_string($question['pertanyaan']);
-        $jawaban_a = $this->conn->real_escape_string($question['jawaban_a'] ?? '');
-        $jawaban_b = $this->conn->real_escape_string($question['jawaban_b'] ?? '');
-        $jawaban_c = $this->conn->real_escape_string($question['jawaban_c'] ?? '');
-        $jawaban_d = $this->conn->real_escape_string($question['jawaban_d'] ?? '');
-        $jawaban_e = $this->conn->real_escape_string($question['jawaban_e'] ?? '');
+        $opsi_a = $this->conn->real_escape_string($question['opsi_a'] ?? '');
+        $opsi_b = $this->conn->real_escape_string($question['opsi_b'] ?? '');
+        $opsi_c = $this->conn->real_escape_string($question['opsi_c'] ?? '');
+        $opsi_d = $this->conn->real_escape_string($question['opsi_d'] ?? '');
+        $opsi_e = $this->conn->real_escape_string($question['opsi_e'] ?? '');
         $jawaban_benar = $this->conn->real_escape_string($question['jawaban_benar'] ?? 'A');
         $pembahasan = $this->conn->real_escape_string($question['pembahasan'] ?? '');
+        $expert_tips = isset($question['expert_tips']) ? json_encode($question['expert_tips']) : NULL;
         $difficulty = $this->conn->real_escape_string($question['difficulty'] ?? 'sedang');
         
         $sql = "INSERT INTO ai_generated_questions 
-                (tryout_session_id, topic_id, pertanyaan, jawaban_a, jawaban_b, jawaban_c, jawaban_d, jawaban_e, jawaban_benar, pembahasan, difficulty)
-                VALUES ($session_id, $topic_id, '$pertanyaan', '$jawaban_a', '$jawaban_b', '$jawaban_c', '$jawaban_d', '$jawaban_e', '$jawaban_benar', '$pembahasan', '$difficulty')";
+                (tryout_session_id, topic_id, kategori_id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, pembahasan, expert_tips, difficulty)
+                VALUES ($session_id, $topic_id, $kategori_id, '$pertanyaan', '$opsi_a', '$opsi_b', '$opsi_c', '$opsi_d', '$opsi_e', '$jawaban_benar', '$pembahasan', " . ($expert_tips ? "'$expert_tips'" : "NULL") . ", '$difficulty')";
         
         return $this->conn->query($sql);
     }
@@ -322,6 +357,149 @@ class AIQuestionGenerator {
         }
         
         return $history;
+    }
+    
+    /**
+     * Generate question for admin (save to main soal table)
+     */
+    public function generateQuestionForAdmin($kategori_id, $num_questions = 1, $difficulty = 'sedang', $created_by = null) {
+        $kategori_map = [1 => 'TWK', 2 => 'TIU', 3 => 'TKP', 4 => 'TPA', 5 => 'PSIKOLOGIS'];
+        $kategori_nama = $kategori_map[$kategori_id] ?? 'UMUM';
+        
+        // Get template questions from main soal table
+        $sql = "SELECT * FROM soal WHERE kategori_id = ? ORDER BY RAND() LIMIT ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $kategori_id, $num_questions);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $generated_questions = [];
+        $template_questions = [];
+        
+        while ($row = $result->fetch_assoc()) {
+            $template_questions[] = $row;
+        }
+        
+        $stmt->close();
+        
+        // Generate new questions based on templates
+        for ($i = 0; $i < $num_questions; $i++) {
+            if (!empty($template_questions)) {
+                $template = $template_questions[array_rand($template_questions)];
+                $new_question = $this->generateFromTemplateForAdmin($template, $difficulty, $created_by);
+                
+                // Save to main soal table
+                $question_id = $this->saveQuestionToSoalTable($new_question);
+                
+                if ($question_id) {
+                    $new_question['id'] = $question_id;
+                    $generated_questions[] = $new_question;
+                }
+            }
+        }
+        
+        return $generated_questions;
+    }
+    
+    /**
+     * Generate question from template for admin
+     */
+    private function generateFromTemplateForAdmin($template, $difficulty, $created_by) {
+        // Modify question to create variation
+        $pertanyaan = $this->varyQuestion($template['pertanyaan']);
+        
+        $new_question = [
+            'kategori_id' => $template['kategori_id'],
+            'pertanyaan' => $pertanyaan,
+            'opsi_a' => $template['opsi_a'],
+            'opsi_b' => $template['opsi_b'],
+            'opsi_c' => $template['opsi_c'],
+            'opsi_d' => $template['opsi_d'],
+            'opsi_e' => $template['opsi_e'],
+            'jawaban_benar' => $template['jawaban_benar'],
+            'pembahasan' => $template['pembahasan'],
+            'created_by' => $created_by,
+            'expert_tips' => $this->getExpertTips($template['kategori_id'])
+        ];
+        
+        return $new_question;
+    }
+    
+    /**
+     * Vary question text to create variation
+     */
+    private function varyQuestion($original_question) {
+        // Simple variation - in real implementation use AI
+        $variations = [
+            'Jelaskan' => 'Terangkan',
+            'Apa' => 'Bagaimana',
+            'Mengapa' => 'Kenapa',
+            'Siapa' => 'Tentang siapa',
+            'Kapan' => 'Pada waktu kapan'
+        ];
+        
+        $varied = $original_question;
+        foreach ($variations as $from => $to) {
+            if (strpos($varied, $from) === 0) {
+                $varied = str_replace($from, $to, $varied, 1);
+                break;
+            }
+        }
+        
+        return $varied;
+    }
+    
+    /**
+     * Save question to main soal table
+     */
+    private function saveQuestionToSoalTable($question) {
+        $kategori_id = $question['kategori_id'];
+        $pertanyaan = $this->conn->real_escape_string($question['pertanyaan']);
+        $opsi_a = $this->conn->real_escape_string($question['opsi_a']);
+        $opsi_b = $this->conn->real_escape_string($question['opsi_b']);
+        $opsi_c = $this->conn->real_escape_string($question['opsi_c']);
+        $opsi_d = $this->conn->real_escape_string($question['opsi_d']);
+        $opsi_e = $this->conn->real_escape_string($question['opsi_e']);
+        $jawaban_benar = $this->conn->real_escape_string($question['jawaban_benar']);
+        $pembahasan = $this->conn->real_escape_string($question['pembahasan']);
+        $created_by = $question['created_by'] ?? null;
+        
+        $sql = "INSERT INTO soal 
+                (kategori_id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, pembahasan, created_by) 
+                VALUES ($kategori_id, '$pertanyaan', '$opsi_a', '$opsi_b', '$opsi_c', '$opsi_d', '$opsi_e', '$jawaban_benar', '$pembahasan', " . ($created_by ? $created_by : "NULL") . ")";
+        
+        if ($this->conn->query($sql)) {
+            return $this->conn->insert_id;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Generate practice question for participant (not saved to database)
+     */
+    public function generatePracticeQuestion($kategori_id, $difficulty = 'sedang') {
+        $kategori_map = [1 => 'TWK', 2 => 'TIU', 3 => 'TKP', 4 => 'TPA', 5 => 'PSIKOLOGIS'];
+        $kategori_nama = $kategori_map[$kategori_id] ?? 'UMUM';
+        
+        // Get random question from soal table as template
+        $sql = "SELECT * FROM soal WHERE kategori_id = ? ORDER BY RAND() LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $kategori_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($template = $result->fetch_assoc()) {
+            $practice_question = $this->generateFromTemplateForAdmin($template, $difficulty, null);
+            $practice_question['expert_tips'] = $this->getExpertTips($kategori_id);
+            $practice_question['template_id'] = $template['id'];
+            
+            $stmt->close();
+            return $practice_question;
+        }
+        
+        $stmt->close();
+        return null;
     }
 }
 

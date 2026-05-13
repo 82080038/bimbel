@@ -595,29 +595,7 @@
             <div class="left-column">
                 <!-- Last Exam Info -->
                 <div class="exam-info-card" id="lastExamCard">
-                    <div class="exam-info-header">
-                        <div>
-                            <h4 style="margin: 0; font-size: 1.1rem;">Ujian Terakhir</h4>
-                            <p style="margin: 0.25rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">Paket TWK - Tes Wawasan Kebangsaan</p>
-                        </div>
-                        <div class="exam-date">12 Mei 2026</div>
-                    </div>
-                    <div class="exam-score" id="lastExamScore">87.5</div>
-                    <div style="font-size: 0.9rem; opacity: 0.9;">Skor Tertinggi Anda!</div>
-                    <div class="exam-details">
-                        <div class="exam-detail-item">
-                            <div class="exam-detail-value">25/30</div>
-                            <div class="exam-detail-label">Jawaban Benar</div>
-                        </div>
-                        <div class="exam-detail-item">
-                            <div class="exam-detail-value">83%</div>
-                            <div class="exam-detail-label">Akurasi</div>
-                        </div>
-                        <div class="exam-detail-item">
-                            <div class="exam-detail-value">45m</div>
-                            <div class="exam-detail-label">Waktu</div>
-                        </div>
-                    </div>
+                    <!-- Last exam data will be loaded dynamically -->
                 </div>
 
                 <!-- Progress Chart -->
@@ -645,29 +623,10 @@
                             <i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>
                             Analisis Kelemahan
                         </h5>
-                        <a href="#" style="font-size: 0.9rem;">Lihat Detail</a>
+                        <a href="ujian.html?action=history" style="font-size: 0.9rem;">Lihat Detail</a>
                     </div>
                     <div id="weaknessList">
-                        <div class="weakness-item">
-                            <div class="weakness-icon">
-                                <i class="fas fa-brain"></i>
-                            </div>
-                            <div class="weakness-content">
-                                <div class="weakness-title">TWK - Sejarah Indonesia</div>
-                                <div class="weakness-desc">Akurasi 65%, perlu peningkatan di topik sejarah kemerdekaan</div>
-                            </div>
-                            <a href="#" class="weakness-action">Pelajari</a>
-                        </div>
-                        <div class="weakness-item" style="border-left-color: var(--warning-color);">
-                            <div class="weakness-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning-color);">
-                                <i class="fas fa-calculator"></i>
-                            </div>
-                            <div class="weakness-content">
-                                <div class="weakness-title">TIU - Logika Matematika</div>
-                                <div class="weakness-desc">Akurasi 70%, latihan lebih banyak soal logika</div>
-                            </div>
-                            <a href="#" class="weakness-action">Pelajari</a>
-                        </div>
+                        <!-- Weakness data will be loaded dynamically -->
                     </div>
                 </div>
             </div>
@@ -714,45 +673,10 @@
                             <i class="fas fa-book" style="color: var(--info-color);"></i>
                             Bahan Ajar
                         </h5>
-                        <a href="#" style="font-size: 0.9rem;">Lihat Semua</a>
+                        <a href="#" onclick="alert('Fitur bahan ajar lengkap akan segera tersedia')" style="font-size: 0.9rem;">Lihat Semua</a>
                     </div>
                     <div id="materialsList">
-                        <div class="material-item">
-                            <div class="material-icon pdf">
-                                <i class="fas fa-file-pdf"></i>
-                            </div>
-                            <div class="material-content">
-                                <div class="material-title">Modul TWK Lengkap</div>
-                                <div class="material-meta">
-                                    <span><i class="fas fa-file-alt"></i> 45 halaman</span>
-                                    <span><i class="fas fa-download"></i> 2.5k unduhan</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="material-item">
-                            <div class="material-icon video">
-                                <i class="fas fa-video"></i>
-                            </div>
-                            <div class="material-content">
-                                <div class="material-title">Video Tutorial TIU</div>
-                                <div class="material-meta">
-                                    <span><i class="fas fa-clock"></i> 2 jam 30 menit</span>
-                                    <span><i class="fas fa-eye"></i> 1.2k views</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="material-item">
-                            <div class="material-icon doc">
-                                <i class="fas fa-file-word"></i>
-                            </div>
-                            <div class="material-content">
-                                <div class="material-title">Bank Soal TKP 2024</div>
-                                <div class="material-meta">
-                                    <span><i class="fas fa-list"></i> 100 soal</span>
-                                    <span><i class="fas fa-star"></i> 4.8 rating</span>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Learning materials will be loaded dynamically -->
                     </div>
                 </div>
 
@@ -765,27 +689,7 @@
                         </h5>
                     </div>
                     <div class="timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-title">Selesai Ujian TWK</div>
-                                <div class="timeline-date">12 Mei 2026, 14:30</div>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-dot" style="background: var(--success-color); box-shadow: 0 0 0 3px var(--success-color);"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-title">Belajar Materi Pancasila</div>
-                                <div class="timeline-date">11 Mei 2026, 20:15</div>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-dot" style="background: var(--warning-color); box-shadow: 0 0 0 3px var(--warning-color);"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-title">Mulai Ujian Latihan</div>
-                                <div class="timeline-date">10 Mei 2026, 09:00</div>
-                            </div>
-                        </div>
+                        <!-- Activity timeline will be loaded dynamically -->
                     </div>
                 </div>
             </div>
@@ -918,19 +822,270 @@
                     }
                 }
 
+                // Fetch learning materials
+                const materialsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_bahan_pelajaran'), {
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (materialsResponse.ok) {
+                    const materialsData = await materialsResponse.json();
+                    if (materialsData.success && materialsData.data) {
+                        updateLearningMaterials(materialsData.data);
+                    } else {
+                        console.warn('No learning materials available');
+                    }
+                }
+
+                // Fetch activity timeline
+                const activityResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian&limit=5'), {
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (activityResponse.ok) {
+                    const activityData = await activityResponse.json();
+                    if (activityData.success && activityData.data) {
+                        updateActivityTimeline(activityData.data);
+                    } else {
+                        console.warn('No activity data available');
+                    }
+                }
+
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
             }
         }
 
         function updateLastExamCard(examData) {
-            // Update with real data from API
-            // This is a placeholder implementation
+            const lastExamCard = document.getElementById('lastExamCard');
+            if (!lastExamCard) return;
+            
+            if (!examData) {
+                lastExamCard.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-file-alt fa-3x mb-3"></i>
+                        <p>Belum ada data ujian</p>
+                        <button class="btn btn-primary-custom mt-2" onclick="startNewExam()">
+                            Mulai Ujian Sekarang
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            const kategoriNames = {
+                'TWK': 'Tes Wawasan Kebangsaan',
+                'TIU': 'Tes Intelegensia Umum',
+                'TKP': 'Tes Karakteristik Pribadi',
+                'TPA': 'Tes Potensi Akademik',
+                'PSIKOLOGIS': 'Tes Psikologis'
+            };
+            
+            const statusClass = examData.status_lulus === 'Lulus' ? 'success' : 'warning';
+            const statusIcon = examData.status_lulus === 'Lulus' ? 'fa-check-circle' : 'fa-clock';
+            
+            lastExamCard.innerHTML = `
+                <div class="last-exam-info">
+                    <div class="exam-category">
+                        <span class="badge bg-primary">${kategoriNames[examData.kategori] || 'Ujian Umum'}</span>
+                    </div>
+                    <div class="exam-score">
+                        <h3>${examData.nilai_total || 0}</h3>
+                        <span class="score-label">Nilai Total</span>
+                    </div>
+                    <div class="exam-details">
+                        <div class="detail-item">
+                            <span class="detail-label">TWK:</span>
+                            <span class="detail-value">${examData.nilai_twk || 0}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">TIU:</span>
+                            <span class="detail-value">${examData.nilai_tiu || 0}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">TKP:</span>
+                            <span class="detail-value">${examData.nilai_tkp || 0}</span>
+                        </div>
+                    </div>
+                    <div class="exam-status">
+                        <i class="fas ${statusIcon} text-${statusClass}"></i>
+                        <span class="status-text text-${statusClass}">${examData.status_lulus || 'Belum Dinilai'}</span>
+                    </div>
+                    <div class="exam-date">
+                        <small class="text-muted">${new Date(examData.tanggal_ujian).toLocaleDateString('id-ID', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}</small>
+                    </div>
+                </div>
+            `;
         }
 
         function updateWeaknessAnalysis(weaknessData) {
-            // Update weakness list with real data
-            // This is a placeholder implementation
+            const weaknessList = document.getElementById('weaknessList');
+            if (!weaknessList) return;
+            
+            if (!weaknessData || weaknessData.length === 0) {
+                weaknessList.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+                        <p>Belum ada data kelemahan</p>
+                        <small>Ikuti ujian untuk melihat analisis kelemahan</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Expert System for Evaluation and Suggestions
+            const expertSuggestions = weaknessData.map(weakness => {
+                let suggestion = '';
+                let priority = '';
+                let icon = '';
+                
+                if (weakness.persen_benar < 50) {
+                    priority = 'high';
+                    icon = 'fa-exclamation-triangle';
+                    suggestion = `Perlu perhatian khusus pada ${weakness.nama_kategori}. Fokus pada materi dasar dan latihan soal intensif.`;
+                } else if (weakness.persen_benar < 70) {
+                    priority = 'medium';
+                    icon = 'fa-info-circle';
+                    suggestion = `${weakness.nama_kategori} masih perlu ditingkatkan. Review materi dan latihan soal rutin.`;
+                } else {
+                    priority = 'low';
+                    icon = 'fa-check-circle';
+                    suggestion = `${weakness.nama_kategori} sudah cukup baik. Pertahankan dan tingkatkan dengan soal yang lebih sulit.`;
+                }
+                
+                return {
+                    ...weakness,
+                    suggestion,
+                    priority,
+                    icon
+                };
+            });
+            
+            // Sort by priority (high first)
+            expertSuggestions.sort((a, b) => {
+                const priorityOrder = { high: 0, medium: 1, low: 2 };
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
+            });
+            
+            weaknessList.innerHTML = expertSuggestions.map(weakness => {
+                const priorityColors = {
+                    high: 'danger',
+                    medium: 'warning',
+                    low: 'success'
+                };
+                
+                return `
+                    <div class="weakness-item">
+                        <div class="weakness-icon">
+                            <i class="fas ${weakness.icon}"></i>
+                        </div>
+                        <div class="weakness-content">
+                            <div class="weakness-title">${weakness.nama_kategori}</div>
+                            <div class="weakness-stats">
+                                <span class="weakness-score">${weakness.persen_benar}% Benar</span>
+                                <span class="weakness-count">${weakness.muncul_count} kali muncul</span>
+                            </div>
+                            <div class="weakness-suggestion text-${priorityColors[weakness.priority]}">
+                                <i class="fas fa-lightbulb"></i> ${weakness.suggestion}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateLearningMaterials(materials) {
+            const materialsList = document.getElementById('materialsList');
+            if (!materialsList) return;
+            
+            if (!materials || materials.length === 0) {
+                materialsList.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-book fa-2x mb-2"></i>
+                        <p>Belum ada bahan ajar</p>
+                        <small>Bahan ajar akan ditampilkan sesuai kelemahan Anda</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            materialsList.innerHTML = materials.slice(0, 5).map(material => {
+                const iconClass = material.jenis_file === 'pdf' ? 'pdf' : 'text';
+                return `
+                    <div class="material-item">
+                        <div class="material-icon ${iconClass}">
+                            <i class="fas fa-file-${material.jenis_file === 'pdf' ? 'pdf' : 'alt'}"></i>
+                        </div>
+                        <div class="material-content">
+                            <div class="material-title">${material.judul}</div>
+                            <div class="material-meta">
+                                <span>${material.kategori || 'Umum'}</span>
+                                <span>•</span>
+                                <span>${new Date(material.created_at).toLocaleDateString('id-ID')}</span>
+                            </div>
+                        </div>
+                        <a href="${material.file_path}" target="_blank" class="material-link">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateActivityTimeline(activities) {
+            const timeline = document.querySelector('.timeline');
+            if (!timeline) return;
+            
+            if (!activities || activities.length === 0) {
+                timeline.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-history fa-2x mb-2"></i>
+                        <p>Belum ada aktivitas</p>
+                        <small>Mulai ujian untuk melihat aktivitas Anda</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            timeline.innerHTML = activities.map(activity => {
+                const kategoriNames = {
+                    'TWK': 'Tes Wawasan Kebangsaan',
+                    'TIU': 'Tes Intelegensia Umum',
+                    'TKP': 'Tes Karakteristik Pribadi',
+                    'TPA': 'Tes Potensi Akademik',
+                    'PSIKOLOGIS': 'Tes Psikologis'
+                };
+                
+                const statusClass = activity.status_lulus === 'Lulus' ? 'success' : 'warning';
+                const statusIcon = activity.status_lulus === 'Lulus' ? 'fa-check' : 'fa-clock';
+                
+                return `
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Selesai ${kategoriNames[activity.kategori] || 'Ujian'}</div>
+                            <div class="timeline-date">${new Date(activity.tanggal_ujian).toLocaleDateString('id-ID', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}</div>
+                            <div class="timeline-score">
+                                <span class="badge bg-${statusClass}">${activity.nilai_total || 0}</span>
+                                <span class="text-muted">poin</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function startNewExam() {

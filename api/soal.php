@@ -123,6 +123,12 @@ switch ($action) {
     case 'get_bahan_pelajaran':
         getBahanPelajaran();
         break;
+    case 'get_all_bahan_pelajaran':
+        getAllBahanPelajaran();
+        break;
+    case 'get_all_soal':
+        getAllSoal();
+        break;
     case 'save_bahan_pelajaran':
         saveBahanPelajaran();
         break;
@@ -155,6 +161,12 @@ switch ($action) {
         break;
     case 'generate_certificate':
         generateCertificate();
+        break;
+    case 'generate_question_admin':
+        generateQuestionForAdmin();
+        break;
+    case 'generate_practice_question':
+        generatePracticeQuestion();
         break;
     case 'leaderboard_optout':
         leaderboardOptout();
@@ -958,6 +970,47 @@ function getBahanPelajaran() {
     echo json_encode([
         'success' => true,
         'data' => $bahan
+    ]);
+}
+
+function getAllBahanPelajaran() {
+    global $conn;
+    
+    $sql = "SELECT * FROM bahan_pelajaran ORDER BY created_at DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $bahan = [];
+    
+    while ($row = $result->fetch_assoc()) {
+        $bahan[] = $row;
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'data' => $bahan
+    ]);
+}
+
+function getAllSoal() {
+    global $conn;
+    
+    $sql = "SELECT s.*, k.nama_kategori 
+            FROM soal s 
+            LEFT JOIN kategori_soal k ON s.kategori_id = k.id 
+            ORDER BY s.id";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $soal = [];
+    
+    while ($row = $result->fetch_assoc()) {
+        $soal[] = $row;
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'data' => $soal
     ]);
 }
 
@@ -2336,9 +2389,10 @@ function completeTryout() {
 function getTryoutHistory() {
     global $conn;
     
-    $user_id = $_SESSION['user_id'] ?? 0;
+    $user_id = intval($_GET['user_id'] ?? 0);
+    
     if ($user_id === 0) {
-        echo json_encode(['success' => false, 'error' => 'User not logged in']);
+        echo json_encode(['success' => false, 'error' => 'Invalid user ID']);
         return;
     }
     
@@ -2346,6 +2400,39 @@ function getTryoutHistory() {
     $history = $generator->getUserTryoutHistory($user_id);
     
     echo json_encode(['success' => true, 'data' => $history]);
+}
+
+function generateQuestionForAdmin() {
+    global $conn;
+    
+    requireAdmin();
+    
+    $data = json_decode(file_get_contents('php://input'), true);
+    $kategori_id = intval($data['kategori_id'] ?? 1);
+    $num_questions = intval($data['num_questions'] ?? 1);
+    $difficulty = $conn->real_escape_string($data['difficulty'] ?? 'sedang');
+    $created_by = $_SESSION['user_id'] ?? null;
+    
+    $generator = new AIQuestionGenerator($conn);
+    $generated_questions = $generator->generateQuestionForAdmin($kategori_id, $num_questions, $difficulty, $created_by);
+    
+    echo json_encode(['success' => true, 'data' => $generated_questions]);
+}
+
+function generatePracticeQuestion() {
+    global $conn;
+    
+    $kategori_id = intval($_GET['kategori_id'] ?? 1);
+    $difficulty = $_GET['difficulty'] ?? 'sedang';
+    
+    $generator = new AIQuestionGenerator($conn);
+    $practice_question = $generator->generatePracticeQuestion($kategori_id, $difficulty);
+    
+    if ($practice_question) {
+        echo json_encode(['success' => true, 'data' => $practice_question]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Failed to generate practice question']);
+    }
 }
 
 $conn->close();
