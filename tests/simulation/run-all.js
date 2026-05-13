@@ -182,8 +182,8 @@ function suggestFix(context, error, type) {
   
   if (error.includes('Exam interface not loaded')) {
     return {
-      description: 'Check fullscreen API support and exam initialization in app.js',
-      file: 'app.js',
+      description: 'Check fullscreen API support and exam initialization in participant/ujian.html',
+      file: 'participant/ujian.html',
       priority: 'high'
     };
   }
@@ -198,8 +198,8 @@ function suggestFix(context, error, type) {
   
   if (error.includes('Could not answer')) {
     return {
-      description: 'Check question rendering and answer button selectors in app.js',
-      file: 'app.js',
+      description: 'Check question rendering and answer button selectors in participant/ujian.html',
+      file: 'participant/ujian.html',
       priority: 'medium'
     };
   }
@@ -207,7 +207,7 @@ function suggestFix(context, error, type) {
   if (error.includes('navigation')) {
     return {
       description: 'Check navigation button event handlers and question state management',
-      file: 'app.js',
+      file: 'participant/ujian.html',
       priority: 'low'
     };
   }
@@ -215,7 +215,7 @@ function suggestFix(context, error, type) {
   // Generic fallback
   return {
     description: `Review ${type} functionality and check for JavaScript errors`,
-    file: type === 'admin' ? 'admin.html' : type === 'participant' ? 'app.js' : 'api/soal.php',
+    file: type === 'admin' ? 'admin.html' : type === 'participant' ? 'participant/ujian.html' : 'api/soal.php',
     priority: 'medium'
   };
 }

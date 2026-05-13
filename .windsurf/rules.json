@@ -20,12 +20,12 @@
     },
     "database": {
       "path": "database/",
-      "files": ["database.sql", "expert_system_schema.sql", "fix_users_table.sql", "seed_questions.sql"],
+      "files": ["ujian_sekolah_kedinasan.sql", "content_management.sql", "course_management.sql", "gamification.sql", "notifications.sql", "analytics.sql", "expert_system_schema.sql"],
       "description": "Database schema dan migrations"
     },
     "frontend": {
       "path": "/",
-      "files": ["index.php", "login.html", "app.js"],
+      "files": ["index.php", "login.html"],
       "description": "Frontend UI dengan anti-cheating features"
     },
     "admin": {

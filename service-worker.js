@@ -2,7 +2,6 @@ const CACHE_NAME = 'ujian-kedinasan-v1';
 const urlsToCache = [
     '/',
     '/index.html',
-    '/app.js',
     '/api/soal.php',
     '/api/auth.php',
     '/api/csrf.php',
