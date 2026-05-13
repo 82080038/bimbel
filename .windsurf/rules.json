@@ -3,28 +3,45 @@
     "name": "Bimbel Ujian Sekolah Kedinasan",
     "type": "web-application",
     "stack": ["php", "mysql", "javascript", "html", "bootstrap"],
-    "framework": "vanilla-php"
+    "framework": "vanilla-php",
+    "version": "2.0",
+    "lastUpdated": "2026-05-14"
   },
   "structure": {
     "api": {
       "path": "api/",
-      "files": ["*.php"],
+      "files": ["auth.php", "soal.php", "pembahasan.php", "expert.php", "batch_generate.php", "csrf.php", "middleware.php", "rate_limiter.php", "validator.php"],
       "description": "REST API endpoints dengan prepared statements untuk security"
     },
     "scripts": {
       "path": "scripts/",
-      "files": ["*.php"],
-      "description": "Background scripts dan utilities"
+      "files": ["ai_question_generator.php", "batch_generate.php", "learning_recommendation_system.php", "educational_content_generator.php", "external_content_fetcher.php", "cleanup-unused-files.php", "backup.php", "analyze_soal_topics.php"],
+      "description": "Background scripts dan utilities untuk AI generation dan maintenance"
     },
     "database": {
       "path": "database/",
-      "files": ["*.sql"],
+      "files": ["database.sql", "expert_system_schema.sql", "fix_users_table.sql", "seed_questions.sql"],
       "description": "Database schema dan migrations"
     },
     "frontend": {
       "path": "/",
-      "files": ["*.html", "*.js", "*.css"],
+      "files": ["index.php", "login.html", "app.js"],
       "description": "Frontend UI dengan anti-cheating features"
+    },
+    "admin": {
+      "path": "admin/",
+      "files": ["admin.html"],
+      "description": "Admin panel untuk CRUD soal dan manajemen"
+    },
+    "participant": {
+      "path": "participant/",
+      "files": ["dashboard.html", "ujian.html", "register.html", "expert_assistant.js"],
+      "description": "Halaman peserta untuk ujian dan dashboard"
+    },
+    "config": {
+      "path": "config/",
+      "files": ["app.php"],
+      "description": "Application configuration dengan environment support"
     }
   },
   "security": {
@@ -35,13 +52,16 @@
         "scripts/learning_recommendation_system.php",
         "scripts/batch_generate.php",
         "scripts/ai_question_generator.php",
-        "api/soal.php"
+        "api/soal.php",
+        "api/auth.php",
+        "api/expert.php"
       ]
     },
     "rbac": {
-      "status": "patched",
-      "frontendCheck": "admin.html",
-      "backendCheck": "api/middleware.php"
+      "status": "implemented",
+      "frontendCheck": "js/rbac.js",
+      "backendCheck": "api/middleware.php",
+      "roles": ["admin", "user", "guest"]
     },
     "fileUpload": {
       "status": "patched",
@@ -57,14 +77,72 @@
       "file": "api/rate_limiter.php",
       "publicLimit": "100/min",
       "authLimit": "1000/min"
+    },
+    "csrf": {
+      "status": "implemented",
+      "file": "api/csrf.php",
+      "lifetime": "3600"
     }
   },
   "database": {
     "name": "ujian_sekolah_kedinasan",
-    "tables": 18,
+    "tables": 22,
+    "tableList": [
+      "users",
+      "soal",
+      "kategori_soal",
+      "paket_tryout",
+      "hasil_ujian",
+      "sesi_ujian",
+      "tryout_sessions",
+      "tryout_answers",
+      "tips_soal",
+      "tips_tricks",
+      "tips_umum",
+      "ai_generated_questions",
+      "analisis_kelemahan",
+      "rekomendasi_belajar",
+      "bahan_pelajaran",
+      "learning_topics",
+      "topik_pelajaran",
+      "expert_knowledge",
+      "expert_knowledge_category",
+      "expert_assistance_log",
+      "expert_learning_recommendation",
+      "question_pattern",
+      "paket_blueprint",
+      "leaderboard_optout",
+      "sertifikat",
+      "soal_frequency",
+      "soal_topik"
+    ],
     "indexes": "optimized",
     "backupScript": "scripts/backup.php",
-    "latestExport": "ujian_sekolah_kedinasan.sql"
+    "latestExport": "database.sql"
+  },
+  "features": {
+    "core": {
+      "examSystem": "implemented",
+      "rbac": "implemented",
+      "dashboard": "implemented",
+      "antiCheat": "implemented"
+    },
+    "ai": {
+      "questionGenerator": "implemented",
+      "expertSystem": "implemented",
+      "learningRecommendation": "implemented",
+      "adaptiveDifficulty": "implemented"
+    },
+    "analytics": {
+      "weaknessAnalysis": "implemented",
+      "ranking": "implemented",
+      "statistics": "implemented"
+    },
+    "content": {
+      "tipsTricks": "implemented",
+      "bahanPelajaran": "implemented",
+      "pembahasan": "implemented"
+    }
   },
   "testing": {
     "simulation": {
@@ -74,20 +152,27 @@
         "admin-dashboard",
         "participant-exam",
         "tryout-packages"
+      ],
+      "testFiles": [
+        "tests/comprehensive-crud-test.js",
+        "tests/dashboard-menu-test.js"
       ]
     }
   },
   "deployment": {
     "requirements": [
-      "PHP 7.4+",
-      "MySQL 5.7+",
+      "PHP 8.0+",
+      "MySQL 5.7+ / MariaDB 10.3+",
       "Apache/Nginx",
-      "SSL Certificate (production)"
+      "SSL Certificate (production)",
+      "Node.js (for testing)"
     ],
     "postDeploy": [
       "Apply performance_indexes.sql",
       "Update CORS to production domain",
-      "Setup backup cronjob"
+      "Setup backup cronjob",
+      "Update BASE_URL in config/app.php",
+      "Set ENVIRONMENT to 'production'"
     ]
   },
   "development": {
@@ -103,6 +188,23 @@
         "Run tests for affected modules",
         "Verify no regression in existing functionality"
       ]
-    }
+    },
+    "branch": "kantor",
+    "repository": "https://github.com/82080038/bimbel"
+  },
+  "documentation": {
+    "files": [
+      "README.md",
+      "SYSTEM_OVERVIEW.md",
+      "DEVELOPER_GUIDE.md",
+      "DASHBOARD_ANALYSIS.md",
+      "FINAL_COMPREHENSIVE_REPORT.md",
+      "FINAL_SIMULATION_REPORT.md",
+      "STRUCTURE_UPDATE.md",
+      "TESTING_REPORT.md",
+      "docs/database-analysis.md",
+      "docs/improvement-plan.md",
+      "docs/storage-strategy-bahan-pelajaran.md"
+    ]
   }
 }

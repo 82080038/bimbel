@@ -327,5 +327,5 @@ define('DB_PASS', 'your_password');
 ---
 
 **Dibuat:** 13 Mei 2026  
-**Terakhir Update:** 13 Mei 2026  
-**Versi:** 1.0
+**Terakhir Update:** 14 Mei 2026  
+**Versi:** 2.0

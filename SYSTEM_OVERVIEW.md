@@ -389,4 +389,4 @@ CREATE TABLE hasil_ujian (
 
 *Sistem Ujian Sekolah Kedinasan - Modern Learning Platform*
 **Versi: 2.0 - Enhanced with RBAC & AI**
-*Updated: 13 Mei 2026*
+*Updated: 14 Mei 2026*
