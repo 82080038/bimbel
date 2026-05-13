@@ -78,9 +78,11 @@ class LearningRecommendationSystem {
                     SUM(CASE WHEN nilai_tiu > 0 THEN nilai_tiu ELSE 0 END) / COUNT(*) * 100 as tiu_avg,
                     SUM(CASE WHEN nilai_tkp > 0 THEN nilai_tkp ELSE 0 END) / COUNT(*) * 100 as tkp_avg
                 FROM hasil_ujian 
-                WHERE user_id = $user_id";
-        
-        $result = $this->conn->query($sql);
+                WHERE user_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $performance = [];
         
         if ($row = $result->fetch_assoc()) {
@@ -95,6 +97,7 @@ class LearningRecommendationSystem {
             }
         }
         
+        $stmt->close();
         return $performance;
     }
     
@@ -107,17 +110,20 @@ class LearningRecommendationSystem {
                 WHERE t.id NOT IN (
                     SELECT topic_id 
                     FROM participant_learning_progress 
-                    WHERE user_id = $user_id AND status = 'completed'
+                    WHERE user_id = ? AND status = 'completed'
                 )
                 ORDER BY t.kategori, t.topic_name";
-        
-        $result = $this->conn->query($sql);
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $topics = [];
         
         while ($row = $result->fetch_assoc()) {
             $topics[] = $row;
         }
         
+        $stmt->close();
         return $topics;
     }
     
@@ -141,16 +147,18 @@ class LearningRecommendationSystem {
      * Get topics by category
      */
     private function getTopicsByCategory($kategori) {
-        $kategori = $this->conn->real_escape_string($kategori);
-        $sql = "SELECT * FROM learning_topics WHERE kategori = '$kategori'";
-        
-        $result = $this->conn->query($sql);
+        $sql = "SELECT * FROM learning_topics WHERE kategori = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $kategori);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $topics = [];
         
         while ($row = $result->fetch_assoc()) {
             $topics[] = $row;
         }
         
+        $stmt->close();
         return $topics;
     }
     
@@ -160,14 +168,17 @@ class LearningRecommendationSystem {
     public function markTopicAsStudied($user_id, $topic_id, $completion_percentage = 100, $notes = '') {
         $sql = "INSERT INTO participant_learning_progress 
                 (user_id, topic_id, status, studied_at, completion_percentage, notes)
-                VALUES ($user_id, $topic_id, 'completed', NOW(), $completion_percentage, '$notes')
+                VALUES (?, ?, 'completed', NOW(), ?, ?)
                 ON DUPLICATE KEY UPDATE 
                 status = 'completed', 
                 studied_at = NOW(), 
-                completion_percentage = $completion_percentage,
-                notes = '$notes'";
-        
-        return $this->conn->query($sql);
+                completion_percentage = ?,
+                notes = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("iiisis", $user_id, $topic_id, $completion_percentage, $notes, $completion_percentage, $notes);
+        $result = $stmt->execute();
+        $stmt->close();
+        return $result;
     }
     
     /**
@@ -177,16 +188,19 @@ class LearningRecommendationSystem {
         $sql = "SELECT lp.*, t.topic_name, t.kategori, t.description
                 FROM participant_learning_progress lp
                 JOIN learning_topics t ON lp.topic_id = t.id
-                WHERE lp.user_id = $user_id
+                WHERE lp.user_id = ?
                 ORDER BY lp.studied_at DESC";
-        
-        $result = $this->conn->query($sql);
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $progress = [];
         
         while ($row = $result->fetch_assoc()) {
             $progress[] = $row;
         }
         
+        $stmt->close();
         return $progress;
     }
     
@@ -211,22 +225,29 @@ class LearningRecommendationSystem {
      */
     public function saveRecommendations($user_id, $recommendations) {
         // Clear old recommendations
-        $sql = "DELETE FROM learning_recommendations WHERE user_id = $user_id";
-        $this->conn->query($sql);
+        $sql = "DELETE FROM learning_recommendations WHERE user_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $stmt->close();
         
         // Insert new recommendations
+        $sql = "INSERT INTO learning_recommendations 
+                (user_id, topic_id, recommendation_type, reason, priority)
+                VALUES (?, ?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        
         foreach ($recommendations as $rec) {
             $topic_id = $rec['topic_id'];
             $type = $rec['type'];
-            $reason = $this->conn->real_escape_string($rec['reason']);
+            $reason = $rec['reason'];
             $priority = $rec['priority'];
             
-            $sql = "INSERT INTO learning_recommendations 
-                    (user_id, topic_id, recommendation_type, reason, priority)
-                    VALUES ($user_id, $topic_id, '$type', '$reason', $priority)";
-            $this->conn->query($sql);
+            $stmt->bind_param("iisis", $user_id, $topic_id, $type, $reason, $priority);
+            $stmt->execute();
         }
         
+        $stmt->close();
         return true;
     }
     
@@ -237,16 +258,19 @@ class LearningRecommendationSystem {
         $sql = "SELECT lr.*, t.topic_name, t.kategori, t.description
                 FROM learning_recommendations lr
                 JOIN learning_topics t ON lr.topic_id = t.id
-                WHERE lr.user_id = $user_id
+                WHERE lr.user_id = ?
                 ORDER BY lr.priority ASC, lr.created_at DESC";
-        
-        $result = $this->conn->query($sql);
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $recommendations = [];
         
         while ($row = $result->fetch_assoc()) {
             $recommendations[] = $row;
         }
         
+        $stmt->close();
         return $recommendations;
     }
 }

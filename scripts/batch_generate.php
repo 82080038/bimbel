@@ -162,9 +162,13 @@ function findSimilarQuestions($soal_id, $kategori_id, $limit = 3) {
     global $conn;
     
     // Get the current question
-    $sql_current = "SELECT pertanyaan, kategori_id FROM soal WHERE id = $soal_id";
-    $result_current = $conn->query($sql_current);
+    $sql_current = "SELECT pertanyaan, kategori_id FROM soal WHERE id = ?";
+    $stmt_current = $conn->prepare($sql_current);
+    $stmt_current->bind_param("i", $soal_id);
+    $stmt_current->execute();
+    $result_current = $stmt_current->get_result();
     $current_soal = $result_current->fetch_assoc();
+    $stmt_current->close();
     
     if (!$current_soal) {
         return [];
@@ -175,10 +179,13 @@ function findSimilarQuestions($soal_id, $kategori_id, $limit = 3) {
     // Find similar questions based on keywords
     $similar_questions = [];
     $sql = "SELECT id, pertanyaan, jawaban_benar FROM soal 
-            WHERE kategori_id = {$current_soal['kategori_id']} 
-            AND id != $soal_id
+            WHERE kategori_id = ? 
+            AND id != ?
             LIMIT 100";
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $current_soal['kategori_id'], $soal_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     
     while ($row = $result->fetch_assoc()) {
         $row_keywords = extractKeywords($row['pertanyaan']);
@@ -193,6 +200,8 @@ function findSimilarQuestions($soal_id, $kategori_id, $limit = 3) {
             ];
         }
     }
+    
+    $stmt->close();
     
     // Sort by similarity
     usort($similar_questions, function($a, $b) {
@@ -212,10 +221,14 @@ function generateKontenBahan($pertanyaan, $pembahasan, $jawaban_benar, $soal_id)
     $konten .= "<p>{$pertanyaan}</p>\n\n";
     
     // Get similar questions
-    $sql_kategori = "SELECT kategori_id FROM soal WHERE id = $soal_id";
-    $result_kategori = $conn->query($sql_kategori);
+    $sql_kategori = "SELECT kategori_id FROM soal WHERE id = ?";
+    $stmt_kategori = $conn->prepare($sql_kategori);
+    $stmt_kategori->bind_param("i", $soal_id);
+    $stmt_kategori->execute();
+    $result_kategori = $stmt_kategori->get_result();
     $kat_row = $result_kategori->fetch_assoc();
     $kategori_id = $kat_row['kategori_id'];
+    $stmt_kategori->close();
     
     $similar_questions = findSimilarQuestions($soal_id, $kategori_id);
     
@@ -309,15 +322,21 @@ function generateTipsBatch($kategori_id, $limit) {
             $tips_generated++;
             
             // Link to soal if tips_soal table exists
-            $sql_link = "INSERT INTO tips_soal (tips_id, soal_id) VALUES ({$conn->insert_id}, $soal_id)";
-            $conn->query($sql_link);
+            $sql_link = "INSERT INTO tips_soal (tips_id, soal_id) VALUES (?, ?)";
+            $stmt_link = $conn->prepare($sql_link);
+            $stmt_link->bind_param("ii", $conn->insert_id, $soal_id);
+            $stmt_link->execute();
+            $stmt_link->close();
             
             echo "Generated tip for soal #$soal_id\n";
         }
     }
     
     // Generate general tips for each kategori
-    $kategori_sql = "SELECT DISTINCT kategori_id FROM soal $where";
+    $kategori_sql = "SELECT DISTINCT kategori_id FROM soal";
+    if (!empty($where)) {
+        $kategori_sql .= " " . $where;
+    }
     $kategori_result = $conn->query($kategori_sql);
     
     while ($kat_row = $kategori_result->fetch_assoc()) {
@@ -370,10 +389,14 @@ function generateGeneralTips($kategori_id) {
     
     $tips = [];
     
-    $sql = "SELECT nama_kategori FROM kategori_soal WHERE id = $kategori_id";
-    $result = $conn->query($sql);
+    $sql = "SELECT nama_kategori FROM kategori_soal WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $kategori_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $kategori = $row['nama_kategori'];
+    $stmt->close();
     
     switch ($kategori) {
         case 'TWK':

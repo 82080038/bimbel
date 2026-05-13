@@ -1,0 +1,10 @@
+{
+  "username": "testpeserta",
+  "password": "testpass123",
+  "nama_lengkap": "Budi Santoso",
+  "nomor_hp": "081234567890",
+  "jenis_kelamin": "L",
+  "tahun_tamat": 2024,
+  "asal_sekolah": "SMA Negeri 1 Jakarta",
+  "role": "user"
+}

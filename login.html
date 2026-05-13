@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Ujian Sekolah Kedinasan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-header h1 {
+            color: #1e40af;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .login-header p {
+            color: #6b7280;
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+        .btn-login {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-weight: 600;
+            width: 100%;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.3);
+        }
+        .alert {
+            border-radius: 10px;
+            display: none;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .back-link a {
+            color: #1e40af;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1><i class="fas fa-graduation-cap"></i> Ujian Kedinasan</h1>
+            <p>Silakan login untuk melanjutkan</p>
+        </div>
+
+        <div id="alertBox" class="alert" role="alert"></div>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" required placeholder="Masukkan username">
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" required placeholder="Masukkan password">
+            </div>
+            <button type="submit" class="btn btn-login">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <div class="login-link mt-3">
+            <p class="mb-1">Belum punya akun? <a href="register.html"><i class="fas fa-user-plus"></i> Daftar di sini</a></p>
+            <p><a href="index.html"><i class="fas fa-home"></i> Kembali ke Beranda</a></p>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/rbac.js"></script>
+    <script>
+        // Use AppConfig for all URLs - automatically handles base URL
+        const API_BASE = AppConfig.API_URL;
+
+        // Check if already logged in
+        const currentRole = localStorage.getItem('userRole');
+        const authToken = localStorage.getItem('authToken');
+        
+        if (authToken && currentRole) {
+            // Already logged in, redirect based on role
+            if (currentRole === 'admin') {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Show loading
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth.php?action=login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    // Use api_key as token (or token if provided)
+                    const token = data.token || data.user.api_key;
+                    
+                    // Store login data using RBAC
+                    RBAC.storeLoginData(token, data.user.role, data.user);
+                    
+                    const roleDisplay = data.user.role === 'admin' ? 'Administrator' : 'Peserta';
+                    showAlert(`Login berhasil! Selamat datang ${roleDisplay}...`, 'success');
+                    
+                    // Redirect based on role
+                    setTimeout(() => {
+                        if (data.user.role === 'admin') {
+                            window.location.href = 'admin/admin.html';
+                        } else {
+                            // Peserta goes to dashboard
+                            window.location.href = 'participant/dashboard.html';
+                        }
+                    }, 1500);
+                } else {
+                    showAlert(data.error || 'Login gagal. Periksa username dan password.', 'danger');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Terjadi kesalahan koneksi. Silakan coba lagi.', 'danger');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = `alert alert-${type}`;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertBox.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>

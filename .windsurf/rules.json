@@ -1,0 +1,108 @@
+{
+  "project": {
+    "name": "Bimbel Ujian Sekolah Kedinasan",
+    "type": "web-application",
+    "stack": ["php", "mysql", "javascript", "html", "bootstrap"],
+    "framework": "vanilla-php"
+  },
+  "structure": {
+    "api": {
+      "path": "api/",
+      "files": ["*.php"],
+      "description": "REST API endpoints dengan prepared statements untuk security"
+    },
+    "scripts": {
+      "path": "scripts/",
+      "files": ["*.php"],
+      "description": "Background scripts dan utilities"
+    },
+    "database": {
+      "path": "database/",
+      "files": ["*.sql"],
+      "description": "Database schema dan migrations"
+    },
+    "frontend": {
+      "path": "/",
+      "files": ["*.html", "*.js", "*.css"],
+      "description": "Frontend UI dengan anti-cheating features"
+    }
+  },
+  "security": {
+    "sqlInjection": {
+      "status": "patched",
+      "method": "prepared-statements",
+      "affectedFiles": [
+        "scripts/learning_recommendation_system.php",
+        "scripts/batch_generate.php",
+        "scripts/ai_question_generator.php",
+        "api/soal.php"
+      ]
+    },
+    "rbac": {
+      "status": "patched",
+      "frontendCheck": "admin.html",
+      "backendCheck": "api/middleware.php"
+    },
+    "fileUpload": {
+      "status": "patched",
+      "whitelist": ["pdf", "doc", "docx", "txt", "jpg", "jpeg", "png", "mp4", "webm"],
+      "maxSize": "10MB"
+    },
+    "cors": {
+      "status": "patched",
+      "origin": "http://localhost"
+    },
+    "rateLimiting": {
+      "status": "implemented",
+      "file": "api/rate_limiter.php",
+      "publicLimit": "100/min",
+      "authLimit": "1000/min"
+    }
+  },
+  "database": {
+    "name": "ujian_sekolah_kedinasan",
+    "tables": 18,
+    "indexes": "optimized",
+    "backupScript": "scripts/backup.php",
+    "latestExport": "ujian_sekolah_kedinasan.sql"
+  },
+  "testing": {
+    "simulation": {
+      "tool": "puppeteer",
+      "mode": "headed",
+      "scenarios": [
+        "admin-dashboard",
+        "participant-exam",
+        "tryout-packages"
+      ]
+    }
+  },
+  "deployment": {
+    "requirements": [
+      "PHP 7.4+",
+      "MySQL 5.7+",
+      "Apache/Nginx",
+      "SSL Certificate (production)"
+    ],
+    "postDeploy": [
+      "Apply performance_indexes.sql",
+      "Update CORS to production domain",
+      "Setup backup cronjob"
+    ]
+  },
+  "development": {
+    "crossImpactAnalysis": {
+      "enabled": true,
+      "rule": "apabila melakukan perbaikan atau update, periksa bagian lain di aplikasi, yang butuh perbaikan, dan pastikan efeknya terhadap file lain juga diperbaiki, kemudian lakukan tes atas perbaikan tersebut",
+      "checklist": [
+        "Search for all usages of modified functions/variables",
+        "Update related API endpoints if backend changes",
+        "Update related frontend components if frontend changes",
+        "Check for breaking changes in shared utilities",
+        "Update documentation if needed",
+        "Run tests for affected modules",
+        "Verify no regression in existing functionality"
+      ]
+    }
+  }
+}

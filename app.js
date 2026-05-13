@@ -220,6 +220,28 @@ async function mulaiUjian() {
     try {
         // Fetch questions based on selected paket
         const response = await fetch(`${API_BASE}/soal.php?action=get_soal_by_paket&paket_id=${paketId}`);
+        
+        // Check HTTP status first
+        if (response.status === 401) {
+            alert('Sesi Anda telah expired atau Anda belum login. Silakan login terlebih dahulu.');
+            hideLoading();
+            // Optional: redirect to login
+            // window.location.href = 'login.html';
+            return;
+        }
+        
+        if (response.status === 403) {
+            alert('Anda tidak memiliki izin untuk mengakses paket ujian ini.');
+            hideLoading();
+            return;
+        }
+        
+        if (!response.ok) {
+            alert('Terjadi kesalahan saat memuat soal. Status: ' + response.status);
+            hideLoading();
+            return;
+        }
+        
         const data = await response.json();
         
         if (data.success) {
@@ -232,8 +254,11 @@ async function mulaiUjian() {
             // Update timer duration based on paket
             waktuTersisa = data.paket.durasi * 60;
             
-            // Save session
-            await simpanSesi(soal);
+            // Save session (continue even if session save fails)
+            const sessionSaved = await simpanSesi(soal);
+            if (!sessionSaved) {
+                console.warn('Session not saved, but continuing with exam');
+            }
             
             // Start exam
             document.getElementById('welcomeScreen').classList.add('hidden');
@@ -339,12 +364,39 @@ async function simpanSesi(soalTeracak) {
             })
         });
         
+        // Handle HTTP errors
+        if (response.status === 401) {
+            console.error('Sesi expired atau belum login');
+            // Tampilkan pesan yang lebih user-friendly
+            const lanjutkan = confirm(
+                'Sesi Anda telah expired atau Anda belum login.\n\n' +
+                'Klik "OK" untuk ke halaman login, atau "Cancel" untuk mencoba melanjutkan tanpa menyimpan sesi.'
+            );
+            if (lanjutkan) {
+                window.location.href = 'login.html';
+            }
+            return false;
+        }
+        
+        if (response.status === 403) {
+            console.error('Akses ditolak');
+            alert('Anda tidak memiliki izin untuk mengakses fitur ini.');
+            return false;
+        }
+        
         const data = await response.json();
         if (data.success) {
             sesiId = data.sesi_id;
+            return true;
+        } else {
+            console.error('Gagal menyimpan sesi:', data.error);
+            // Tampilkan error tapi jangan block user
+            return false;
         }
     } catch (error) {
         console.error('Error saving session:', error);
+        alert('Terjadi kesalahan saat menyimpan sesi ujian. Ujian tetap dapat dilanjutkan.');
+        return false;
     }
 }
 

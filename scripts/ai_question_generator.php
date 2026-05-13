@@ -43,29 +43,36 @@ class AIQuestionGenerator {
      * Get topic information
      */
     private function getTopic($topic_id) {
-        $sql = "SELECT * FROM learning_topics WHERE id = $topic_id";
-        $result = $this->conn->query($sql);
-        return $result->fetch_assoc();
+        $sql = "SELECT * FROM learning_topics WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $topic_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+        return $row;
     }
     
     /**
      * Get template questions for a category
      */
     private function getTemplateQuestions($kategori, $limit) {
-        $kategori = $this->conn->real_escape_string($kategori);
         $sql = "SELECT * FROM soal s 
                 JOIN kategori_soal k ON s.kategori_id = k.id 
-                WHERE k.nama_kategori = '$kategori' 
+                WHERE k.nama_kategori = ? 
                 ORDER BY RAND() 
-                LIMIT $limit";
-        
-        $result = $this->conn->query($sql);
+                LIMIT ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("si", $kategori, $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $questions = [];
         
         while ($row = $result->fetch_assoc()) {
             $questions[] = $row;
         }
         
+        $stmt->close();
         return $questions;
     }
     
@@ -236,18 +243,26 @@ class AIQuestionGenerator {
      */
     public function submitAnswer($session_id, $question_id, $user_answer, $time_taken = 0) {
         // Get correct answer
-        $sql = "SELECT jawaban_benar FROM ai_generated_questions WHERE id = $question_id";
-        $result = $this->conn->query($sql);
+        $sql = "SELECT jawaban_benar FROM ai_generated_questions WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $question_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $row = $result->fetch_assoc();
+        $stmt->close();
         
         if ($row) {
             $is_correct = ($user_answer === $row['jawaban_benar']);
             
             $sql = "INSERT INTO tryout_answers 
                     (tryout_session_id, question_id, user_answer, is_correct, time_taken_seconds)
-                    VALUES ($session_id, $question_id, '$user_answer', " . ($is_correct ? 1 : 0) . ", $time_taken)";
+                    VALUES (?, ?, ?, ?, ?)";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("iisii", $session_id, $question_id, $user_answer, $is_correct ? 1 : 0, $time_taken);
+            $result = $stmt->execute();
+            $stmt->close();
             
-            return $this->conn->query($sql);
+            return $result;
         }
         
         return false;
@@ -260,10 +275,13 @@ class AIQuestionGenerator {
         $sql = "SELECT COUNT(*) as total, 
                        SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct
                 FROM tryout_answers 
-                WHERE tryout_session_id = $session_id";
-        
-        $result = $this->conn->query($sql);
+                WHERE tryout_session_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $session_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $row = $result->fetch_assoc();
+        $stmt->close();
         
         if ($row['total'] > 0) {
             $score = ($row['correct'] / $row['total']) * 100;

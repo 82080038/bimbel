@@ -1,0 +1,29 @@
+Starting registration test...
+
+1. Loading registration page...
+   Γ£à Page loaded
+
+2. Checking form elements...
+   Found elements: {"username":true,"password":true,"namaLengkap":true,"nomorHP":true,"submit":true}
+   Γ£à Form elements OK
+
+3. Filling form...
+   Γ£à Form filled
+
+4. Submitting form...
+Γ¥î Console Error: Registration error: JSHandle@error
+   Raw API response: <br />
+<b>Fatal error</b>:  Cannot use try without catch or finally in <b>C:\xampp\htdocs\bimbel\config.php</b> on line <b>39</b><br />
+
+   API Error: Unexpected token '<', "<br />
+<b>"... is not valid JSON
+
+5. Checking result...
+
+   ΓÜá∩╕Å No API response captured
+
+   ≡ƒô╕ Screenshot saved: test-result.png
+
+Closing browser...
+
+Γ£¿ Test finished

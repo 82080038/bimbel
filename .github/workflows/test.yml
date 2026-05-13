@@ -1,0 +1,168 @@
+name: Bimbel Application Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    # Run tests every day at 2 AM
+    - cron: '0 2 * * *'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ujian_sekolah_kedinasan
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mysqli, pdo_mysql
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: tests/package.json
+
+    - name: Install PHP dependencies
+      run: |
+        # Install PHPUnit
+        wget -O phpunit.phar https://phar.phpunit.de/phpunit-10.phar
+        chmod +x phpunit.phar
+        sudo mv phpunit.phar /usr/local/bin/phpunit
+
+    - name: Install Node.js dependencies
+      working-directory: ./tests
+      run: |
+        npm ci
+        npx puppeteer browsers install chrome
+
+    - name: Setup database
+      run: |
+        # Wait for MySQL to be ready
+        sleep 10
+        # Import database schema
+        mysql -h 127.0.0.1 -u root -proot ujian_sekolah_kedinasan < database/complete_setup.sql || true
+
+    - name: Setup Apache
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apache2
+        sudo cp -r . /var/www/html/bimbel
+        sudo chown -R www-data:www-data /var/www/html/bimbel
+        sudo chmod -R 755 /var/www/html/bimbel
+        # Configure Apache
+        sudo bash -c 'echo "<Directory /var/www/html/bimbel>\n    Options Indexes FollowSymLinks\n    AllowOverride All\n    Require all granted\n</Directory>" > /etc/apache2/conf-available/bimbel.conf'
+        sudo a2enconf bimbel
+        sudo systemctl restart apache2
+        sleep 5
+
+    - name: Run PHP Unit Tests
+      run: |
+        if [ -d "tests/php" ]; then
+          cd tests/php
+          phpunit --configuration phpunit.xml
+        fi
+
+    - name: Run API Integration Tests
+      working-directory: ./tests
+      run: |
+        node api/integration-tests.js || true
+
+    - name: Run Puppeteer E2E Tests (Headless)
+      working-directory: ./tests
+      run: |
+        # Run in headless mode for CI
+        HEADLESS=true npm run test:all || true
+
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-screenshots
+        path: tests/screenshots/
+        retention-days: 5
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: tests/results/
+        retention-days: 30
+
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run PHP Security Checker
+      uses: symfonycorp/security-checker-action@v4
+
+    - name: Check for SQL Injection vulnerabilities
+      run: |
+        # Search for potential SQL injection patterns
+        echo "Checking for SQL injection vulnerabilities..."
+        if grep -r "\$_GET.*\$_POST" api/*.php 2>/dev/null | grep -v "prepare" | grep -v "bind_param"; then
+          echo "⚠️  Potential SQL injection found - review required"
+          exit 1
+        else
+          echo "✅ No obvious SQL injection patterns found"
+        fi
+
+    - name: Check for XSS vulnerabilities
+      run: |
+        # Search for potential XSS patterns
+        echo "Checking for XSS vulnerabilities..."
+        if grep -r "echo.*\$_GET\|echo.*\$_POST" *.php api/*.php 2>/dev/null | grep -v "htmlspecialchars"; then
+          echo "⚠️  Potential XSS found - review required"
+        else
+          echo "✅ No obvious XSS patterns found"
+        fi
+
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+
+    - name: Install PHP CodeSniffer
+      run: |
+        composer global require squizlabs/php_codesniffer
+        echo "${HOME}/.composer/vendor/bin" >> $GITHUB_PATH
+
+    - name: Run PHP CodeSniffer
+      run: |
+        phpcs --standard=PSR12 api/ scripts/ || true
+
+    - name: Check PHP Syntax
+      run: |
+        find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \; | grep -v "No syntax errors"

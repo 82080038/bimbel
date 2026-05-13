@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Peserta - Ujian Sekolah Kedinasan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --secondary-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --dark-color: #1f2937;
+            --light-color: #f3f4f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-welcome {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .user-info h3 {
+            margin: 0;
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .user-info p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-quick {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-quick:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.primary { background: rgba(30, 64, 175, 0.1); color: var(--primary-color); }
+        .stat-icon.success { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
+        .stat-icon.warning { background: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
+        .stat-icon.info { background: rgba(6, 182, 212, 0.1); color: var(--info-color); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        /* Main Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .dashboard-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Last Exam Info */
+        .exam-info-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .exam-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .exam-date {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .exam-score {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .exam-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .exam-detail-item {
+            text-align: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .exam-detail-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .exam-detail-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        /* Progress Chart */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 1rem 0;
+        }
+
+        /* Weakness Analysis */
+        .weakness-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .weakness-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--danger-color);
+        }
+
+        .weakness-content {
+            flex: 1;
+        }
+
+        .weakness-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .weakness-desc {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .weakness-action {
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .weakness-action:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        /* Learning Materials */
+        .material-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .material-item:hover {
+            border-color: var(--primary-color);
+            background: #f9fafb;
+        }
+
+        .material-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .material-icon.pdf { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .material-icon.video { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+        .material-icon.doc { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+        .material-content {
+            flex: 1;
+        }
+
+        .material-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .material-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        /* AI Assessment */
+        .ai-assessment {
+            background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+            color: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .ai-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-title {
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .ai-recommendation {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .ai-recommendation-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .ai-confidence {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: #a0a0a0;
+        }
+
+        .progress-bar-custom {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Activity Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -1.75rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary-color);
+        }
+
+        .timeline-content {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-date {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        /* Footer */
+        .dashboard-footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="user-welcome">
+                <div class="user-avatar" id="userAvatar">BS</div>
+                <div class="user-info">
+                    <h3 id="userName">Selamat Datang, Budi Santoso!</h3>
+                    <p id="userDetail">Peserta Ujian • SMA Negeri 1 Jakarta</p>
+                </div>
+            </div>
+            <div class="quick-actions">
+                <button class="btn-quick btn-primary-custom" onclick="startNewExam()">
+                    <i class="fas fa-play-circle"></i> Mulai Ujian Baru
+                </button>
+                <button class="btn-quick btn-secondary-custom" onclick="viewHistory()">
+                    <i class="fas fa-history"></i> Riwayat
+                </button>
+                <button class="btn-quick btn-danger-custom" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="totalExams">12</div>
+                        <div class="stat-label">Total Ujian</div>
+                    </div>
+                    <div class="stat-icon primary">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +3 bulan ini
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="averageScore">85.5</div>
+                        <div class="stat-label">Rata-rata Nilai</div>
+                    </div>
+                    <div class="stat-icon success">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +5.2% naik
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="studyHours">24.5</div>
+                        <div class="stat-label">Jam Belajar</div>
+                    </div>
+                    <div class="stat-icon warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +2.5 jam
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="rankPosition">#15</div>
+                        <div class="stat-label">Peringkat</div>
+                    </div>
+                    <div class="stat-icon info">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> Naik 3 posisi
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- Last Exam Info -->
+                <div class="exam-info-card" id="lastExamCard">
+                    <div class="exam-info-header">
+                        <div>
+                            <h4 style="margin: 0; font-size: 1.1rem;">Ujian Terakhir</h4>
+                            <p style="margin: 0.25rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">Paket TWK - Tes Wawasan Kebangsaan</p>
+                        </div>
+                        <div class="exam-date">12 Mei 2026</div>
+                    </div>
+                    <div class="exam-score" id="lastExamScore">87.5</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Skor Tertinggi Anda!</div>
+                    <div class="exam-details">
+                        <div class="exam-detail-item">
+                            <div class="exam-detail-value">25/30</div>
+                            <div class="exam-detail-label">Jawaban Benar</div>
+                        </div>
+                        <div class="exam-detail-item">
+                            <div class="exam-detail-value">83%</div>
+                            <div class="exam-detail-label">Akurasi</div>
+                        </div>
+                        <div class="exam-detail-item">
+                            <div class="exam-detail-value">45m</div>
+                            <div class="exam-detail-label">Waktu</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Chart -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-area" style="color: var(--primary-color);"></i>
+                            Progress Belajar
+                        </h5>
+                        <select class="form-select form-select-sm" style="width: auto;">
+                            <option>7 Hari Terakhir</option>
+                            <option>30 Hari Terakhir</option>
+                            <option>3 Bulan Terakhir</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Weakness Analysis -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>
+                            Analisis Kelemahan
+                        </h5>
+                        <a href="#" style="font-size: 0.9rem;">Lihat Detail</a>
+                    </div>
+                    <div id="weaknessList">
+                        <div class="weakness-item">
+                            <div class="weakness-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="weakness-content">
+                                <div class="weakness-title">TWK - Sejarah Indonesia</div>
+                                <div class="weakness-desc">Akurasi 65%, perlu peningkatan di topik sejarah kemerdekaan</div>
+                            </div>
+                            <a href="#" class="weakness-action">Pelajari</a>
+                        </div>
+                        <div class="weakness-item" style="border-left-color: var(--warning-color);">
+                            <div class="weakness-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning-color);">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div class="weakness-content">
+                                <div class="weakness-title">TIU - Logika Matematika</div>
+                                <div class="weakness-desc">Akurasi 70%, latihan lebih banyak soal logika</div>
+                            </div>
+                            <a href="#" class="weakness-action">Pelajari</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- AI Assessment -->
+                <div class="ai-assessment">
+                    <div class="ai-header">
+                        <div class="ai-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h5 class="ai-title">Penilaian AI</h5>
+                    </div>
+                    <div class="ai-recommendation">
+                        <div class="ai-recommendation-text" id="aiRecommendation">
+                            Berdasarkan analisis performa Anda, disarankan untuk fokus pada materi TWK - Sejarah Indonesia. 
+                            Pola jawaban menunjukkan peningkatan 15% dalam 2 minggu terakhir.
+                        </div>
+                        <div class="ai-confidence">
+                            <i class="fas fa-check-circle"></i>
+                            Confidence: 92%
+                        </div>
+                        <div class="progress-bar-custom">
+                            <div class="progress-fill" style="width: 92%;"></div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 600;">78%</div>
+                            <div style="font-size: 0.8rem; opacity: 0.8;">Kesiapan Ujian</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 600;">12</div>
+                            <div style="font-size: 0.8rem; opacity: 0.8;">Hari Tersisa</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Materials -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-book" style="color: var(--info-color);"></i>
+                            Bahan Ajar
+                        </h5>
+                        <a href="#" style="font-size: 0.9rem;">Lihat Semua</a>
+                    </div>
+                    <div id="materialsList">
+                        <div class="material-item">
+                            <div class="material-icon pdf">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="material-content">
+                                <div class="material-title">Modul TWK Lengkap</div>
+                                <div class="material-meta">
+                                    <span><i class="fas fa-file-alt"></i> 45 halaman</span>
+                                    <span><i class="fas fa-download"></i> 2.5k unduhan</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="material-item">
+                            <div class="material-icon video">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <div class="material-content">
+                                <div class="material-title">Video Tutorial TIU</div>
+                                <div class="material-meta">
+                                    <span><i class="fas fa-clock"></i> 2 jam 30 menit</span>
+                                    <span><i class="fas fa-eye"></i> 1.2k views</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="material-item">
+                            <div class="material-icon doc">
+                                <i class="fas fa-file-word"></i>
+                            </div>
+                            <div class="material-content">
+                                <div class="material-title">Bank Soal TKP 2024</div>
+                                <div class="material-meta">
+                                    <span><i class="fas fa-list"></i> 100 soal</span>
+                                    <span><i class="fas fa-star"></i> 4.8 rating</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-history" style="color: var(--secondary-color);"></i>
+                            Aktivitas Terakhir
+                        </h5>
+                    </div>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Selesai Ujian TWK</div>
+                                <div class="timeline-date">12 Mei 2026, 14:30</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background: var(--success-color); box-shadow: 0 0 0 3px var(--success-color);"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Belajar Materi Pancasila</div>
+                                <div class="timeline-date">11 Mei 2026, 20:15</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background: var(--warning-color); box-shadow: 0 0 0 3px var(--warning-color);"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Mulai Ujian Latihan</div>
+                                <div class="timeline-date">10 Mei 2026, 09:00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="dashboard-footer">
+            <p>&copy; 2026 Ujian Sekolah Kedinasan. Dibuat dengan <i class="fas fa-heart" style="color: #ef4444;"></i> untuk kesuksesan Anda.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/rbac.js"></script>
+    <script>
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            window.location.href = '../login.html';
+        }
+
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            if (!RBAC.isAuthenticated()) {
+                logout();
+                return;
+            }
+
+            // Update UI with user data
+            updateUserInfo();
+            
+            // Initialize Progress Chart
+            initProgressChart();
+            
+            // Load dashboard data
+            loadDashboardData();
+        });
+
+        function updateUserInfo() {
+            const userRole = RBAC.getCurrentRole();
+            const username = localStorage.getItem('username') || 'User';
+            
+            // Set avatar initials
+            const initials = username.substring(0, 2).toUpperCase();
+            document.getElementById('userAvatar').textContent = initials;
+            
+            // Set welcome message
+            document.getElementById('userName').textContent = `Selamat Datang, ${username}!`;
+        }
+
+        function initProgressChart() {
+            const ctx = document.getElementById('progressChart');
+            
+            // Destroy existing chart before creating new one
+            if (ctx) {
+                const existingChart = Chart.getChart(ctx);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+            }
+            
+            new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+                    datasets: [{
+                        label: 'Skor Ujian',
+                        data: [75, 78, 82, 80, 85, 87, 87.5],
+                        borderColor: '#1e40af',
+                        backgroundColor: 'rgba(30, 64, 175, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Rata-rata',
+                        data: [70, 72, 75, 76, 78, 80, 82],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Fetch last exam data
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian'), {
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data && data.data.length > 0) {
+                        updateLastExamCard(data.data[0]);
+                    } else {
+                        console.warn('No exam data available');
+                    }
+                }
+
+                // Fetch weakness analysis
+                const weaknessResponse = await fetch(AppConfig.apiUrl('soal.php?action=analyze_weakness'), {
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (weaknessResponse.ok) {
+                    const weaknessData = await weaknessResponse.json();
+                    if (weaknessData.success && weaknessData.data) {
+                        updateWeaknessAnalysis(weaknessData.data);
+                    } else {
+                        console.warn('No weakness data available');
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        function updateLastExamCard(examData) {
+            // Update with real data from API
+            // This is a placeholder implementation
+        }
+
+        function updateWeaknessAnalysis(weaknessData) {
+            // Update weakness list with real data
+            // This is a placeholder implementation
+        }
+
+        function startNewExam() {
+            window.location.href = 'ujian.html?action=start_exam';
+        }
+
+        function viewHistory() {
+            window.location.href = 'ujian.html?action=history';
+        }
+
+        // Auto refresh data every 5 minutes
+        setInterval(loadDashboardData, 300000);
+    </script>
+</body>
+</html>

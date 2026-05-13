@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Ujian Sekolah Kedinasan</title>
+    <meta name="description" content="Sistem Seleksi Kompetensi Dasar (SKD) untuk sekolah kedinasan">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Ujian Kedinasan">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon-192.svg">
+    <link rel="apple-touch-icon" href="icon-192.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --secondary-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-bg: #f8fafc;
+            --dark-bg: #1e293b;
+            --dark-card: #334155;
+            --dark-text: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin: 1rem auto;
+            max-width: 1200px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 0;
+                border-radius: 0;
+                padding: 1rem;
+            }
+        }
+
+        body.dark-mode .main-container {
+            background: var(--dark-card);
+            color: var(--dark-text);
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 15px;
+            color: white;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 1.5rem;
+            }
+            .header-section p {
+                font-size: 0.9rem;
+            }
+        }
+
+        .header-section p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .timer-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--danger-color);
+            text-align: center;
+            padding: 1rem;
+            background: #fee2e2;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .timer-display {
+                font-size: 1.8rem;
+                padding: 0.8rem;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .question-card {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid var(--primary-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .question-card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+        }
+
+        .question-number {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .category-badge {
+            font-size: 0.9rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            margin-left: 0.5rem;
+        }
+
+        .category-TWK { background: #dbeafe; color: #1e40af; }
+        .category-TIU { background: #fef3c7; color: #92400e; }
+        .category-TKP { background: #d1fae5; color: #065f46; }
+        .category-TPA { background: #fce7f3; color: #9d174d; }
+        .category-PSIKOLOGIS { background: #e0e7ff; color: #3730a3; }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .question-text {
+                font-size: 1rem;
+            }
+        }
+
+        .option-label {
+            display: block;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        @media (max-width: 768px) {
+            .option-label {
+                padding: 0.8rem;
+                margin-bottom: 0.6rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        .option-label:hover {
+            border-color: var(--secondary-color);
+            background: #eff6ff;
+            transform: translateX(5px);
+        }
+
+        .option-label.selected {
+            border-color: var(--primary-color);
+            background: #dbeafe;
+        }
+
+        .option-label input[type="radio"] {
+            margin-right: 0.8rem;
+            transform: scale(1.2);
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .navigation-buttons button {
+                width: 100%;
+            }
+        }
+
+        .btn-custom {
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-success-custom {
+            background: var(--success-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-success-custom:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning-custom {
+            background: var(--warning-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-warning-custom:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info-custom {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+        }
+
+        .btn-info-custom:hover {
+            background: #0284c7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-purple-custom {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+        }
+
+        .btn-purple-custom:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .question-nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--light-bg);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .question-nav {
+                grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+                gap: 0.3rem;
+                padding: 0.5rem;
+            }
+        }
+
+        .nav-item {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        @media (max-width: 768px) {
+            .nav-item {
+                width: 35px;
+                height: 35px;
+                font-size: 0.85rem;
+            }
+        }
+
+        .nav-item:hover {
+            border-color: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .nav-item.current {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .nav-item.doubtful {
+            background: #fef08a;
+            border-color: #fbbf24;
+        }
+
+        .nav-item.doubtful.answered {
+            background: #a3e635;
+            border-color: #84cc16;
+        }
+
+        .nav-item.answered {
+            background: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        .nav-item.unanswered {
+            background: #fee2e2;
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .result-card {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 1rem 0;
+        }
+
+        .pass-fail {
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+
+        .pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .discussion-card {
+            background: #f0fdf4;
+            border-left: 5px solid var(--success-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .tips-card {
+            background: #fef3c7;
+            border-left: 5px solid var(--warning-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .tips-section {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .tips-section h4 {
+            color: #92400e;
+            margin-bottom: 1rem;
+        }
+
+        .tips-section ul {
+            margin-bottom: 0;
+        }
+
+        .tips-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-card h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-card p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .info-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-card.TWK i { color: #1e40af; }
+        .info-card.TIU i { color: #92400e; }
+        .info-card.TKP i { color: #065f46; }
+        .info-card.TPA i { color: #9d174d; }
+        .info-card.PSIKOLOGIS i { color: #3730a3; }
+
+        .info-card h5 {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: var(--secondary-color);
+        }
+
+        .progress-bar-container {
+            background: var(--light-bg);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        body.dark-mode .progress-bar-container {
+            background: var(--dark-bg);
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: var(--light-bg);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        body.dark-mode .progress-bar {
+            background: var(--dark-bg);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .bookmark-btn {
+            background: var(--warning-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .bookmark-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+
+        .bookmark-btn.active {
+            background: var(--danger-color);
+        }
+
+        .nav-item.bookmarked {
+            border-color: var(--warning-color);
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        body.dark-mode .nav-item.bookmarked {
+            background: #78350f;
+            color: #fef3c7;
+        }
+
+        .stats-card {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        body.dark-mode .stats-card {
+            background: var(--dark-bg);
+        }
+    </style>
+</head>
+<body>
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+        <i class="fas fa-moon" id="darkModeIcon"></i>
+    </button>
+    
+    <div class="container">
+        <div class="main-container">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen">
+                <div class="welcome-card">
+                    <h2><i class="fas fa-graduation-cap"></i> Aplikasi Ujian Sekolah Kedinasan</h2>
+                    <p>Sistem Seleksi Kompetensi Dasar (SKD) dengan fitur lengkap: pilihan ganda, timer, pengacakan soal, dan pembahasan</p>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card TWK">
+                        <i class="fas fa-landmark"></i>
+                        <h5>TWK</h5>
+                        <p>Tes Wawasan Kebangsaan<br>30 Soal<br>Passing Grade: 65</p>
+                    </div>
+                    <div class="info-card TIU">
+                        <i class="fas fa-brain"></i>
+                        <h5>TIU</h5>
+                        <p>Tes Intelegensi Umum<br>35 Soal<br>Passing Grade: 80</p>
+                    </div>
+                    <div class="info-card TKP">
+                        <i class="fas fa-user-check"></i>
+                        <h5>TKP</h5>
+                        <p>Tes Karakteristik Pribadi<br>35 Soal<br>Passing Grade: 166</p>
+                    </div>
+                    <div class="info-card TPA">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h5>TPA</h5>
+                        <p>Tes Potensi Akademik<br>Bahasa, Numerik, Logika<br>Passing Grade: 70</p>
+                    </div>
+                    <div class="info-card PSIKOLOGIS">
+                        <i class="fas fa-heart"></i>
+                        <h5>PSIKOLOGIS</h5>
+                        <p>Tes Psikologis<br>Kepribadian, Motivasi<br>Passing Grade: 166</p>
+                    </div>
+                </div>
+
+                <div class="tips-section">
+                    <h4><i class="fas fa-lightbulb"></i> Tips Mengerjakan Ujian:</h4>
+                    <ul>
+                        <li><strong>Jangan terburu-buru</strong> - Kelola waktu dengan baik dan tetap tenang</li>
+                        <li><strong>Fokus dan teliti</strong> - Perhatikan setiap soal dengan seksama</li>
+                        <li><strong>Kerjakan yang bisa dulu</strong> - Lewati soal sulit dan kembali lagi nanti</li>
+                        <li><strong>Strategi pengerjaan</strong> - TWK dulu, lalu TKP, terakhir TIU (butuh waktu hitungan)</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nama Peserta:</label>
+                    <input type="text" class="form-control form-control-lg" id="namaPeserta" placeholder="Masukkan nama lengkap Anda">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Pilih Paket Ujian:</label>
+                    <select class="form-select form-select-lg" id="paketSelection">
+                        <option value="">Loading paket...</option>
+                    </select>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary-custom btn-custom btn-lg" onclick="mulaiUjian()">
+                        <i class="fas fa-play"></i> Mulai Ujian
+                    </button>
+                    <button class="btn btn-success-custom btn-custom btn-lg" onclick="mulaiLatihan()">
+                        <i class="fas fa-dumbbell"></i> Mode Latihan
+                    </button>
+                    <button class="btn btn-warning-custom btn-custom btn-lg" onclick="lihatTips()">
+                        <i class="fas fa-book"></i> Lihat Tips & Trik
+                    </button>
+                    <button class="btn btn-info-custom btn-custom btn-lg" onclick="lihatRiwayat()">
+                        <i class="fas fa-history"></i> Riwayat Ujian
+                    </button>
+                </div>
+            </div>
+
+            <!-- Exam Screen -->
+            <div id="examScreen" class="hidden exam-container">
+                <div class="header-section">
+                    <h2><i class="fas fa-file-alt"></i> Ujian Berlangsung</h2>
+                    <p>Peserta: <span id="displayNama"></span></p>
+                </div>
+
+                <div class="timer-display">
+                    <i class="fas fa-clock"></i> <span id="timer">100:00</span>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <strong>Progress:</strong>
+                        <span id="progressText">0 / 100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="question-card question-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3>Soal <span id="questionNumber" class="badge bg-primary">1</span></h3>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-warning" onclick="flagQuestion('ragu')" id="flagButton_ragu">
+                                <i class="fas fa-question-circle"></i> Ragu
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="flagQuestion('skip')" id="flagButton_skip">
+                                <i class="fas fa-forward"></i> Skip
+                            </button>
+                            <button class="btn btn-outline-info" onclick="flagQuestion('review')" id="flagButton_review">
+                                <i class="fas fa-redo"></i> Review
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="toggleBookmark()" id="bookmarkBtn">
+                                <i class="fas fa-bookmark"></i> Bookmark
+                            </button>
+                        </div>
+                    </div>
+                    <span class="category-badge category-TWK" id="categoryBadge">TWK</span>
+                    <p class="question-text" id="questionText">Loading question...</p>
+
+                    <div id="optionsContainer">
+                        <!-- Options will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-warning-custom btn-custom" onclick="sebelumnya()">
+                        <i class="fas fa-arrow-left"></i> Sebelumnya
+                    </button>
+                    <button class="btn btn-primary-custom btn-custom" onclick="selanjutnya()">
+                        Selanjutnya <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="btn btn-success-custom btn-custom" onclick="selesaiUjian()">
+                        <i class="fas fa-check"></i> Selesai Ujian
+                    </button>
+                </div>
+
+                <div class="question-nav" id="questionNav">
+                    <!-- Navigation will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="resultScreen" class="hidden">
+                <div class="header-section">
+                    <h2><i class="fas fa-trophy"></i> Hasil Ujian</h2>
+                    <p>Peserta: <span id="resultNama"></span></p>
+                </div>
+
+                <div class="result-card">
+                    <h4>Nilai Total</h4>
+                    <div class="score-display" id="totalScore">0</div>
+                    <div class="pass-fail" id="passFail">-</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="result-card TWK">
+                            <h4><i class="fas fa-landmark"></i> TWK</h4>
+                            <div class="score-display" id="twkScore">0</div>
+                            <p>Passing Grade: 65</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="result-card TIU">
+                            <h4><i class="fas fa-brain"></i> TIU</h4>
+                            <div class="score-display" id="tiuScore">0</div>
+                            <p>Passing Grade: 80</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="result-card TKP">
+                            <h4><i class="fas fa-user-check"></i> TKP</h4>
+                            <div class="score-display" id="tkpScore">0</div>
+                            <p>Passing Grade: 166</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="result-card TPA">
+                            <h4><i class="fas fa-graduation-cap"></i> TPA</h4>
+                            <div class="score-display" id="tpaScore">0</div>
+                            <p>Passing Grade: 70</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="result-card PSIKOLOGIS">
+                            <h4><i class="fas fa-heart"></i> PSIKOLOGIS</h4>
+                            <div class="score-display" id="psikologisScore">0</div>
+                            <p>Passing Grade: 166</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">🏆 Ranking Anda</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h2 class="display-4" id="userRank">-</h2>
+                            <p class="text-muted">Peringkat Anda dari <span id="totalParticipants">0</span> peserta</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary-custom btn-custom btn-lg" onclick="lihatPembahasan()">
+                        <i class="fas fa-book-open"></i> Lihat Pembahasan
+                    </button>
+                    <button class="btn btn-success-custom btn-custom btn-lg" onclick="lihatRekomendasiBelajar()">
+                        <i class="fas fa-lightbulb"></i> Rekomendasi Belajar
+                    </button>
+                    <button class="btn btn-success-custom btn-custom btn-lg" onclick="ulangUjian()">
+                        <i class="fas fa-redo"></i> Ulangi Ujian
+                    </button>
+                    <button class="btn btn-info-custom btn-custom btn-lg" onclick="exportPDF()">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button class="btn btn-purple-custom btn-custom btn-lg" onclick="downloadCertificate()">
+                        <i class="fas fa-certificate"></i> Sertifikat
+                    </button>
+                </div>
+            </div>
+
+            <!-- Learning Recommendations Screen -->
+            <div id="learningScreen" class="hidden">
+                <div class="header-section">
+                    <h2><i class="fas fa-lightbulb"></i> Rekomendasi Belajar</h2>
+                    <p>Bahan pelajaran untuk soal yang salah atau ragu-ragu</p>
+                </div>
+
+                <div class="mb-3">
+                    <button class="btn btn-secondary" onclick="kembaliKeHasil()">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Hasil
+                    </button>
+                </div>
+
+                <div id="learningRecommendations">
+                    <!-- Learning recommendations will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Discussion Screen -->
+            <div id="discussionScreen" class="hidden">
+                <div class="header-section">
+                    <h2><i class="fas fa-book-open"></i> Pembahasan Soal</h2>
+                    <p>Pelajari jawaban benar dan penjelasan lengkap</p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Filter Berdasarkan Kategori:</label>
+                    <select class="form-select" id="filterKategori" onchange="filterPembahasan()">
+                        <option value="semua">Semua Kategori</option>
+                        <option value="TWK">TWK - Tes Wawasan Kebangsaan</option>
+                        <option value="TIU">TIU - Tes Intelegensi Umum</option>
+                        <option value="TKP">TKP - Tes Karakteristik Pribadi</option>
+                        <option value="TPA">TPA - Tes Potensi Akademik</option>
+                        <option value="PSIKOLOGIS">PSIKOLOGIS - Tes Psikologis</option>
+                    </select>
+                </div>
+
+                <div id="pembahasanContainer">
+                    <!-- Discussions will be loaded here -->
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary-custom btn-custom" onclick="kembaliKeHasil()">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Hasil
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tips Screen -->
+            <div id="tipsScreen" class="hidden">
+                <div class="header-section">
+                    <h2><i class="fas fa-lightbulb"></i> Tips & Trik Menyelesaikan Soal</h2>
+                    <p>Strategi dan teknik untuk menghadapi ujian SKD</p>
+                </div>
+
+                <div id="tipsContainer">
+                    <!-- Tips will be loaded here -->
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary-custom btn-custom" onclick="kembaliKeWelcome()">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </button>
+                </div>
+            </div>
+
+            <!-- History Screen -->
+            <div id="historyScreen" class="hidden">
+                <div class="header-section">
+                    <h2><i class="fas fa-history"></i> Riwayat Ujian</h2>
+                    <p>Lihat hasil ujian yang telah Anda selesaikan</p>
+                </div>
+
+                <div class="stats-card">
+                    <h4><i class="fas fa-chart-bar"></i> Statistik</h4>
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            <div class="stats-card">
+                                <h5>Total Ujian</h5>
+                                <div class="score-display" id="statTotalExams">0</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card">
+                                <h5>Rata-rata Nilai</h5>
+                                <div class="score-display" id="statAvgScore">0</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card">
+                                <h5>Tingkat Kelulusan</h5>
+                                <div class="score-display" id="statPassRate">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card">
+                                <h5>Rata-rata TWK</h5>
+                                <div class="score-display" id="statAvgTWK">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="historyContainer">
+                    <!-- History will be loaded here -->
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary-custom btn-custom" onclick="kembaliKeWelcome()">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/rbac.js"></script>
+    <script src="../app.js"></script>
+    <script>
+        // Role-based UI updates on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const userRole = localStorage.getItem('userRole') || 'guest';
+            const authToken = localStorage.getItem('authToken');
+            
+            // Handle URL parameter to show exam screen
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            
+            if (action === 'start_exam') {
+                showExamScreen();
+            } else if (action === 'history') {
+                showHistoryScreen();
+            }
+            
+            // Update welcome message based on role
+            const welcomeTitle = document.querySelector('.header-section h1');
+            if (welcomeTitle) {
+                if (userRole === 'admin') {
+                    welcomeTitle.innerHTML = '<i class="fas fa-user-shield"></i> Selamat Datang, Administrator!';
+                } else if (userRole === 'user' && authToken) {
+                    welcomeTitle.innerHTML = '<i class="fas fa-user-graduate"></i> Selamat Datang, Peserta Ujian!';
+                }
+            }
+            
+            // Show/hide admin button based on role
+            const adminBtn = document.getElementById('adminPanelBtn');
+            if (adminBtn) {
+                adminBtn.style.display = userRole === 'admin' ? 'inline-block' : 'none';
+            }
+            
+            // Update login/logout button
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                if (authToken) {
+                    loginBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+                    loginBtn.onclick = () => {
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('userRole');
+                        window.location.href = '../login.html';
+                    };
+                } else {
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                    loginBtn.onclick = () => {
+                        window.location.href = '../login.html';
+                    };
+                }
+            }
+        });
+
+        // Show exam screen
+        function showExamScreen() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('historyScreen').classList.add('hidden');
+            document.getElementById('examScreen').classList.remove('hidden');
+        }
+
+        // Show history screen
+        function showHistoryScreen() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('examScreen').classList.add('hidden');
+            document.getElementById('historyScreen').classList.remove('hidden');
+        }
+
+        // Go back to welcome screen
+        function kembaliKeWelcome() {
+            document.getElementById('examScreen').classList.add('hidden');
+            document.getElementById('historyScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

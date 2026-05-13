@@ -1,16 +1,40 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: http://localhost');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-CSRF-Token');
 
 require_once '../config.php';
+
+// Check database connection (prevents HTML errors in JSON responses)
+checkDatabaseConnection();
+
 require_once 'middleware.php';
 require_once 'csrf.php';
+require_once 'rate_limiter.php';
 require_once '../scripts/learning_recommendation_system.php';
 require_once '../scripts/ai_question_generator.php';
+require_once '../scripts/logger.php';
 
-session_start();
+// Start session if not already active
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Apply rate limiting (100 requests per minute for public endpoints, 1000 for authenticated)
+$action = $_GET['action'] ?? '';
+$public_actions = ['get_soal_by_kategori', 'get_soal_acak', 'get_soal_by_id', 'get_learning_topics', 'get_paket', 'get_soal_by_paket'];
+
+if (!in_array($action, $public_actions)) {
+    // Authenticated endpoints: higher limit
+    checkRateLimit(1000, 60);
+} else {
+    // Public endpoints: lower limit
+    checkRateLimit(100, 60);
+}
+
+// Log API access
+logAccess("API request: action=$action", ['action' => $action, 'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown']);
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -21,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $action = $_GET['action'] ?? '';
 
 // Public endpoints (no auth required)
-$public_actions = ['get_soal_by_kategori', 'get_soal_acak', 'get_soal_by_id', 'get_learning_topics'];
+$public_actions = ['get_soal_by_kategori', 'get_soal_acak', 'get_soal_by_id', 'get_learning_topics', 'get_paket', 'get_soal_by_paket'];
 
 // Protected endpoints (auth required)
 if (!in_array($action, $public_actions)) {
@@ -335,9 +359,36 @@ function simpanSesi() {
     
     $data = json_decode(file_get_contents('php://input'), true);
     
-    $nama = $conn->real_escape_string($data['nama_peserta']);
+    // Validate required fields
+    if (empty($data['nama_peserta']) || !is_numeric($data['durasi_menit'])) {
+        echo json_encode(['success' => false, 'error' => 'Invalid input data']);
+        return;
+    }
+    
+    // Validate and sanitize input
+    $nama = trim($data['nama_peserta']);
+    if (strlen($nama) < 2 || strlen($nama) > 100) {
+        echo json_encode(['success' => false, 'error' => 'Nama peserta harus 2-100 karakter']);
+        return;
+    }
+    
     $durasi = intval($data['durasi_menit']);
+    if ($durasi < 1 || $durasi > 300) {
+        echo json_encode(['success' => false, 'error' => 'Durasi tidak valid (1-300 menit)']);
+        return;
+    }
+    
+    // Validate soal_teracak is array
+    if (!is_array($data['soal_teracak'])) {
+        echo json_encode(['success' => false, 'error' => 'Format soal tidak valid']);
+        return;
+    }
+    
     $soal_teracak = json_encode($data['soal_teracak']);
+    if (strlen($soal_teracak) > 100000) { // Max 100KB
+        echo json_encode(['success' => false, 'error' => 'Data soal terlalu besar']);
+        return;
+    }
     
     $sql = "INSERT INTO sesi_ujian (nama_peserta, durasi_menit, soal_teracak) 
             VALUES (?, ?, ?)";
@@ -374,9 +425,32 @@ function selesaiUjian() {
     
     $data = json_decode(file_get_contents('php://input'), true);
     
-    $nama = $conn->real_escape_string($data['nama_peserta']);
+    // Validate required fields
+    if (empty($data['nama_peserta']) || !is_array($data['jawaban'])) {
+        echo json_encode(['success' => false, 'error' => 'Invalid input data']);
+        return;
+    }
+    
+    // Validate and sanitize input
+    $nama = trim($data['nama_peserta']);
+    if (strlen($nama) < 2 || strlen($nama) > 100) {
+        echo json_encode(['success' => false, 'error' => 'Nama peserta tidak valid']);
+        return;
+    }
+    
+    $sesi_id = isset($data['sesi_id']) ? intval($data['sesi_id']) : 0;
+    
+    // Validate jawaban array size
+    if (count($data['jawaban']) > 1000) {
+        echo json_encode(['success' => false, 'error' => 'Too many answers']);
+        return;
+    }
+    
     $jawaban = json_encode($data['jawaban']);
-    $sesi_id = intval($data['sesi_id']);
+    if (strlen($jawaban) > 50000) { // Max 50KB
+        echo json_encode(['success' => false, 'error' => 'Answer data too large']);
+        return;
+    }
     
     // Calculate scores
     $nilai_twk = 0;
@@ -386,8 +460,13 @@ function selesaiUjian() {
     $nilai_psikologis = 0;
     
     foreach ($data['jawaban'] as $item) {
+        // Validate each answer item
+        if (!is_array($item) || empty($item['soal_id'])) {
+            continue;
+        }
+        
         $soal_id = intval($item['soal_id']);
-        $jawaban_peserta = $item['jawaban'];
+        $jawaban_peserta = isset($item['jawaban']) ? strtoupper(substr(trim($item['jawaban']), 0, 1)) : '';
         
         $sql = "SELECT jawaban_benar, kategori_id FROM soal WHERE id = ?";
         $stmt = $conn->prepare($sql);
@@ -445,7 +524,13 @@ function getRiwayatUjian() {
     global $conn;
     
     $limit = intval($_GET['limit'] ?? 10);
-    $offset = intval($_GET['offset'] ?? 0);
+    $page = intval($_GET['page'] ?? 1);
+    $offset = ($page - 1) * $limit;
+    
+    // Get total count
+    $sql_count = "SELECT COUNT(*) as total FROM hasil_ujian";
+    $result_count = $conn->query($sql_count);
+    $total = $result_count->fetch_assoc()['total'];
     
     $sql = "SELECT * FROM hasil_ujian ORDER BY tanggal_ujian DESC LIMIT ? OFFSET ?";
     $stmt = $conn->prepare($sql);
@@ -458,7 +543,18 @@ function getRiwayatUjian() {
         $riwayat[] = $row;
     }
     
-    echo json_encode(['success' => true, 'data' => $riwayat]);
+    $total_pages = ceil($total / $limit);
+    
+    echo json_encode([
+        'success' => true,
+        'data' => $riwayat,
+        'pagination' => [
+            'total' => $total,
+            'per_page' => $limit,
+            'current_page' => $page,
+            'total_pages' => $total_pages
+        ]
+    ]);
 }
 
 function getStatistik() {
@@ -695,33 +791,42 @@ function getSoalByPaket() {
     }
     
     // Get paket info
-    $sql_paket = "SELECT * FROM paket_tryout WHERE id = $paket_id";
-    $result_paket = $conn->query($sql_paket);
+    $sql_paket = "SELECT * FROM paket_tryout WHERE id = ?";
+    $stmt_paket = $conn->prepare($sql_paket);
+    $stmt_paket->bind_param("i", $paket_id);
+    $stmt_paket->execute();
+    $result_paket = $stmt_paket->get_result();
     $paket = $result_paket->fetch_assoc();
+    $stmt_paket->close();
     
     if (!$paket) {
         echo json_encode(['success' => false, 'error' => 'Paket not found']);
         return;
     }
     
-    // Get questions based on paket
+    // Get questions based on paket using prepared statements
     if ($paket['kategori_id']) {
         $sql = "SELECT s.*, k.nama_kategori 
                 FROM soal s 
                 JOIN kategori_soal k ON s.kategori_id = k.id 
-                WHERE s.kategori_id = " . $paket['kategori_id'] . " 
+                WHERE s.kategori_id = ? 
                 ORDER BY RAND() 
-                LIMIT " . $paket['total_soal'];
+                LIMIT ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $paket['kategori_id'], $paket['total_soal']);
     } else {
         // Random from all categories
         $sql = "SELECT s.*, k.nama_kategori 
                 FROM soal s 
                 JOIN kategori_soal k ON s.kategori_id = k.id 
                 ORDER BY RAND() 
-                LIMIT " . $paket['total_soal'];
+                LIMIT ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $paket['total_soal']);
     }
     
-    $result = $conn->query($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $soal = [];
     $nomor = 1;
     
@@ -839,8 +944,11 @@ function getBahanPelajaran() {
         return;
     }
     
-    $sql = "SELECT * FROM v_bahan_pelajaran_lengkap WHERE soal_id = $soal_id ORDER BY urutan";
-    $result = $conn->query($sql);
+    $sql = "SELECT * FROM v_bahan_pelajaran_lengkap WHERE soal_id = ? ORDER BY urutan";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $soal_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $bahan = [];
     
     while ($row = $result->fetch_assoc()) {
@@ -865,14 +973,36 @@ function saveBahanPelajaran() {
     $url = $conn->real_escape_string($_POST['url'] ?? '');
     $urutan = intval($_POST['urutan'] ?? 0);
     
-    // Handle file upload
+    // Handle file upload with security
     $file_path = '';
     if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
         $file = $_FILES['file'];
-        $file_name = time() . '_' . basename($file['name']);
         $file_size = $file['size'];
         $file_tmp = $file['tmp_name'];
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        
+        // Security: Whitelist allowed file types
+        $allowed_extensions = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'mp4', 'webm'];
+        if (!in_array($file_ext, $allowed_extensions)) {
+            echo json_encode(['success' => false, 'error' => 'File type not allowed']);
+            return;
+        }
+        
+        // Security: Limit file size (max 10MB)
+        $max_size = 10 * 1024 * 1024;
+        if ($file_size > $max_size) {
+            echo json_encode(['success' => false, 'error' => 'File size exceeds maximum limit (10MB)']);
+            return;
+        }
+        
+        // Security: Sanitize file name
+        $file_name = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', basename($file['name']));
+        
+        // Security: Verify it's a real file upload
+        if (!is_uploaded_file($file_tmp)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid file upload']);
+            return;
+        }
         
         // Determine upload directory based on file type
         $upload_dir = '../uploads/bahan_pelajaran/';
@@ -892,7 +1022,7 @@ function saveBahanPelajaran() {
         
         // Create directory if not exists
         if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
+            mkdir($upload_dir, 0755, true);
         }
         
         // Move file
@@ -911,7 +1041,7 @@ function saveBahanPelajaran() {
         $file_name = 'text_' . time() . '.txt';
         $upload_dir = '../uploads/bahan_pelajaran/text/';
         if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
+            mkdir($upload_dir, 0755, true);
         }
         file_put_contents($upload_dir . $file_name, $konten);
         $file_path = str_replace('../', '', $upload_dir) . $file_name;
@@ -919,8 +1049,11 @@ function saveBahanPelajaran() {
     }
     
     $sql = "INSERT INTO bahan_pelajaran (soal_id, judul, konten, tipe, url, file_path, urutan)
-            VALUES ($soal_id, '$judul', '$konten', '$tipe', '$url', '$file_path', $urutan)";
-    $result = $conn->query($sql);
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("isssssi", $soal_id, $judul, $konten, $tipe, $url, $file_path, $urutan);
+    $result = $stmt->execute();
+    $stmt->close();
     
     if ($result) {
         echo json_encode(['success' => true]);
@@ -984,17 +1117,24 @@ function generateRekomendasi() {
     $generated = 0;
     
     // Get all questions in the session
-    $sql_soal = "SELECT * FROM jawaban_user WHERE hasil_id = " . $sesi['hasil_id'];
-    $result_soal = $conn->query($sql_soal);
+    $sql_soal = "SELECT * FROM jawaban_user WHERE hasil_id = ?";
+    $stmt_soal = $conn->prepare($sql_soal);
+    $stmt_soal->bind_param("i", $sesi['hasil_id']);
+    $stmt_soal->execute();
+    $result_soal = $stmt_soal->get_result();
     
     while ($row_soal = $result_soal->fetch_assoc()) {
         $soal_id = $row_soal['soal_id'];
         $jawaban_user = $row_soal['jawaban'];
         
         // Get question correct answer
-        $sql_q = "SELECT jawaban_benar FROM soal WHERE id = $soal_id";
-        $result_q = $conn->query($sql_q);
+        $sql_q = "SELECT jawaban_benar FROM soal WHERE id = ?";
+        $stmt_q = $conn->prepare($sql_q);
+        $stmt_q->bind_param("i", $soal_id);
+        $stmt_q->execute();
+        $result_q = $stmt_q->get_result();
         $q = $result_q->fetch_assoc();
+        $stmt_q->close();
         
         if (!$q) continue;
         
@@ -1070,9 +1210,13 @@ function analyzeWeakness() {
     }
     
     // Get session info
-    $sql_sesi = "SELECT * FROM sesi_ujian WHERE id = $sesi_id";
-    $result_sesi = $conn->query($sql_sesi);
+    $sql_sesi = "SELECT * FROM sesi_ujian WHERE id = ?";
+    $stmt_sesi = $conn->prepare($sql_sesi);
+    $stmt_sesi->bind_param("i", $sesi_id);
+    $stmt_sesi->execute();
+    $result_sesi = $stmt_sesi->get_result();
     $sesi = $result_sesi->fetch_assoc();
+    $stmt_sesi->close();
     
     if (!$sesi) {
         echo json_encode(['success' => false, 'error' => 'Session not found']);
@@ -1164,11 +1308,21 @@ function getRanking() {
     
     $kategori = $_GET['kategori'] ?? 'total';
     $limit = intval($_GET['limit'] ?? 50);
+    $page = intval($_GET['page'] ?? 1);
+    $offset = ($page - 1) * $limit;
     
     $order_field = 'nilai_total';
     if ($kategori === 'TWK') $order_field = 'nilai_twk';
     elseif ($kategori === 'TIU') $order_field = 'nilai_tiu';
     elseif ($kategori === 'TKP') $order_field = 'nilai_tkp';
+    
+    // Get total count
+    $sql_count = "SELECT COUNT(*) as total 
+                  FROM hasil_ujian h
+                  LEFT JOIN leaderboard_optout lo ON h.nama_peserta = lo.nama_peserta
+                  WHERE lo.nama_peserta IS NULL";
+    $result_count = $conn->query($sql_count);
+    $total = $result_count->fetch_assoc()['total'];
     
     // Exclude opted-out users
     $sql = "SELECT h.* 
@@ -1176,7 +1330,7 @@ function getRanking() {
             LEFT JOIN leaderboard_optout lo ON h.nama_peserta = lo.nama_peserta
             WHERE lo.nama_peserta IS NULL
             ORDER BY $order_field DESC, tanggal_ujian ASC
-            LIMIT $limit";
+            LIMIT $limit OFFSET $offset";
     $result = $conn->query($sql);
     $ranking = [];
     
@@ -1184,30 +1338,74 @@ function getRanking() {
         $ranking[] = $row;
     }
     
-    echo json_encode(['success' => true, 'data' => $ranking]);
+    $total_pages = ceil($total / $limit);
+    
+    echo json_encode([
+        'success' => true,
+        'data' => $ranking,
+        'pagination' => [
+            'total' => $total,
+            'per_page' => $limit,
+            'current_page' => $page,
+            'total_pages' => $total_pages
+        ]
+    ]);
 }
 
 function getTipsTricks() {
     global $conn;
     
     $kategori_id = intval($_GET['kategori_id'] ?? 0);
+    $page = intval($_GET['page'] ?? 1);
+    $limit = intval($_GET['limit'] ?? 20);
+    $offset = ($page - 1) * $limit;
     
-    $where = "WHERE aktif = 1";
+    // Get total count
     if ($kategori_id > 0) {
-        $where .= " AND kategori_id = $kategori_id";
+        $count_sql = "SELECT COUNT(*) as total FROM tips_tricks WHERE aktif = 1 AND kategori_id = ?";
+        $stmt = $conn->prepare($count_sql);
+        $stmt->bind_param("i", $kategori_id);
+        $stmt->execute();
+        $count_result = $stmt->get_result();
+        $total = $count_result->fetch_assoc()['total'];
+        $stmt->close();
+        
+        $sql = "SELECT * FROM tips_tricks WHERE aktif = 1 AND kategori_id = ? ORDER BY prioritas DESC, created_at DESC LIMIT ? OFFSET ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iii", $kategori_id, $limit, $offset);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
+    } else {
+        $count_sql = "SELECT COUNT(*) as total FROM tips_tricks WHERE aktif = 1";
+        $count_result = $conn->query($count_sql);
+        $total = $count_result->fetch_assoc()['total'];
+        
+        $sql = "SELECT * FROM tips_tricks WHERE aktif = 1 ORDER BY prioritas DESC, created_at DESC LIMIT ? OFFSET ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $limit, $offset);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
     }
     
-    $sql = "SELECT * FROM tips_tricks $where ORDER BY prioritas DESC, created_at DESC";
-    $result = $conn->query($sql);
     $tips = [];
     
     while ($row = $result->fetch_assoc()) {
         $tips[] = $row;
     }
     
+    $total_pages = ceil($total / $limit);
+    
     echo json_encode([
         'success' => true,
-        'data' => $tips
+        'data' => $tips,
+        'pagination' => [
+            'total' => $total,
+            'per_page' => $limit,
+            'current_page' => $page,
+            'total_pages' => $total_pages
+        ]
     ]);
 }
 
@@ -1334,9 +1532,13 @@ function generateCertificate() {
     }
     
     // Get hasil info
-    $sql = "SELECT * FROM hasil_ujian WHERE id = $hasil_id";
-    $result = $conn->query($sql);
+    $sql = "SELECT * FROM hasil_ujian WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $hasil_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $hasil = $result->fetch_assoc();
+    $stmt->close();
     
     if (!$hasil) {
         echo json_encode(['success' => false, 'error' => 'Hasil not found']);
@@ -1479,11 +1681,21 @@ function getBlueprints() {
     requireAdmin();
     
     $paket_id = intval($_GET['paket_id'] ?? 0);
+    $page = intval($_GET['page'] ?? 1);
+    $limit = intval($_GET['limit'] ?? 20);
+    $offset = ($page - 1) * $limit;
     
     $where = "";
+    $where_count = "";
     if ($paket_id > 0) {
         $where = "WHERE pb.paket_id = $paket_id";
+        $where_count = "WHERE paket_id = $paket_id";
     }
+    
+    // Get total count
+    $sql_count = "SELECT COUNT(*) as total FROM paket_blueprint $where_count";
+    $result_count = $conn->query($sql_count);
+    $total = $result_count->fetch_assoc()['total'];
     
     $sql = "SELECT pb.*, pt.nama_paket, k.nama_kategori,
             (SELECT COUNT(*) FROM soal WHERE kategori_id = pb.kategori_id AND tingkat BETWEEN pb.min_difficulty AND pb.max_difficulty) as available_count
@@ -1491,7 +1703,8 @@ function getBlueprints() {
             LEFT JOIN paket_tryout pt ON pb.paket_id = pt.id
             LEFT JOIN kategori_soal k ON pb.kategori_id = k.id
             $where
-            ORDER BY pb.paket_id, pb.kategori_id";
+            ORDER BY pb.paket_id, pb.kategori_id
+            LIMIT $limit OFFSET $offset";
     $result = $conn->query($sql);
     $blueprints = [];
     
@@ -1500,7 +1713,18 @@ function getBlueprints() {
         $blueprints[] = $row;
     }
     
-    echo json_encode(['success' => true, 'data' => $blueprints]);
+    $total_pages = ceil($total / $limit);
+    
+    echo json_encode([
+        'success' => true,
+        'data' => $blueprints,
+        'pagination' => [
+            'total' => $total,
+            'per_page' => $limit,
+            'current_page' => $page,
+            'total_pages' => $total_pages
+        ]
+    ]);
 }
 
 function saveBlueprint() {

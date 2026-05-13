@@ -1,6 +1,10 @@
-# Aplikasi Tryout & Simulasi Ujian
+# Aplikasi Ujian Sekolah Kedinasan
 
-Aplikasi web untuk simulasi ujian online dengan sistem CAT (Computer Adaptive Testing), bank soal dinamis, dan analisa hasil berbasis AI. Dirancang untuk mendukung UTBK, SNBT, CPNS, ujian sekolah, dan berbagai jenis tryout lainnya.
+Sistem ujian online modern dengan RBAC (Role-Based Access Control), dashboard komprehensif, dan analisa AI. Dirancang untuk sekolah kedinasan, CPNS, UTBK/SNBT, dan ujian seleksi lainnya.
+
+**Versi:** 2.0  
+**Status:** Production Ready ✅  
+**Last Updated:** 13 Mei 2026
 
 ## 🎯 Fitur Utama
 

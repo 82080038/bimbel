@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Ujian Sekolah Kedinasan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --secondary-color: #3b82f6;
+        }
+        body {
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            min-height: 100vh;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: white;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.2);
+            opacity: 1;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar p-3">
+                <div class="sidebar-header">
+                    <h4>Admin Panel</h4>
+                    <p id="userRoleDisplay" class="small mb-0"></p>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('questions')">
+                        <i class="fas fa-question-circle"></i> Soal
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('categories')">
+                        <i class="fas fa-layer-group"></i> Kategori
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('statistics')">
+                        <i class="fas fa-chart-bar"></i> Statistik Soal
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('leaderboardSettings')">
+                        <i class="fas fa-user-shield"></i> Pengaturan Leaderboard
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('blueprint')">
+                        <i class="fas fa-project-diagram"></i> Paket Blueprint
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('irt')">
+                        <i class="fas fa-chart-line"></i> IRT Analysis
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('bahanPelajaran')">
+                        <i class="fas fa-book"></i> Bahan Pelajaran
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('tips')">
+                        <i class="fas fa-lightbulb"></i> Tips & Triks
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('results')">
+                        <i class="fas fa-chart-line"></i> Hasil Ujian
+                    </a>
+                    <a class="nav-link text-danger" href="#" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <!-- Dashboard Section -->
+                <div id="dashboardSection">
+                    <h2 class="mb-4">Dashboard</h2>
+                    
+                    <!-- Quick Stats -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <h3 id="totalSoal">0</h3>
+                                <p>Total Soal</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <h3 id="totalUjian">0</h3>
+                                <p>Total Ujian</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <h3 id="avgScore">0</h3>
+                                <p>Rata-rata Nilai</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <h3 id="passRate">0%</h3>
+                                <p>Tingkat Kelulusan</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Analytics -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Analytics per Kategori</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Nilai Rata-rata per Kategori</h6>
+                                    <canvas id="categoryScoreChart" height="200"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Distribusi Kelulusan per Kategori</h6>
+                                    <canvas id="categoryPassChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Trend -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Tren Performa (7 Ujian Terakhir)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="performanceTrendChart" height="100"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Exams -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Ujian Terbaru</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Tanggal</th>
+                                            <th>Nama Peserta</th>
+                                            <th>Nilai Total</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentExamsTable">
+                                        <!-- Recent exams will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questions Section -->
+                <div id="questionsSection" class="hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Manajemen Soal</h2>
+                        <div>
+                            <button class="btn btn-success me-2" onclick="showAIGeneratorModal()">
+                                <i class="fas fa-robot"></i> AI Generator Soal
+                            </button>
+                            <button class="btn btn-primary" onclick="showQuestionModal()">
+                                <i class="fas fa-plus"></i> Tambah Soal
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <select class="form-select" id="filterKategori" onchange="loadQuestions()">
+                                    <option value="">Semua Kategori</option>
+                                    <option value="TWK">TWK</option>
+                                    <option value="TIU">TIU</option>
+                                    <option value="TKP">TKP</option>
+                                    <option value="TPA">TPA</option>
+                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="searchSoal" placeholder="Cari soal..." onkeyup="searchQuestions()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Kategori</th>
+                                        <th>Pertanyaan</th>
+                                        <th>Jawaban</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="questionsTable">
+                                    <!-- Questions will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <nav>
+                            <ul class="pagination justify-content-center" id="pagination">
+                                <!-- Pagination will be loaded here -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Categories Section -->
+                <div id="categoriesSection" class="hidden">
+                    <h2 class="mb-4">Manajemen Kategori</h2>
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nama Kategori</th>
+                                        <th>Deskripsi</th>
+                                        <th>Passing Grade</th>
+                                        <th>Jumlah Soal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoriesTable">
+                                    <!-- Categories will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Section -->
+                <div id="statisticsSection" class="hidden">
+                    <h2 class="mb-4">Statistik Soal</h2>
+                    
+                    <div class="card p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <select class="form-select" id="statsKategori" onchange="loadSoalStatistics()">
+                                    <option value="">Semua Kategori</option>
+                                    <option value="TWK">TWK</option>
+                                    <option value="TIU">TIU</option>
+                                    <option value="TKP">TKP</option>
+                                    <option value="TPA">TPA</option>
+                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Soal</th>
+                                        <th>Kategori</th>
+                                        <th>Muncul</th>
+                                        <th>Benar</th>
+                                        <th>Salah</th>
+                                        <th>% Benar</th>
+                                        <th>Prioritas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="soalStatisticsTable">
+                                    <!-- Statistics will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Settings Section -->
+                <div id="leaderboardSettingsSection" class="hidden">
+                    <h2 class="mb-4">Pengaturan Leaderboard</h2>
+                    
+                    <div class="card p-3 mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="optOutLeaderboard" onchange="toggleLeaderboardOptOut()">
+                            <label class="form-check-label" for="optOutLeaderboard">
+                                Sembunyikan nama dari leaderboard (Opt-out)
+                            </label>
+                        </div>
+                        <p class="text-muted small mt-2">
+                            Jika diaktifkan, nama Anda tidak akan ditampilkan di leaderboard publik.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Paket Blueprint Section -->
+                <div id="blueprintSection" class="hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Paket Blueprint</h2>
+                        <button class="btn btn-success" onclick="showBlueprintModal()">
+                            <i class="fas fa-plus"></i> Tambah Blueprint
+                        </button>
+                    </div>
+                    
+                    <div class="card p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <select class="form-select" id="blueprintPaketFilter" onchange="loadBlueprints()">
+                                    <option value="">Semua Paket</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Paket</th>
+                                        <th>Kategori</th>
+                                        <th>Target Count</th>
+                                        <th>Min Difficulty</th>
+                                        <th>Max Difficulty</th>
+                                        <th>Available</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="blueprintTable">
+                                    <!-- Blueprints will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <nav aria-label="Blueprint pagination" class="mt-3">
+                            <ul class="pagination justify-content-center" id="blueprintPagination"></ul>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Tips & Tricks Section -->
+                <div id="tipsSection" class="hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Tips & Triks</h2>
+                        <button class="btn btn-success" onclick="showTipsModal()">
+                            <i class="fas fa-plus"></i> Tambah Tips
+                        </button>
+                    </div>
+                    
+                    <div class="card p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <select class="form-select" id="tipsKategoriFilter" onchange="loadTipsTricks()">
+                                    <option value="">Semua Kategori</option>
+                                    <option value="TWK">TWK</option>
+                                    <option value="TIU">TIU</option>
+                                    <option value="TKP">TKP</option>
+                                    <option value="TPA">TPA</option>
+                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Judul</th>
+                                        <th>Kategori</th>
+                                        <th>Tipe</th>
+                                        <th>Prioritas</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tipsTable">
+                                    <!-- Tips will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <nav aria-label="Tips pagination" class="mt-3">
+                            <ul class="pagination justify-content-center" id="tipsPagination"></ul>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- IRT Analysis Section -->
+                <div id="irtSection" class="hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>IRT Analysis (Item Response Theory)</h2>
+                        <button class="btn btn-success" onclick="calculateIRT()">
+                            <i class="fas fa-calculator"></i> Hitung IRT Parameters
+                        </button>
+                    </div>
+                    
+                    <div class="card p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <select class="form-select" id="irtKategoriFilter" onchange="loadIRTAnalysis()">
+                                    <option value="">Semua Kategori</option>
+                                    <option value="TWK">TWK</option>
+                                    <option value="TIU">TIU</option>
+                                    <option value="TKP">TKP</option>
+                                    <option value="TPA">TPA</option>
+                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="irtQualityFilter" onchange="loadIRTAnalysis()">
+                                    <option value="">Semua Quality</option>
+                                    <option value="excellent">Excellent</option>
+                                    <option value="good">Good</option>
+                                    <option value="fair">Fair</option>
+                                    <option value="poor">Poor</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Soal</th>
+                                        <th>Kategori</th>
+                                        <th>Discrimination</th>
+                                        <th>IRT a</th>
+                                        <th>IRT b</th>
+                                        <th>IRT c</th>
+                                        <th>Quality</th>
+                                        <th>Muncul</th>
+                                        <th>% Benar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="irtTable">
+                                    <!-- IRT data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bahan Pelajaran Section -->
+                <div id="bahanPelajaranSection" class="hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Bahan Pelajaran</h2>
+                        <button class="btn btn-success" onclick="showBahanPelajaranModal()">
+                            <i class="fas fa-plus"></i> Tambah Bahan
+                        </button>
+                    </div>
+                    
+                    <div class="card p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <select class="form-select" id="bahanKategoriFilter" onchange="loadBahanPelajaran()">
+                                    <option value="">Semua Kategori</option>
+                                    <option value="TWK">TWK</option>
+                                    <option value="TIU">TIU</option>
+                                    <option value="TKP">TKP</option>
+                                    <option value="TPA">TPA</option>
+                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Judul</th>
+                                        <th>Soal ID</th>
+                                        <th>Tipe</th>
+                                        <th>File/URL</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bahanPelajaranTable">
+                                    <!-- Bahan pelajaran will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="resultsSection" class="hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Hasil Ujian</h2>
+                        <button class="btn btn-success" onclick="exportExcel()">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nama Peserta</th>
+                                        <th>Tanggal</th>
+                                        <th>Nilai TWK</th>
+                                        <th>Nilai TIU</th>
+                                        <th>Nilai TKP</th>
+                                        <th>Nilai Total</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultsTable">
+                                    <!-- Results will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blueprint Modal -->
+    <div class="modal fade" id="blueprintModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Kelola Paket Blueprint</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="blueprintForm">
+                        <input type="hidden" id="blueprintId">
+                        <div class="mb-3">
+                            <label class="form-label">Paket</label>
+                            <select class="form-select" id="blueprintPaket" required>
+                                <option value="">Pilih Paket</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select class="form-select" id="blueprintKategori" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="1">TWK</option>
+                                <option value="2">TIU</option>
+                                <option value="3">TKP</option>
+                                <option value="4">TPA</option>
+                                <option value="5">PSIKOLOGIS</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Target Count</label>
+                            <input type="number" class="form-control" id="blueprintTargetCount" required min="1">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Min Difficulty</label>
+                            <select class="form-select" id="blueprintMinDifficulty" required>
+                                <option value="mudah">Mudah</option>
+                                <option value="sedang">Sedang</option>
+                                <option value="sulit">Sulit</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Max Difficulty</label>
+                            <select class="form-select" id="blueprintMaxDifficulty" required>
+                                <option value="mudah">Mudah</option>
+                                <option value="sedang">Sedang</option>
+                                <option value="sulit">Sulit</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveBlueprint()">Simpan</button>
+                    <button type="button" class="btn btn-info" onclick="validateCurrentBlueprint()">Validasi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bahan Pelajaran Modal -->
+    <div class="modal fade" id="bahanPelajaranModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Kelola Bahan Pelajaran</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="bahanPelajaranForm" enctype="multipart/form-data">
+                        <input type="hidden" id="bahanId">
+                        <div class="mb-3">
+                            <label class="form-label">Soal ID</label>
+                            <input type="number" class="form-control" id="bahanSoalId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Judul</label>
+                            <input type="text" class="form-control" id="bahanJudul" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipe</label>
+                            <select class="form-select" id="bahanTipe" required>
+                                <option value="teks">Teks</option>
+                                <option value="video">Video</option>
+                                <option value="pdf">PDF</option>
+                                <option value="link">Link</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Konten</label>
+                            <textarea class="form-control" id="bahanKonten" rows="4"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">URL (untuk tipe link)</label>
+                            <input type="text" class="form-control" id="bahanUrl">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Upload File (untuk tipe video/pdf)</label>
+                            <input type="file" class="form-control" id="bahanFile">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Urutan</label>
+                            <input type="number" class="form-control" id="bahanUrutan" value="0">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveBahanPelajaran()">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips Modal -->
+    <div class="modal fade" id="tipsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Kelola Tips & Triks</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="tipsForm">
+                        <input type="hidden" id="tipsId">
+                        <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select class="form-select" id="tipsKategori" required>
+                                <option value="">Semua Kategori</option>
+                                <option value="1">TWK</option>
+                                <option value="2">TIU</option>
+                                <option value="3">TKP</option>
+                                <option value="4">TPA</option>
+                                <option value="5">PSIKOLOGIS</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipe Tips</label>
+                            <select class="form-select" id="tipsTipe" required>
+                                <option value="umum">Umum</option>
+                                <option value="spesifik">Spesifik</option>
+                                <option value="strategi">Strategi</option>
+                                <option value="shortcut">Shortcut</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Judul</label>
+                            <input type="text" class="form-control" id="tipsJudul" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Konten</label>
+                            <textarea class="form-control" id="tipsKonten" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contoh (Opsional)</label>
+                            <textarea class="form-control" id="tipsContoh" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Prioritas</label>
+                            <input type="number" class="form-control" id="tipsPrioritas" value="0" min="0" max="10">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveTips()">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Generator Modal -->
+    <div class="modal fade" id="aiGeneratorModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">AI Generator Soal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tipe Generator</label>
+                        <select class="form-select" id="aiGeneratorType">
+                            <option value="math">Matematika Sederhana</option>
+                            <option value="logic">Logika Pemikiran</option>
+                            <option value="general">Pengetahuan Umum</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kategori</label>
+                        <select class="form-select" id="aiGeneratorKategori">
+                            <option value="TIU">TIU - Tes Intelegensi Umum</option>
+                            <option value="TWK">TWK - Tes Wawasan Kebangsaan</option>
+                            <option value="TKP">TKP - Tes Karakteristik Pribadi</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Jumlah Soal</label>
+                        <input type="number" class="form-control" id="aiGeneratorCount" value="5" min="1" max="20">
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> AI Generator akan membuat soal berdasarkan template yang tersedia. Untuk hasil yang lebih baik, gunakan AI API eksternal (OpenAI, dll).
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-success" onclick="generateAIQuestions()">
+                        <i class="fas fa-magic"></i> Generate Soal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Modal -->
+    <div class="modal fade" id="questionModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="questionModalTitle">Tambah Soal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="questionForm">
+                        <input type="hidden" id="questionId">
+                        <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select class="form-select" id="questionKategori" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="TWK">TWK</option>
+                                <option value="TIU">TIU</option>
+                                <option value="TKP">TKP</option>
+                                <option value="TPA">TPA</option>
+                                <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pertanyaan</label>
+                            <textarea class="form-control" id="questionPertanyaan" rows="3" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Opsi A</label>
+                                <input type="text" class="form-control" id="questionOpsiA" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Opsi B</label>
+                                <input type="text" class="form-control" id="questionOpsiB" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Opsi C</label>
+                                <input type="text" class="form-control" id="questionOpsiC" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Opsi D</label>
+                                <input type="text" class="form-control" id="questionOpsiD" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Opsi E</label>
+                                <input type="text" class="form-control" id="questionOpsiE" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Jawaban Benar</label>
+                                <select class="form-select" id="questionJawaban" required>
+                                    <option value="">Pilih Jawaban</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pembahasan (Opsional)</label>
+                            <textarea class="form-control" id="questionPembahasan" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveQuestion()">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        const API_BASE = '../api';
+        let authToken = '';
+        let userRole = '';
+        let csrfToken = '';
+        let currentPage = 1;
+        const perPage = 10;
+
+        // Simple RBAC Protection - Admin only
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get auth data from localStorage
+            authToken = localStorage.getItem('authToken') || '';
+            userRole = localStorage.getItem('userRole') || '';
+            
+            // Check if user is logged in and is admin
+            if (!authToken || userRole !== 'admin') {
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            fetchCsrfToken();
+            showSection('dashboard');
+            
+            // Update admin UI
+            const userRoleDisplay = document.getElementById('userRoleDisplay');
+            if (userRoleDisplay) {
+                userRoleDisplay.textContent = 'Administrator';
+            }
+        });
+
+        // Fetch CSRF token
+        async function fetchCsrfToken() {
+            try {
+                const response = await fetch(`${API_BASE}/csrf.php?action=get_token`);
+                const data = await response.json();
+                if (data.csrf_token) {
+                    csrfToken = data.csrf_token;
+                }
+            } catch (error) {
+                console.error('Failed to fetch CSRF token:', error);
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            window.location.href = '../login.html';
+        }
+
+        // Show section
+        function showSection(section) {
+            hideAllSections();
+            
+            if (section === 'dashboard') {
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                loadDashboard();
+            } else if (section === 'questions') {
+                document.getElementById('questionsSection').classList.remove('hidden');
+                loadQuestions();
+            } else if (section === 'categories') {
+                document.getElementById('categoriesSection').classList.remove('hidden');
+                loadCategories();
+            } else if (section === 'statistics') {
+                document.getElementById('statisticsSection').classList.remove('hidden');
+                loadSoalStatistics();
+            } else if (section === 'leaderboardSettings') {
+                document.getElementById('leaderboardSettingsSection').classList.remove('hidden');
+                loadLeaderboardSettings();
+            } else if (section === 'blueprint') {
+                document.getElementById('blueprintSection').classList.remove('hidden');
+                loadBlueprints();
+            } else if (section === 'irt') {
+                document.getElementById('irtSection').classList.remove('hidden');
+                loadIRTAnalysis();
+            } else if (section === 'bahanPelajaran') {
+                document.getElementById('bahanPelajaranSection').classList.remove('hidden');
+                loadBahanPelajaran();
+            } else if (section === 'tips') {
+                document.getElementById('tipsSection').classList.remove('hidden');
+                loadTipsTricks();
+            } else if (section === 'results') {
+                document.getElementById('resultsSection').classList.remove('hidden');
+                loadResults();
+            }
+            
+            // Update nav active state
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            // Don't try to add active class when called programmatically (event may be undefined)
+        }
+
+        // Load dashboard stats
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_statistik`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    document.getElementById('totalUjian').textContent = data.data.total_exams || 0;
+                    document.getElementById('avgScore').textContent = data.data.average_scores?.total || 0;
+                    document.getElementById('passRate').textContent = (data.data.pass_rate || 0) + '%';
+                    
+                    // Load category analytics
+                    loadCategoryAnalytics();
+                    
+                    // Load performance trend
+                    loadPerformanceTrend();
+                    
+                    // Load recent exams
+                    loadRecentExams();
+                } else {
+                    console.warn('API returned no data or failed');
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+
+            document.getElementById('totalSoal').textContent = '16534';
+        }
+
+        // Load category analytics
+        async function loadCategoryAnalytics() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_statistik`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success && data.data && data.data.average_scores) {
+                    const avgScores = data.data.average_scores;
+                    
+                    // Destroy existing charts before creating new ones
+                    const ctx1 = document.getElementById('categoryScoreChart');
+                    if (ctx1) {
+                        const existingChart = Chart.getChart(ctx1);
+                        if (existingChart) {
+                            existingChart.destroy();
+                        }
+                    }
+                    
+                    const ctx2 = document.getElementById('categoryPassChart');
+                    if (ctx2) {
+                        const existingChart = Chart.getChart(ctx2);
+                        if (existingChart) {
+                            existingChart.destroy();
+                        }
+                    }
+                    
+                    if (!ctx1) return;
+                    
+                    // Category score chart
+                    new Chart(ctx1.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: ['TWK', 'TIU', 'TKP'],
+                            datasets: [{
+                                label: 'Nilai Rata-rata',
+                                data: [avgScores.twk || 0, avgScores.tiu || 0, avgScores.tkp || 0],
+                                backgroundColor: ['#1e40af', '#f59e0b', '#10b981']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 200
+                                }
+                            }
+                        }
+                    });
+
+                    if (!ctx2) return;
+                    
+                    // Category pass chart
+                    new Chart(ctx2.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['TWK', 'TIU', 'TKP'],
+                            datasets: [{
+                                data: [avgScores.twk || 0, avgScores.tiu || 0, avgScores.tkp || 0],
+                                backgroundColor: ['#1e40af', '#f59e0b', '#10b981']
+                            }]
+                        },
+                        options: {
+                            responsive: true
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading category analytics:', error);
+            }
+        }
+
+        // Load performance trend
+        async function loadPerformanceTrend() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_riwayat_ujian&limit=7`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success && data.data.length > 0) {
+                    const recentExams = data.data.reverse();
+                    
+                    // Destroy existing chart before creating new one
+                    const ctx = document.getElementById('performanceTrendChart');
+                    if (ctx) {
+                        const existingChart = Chart.getChart(ctx);
+                        if (existingChart) {
+                            existingChart.destroy();
+                        }
+                    }
+                    
+                    new Chart(ctx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: recentExams.map(e => new Date(e.tanggal_ujian).toLocaleDateString('id-ID')),
+                            datasets: [{
+                                label: 'Nilai Total',
+                                data: recentExams.map(e => e.nilai_total),
+                                borderColor: '#1e40af',
+                                backgroundColor: 'rgba(30, 64, 175, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 500
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading performance trend:', error);
+            }
+        }
+
+        // Load recent exams
+        async function loadRecentExams() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_riwayat_ujian&limit=5`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success && data.data.length > 0) {
+                    document.getElementById('recentExamsTable').innerHTML = data.data.map(row => `
+                        <tr>
+                            <td>${new Date(row.tanggal_ujian).toLocaleDateString('id-ID')}</td>
+                            <td>${row.nama_peserta}</td>
+                            <td>${row.nilai_total || 0}</td>
+                            <td><span class="badge ${row.status_lulus === 'LULUS' ? 'bg-success' : 'bg-danger'}">${row.status_lulus}</span></td>
+                        </tr>
+                    `).join('');
+                } else {
+                    document.getElementById('recentExamsTable').innerHTML = '<tr><td colspan="4" class="text-center">Belum ada data ujian</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading recent exams:', error);
+            }
+        }
+
+        // Load questions
+        async function loadQuestions(page = 1) {
+            const kategori = document.getElementById('filterKategori').value;
+            const search = document.getElementById('searchSoal').value;
+            
+            let url = `${API_BASE}/soal.php?action=list_questions&page=${page}&limit=${perPage}`;
+            if (kategori) url += `&kategori=${kategori}`;
+            if (search) url += `&search=${search}`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayQuestions(data.data);
+                    displayPagination(data.pagination);
+                    currentPage = page;
+                } else {
+                    document.getElementById('questionsTable').innerHTML = `
+                        <tr><td colspan="5" class="text-center text-danger">${data.error}</td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('questionsTable').innerHTML = `
+                    <tr><td colspan="5" class="text-center">Gagal memuat soal</td></tr>
+                `;
+            }
+        }
+
+        function displayQuestions(questions) {
+            const tbody = document.getElementById('questionsTable');
+            tbody.innerHTML = questions.map(q => `
+                <tr>
+                    <td>${q.id}</td>
+                    <td><span class="badge bg-secondary">${q.nama_kategori}</span></td>
+                    <td>${q.pertanyaan.substring(0, 100)}${q.pertanyaan.length > 100 ? '...' : ''}</td>
+                    <td><span class="badge bg-primary">${q.jawaban_benar}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="editQuestion(${q.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteQuestion(${q.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayPagination(pagination) {
+            const nav = document.getElementById('pagination');
+            let html = '';
+            
+            // Previous button
+            html += `<li class="page-item ${pagination.page === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="loadQuestions(${pagination.page - 1}); return false;">&laquo;</a>
+            </li>`;
+            
+            // Page numbers
+            for (let i = 1; i <= Math.min(pagination.total_pages, 5); i++) {
+                html += `<li class="page-item ${i === pagination.page ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="loadQuestions(${i}); return false;">${i}</a>
+                </li>`;
+            }
+            
+            // Next button
+            html += `<li class="page-item ${pagination.page === pagination.total_pages ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="loadQuestions(${pagination.page + 1}); return false;">&raquo;</a>
+            </li>`;
+            
+            nav.innerHTML = html;
+        }
+
+        // Load categories
+        async function loadCategories() {
+            document.getElementById('categoriesTable').innerHTML = `
+                <tr><td>1</td><td>TWK</td><td>Tes Wawasan Kebangsaan</td><td>65</td><td>5068</td></tr>
+                <tr><td>2</td><td>TIU</td><td>Tes Intelegensi Umum</td><td>80</td><td>5755</td></tr>
+                <tr><td>3</td><td>TKP</td><td>Tes Karakteristik Pribadi</td><td>166</td><td>5556</td></tr>
+                <tr><td>4</td><td>TPA</td><td>Tes Potensi Akademik</td><td>70</td><td>84</td></tr>
+                <tr><td>5</td><td>PSIKOLOGIS</td><td>Tes Psikologis</td><td>166</td><td>71</td></tr>
+            `;
+        }
+
+        // Load results
+        async function loadResults() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_riwayat_ujian&limit=20`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success && data.data.length > 0) {
+                    document.getElementById('resultsTable').innerHTML = data.data.map(row => `
+                        <tr>
+                            <td>${row.id}</td>
+                            <td>${row.nama_peserta}</td>
+                            <td>${row.tanggal_ujian}</td>
+                            <td>${row.nilai_twk || 0}</td>
+                            <td>${row.nilai_tiu || 0}</td>
+                            <td>${row.nilai_tkp || 0}</td>
+                            <td>${row.nilai_total || 0}</td>
+                            <td><span class="badge ${row.status_lulus === 'LULUS' ? 'bg-success' : 'bg-danger'}">${row.status_lulus}</span></td>
+                        </tr>
+                    `).join('');
+                } else {
+                    document.getElementById('resultsTable').innerHTML = '<tr><td colspan="8" class="text-center">Belum ada data ujian</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Show question modal
+        function showQuestionModal(id = null) {
+            document.getElementById('questionForm').reset();
+            document.getElementById('questionId').value = '';
+            document.getElementById('questionModalTitle').textContent = 'Tambah Soal';
+            new bootstrap.Modal(document.getElementById('questionModal')).show();
+        }
+
+        // Show AI Generator modal
+        function showAIGeneratorModal() {
+            new bootstrap.Modal(document.getElementById('aiGeneratorModal')).show();
+        }
+
+        // Generate AI questions
+        async function generateAIQuestions() {
+            const type = document.getElementById('aiGeneratorType').value;
+            const kategori = document.getElementById('aiGeneratorKategori').value;
+            const count = parseInt(document.getElementById('aiGeneratorCount').value);
+            
+            let generated = 0;
+            
+            for (let i = 0; i < count; i++) {
+                const questionData = generateQuestionByType(type, kategori);
+                
+                try {
+                    const response = await fetch(`${API_BASE}/soal.php?action=create_question`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`,
+                            'X-CSRF-Token': csrfToken
+                        },
+                        body: JSON.stringify(questionData)
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        generated++;
+                    }
+                } catch (error) {
+                    console.error('Error generating question:', error);
+                }
+            }
+            
+            bootstrap.Modal.getInstance(document.getElementById('aiGeneratorModal')).hide();
+            alert(`${generated} soal berhasil digenerate!`);
+            loadQuestions(currentPage);
+        }
+
+        function generateQuestionByType(type, kategori) {
+            if (type === 'math') {
+                return generateMathQuestion(kategori);
+            } else if (type === 'logic') {
+                return generateLogicQuestion(kategori);
+            } else {
+                return generateGeneralQuestion(kategori);
+            }
+        }
+
+        function generateMathQuestion(kategori) {
+            const num1 = Math.floor(Math.random() * 100) + 1;
+            const num2 = Math.floor(Math.random() * 100) + 1;
+            const operations = ['+', '-', '×'];
+            const op = operations[Math.floor(Math.random() * operations.length)];
+            
+            let question, answer;
+            if (op === '+') {
+                question = `Berapakah hasil dari ${num1} + ${num2}?`;
+                answer = num1 + num2;
+            } else if (op === '-') {
+                const larger = Math.max(num1, num2);
+                const smaller = Math.min(num1, num2);
+                question = `Berapakah hasil dari ${larger} - ${smaller}?`;
+                answer = larger - smaller;
+            } else {
+                question = `Berapakah hasil dari ${num1} × ${num2}?`;
+                answer = num1 * num2;
+            }
+            
+            const options = generateOptions(answer, 'number');
+            
+            return {
+                kategori: kategori,
+                pertanyaan: question,
+                opsi_a: options[0],
+                opsi_b: options[1],
+                opsi_c: options[2],
+                opsi_d: options[3],
+                opsi_e: options[4],
+                jawaban_benar: answer.toString(),
+                pembahasan: `Jawaban: ${answer}. ${question} = ${answer}`
+            };
+        }
+
+        function generateLogicQuestion(kategori) {
+            const scenarios = [
+                {
+                    q: "Jika semua A adalah B, dan semua B adalah C, maka...",
+                    a: "Semua A adalah C",
+                    b: "Semua C adalah A",
+                    c: "Tidak ada A yang C",
+                    d: "Semua B adalah A",
+                    e: "Tidak ada hubungan",
+                    ans: "A"
+                },
+                {
+                    q: "Jika hari ini adalah Senin, maka 3 hari yang lalu adalah...",
+                    a: "Jumat",
+                    b: "Sabtu",
+                    c: "Minggu",
+                    d: "Kamis",
+                    e: "Selasa",
+                    ans: "A"
+                }
+            ];
+            
+            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            
+            return {
+                kategori: kategori,
+                pertanyaan: scenario.q,
+                opsi_a: scenario.a,
+                opsi_b: scenario.b,
+                opsi_c: scenario.c,
+                opsi_d: scenario.d,
+                opsi_e: scenario.e,
+                jawaban_benar: scenario.ans,
+                pembahasan: `Jawaban yang benar adalah ${scenario.ans}`
+            };
+        }
+
+        function generateGeneralQuestion(kategori) {
+            const questions = [
+                {
+                    q: "Ibukota negara Indonesia adalah...",
+                    a: "Jakarta",
+                    b: "Bandung",
+                    c: "Surabaya",
+                    d: "Medan",
+                    e: "Bali",
+                    ans: "A"
+                },
+                {
+                    q: "Tahun kemerdekaan Indonesia adalah...",
+                    a: "1942",
+                    b: "1945",
+                    c: "1950",
+                    d: "1938",
+                    e: "1947",
+                    ans: "B"
+                }
+            ];
+            
+            const q = questions[Math.floor(Math.random() * questions.length)];
+            
+            return {
+                kategori: kategori,
+                pertanyaan: q.q,
+                opsi_a: q.a,
+                opsi_b: q.b,
+                opsi_c: q.c,
+                opsi_d: q.d,
+                opsi_e: q.e,
+                jawaban_benar: q.ans,
+                pembahasan: `Jawaban yang benar adalah ${q.ans}`
+            };
+        }
+
+        function generateOptions(correctAnswer, type) {
+            const options = [correctAnswer];
+            
+            while (options.length < 5) {
+                let wrong;
+                if (type === 'number') {
+                    wrong = correctAnswer + Math.floor(Math.random() * 20) - 10;
+                } else {
+                    wrong = Math.floor(Math.random() * 100);
+                }
+                
+                if (!options.includes(wrong) && wrong !== correctAnswer) {
+                    options.push(wrong);
+                }
+            }
+            
+            // Shuffle options
+            return options.sort(() => Math.random() - 0.5);
+        }
+
+        // Save question
+        async function saveQuestion() {
+            const questionId = document.getElementById('questionId').value;
+            const questionData = {
+                kategori: document.getElementById('questionKategori').value,
+                pertanyaan: document.getElementById('questionPertanyaan').value,
+                opsi_a: document.getElementById('questionOpsiA').value,
+                opsi_b: document.getElementById('questionOpsiB').value,
+                opsi_c: document.getElementById('questionOpsiC').value,
+                opsi_d: document.getElementById('questionOpsiD').value,
+                opsi_e: document.getElementById('questionOpsiE').value,
+                jawaban_benar: document.getElementById('questionJawaban').value,
+                pembahasan: document.getElementById('questionPembahasan').value
+            };
+
+            if (questionId) {
+                questionData.id = questionId;
+                var action = 'update_question';
+            } else {
+                var action = 'create_question';
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=${action}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify(questionData)
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('questionModal')).hide();
+                    loadQuestions(currentPage);
+                    alert('Soal berhasil disimpan');
+                } else {
+                    alert(data.error || 'Gagal menyimpan soal');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan');
+            }
+        }
+
+        // Edit question
+        async function editQuestion(id) {
+            // Fetch question details
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_soal_by_id&id=${id}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const q = data.data;
+                    document.getElementById('questionId').value = q.id;
+                    document.getElementById('questionKategori').value = ['TWK', 'TIU', 'TKP', 'TPA', 'PSIKOLOGIS'][q.kategori_id - 1];
+                    document.getElementById('questionPertanyaan').value = q.pertanyaan;
+                    document.getElementById('questionOpsiA').value = q.opsi_a;
+                    document.getElementById('questionOpsiB').value = q.opsi_b;
+                    document.getElementById('questionOpsiC').value = q.opsi_c;
+                    document.getElementById('questionOpsiD').value = q.opsi_d;
+                    document.getElementById('questionOpsiE').value = q.opsi_e;
+                    document.getElementById('questionJawaban').value = q.jawaban_benar;
+                    document.getElementById('questionPembahasan').value = q.pemabahasan || q.pembahasan || '';
+                    document.getElementById('questionModalTitle').textContent = 'Edit Soal';
+                    new bootstrap.Modal(document.getElementById('questionModal')).show();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Gagal memuat soal');
+            }
+        }
+
+        // Delete question
+        async function deleteQuestion(id) {
+            if (!confirm('Apakah Anda yakin ingin menghapus soal ini?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=delete_question`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ id })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    loadQuestions(currentPage);
+                    alert('Soal berhasil dihapus');
+                } else {
+                    alert(data.error || 'Gagal menghapus soal');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan');
+            }
+        }
+
+        function searchQuestions() {
+            loadQuestions(1);
+        }
+
+        // Export Excel
+        async function exportExcel() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_riwayat_ujian&limit=1000`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success && data.data.length > 0) {
+                    // Convert data to Excel format
+                    const excelData = data.data.map(row => ({
+                        ID: row.id,
+                        'Nama Peserta': row.nama_peserta,
+                        'Tanggal Ujian': row.tanggal_ujian,
+                        'Nilai TWK': row.nilai_twk || 0,
+                        'Nilai TIU': row.nilai_tiu || 0,
+                        'Nilai TKP': row.nilai_tkp || 0,
+                        'Nilai Total': row.nilai_total || 0,
+                        'Status': row.status_lulus
+                    }));
+
+                    // Create worksheet
+                    const ws = XLSX.utils.json_to_sheet(excelData);
+                    
+                    // Create workbook
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Hasil Ujian');
+                    
+                    // Download file
+                    XLSX.writeFile(wb, 'hasil_ujian.xlsx');
+                } else {
+                    alert('Tidak ada data untuk diexport');
+                }
+            } catch (error) {
+                console.error('Error exporting Excel:', error);
+                alert('Gagal export Excel');
+            }
+        }
+
+        // Hide all sections helper
+        function hideAllSections() {
+            document.querySelectorAll('[id$="Section"]').forEach(el => el.classList.add('hidden'));
+        }
+
+        // Load soal statistics
+        async function loadSoalStatistics() {
+            const kategori = document.getElementById('statsKategori').value;
+            
+            let url = `${API_BASE}/soal.php?action=get_soal_statistics&limit=50`;
+            if (kategori) url += `&kategori=${kategori}`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displaySoalStatistics(data.data);
+                } else {
+                    document.getElementById('soalStatisticsTable').innerHTML = `
+                        <tr><td colspan="7" class="text-center text-danger">${data.error || 'Gagal memuat statistik'}</td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+                document.getElementById('soalStatisticsTable').innerHTML = `
+                    <tr><td colspan="7" class="text-center">Gagal memuat statistik</td></tr>
+                `;
+            }
+        }
+
+        function displaySoalStatistics(statistics) {
+            const tbody = document.getElementById('soalStatisticsTable');
+            tbody.innerHTML = statistics.map(s => {
+                const priority = getPriorityLabel(s.persen_benar, s.muncul_count);
+                return `
+                    <tr>
+                        <td>${s.pertanyaan.substring(0, 80)}${s.pertanyaan.length > 80 ? '...' : ''}</td>
+                        <td><span class="badge bg-secondary">${s.nama_kategori}</span></td>
+                        <td>${s.muncul_count}</td>
+                        <td><span class="badge bg-success">${s.benar_count}</span></td>
+                        <td><span class="badge bg-danger">${s.salah_count}</span></td>
+                        <td>${s.persen_benar}%</td>
+                        <td><span class="badge ${priority.class}">${priority.label}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getPriorityLabel(persenBenar, munculCount) {
+            if (munculCount === 0) {
+                return { label: 'Baru', class: 'bg-info' };
+            }
+            if (persenBenar < 50 && munculCount > 5) {
+                return { label: 'Prioritas Tinggi', class: 'bg-danger' };
+            }
+            if (persenBenar < 70 && munculCount > 3) {
+                return { label: 'Perlu Perhatian', class: 'bg-warning' };
+            }
+            if (persenBenar >= 70) {
+                return { label: 'Sudah Dikuasai', class: 'bg-success' };
+            }
+            return { label: 'Normal', class: 'bg-secondary' };
+        }
+
+        // Load tips & tricks
+        let tipsCurrentPage = 1;
+        const tipsPerPage = 20;
+
+        async function loadTipsTricks(page = 1) {
+            const kategori = document.getElementById('tipsKategoriFilter').value;
+            
+            let url = `${API_BASE}/soal.php?action=get_tips_tricks&page=${page}&limit=${tipsPerPage}`;
+            if (kategori) url += `&kategori_id=${kategori}`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayTipsTricks(data.data);
+                    if (data.pagination) {
+                        displayTipsPagination(data.pagination);
+                    }
+                } else {
+                    document.getElementById('tipsTable').innerHTML = `
+                        <tr><td colspan="5" class="text-center">Gagal memuat tips</td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading tips:', error);
+                document.getElementById('tipsTable').innerHTML = `
+                    <tr><td colspan="5" class="text-center">Gagal memuat tips</td></tr>
+                `;
+            }
+        }
+
+        function displayTipsPagination(pagination) {
+            const nav = document.getElementById('tipsPagination');
+            if (!nav) return;
+            
+            let html = '';
+            
+            // Previous button
+            html += `<li class="page-item ${pagination.page === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="loadTipsTricks(${pagination.page - 1}); return false;">&laquo;</a>
+            </li>`;
+            
+            // Page numbers
+            for (let i = 1; i <= Math.min(pagination.total_pages, 5); i++) {
+                html += `<li class="page-item ${i === pagination.page ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="loadTipsTricks(${i}); return false;">${i}</a>
+                </li>`;
+            }
+            
+            // Next button
+            html += `<li class="page-item ${pagination.page === pagination.total_pages ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="loadTipsTricks(${pagination.page + 1}); return false;">&raquo;</a>
+            </li>`;
+            
+            nav.innerHTML = html;
+        }
+
+        function displayTipsTricks(tips) {
+            const tbody = document.getElementById('tipsTable');
+            tbody.innerHTML = tips.map(t => {
+                const kategoriMap = {1: 'TWK', 2: 'TIU', 3: 'TKP', 4: 'TPA', 5: 'PSIKOLOGIS'};
+                const kategoriName = kategoriMap[t.kategori_id] || 'Semua';
+                return `
+                    <tr>
+                        <td>${t.judul}</td>
+                        <td><span class="badge bg-secondary">${kategoriName}</span></td>
+                        <td><span class="badge bg-info">${t.tipe_tips}</span></td>
+                        <td>${t.prioritas}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="editTips(${t.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteTips(${t.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showTipsModal(id = null) {
+            document.getElementById('tipsForm').reset();
+            document.getElementById('tipsId').value = '';
+            new bootstrap.Modal(document.getElementById('tipsModal')).show();
+        }
+
+        async function saveTips() {
+            const tipsData = {
+                kategori_id: document.getElementById('tipsKategori').value || null,
+                tipe_tips: document.getElementById('tipsTipe').value,
+                judul: document.getElementById('tipsJudul').value,
+                konten: document.getElementById('tipsKonten').value,
+                contoh: document.getElementById('tipsContoh').value,
+                prioritas: parseInt(document.getElementById('tipsPrioritas').value)
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=save_tips`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(tipsData)
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('tipsModal')).hide();
+                    alert('Tips berhasil disimpan!');
+                    loadTipsTricks();
+                } else {
+                    alert('Gagal menyimpan tips: ' + (data.error || ''));
+                }
+            } catch (error) {
+                console.error('Error saving tips:', error);
+                alert('Gagal menyimpan tips');
+            }
+        }
+
+        async function deleteTips(id) {
+            if (!confirm('Yakin ingin menghapus tips ini?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=delete_tips`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ id })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Tips berhasil dihapus!');
+                    loadTipsTricks();
+                } else {
+                    alert('Gagal menghapus tips');
+                }
+            } catch (error) {
+                console.error('Error deleting tips:', error);
+                alert('Gagal menghapus tips');
+            }
+        }
+
+        // Load leaderboard settings
+        async function loadLeaderboardSettings() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_leaderboard_optout_status`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success && data.opted_out) {
+                    document.getElementById('optOutLeaderboard').checked = true;
+                }
+            } catch (error) {
+                console.error('Error loading leaderboard settings:', error);
+            }
+        }
+
+        async function toggleLeaderboardOptOut() {
+            const optOut = document.getElementById('optOutLeaderboard').checked;
+            const namaPeserta = localStorage.getItem('currentNama') || 'user';
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=leaderboard_optout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        nama_peserta: namaPeserta,
+                        optout: optOut
+                    })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(optOut ? 'Berhasil opt-out dari leaderboard' : 'Berhasil opt-in ke leaderboard');
+                } else {
+                    alert('Gagal mengubah pengaturan: ' + (data.error || ''));
+                    document.getElementById('optOutLeaderboard').checked = !optOut;
+                }
+            } catch (error) {
+                console.error('Error toggling leaderboard opt-out:', error);
+                alert('Gagal mengubah pengaturan');
+                document.getElementById('optOutLeaderboard').checked = !optOut;
+            }
+        }
+
+        // Load blueprints
+        let blueprintCurrentPage = 1;
+        const blueprintPerPage = 20;
+
+        async function loadBlueprints(page = 1) {
+            const paketFilter = document.getElementById('blueprintPaketFilter').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_blueprints&paket_id=${paketFilter}&page=${page}&limit=${blueprintPerPage}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayBlueprints(data.data);
+                    if (data.pagination) {
+                        displayBlueprintPagination(data.pagination);
+                    }
+                } else {
+                    document.getElementById('blueprintTable').innerHTML = `
+                        <tr><td colspan="8" class="text-center">Gagal memuat blueprints</td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading blueprints:', error);
+                document.getElementById('blueprintTable').innerHTML = `
+                    <tr><td colspan="8" class="text-center">Gagal memuat blueprints</td></tr>
+                `;
+            }
+        }
+
+        function displayBlueprintPagination(pagination) {
+            const nav = document.getElementById('blueprintPagination');
+            if (!nav) return;
+            
+            let html = '';
+            
+            // Previous button
+            html += `<li class="page-item ${pagination.page === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="loadBlueprints(${pagination.page - 1}); return false;">&laquo;</a>
+            </li>`;
+            
+            // Page numbers
+            for (let i = 1; i <= Math.min(pagination.total_pages, 5); i++) {
+                html += `<li class="page-item ${i === pagination.page ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="loadBlueprints(${i}); return false;">${i}</a>
+                </li>`;
+            }
+            
+            // Next button
+            html += `<li class="page-item ${pagination.page === pagination.total_pages ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="loadBlueprints(${pagination.page + 1}); return false;">&raquo;</a>
+            </li>`;
+            
+            nav.innerHTML = html;
+        }
+
+        function displayBlueprints(blueprints) {
+            const tbody = document.getElementById('blueprintTable');
+            tbody.innerHTML = blueprints.map(b => {
+                const kategoriMap = {1: 'TWK', 2: 'TIU', 3: 'TKP', 4: 'TPA', 5: 'PSIKOLOGIS'};
+                const kategoriName = kategoriMap[b.kategori_id] || 'Unknown';
+                const statusClass = b.valid ? 'success' : 'danger';
+                const statusText = b.valid ? 'Valid' : 'Invalid';
+                return `
+                    <tr>
+                        <td>${b.nama_paket || 'N/A'}</td>
+                        <td><span class="badge bg-secondary">${kategoriName}</span></td>
+                        <td>${b.target_count}</td>
+                        <td><span class="badge bg-info">${b.min_difficulty}</span></td>
+                        <td><span class="badge bg-info">${b.max_difficulty}</span></td>
+                        <td>${b.available_count || 0}</td>
+                        <td><span class="badge bg-${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="editBlueprint(${b.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteBlueprint(${b.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showBlueprintModal(id = null) {
+            document.getElementById('blueprintForm').reset();
+            document.getElementById('blueprintId').value = '';
+            loadPaketOptions();
+            new bootstrap.Modal(document.getElementById('blueprintModal')).show();
+        }
+
+        async function loadPaketOptions() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_paket_tryout`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById('blueprintPaket');
+                    const filterSelect = document.getElementById('blueprintPaketFilter');
+                    select.innerHTML = '<option value="">Pilih Paket</option>';
+                    filterSelect.innerHTML = '<option value="">Semua Paket</option>';
+                    data.data.forEach(p => {
+                        select.innerHTML += `<option value="${p.id}">${p.nama_paket}</option>`;
+                        filterSelect.innerHTML += `<option value="${p.id}">${p.nama_paket}</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading paket options:', error);
+            }
+        }
+
+        async function saveBlueprint() {
+            const blueprintData = {
+                paket_id: document.getElementById('blueprintPaket').value,
+                kategori_id: document.getElementById('blueprintKategori').value,
+                target_count: document.getElementById('blueprintTargetCount').value,
+                min_difficulty: document.getElementById('blueprintMinDifficulty').value,
+                max_difficulty: document.getElementById('blueprintMaxDifficulty').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=save_blueprint`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(blueprintData)
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('blueprintModal')).hide();
+                    alert('Blueprint berhasil disimpan!');
+                    loadBlueprints();
+                } else {
+                    alert('Gagal menyimpan blueprint: ' + (data.error || ''));
+                }
+            } catch (error) {
+                console.error('Error saving blueprint:', error);
+                alert('Gagal menyimpan blueprint');
+            }
+        }
+
+        async function deleteBlueprint(id) {
+            if (!confirm('Yakin ingin menghapus blueprint ini?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=delete_blueprint`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ id })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Blueprint berhasil dihapus!');
+                    loadBlueprints();
+                } else {
+                    alert('Gagal menghapus blueprint');
+                }
+            } catch (error) {
+                console.error('Error deleting blueprint:', error);
+                alert('Gagal menghapus blueprint');
+            }
+        }
+
+        async function validateCurrentBlueprint() {
+            const paket_id = document.getElementById('blueprintPaket').value;
+            if (!paket_id) {
+                alert('Pilih paket terlebih dahulu');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=validate_blueprint`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ paket_id })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.valid) {
+                        alert('Blueprint valid! Semua kategori memiliki cukup soal.');
+                    } else {
+                        alert('Blueprint tidak valid. Beberapa kategori kekurangan soal.');
+                    }
+                } else {
+                    alert('Gagal validasi blueprint: ' + (data.error || ''));
+                }
+            } catch (error) {
+                console.error('Error validating blueprint:', error);
+                alert('Gagal validasi blueprint');
+            }
+        }
+
+        // Load IRT analysis
+        async function loadIRTAnalysis() {
+            const kategori = document.getElementById('irtKategoriFilter').value;
+            const quality = document.getElementById('irtQualityFilter').value;
+            
+            let url = `${API_BASE}/soal.php?action=get_irt_analysis`;
+            if (kategori) url += `&kategori=${kategori}`;
+            if (quality) url += `&quality=${quality}`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayIRTAnalysis(data.data);
+                } else {
+                    document.getElementById('irtTable').innerHTML = `
+                        <tr><td colspan="10" class="text-center">Gagal memuat IRT analysis</td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading IRT analysis:', error);
+                document.getElementById('irtTable').innerHTML = `
+                    <tr><td colspan="10" class="text-center">Gagal memuat IRT analysis</td></tr>
+                `;
+            }
+        }
+
+        function displayIRTAnalysis(analysis) {
+            const tbody = document.getElementById('irtTable');
+            tbody.innerHTML = analysis.map(a => {
+                const qualityClass = {
+                    'excellent': 'success',
+                    'good': 'info',
+                    'fair': 'warning',
+                    'poor': 'danger'
+                };
+                const p_benar = (a.p_benar * 100).toFixed(1);
+                return `
+                    <tr>
+                        <td>${a.pertanyaan.substring(0, 50)}...</td>
+                        <td><span class="badge bg-secondary">${a.nama_kategori}</span></td>
+                        <td>${a.discrimination_index ? a.discrimination_index.toFixed(4) : '-'}</td>
+                        <td>${a.irt_a ? a.irt_a.toFixed(4) : '-'}</td>
+                        <td>${a.irt_b ? a.irt_b.toFixed(4) : '-'}</td>
+                        <td>${a.irt_c ? a.irt_c.toFixed(4) : '-'}</td>
+                        <td><span class="badge bg-${qualityClass[a.item_quality] || 'secondary'}">${a.item_quality || '-'}</span></td>
+                        <td>${a.muncul_count || 0}</td>
+                        <td>${p_benar}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function calculateIRT() {
+            if (!confirm('Hitung IRT parameters untuk semua soal? Ini akan memperbarui data di database.')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=calculate_irt`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`Berhasil menghitung IRT parameters untuk ${data.updated} soal.`);
+                    loadIRTAnalysis();
+                } else {
+                    alert('Gagal menghitung IRT parameters: ' + (data.error || ''));
+                }
+            } catch (error) {
+                console.error('Error calculating IRT:', error);
+                alert('Gagal menghitung IRT parameters');
+            }
+        }
+
+        // Load bahan pelajaran
+        async function loadBahanPelajaran() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_bahan_pelajaran`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayBahanPelajaran(data.data);
+                } else {
+                    document.getElementById('bahanPelajaranTable').innerHTML = `
+                        <tr><td colspan="5" class="text-center">Gagal memuat bahan pelajaran</td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading bahan pelajaran:', error);
+                document.getElementById('bahanPelajaranTable').innerHTML = `
+                    <tr><td colspan="5" class="text-center">Gagal memuat bahan pelajaran</td></tr>
+                    `;
+            }
+        }
+
+        function displayBahanPelajaran(bahan) {
+            const tbody = document.getElementById('bahanPelajaranTable');
+            tbody.innerHTML = bahan.map(b => {
+                const fileOrUrl = b.file_path ? `<a href="${b.file_path}" target="_blank">File</a>` : 
+                               b.url ? `<a href="${b.url}" target="_blank">Link</a>` : '-';
+                return `
+                    <tr>
+                        <td>${b.judul}</td>
+                        <td>${b.soal_id || '-'}</td>
+                        <td><span class="badge bg-secondary">${b.tipe}</span></td>
+                        <td>${fileOrUrl}</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" onclick="deleteBahanPelajaran(${b.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showBahanPelajaranModal() {
+            document.getElementById('bahanPelajaranForm').reset();
+            document.getElementById('bahanId').value = '';
+            new bootstrap.Modal(document.getElementById('bahanPelajaranModal')).show();
+        }
+
+        async function saveBahanPelajaran() {
+            const formData = new FormData();
+            formData.append('soal_id', document.getElementById('bahanSoalId').value);
+            formData.append('judul', document.getElementById('bahanJudul').value);
+            formData.append('konten', document.getElementById('bahanKonten').value);
+            formData.append('tipe', document.getElementById('bahanTipe').value);
+            formData.append('url', document.getElementById('bahanUrl').value);
+            formData.append('urutan', document.getElementById('bahanUrutan').value);
+            
+            const fileInput = document.getElementById('bahanFile');
+            if (fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=save_bahan_pelajaran`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('bahanPelajaranModal')).hide();
+                    alert('Bahan pelajaran berhasil disimpan!');
+                    loadBahanPelajaran();
+                } else {
+                    alert('Gagal menyimpan bahan pelajaran: ' + (data.error || ''));
+                }
+            } catch (error) {
+                console.error('Error saving bahan pelajaran:', error);
+                alert('Gagal menyimpan bahan pelajaran');
+            }
+        }
+
+        async function deleteBahanPelajaran(id) {
+            if (!confirm('Yakin ingin menghapus bahan pelajaran ini?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=delete_bahan_pelajaran`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ id })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Bahan pelajaran berhasil dihapus!');
+                    loadBahanPelajaran();
+                } else {
+                    alert('Gagal menghapus bahan pelajaran');
+                }
+            } catch (error) {
+                console.error('Error deleting bahan pelajaran:', error);
+                alert('Gagal menghapus bahan pelajaran');
+            }
+        }
+    </script>
+</body>
+</html>
