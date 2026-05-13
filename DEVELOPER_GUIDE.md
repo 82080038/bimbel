@@ -81,8 +81,8 @@ bimbel/
    # Buat database baru
    CREATE DATABASE ujian_sekolah_kedinasan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    
-   # Import database dari file terbaru (opsional)
-   mysql -u root -p < database/export_2026-05-13_22-28-06.sql
+   # Import database dari file terbaru
+   mysql -u root -p ujian_sekolah_kedinasan < database/export_*.sql
    
    # ATAU jalankan migration scripts untuk fitur baru
    php migrate_course_management.php

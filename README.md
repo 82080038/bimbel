@@ -183,9 +183,10 @@ Realtime: Socket.IO
    CREATE DATABASE ujian_sekolah_kedinasan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
 
-2. **Import base schema** (if available)
+2. **Import database**
    ```bash
-   mysql -u root -p ujian_sekolah_kedinasan < database.sql
+   # Import from latest export file
+   mysql -u root -p ujian_sekolah_kedinasan < database/export_*.sql
    ```
 
 ### Database Structure
@@ -205,6 +206,15 @@ The application uses the following main tables:
 - `notification_preferences` - User notification settings
 - `question_analytics` - Question performance analytics
 - `user_analytics` - User performance analytics
+
+### Exporting Database
+
+To export database with all data:
+```bash
+php export_database.php
+```
+
+This will generate `database/export_YYYY-MM-DD_HH-MM-SS.sql` with complete data.
 
 ---
 
