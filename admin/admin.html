@@ -145,6 +145,21 @@
                     <a class="nav-link" href="#" onclick="showSection('results')">
                         <i class="fas fa-chart-line"></i> Hasil Ujian
                     </a>
+                    <a class="nav-link" href="#" onclick="showSection('contentGeneration')">
+                        <i class="fas fa-magic"></i> Content Generation
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('systemMaintenance')">
+                        <i class="fas fa-tools"></i> System Maintenance
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('courseManagement')">
+                        <i class="fas fa-graduation-cap"></i> Course Management
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('gamificationTracking')">
+                        <i class="fas fa-gamepad"></i> Gamification
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('notifications')">
+                        <i class="fas fa-bell"></i> Notifications
+                    </a>
                     <a class="nav-link text-danger" href="#" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
@@ -604,6 +619,354 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Content Generation Section -->
+                <div id="contentGenerationSection" class="hidden">
+                    <h2 class="mb-4">Content Generation</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card p-4">
+                                <h4><i class="fas fa-magic"></i> Batch Generate Soal</h4>
+                                <p class="text-muted">Generate multiple questions at once based on templates</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Kategori</label>
+                                    <select class="form-select" id="batchGenerateKategori">
+                                        <option value="1">TWK</option>
+                                        <option value="2">TIU</option>
+                                        <option value="3">TKP</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Jumlah Soal</label>
+                                    <input type="number" class="form-control" id="batchGenerateCount" value="10" min="1" max="100">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tingkat Kesulitan</label>
+                                    <select class="form-select" id="batchGenerateDifficulty">
+                                        <option value="mudah">Mudah</option>
+                                        <option value="sedang" selected>Sedang</option>
+                                        <option value="sulit">Sulit</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" onclick="batchGenerateQuestions()">
+                                    <i class="fas fa-play"></i> Generate
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card p-4">
+                                <h4><i class="fas fa-book"></i> Generate Bahan Pelajaran</h4>
+                                <p class="text-muted">Generate learning materials for questions</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Kategori</label>
+                                    <select class="form-select" id="generateBahanKategori">
+                                        <option value="1">TWK</option>
+                                        <option value="2">TIU</option>
+                                        <option value="3">TKP</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Limit</label>
+                                    <input type="number" class="form-control" id="generateBahanLimit" value="50" min="1" max="200">
+                                </div>
+                                <button class="btn btn-success" onclick="generateBahanPelajaran()">
+                                    <i class="fas fa-play"></i> Generate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card p-4">
+                                <h4><i class="fas fa-lightbulb"></i> Generate Tips</h4>
+                                <p class="text-muted">Generate tips and tricks for questions</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Kategori</label>
+                                    <select class="form-select" id="generateTipsKategori">
+                                        <option value="1">TWK</option>
+                                        <option value="2">TIU</option>
+                                        <option value="3">TKP</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Limit</label>
+                                    <input type="number" class="form-control" id="generateTipsLimit" value="30" min="1" max="100">
+                                </div>
+                                <button class="btn btn-warning" onclick="generateTipsBatch()">
+                                    <i class="fas fa-play"></i> Generate
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card p-4">
+                                <h4><i class="fas fa-graduation-cap"></i> Educational Content</h4>
+                                <p class="text-muted">Generate comprehensive educational content</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Soal ID (optional)</label>
+                                    <input type="number" class="form-control" id="eduContentSoalId" placeholder="Leave empty for batch">
+                                </div>
+                                <button class="btn btn-info" onclick="generateEducationalContent()">
+                                    <i class="fas fa-play"></i> Generate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-4">
+                        <h4><i class="fas fa-history"></i> Generation History</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                        <th>Status</th>
+                                        <th>Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="generationHistoryTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No generation history</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Maintenance Section -->
+                <div id="systemMaintenanceSection" class="hidden">
+                    <h2 class="mb-4">System Maintenance</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card p-4">
+                                <h4><i class="fas fa-database"></i> Database Backup</h4>
+                                <p class="text-muted">Backup database to SQL file</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Backup Name</label>
+                                    <input type="text" class="form-control" id="backupName" placeholder="backup_2026-05-14">
+                                </div>
+                                <button class="btn btn-primary" onclick="createBackup()">
+                                    <i class="fas fa-download"></i> Create Backup
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card p-4">
+                                <h4><i class="fas fa-broom"></i> Cleanup Unused Files</h4>
+                                <p class="text-muted">Remove unused files from uploads and cache</p>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="cleanupUploads" checked>
+                                        <label class="form-check-label">Cleanup Uploads</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="cleanupCache" checked>
+                                        <label class="form-check-label">Cleanup Cache</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="cleanupLogs" checked>
+                                        <label class="form-check-label">Cleanup Old Logs</label>
+                                    </div>
+                                </div>
+                                <button class="btn btn-warning" onclick="cleanupFiles()">
+                                    <i class="fas fa-trash"></i> Cleanup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card p-4">
+                                <h4><i class="fas fa-chart-pie"></i> Storage Analysis</h4>
+                                <p class="text-muted">Analyze storage usage</p>
+                                <button class="btn btn-info" onclick="analyzeStorage()">
+                                    <i class="fas fa-search"></i> Analyze
+                                </button>
+                                <div id="storageAnalysisResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card p-4">
+                                <h4><i class="fas fa-sync"></i> System Status</h4>
+                                <p class="text-muted">Check system health</p>
+                                <button class="btn btn-success" onclick="checkSystemStatus()">
+                                    <i class="fas fa-check-circle"></i> Check Status
+                                </button>
+                                <div id="systemStatusResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-4">
+                        <h4><i class="fas fa-list"></i> Maintenance Log</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                        <th>Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="maintenanceLogTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No maintenance history</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Management Section -->
+    <div id="courseManagementSection" class="hidden">
+        <h2 class="mb-4">Course Management</h2>
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4><i class="fas fa-graduation-cap"></i> Courses</h4>
+                        <button class="btn btn-primary" onclick="showCreateCourseModal()">
+                            <i class="fas fa-plus"></i> Create Course
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Judul</th>
+                                    <th>Kategori</th>
+                                    <th>Modules</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coursesTable">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gamification Tracking Section -->
+    <div id="gamificationTrackingSection" class="hidden">
+        <h2 class="mb-4">Gamification Tracking</h2>
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card p-4">
+                    <h4><i class="fas fa-gamepad"></i> User Gamification Overview</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Total XP</th>
+                                    <th>Level</th>
+                                    <th>Current Streak</th>
+                                    <th>Longest Streak</th>
+                                    <th>Badges</th>
+                                    <th>Achievements</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gamificationUsersTable">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Section -->
+    <div id="notificationsSection" class="hidden">
+        <h2 class="mb-4">Notifications</h2>
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card p-4">
+                    <h4><i class="fas fa-bell"></i> Send Notification</h4>
+                    <form id="sendNotificationForm">
+                        <div class="mb-3">
+                            <label class="form-label">User</label>
+                            <select class="form-select" id="notificationUser" required>
+                                <option value="">Select User</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" id="notificationType" required>
+                                <option value="in_app">In-App Notification</option>
+                                <option value="email">Email Notification</option>
+                                <option value="push">Push Notification</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="notificationCategory" required>
+                                <option value="system">System</option>
+                                <option value="exam_reminder">Exam Reminder</option>
+                                <option value="exam_result">Exam Result</option>
+                                <option value="achievement">Achievement</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-control" id="notificationTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-control" id="notificationMessage" rows="3" required></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="sendNotification()">Send Notification</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card p-4">
+                    <h4><i class="fas fa-history"></i> Notification History</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Sent At</th>
+                                </tr>
+                            </thead>
+                            <tbody id="notificationsHistoryTable">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -982,8 +1345,23 @@
             } else if (section === 'results') {
                 document.getElementById('resultsSection').classList.remove('hidden');
                 loadResults();
+            } else if (section === 'contentGeneration') {
+                document.getElementById('contentGenerationSection').classList.remove('hidden');
+                loadContentGeneration();
+            } else if (section === 'systemMaintenance') {
+                document.getElementById('systemMaintenanceSection').classList.remove('hidden');
+                loadSystemMaintenance();
+            } else if (section === 'courseManagement') {
+                document.getElementById('courseManagementSection').classList.remove('hidden');
+                loadCourses();
+            } else if (section === 'gamificationTracking') {
+                document.getElementById('gamificationTrackingSection').classList.remove('hidden');
+                loadGamificationTracking();
+            } else if (section === 'notifications') {
+                document.getElementById('notificationsSection').classList.remove('hidden');
+                loadNotifications();
             }
-            
+
             // Update nav active state
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             // Don't try to add active class when called programmatically (event may be undefined)
@@ -1282,6 +1660,473 @@
             } catch (error) {
                 console.error('Error:', error);
             }
+        }
+
+        // Load Content Generation section
+        function loadContentGeneration() {
+            console.log('Content Generation section loaded');
+        }
+
+        // Load System Maintenance section
+        function loadSystemMaintenance() {
+            console.log('System Maintenance section loaded');
+        }
+
+        // Load courses
+        async function loadCourses() {
+            try {
+                const response = await fetch(`${API_BASE}/courses.php?action=list_courses`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('coursesTable');
+                    tbody.innerHTML = data.data.map(course => `
+                        <tr>
+                            <td>${course.judul}</td>
+                            <td>${course.kategori || '-'}</td>
+                            <td>${course.module_count || 0}</td>
+                            <td><span class="badge ${course.status === 'published' ? 'bg-success' : 'bg-warning'}">${course.status}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="viewCourse(${course.id})">View</button>
+                                <button class="btn btn-sm btn-secondary" onclick="editCourse(${course.id})">Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCourse(${course.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading courses:', error);
+            }
+        }
+
+        function showCreateCourseModal() {
+            // TODO: Implement create course modal
+            alert('Create course modal - to be implemented');
+        }
+
+        function viewCourse(courseId) {
+            // TODO: Implement view course
+            alert('View course - to be implemented');
+        }
+
+        function editCourse(courseId) {
+            // TODO: Implement edit course
+            alert('Edit course - to be implemented');
+        }
+
+        function deleteCourse(courseId) {
+            if (confirm('Are you sure you want to delete this course?')) {
+                // TODO: Implement delete course
+                alert('Delete course - to be implemented');
+            }
+        }
+
+        // Load gamification tracking
+        async function loadGamificationTracking() {
+            try {
+                const response = await fetch(`${API_BASE}/gamification.php?action=get_all_users_gamification`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('gamificationUsersTable');
+                    tbody.innerHTML = data.data.map(user => `
+                        <tr>
+                            <td>${user.nama_lengkap || user.nama_peserta || 'Unknown'}</td>
+                            <td>${user.total_xp || 0}</td>
+                            <td>${user.level || 1}</td>
+                            <td>${user.current_streak || 0}</td>
+                            <td>${user.longest_streak || 0}</td>
+                            <td>${user.badge_count || 0}</td>
+                            <td>${user.achievement_count || 0}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="viewUserGamification(${user.id})">View Details</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading gamification tracking:', error);
+            }
+        }
+
+        function viewUserGamification(userId) {
+            // TODO: Implement view user gamification details
+            alert('View user gamification details - to be implemented');
+        }
+
+        // Load notifications
+        async function loadNotifications() {
+            try {
+                // Load users for notification form
+                const usersResponse = await fetch(`${API_BASE}/auth.php?action=get_users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const usersData = await usersResponse.json();
+                
+                if (usersData.success && usersData.data) {
+                    const userSelect = document.getElementById('notificationUser');
+                    userSelect.innerHTML = '<option value="">Select User</option>' + 
+                        usersData.data.map(user => `<option value="${user.id}">${user.nama_lengkap || user.nama_peserta || 'Unknown'}</option>`).join('');
+                }
+                
+                // Load notification history
+                const historyResponse = await fetch(`${API_BASE}/notifications.php?action=get_history&limit=50`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const historyData = await historyResponse.json();
+                
+                if (historyData.success && historyData.data) {
+                    const tbody = document.getElementById('notificationsHistoryTable');
+                    tbody.innerHTML = historyData.data.map(notif => `
+                        <tr>
+                            <td>User ID: ${notif.user_id}</td>
+                            <td>${notif.type}</td>
+                            <td>${notif.category}</td>
+                            <td>${notif.title}</td>
+                            <td><span class="badge ${notif.status === 'sent' ? 'bg-success' : 'bg-warning'}">${notif.status}</span></td>
+                            <td>${notif.sent_at ? new Date(notif.sent_at).toLocaleString('id-ID') : '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        async function sendNotification() {
+            const user_id = document.getElementById('notificationUser').value;
+            const type = document.getElementById('notificationType').value;
+            const category = document.getElementById('notificationCategory').value;
+            const title = document.getElementById('notificationTitle').value;
+            const message = document.getElementById('notificationMessage').value;
+            
+            if (!user_id || !title || !message) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/notifications.php?action=send_notification`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        user_id: parseInt(user_id),
+                        type: type,
+                        category: category,
+                        title: title,
+                        message: message
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Notification sent successfully!');
+                    document.getElementById('sendNotificationForm').reset();
+                    loadNotifications();
+                } else {
+                    alert('Failed to send notification: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error sending notification:', error);
+                alert('Terjadi kesalahan saat mengirim notifikasi');
+            }
+        }
+
+        // Batch generate questions
+        async function batchGenerateQuestions() {
+            const kategori = document.getElementById('batchGenerateKategori').value;
+            const count = document.getElementById('batchGenerateCount').value;
+            const difficulty = document.getElementById('batchGenerateDifficulty').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/batch_generate.php?action=generate_questions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ kategori_id: kategori, count: count, difficulty: difficulty })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`${data.generated || count} soal berhasil digenerate!`);
+                    addGenerationHistory('Batch Generate Soal', 'Success', `${data.generated || count} soal`);
+                    // Navigate to questions section to view generated questions
+                    if (confirm('Lihat soal yang baru digenerate?')) {
+                        showSection('questions');
+                    }
+                } else {
+                    alert('Gagal generate soal: ' + (data.error || 'Unknown error'));
+                    addGenerationHistory('Batch Generate Soal', 'Failed', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat generate soal');
+                addGenerationHistory('Batch Generate Soal', 'Error', error.message);
+            }
+        }
+
+        // Generate bahan pelajaran
+        async function generateBahanPelajaran() {
+            const kategori = document.getElementById('generateBahanKategori').value;
+            const limit = document.getElementById('generateBahanLimit').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/batch_generate.php?action=generate_bahan`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ kategori_id: kategori, limit: limit })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`${data.generated || limit} bahan pelajaran berhasil digenerate!`);
+                    addGenerationHistory('Generate Bahan Pelajaran', 'Success', `${data.generated || limit} items`);
+                    // Navigate to bahan pelajaran section to view generated content
+                    if (confirm('Lihat bahan pelajaran yang baru digenerate?')) {
+                        showSection('bahanPelajaran');
+                    }
+                } else {
+                    alert('Gagal generate bahan pelajaran: ' + (data.error || 'Unknown error'));
+                    addGenerationHistory('Generate Bahan Pelajaran', 'Failed', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat generate bahan pelajaran');
+                addGenerationHistory('Generate Bahan Pelajaran', 'Error', error.message);
+            }
+        }
+
+        // Generate tips batch
+        async function generateTipsBatch() {
+            const kategori = document.getElementById('generateTipsKategori').value;
+            const limit = document.getElementById('generateTipsLimit').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/batch_generate.php?action=generate_tips`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ kategori_id: kategori, limit: limit })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Tips berhasil digenerate!`);
+                    addGenerationHistory('Generate Tips', 'Success', `Tips: ${data.tips_generated || 0}, Tricks: ${data.tricks_generated || 0}`);
+                    // Navigate to tips section to view generated tips
+                    if (confirm('Lihat tips yang baru digenerate?')) {
+                        showSection('tips');
+                    }
+                } else {
+                    alert('Gagal generate tips: ' + (data.error || 'Unknown error'));
+                    addGenerationHistory('Generate Tips', 'Failed', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat generate tips');
+                addGenerationHistory('Generate Tips', 'Error', error.message);
+            }
+        }
+
+        // Generate educational content
+        async function generateEducationalContent() {
+            const soalId = document.getElementById('eduContentSoalId').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/batch_generate.php?action=generate_edu_content`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ soal_id: soalId || null })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`${data.generated || 1} educational content berhasil digenerate!`);
+                    addGenerationHistory('Generate Educational Content', 'Success', `${data.generated || 1} items`);
+                } else {
+                    alert('Gagal generate educational content: ' + (data.error || 'Unknown error'));
+                    addGenerationHistory('Generate Educational Content', 'Failed', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat generate educational content');
+                addGenerationHistory('Generate Educational Content', 'Error', error.message);
+            }
+        }
+
+        // Create database backup
+        async function createBackup() {
+            const backupName = document.getElementById('backupName').value || `backup_${new Date().toISOString().split('T')[0]}`;
+
+            try {
+                const response = await fetch(`${API_BASE}/batch_generate.php?action=backup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ backup_name: backupName })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Backup berhasil dibuat: ${data.backup_file}`);
+                    addMaintenanceLog('Database Backup', 'Success', `File: ${data.backup_file}`);
+                } else {
+                    alert('Gagal create backup: ' + (data.error || 'Unknown error'));
+                    addMaintenanceLog('Database Backup', 'Failed', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat create backup');
+                addMaintenanceLog('Database Backup', 'Error', error.message);
+            }
+        }
+
+        // Cleanup unused files
+        async function cleanupFiles() {
+            const cleanupUploads = document.getElementById('cleanupUploads').checked;
+            const cleanupCache = document.getElementById('cleanupCache').checked;
+            const cleanupLogs = document.getElementById('cleanupLogs').checked;
+
+            try {
+                const response = await fetch(`${API_BASE}/batch_generate.php?action=cleanup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ uploads: cleanupUploads, cache: cleanupCache, logs: cleanupLogs })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Cleanup berhasil! ${data.files_deleted || 0} files deleted`);
+                    addMaintenanceLog('File Cleanup', 'Success', `${data.files_deleted || 0} files deleted`);
+                } else {
+                    alert('Gagal cleanup: ' + (data.error || 'Unknown error'));
+                    addMaintenanceLog('File Cleanup', 'Failed', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat cleanup');
+                addMaintenanceLog('File Cleanup', 'Error', error.message);
+            }
+        }
+
+        // Analyze storage
+        async function analyzeStorage() {
+            try {
+                const response = await fetch(`${API_BASE}/batch_generate.php?action=analyze_storage`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const resultDiv = document.getElementById('storageAnalysisResult');
+                    resultDiv.innerHTML = `
+                        <div class="mt-3">
+                            <p><strong>Total Size:</strong> ${data.total_size || 'N/A'}</p>
+                            <p><strong>Uploads:</strong> ${data.uploads_size || 'N/A'}</p>
+                            <p><strong>Cache:</strong> ${data.cache_size || 'N/A'}</p>
+                            <p><strong>Logs:</strong> ${data.logs_size || 'N/A'}</p>
+                        </div>
+                    `;
+                } else {
+                    alert('Gagal analyze storage: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat analyze storage');
+            }
+        }
+
+        // Check system status
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/batch_generate.php?action=system_status`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const resultDiv = document.getElementById('systemStatusResult');
+                    resultDiv.innerHTML = `
+                        <div class="mt-3">
+                            <p><strong>Database:</strong> <span class="badge ${data.db_status === 'OK' ? 'bg-success' : 'bg-danger'}">${data.db_status || 'Unknown'}</span></p>
+                            <p><strong>Cache:</strong> <span class="badge ${data.cache_status === 'OK' ? 'bg-success' : 'bg-danger'}">${data.cache_status || 'Unknown'}</span></p>
+                            <p><strong>Uploads:</strong> <span class="badge ${data.uploads_status === 'OK' ? 'bg-success' : 'bg-danger'}">${data.uploads_status || 'Unknown'}</span></p>
+                            <p><strong>Uptime:</strong> ${data.uptime || 'N/A'}</p>
+                        </div>
+                    `;
+                } else {
+                    alert('Gagal check system status: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat check system status');
+            }
+        }
+
+        // Add generation history
+        function addGenerationHistory(action, status, result) {
+            const table = document.getElementById('generationHistoryTable');
+            const now = new Date().toLocaleString();
+            
+            if (table.querySelector('td[colspan="4"]')) {
+                table.innerHTML = '';
+            }
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${now}</td>
+                <td>${action}</td>
+                <td><span class="badge ${status === 'Success' ? 'bg-success' : status === 'Error' ? 'bg-danger' : 'bg-warning'}">${status}</span></td>
+                <td>${result}</td>
+            `;
+            table.insertBefore(row, table.firstChild);
+        }
+
+        // Add maintenance log
+        function addMaintenanceLog(action, status, details) {
+            const table = document.getElementById('maintenanceLogTable');
+            const now = new Date().toLocaleString();
+            
+            if (table.querySelector('td[colspan="4"]')) {
+                table.innerHTML = '';
+            }
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${now}</td>
+                <td>${action}</td>
+                <td><span class="badge ${status === 'Success' ? 'bg-success' : status === 'Error' ? 'bg-danger' : 'bg-warning'}">${status}</span></td>
+                <td>${details}</td>
+            `;
+            table.insertBefore(row, table.firstChild);
         }
 
         // Show question modal

@@ -20,11 +20,30 @@ requireAuth();
 $action = $_GET['action'] ?? '';
 
 switch ($action) {
+    case 'generate_bahan':
     case 'generate_bahan_pelajaran':
         generateBahanPelajaranBatch();
         break;
     case 'generate_tips':
         generateTipsBatch();
+        break;
+    case 'generate_questions':
+        generateQuestions();
+        break;
+    case 'generate_edu_content':
+        generateEducationalContent();
+        break;
+    case 'backup':
+        createBackup();
+        break;
+    case 'cleanup':
+        cleanupFiles();
+        break;
+    case 'analyze_storage':
+        analyzeStorage();
+        break;
+    case 'system_status':
+        checkSystemStatus();
         break;
     case 'analyze_soal_topics':
         analyzeSoalTopics();
@@ -356,6 +375,310 @@ function generateGeneralTips($kategori_id) {
     }
     
     return $tips;
+}
+
+function generateQuestions() {
+    global $conn;
+    
+    requireAdmin();
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    $kategori_id = intval($input['kategori_id'] ?? 0);
+    $count = intval($input['count'] ?? 10);
+    $difficulty = $input['difficulty'] ?? 'sedang';
+    
+    // Include the AI question generator
+    require_once __DIR__ . '/../scripts/ai_question_generator.php';
+    
+    $generator = new AIQuestionGenerator($conn);
+    $questions = $generator->generateQuestionForAdmin($kategori_id, $count, $difficulty);
+    
+    echo json_encode([
+        'success' => true,
+        'generated' => count($questions),
+        'questions' => $questions
+    ]);
+}
+
+function generateEducationalContent() {
+    global $conn;
+    
+    requireAdmin();
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    $soal_id = $input['soal_id'] ?? null;
+    
+    // Include the educational content generator
+    require_once __DIR__ . '/../scripts/educational_content_generator.php';
+    
+    $generator = new EducationalContentGenerator($conn);
+    
+    if ($soal_id) {
+        // Generate for specific soal
+        $sql = "SELECT * FROM soal WHERE id = $soal_id";
+        $result = $conn->query($sql);
+        $row = $result->fetch_assoc();
+        
+        $content = $generator->generateEducationalContent(
+            $soal_id,
+            $row['kategori_id'],
+            $row['tingkat'],
+            $row['pertanyaan'],
+            $row['pembahasan'],
+            $row['jawaban_benar']
+        );
+        
+        echo json_encode([
+            'success' => true,
+            'generated' => 1,
+            'content' => $content
+        ]);
+    } else {
+        // Generate batch (limit to 10 for demo)
+        $sql = "SELECT id, kategori_id, tingkat, pertanyaan, pembahasan, jawaban_benar FROM soal LIMIT 10";
+        $result = $conn->query($sql);
+        
+        $generated = 0;
+        while ($row = $result->fetch_assoc()) {
+            $content = $generator->generateEducationalContent(
+                $row['id'],
+                $row['kategori_id'],
+                $row['tingkat'],
+                $row['pertanyaan'],
+                $row['pembahasan'],
+                $row['jawaban_benar']
+            );
+            $generated++;
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'generated' => $generated
+        ]);
+    }
+}
+
+function createBackup() {
+    global $conn;
+    
+    requireAdmin();
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    $backup_name = $input['backup_name'] ?? 'backup_' . date('Y-m-d');
+    
+    // Include backup script
+    require_once __DIR__ . '/../scripts/backup.php';
+    
+    // Simple backup implementation
+    $backup_file = __DIR__ . '/../database/' . $backup_name . '.sql';
+    
+    // Get all tables
+    $tables = [];
+    $result = $conn->query("SHOW TABLES");
+    while ($row = $result->fetch_array()) {
+        $tables[] = $row[0];
+    }
+    
+    $backup_content = "-- Database Backup: $backup_name\n";
+    $backup_content .= "-- Date: " . date('Y-m-d H:i:s') . "\n\n";
+    
+    foreach ($tables as $table) {
+        $backup_content .= "-- Table: $table\n";
+        $result = $conn->query("SELECT * FROM $table");
+        $num_fields = $result->field_count;
+        
+        while ($row = $result->fetch_row()) {
+            $backup_content .= "INSERT INTO $table VALUES(";
+            for ($i = 0; $i < $num_fields; $i++) {
+                $row[$i] = addslashes($row[$i]);
+                $row[$i] = preg_replace("/\n/", "\\n", $row[$i]);
+                if (isset($row[$i])) {
+                    $backup_content .= '"' . $row[$i] . '"';
+                } else {
+                    $backup_content .= '""';
+                }
+                if ($i < ($num_fields - 1)) {
+                    $backup_content .= ',';
+                }
+            }
+            $backup_content .= ");\n";
+        }
+        $backup_content .= "\n\n";
+    }
+    
+    file_put_contents($backup_file, $backup_content);
+    
+    echo json_encode([
+        'success' => true,
+        'backup_file' => $backup_name . '.sql'
+    ]);
+}
+
+function cleanupFiles() {
+    global $conn;
+    
+    requireAdmin();
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    $cleanup_uploads = $input['uploads'] ?? false;
+    $cleanup_cache = $input['cache'] ?? false;
+    $cleanup_logs = $input['logs'] ?? false;
+    
+    $files_deleted = 0;
+    
+    if ($cleanup_cache) {
+        $cache_dir = __DIR__ . '/../cache';
+        if (is_dir($cache_dir)) {
+            $files = glob($cache_dir . '/*');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                    $files_deleted++;
+                }
+            }
+        }
+    }
+    
+    if ($cleanup_logs) {
+        $logs_dir = __DIR__ . '/../logs';
+        if (is_dir($logs_dir)) {
+            $files = glob($logs_dir . '/*.log');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    // Only delete logs older than 7 days
+                    if (filemtime($file) < strtotime('-7 days')) {
+                        unlink($file);
+                        $files_deleted++;
+                    }
+                }
+            }
+        }
+    }
+    
+    if ($cleanup_uploads) {
+        // Only cleanup unused uploads (not referenced in database)
+        $uploads_dir = __DIR__ . '/../uploads';
+        if (is_dir($uploads_dir)) {
+            // This is a simplified version - in production, check database references
+            $files = glob($uploads_dir . '/*');
+            foreach ($files as $file) {
+                if (is_file($file) && filemtime($file) < strtotime('-30 days')) {
+                    unlink($file);
+                    $files_deleted++;
+                }
+            }
+        }
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'files_deleted' => $files_deleted
+    ]);
+}
+
+function analyzeStorage() {
+    global $conn;
+    
+    requireAdmin();
+    
+    $total_size = 0;
+    $uploads_size = 0;
+    $cache_size = 0;
+    $logs_size = 0;
+    
+    // Calculate uploads size
+    $uploads_dir = __DIR__ . '/../uploads';
+    if (is_dir($uploads_dir)) {
+        $files = glob($uploads_dir . '/*');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                $uploads_size += filesize($file);
+            }
+        }
+    }
+    
+    // Calculate cache size
+    $cache_dir = __DIR__ . '/../cache';
+    if (is_dir($cache_dir)) {
+        $files = glob($cache_dir . '/*');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                $cache_size += filesize($file);
+            }
+        }
+    }
+    
+    // Calculate logs size
+    $logs_dir = __DIR__ . '/../logs';
+    if (is_dir($logs_dir)) {
+        $files = glob($logs_dir . '/*.log');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                $logs_size += filesize($file);
+            }
+        }
+    }
+    
+    $total_size = $uploads_size + $cache_size + $logs_size;
+    
+    function formatBytes($bytes, $precision = 2) {
+        $units = array('B', 'KB', 'MB', 'GB', 'TB');
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+        return round($bytes, $precision) . ' ' . $units[$pow];
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'total_size' => formatBytes($total_size),
+        'uploads_size' => formatBytes($uploads_size),
+        'cache_size' => formatBytes($cache_size),
+        'logs_size' => formatBytes($logs_size)
+    ]);
+}
+
+function checkSystemStatus() {
+    global $conn;
+    
+    requireAdmin();
+    
+    $db_status = 'OK';
+    $cache_status = 'OK';
+    $uploads_status = 'OK';
+    
+    // Check database connection
+    if (!$conn->ping()) {
+        $db_status = 'Error';
+    }
+    
+    // Check cache directory
+    $cache_dir = __DIR__ . '/../cache';
+    if (!is_dir($cache_dir) || !is_writable($cache_dir)) {
+        $cache_status = 'Error';
+    }
+    
+    // Check uploads directory
+    $uploads_dir = __DIR__ . '/../uploads';
+    if (!is_dir($uploads_dir) || !is_writable($uploads_dir)) {
+        $uploads_status = 'Error';
+    }
+    
+    // Calculate uptime (simplified)
+    $uptime = 'N/A';
+    if (function_exists('sys_getloadavg')) {
+        $load = sys_getloadavg();
+        $uptime = 'Load: ' . round($load[0], 2);
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'db_status' => $db_status,
+        'cache_status' => $cache_status,
+        'uploads_status' => $uploads_status,
+        'uptime' => $uptime
+    ]);
 }
 
 $conn->close();

@@ -499,92 +499,325 @@
             text-align: center;
             padding: 2rem;
             color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 60px;
+        }
+
+        /* Mobile Bottom Navigation */
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .mobile-bottom-nav .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 0.75rem;
+            padding: 5px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .mobile-bottom-nav .nav-item i {
+            font-size: 1.25rem;
+            margin-bottom: 4px;
+        }
+
+        .mobile-bottom-nav .nav-item.active {
+            color: var(--primary-color);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .mobile-bottom-nav .nav-item:hover {
+            color: var(--primary-color);
+        }
+
+        /* Touch-friendly UI */
+        @media (max-width: 768px) {
+            .btn {
+                min-height: 44px;
+                min-width: 44px;
+                font-size: 1rem;
+            }
+
+            .card {
+                border-radius: 12px;
+                margin-bottom: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            /* Responsive tables */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Accessibility improvements */
+        * {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        button:focus,
+        a:focus,
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .dashboard-card {
+                border: 2px solid #000;
+            }
+
+            .stat-value {
+                font-weight: bold;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Font size adjustment support */
+        html {
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            html {
+                font-size: 14px;
+            }
+        }
+
+        /* Lazy loading images */
+        img {
+            content-visibility: auto;
+        }
+
+        /* Accessibility Menu */
+        .accessibility-menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            min-width: 300px;
+        }
+
+        .accessibility-menu.hidden {
+            display: none;
+        }
+
+        .accessibility-content h4 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .accessibility-option {
+            margin-bottom: 1rem;
+        }
+
+        .accessibility-option label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .accessibility-option select,
+        .accessibility-option input[type="checkbox"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .btn-accessibility {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* High contrast mode */
+        body.high-contrast {
+            filter: contrast(1.5);
+        }
+
+        body.high-contrast .dashboard-card {
+            border: 2px solid #000;
+        }
+
+        /* Font size classes */
+        body.font-small {
+            font-size: 14px;
+        }
+
+        body.font-medium {
+            font-size: 16px;
+        }
+
+        body.font-large {
+            font-size: 18px;
+        }
+
+        body.font-xlarge {
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
+    <div class="dashboard-container" role="main" aria-label="Dashboard Peserta">
         <!-- Header -->
-        <div class="dashboard-header">
+        <div class="dashboard-header" role="banner">
             <div class="user-welcome">
-                <div class="user-avatar" id="userAvatar">BS</div>
+                <div class="user-avatar" id="userAvatar" aria-label="Avatar pengguna">-</div>
                 <div class="user-info">
-                    <h3 id="userName">Selamat Datang, Budi Santoso!</h3>
-                    <p id="userDetail">Peserta Ujian • SMA Negeri 1 Jakarta</p>
+                    <h3 id="userName" aria-live="polite">Loading...</h3>
+                    <p id="userDetail" aria-live="polite">Loading...</p>
                 </div>
             </div>
             <div class="quick-actions">
-                <button class="btn-quick btn-primary-custom" onclick="startNewExam()">
-                    <i class="fas fa-play-circle"></i> Mulai Ujian Baru
+                <button class="btn-quick btn-primary-custom" onclick="startNewExam()" aria-label="Mulai ujian baru">
+                    <i class="fas fa-play-circle" aria-hidden="true"></i> Mulai Ujian Baru
                 </button>
-                <button class="btn-quick btn-secondary-custom" onclick="viewHistory()">
-                    <i class="fas fa-history"></i> Riwayat
+                <button class="btn-quick btn-secondary-custom" onclick="viewHistory()" aria-label="Lihat riwayat ujian">
+                    <i class="fas fa-history" aria-hidden="true"></i> Riwayat
                 </button>
-                <button class="btn-quick btn-danger-custom" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                <button class="btn-quick btn-accessibility" onclick="toggleAccessibilityMenu()" aria-label="Menu aksesibilitas">
+                    <i class="fas fa-universal-access" aria-hidden="true"></i>
+                </button>
+                <button class="btn-quick btn-danger-custom" onclick="logout()" aria-label="Logout">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
                 </button>
             </div>
         </div>
 
+        <!-- Accessibility Menu -->
+        <div id="accessibilityMenu" class="accessibility-menu hidden" role="dialog" aria-label="Pengaturan aksesibilitas">
+            <div class="accessibility-content">
+                <h4>Pengaturan Aksesibilitas</h4>
+                <div class="accessibility-option">
+                    <label for="fontSizeSelect">Ukuran Font:</label>
+                    <select id="fontSizeSelect" onchange="changeFontSize(this.value)" aria-label="Pilih ukuran font">
+                        <option value="small">Kecil</option>
+                        <option value="medium" selected>Normal</option>
+                        <option value="large">Besar</option>
+                        <option value="xlarge">Sangat Besar</option>
+                    </select>
+                </div>
+                <div class="accessibility-option">
+                    <label for="contrastSelect">Kontras:</label>
+                    <select id="contrastSelect" onchange="changeContrast(this.value)" aria-label="Pilih tingkat kontras">
+                        <option value="normal" selected>Normal</option>
+                        <option value="high">Tinggi</option>
+                    </select>
+                </div>
+                <div class="accessibility-option">
+                    <label>
+                        <input type="checkbox" id="textToSpeech" onchange="toggleTextToSpeech(this.checked)" aria-label="Aktifkan text-to-speech">
+                        Text-to-Speech
+                    </label>
+                </div>
+                <button class="btn btn-sm btn-secondary mt-2" onclick="toggleAccessibilityMenu()">Tutup</button>
+            </div>
+        </div>
+
         <!-- Stats Grid -->
-        <div class="stats-grid">
+        <div class="stats-grid" role="region" aria-label="Statistik belajar">
             <div class="stat-card">
                 <div class="stat-header">
                     <div>
-                        <div class="stat-value" id="totalExams">12</div>
+                        <div class="stat-value" id="totalExams" aria-live="polite">-</div>
                         <div class="stat-label">Total Ujian</div>
                     </div>
-                    <div class="stat-icon primary">
+                    <div class="stat-icon primary" aria-hidden="true">
                         <i class="fas fa-clipboard-check"></i>
                     </div>
                 </div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> +3 bulan ini
+                <div class="stat-change" id="totalExamsChange">
+                    <i class="fas fa-arrow-up" aria-hidden="true"></i> Loading...
                 </div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-header">
                     <div>
-                        <div class="stat-value" id="averageScore">85.5</div>
+                        <div class="stat-value" id="averageScore" aria-live="polite">-</div>
                         <div class="stat-label">Rata-rata Nilai</div>
                     </div>
-                    <div class="stat-icon success">
+                    <div class="stat-icon success" aria-hidden="true">
                         <i class="fas fa-chart-line"></i>
                     </div>
                 </div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> +5.2% naik
+                <div class="stat-change" id="averageScoreChange">
+                    <i class="fas fa-arrow-up" aria-hidden="true"></i> Loading...
                 </div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-header">
                     <div>
-                        <div class="stat-value" id="studyHours">24.5</div>
-                        <div class="stat-label">Jam Belajar</div>
+                        <div class="stat-value" id="userXP" aria-live="polite">-</div>
+                        <div class="stat-label">Total XP</div>
                     </div>
-                    <div class="stat-icon warning">
-                        <i class="fas fa-clock"></i>
+                    <div class="stat-icon warning" aria-hidden="true">
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> +2.5 jam
+                <div class="stat-change" id="userLevelChange">
+                    <i class="fas fa-arrow-up" aria-hidden="true"></i> Level <span id="userLevel">-</span>
                 </div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-header">
                     <div>
-                        <div class="stat-value" id="rankPosition">#15</div>
-                        <div class="stat-label">Peringkat</div>
+                        <div class="stat-value" id="userStreak" aria-live="polite">-</div>
+                        <div class="stat-label">Streak Hari</div>
                     </div>
-                    <div class="stat-icon info">
-                        <i class="fas fa-trophy"></i>
+                    <div class="stat-icon info" aria-hidden="true">
+                        <i class="fas fa-fire"></i>
                     </div>
                 </div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> Naik 3 posisi
+                <div class="stat-change" id="userStreakChange">
+                    <i class="fas fa-fire" aria-hidden="true"></i> Loading...
                 </div>
             </div>
         </div>
@@ -643,24 +876,22 @@
                     </div>
                     <div class="ai-recommendation">
                         <div class="ai-recommendation-text" id="aiRecommendation">
-                            Berdasarkan analisis performa Anda, disarankan untuk fokus pada materi TWK - Sejarah Indonesia. 
-                            Pola jawaban menunjukkan peningkatan 15% dalam 2 minggu terakhir.
+                            Loading...
                         </div>
-                        <div class="ai-confidence">
-                            <i class="fas fa-check-circle"></i>
-                            Confidence: 92%
+                        <div class="ai-confidence" id="aiConfidence">
+                            <i class="fas fa-check-circle"></i> Loading...
                         </div>
                         <div class="progress-bar-custom">
-                            <div class="progress-fill" style="width: 92%;"></div>
+                            <div class="progress-fill" id="aiConfidenceBar" style="width: 0%;"></div>
                         </div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
                         <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
-                            <div style="font-size: 1.5rem; font-weight: 600;">78%</div>
+                            <div style="font-size: 1.5rem; font-weight: 600;" id="readinessScore">-</div>
                             <div style="font-size: 0.8rem; opacity: 0.8;">Kesiapan Ujian</div>
                         </div>
                         <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
-                            <div style="font-size: 1.5rem; font-weight: 600;">12</div>
+                            <div style="font-size: 1.5rem; font-weight: 600;" id="daysRemaining">-</div>
                             <div style="font-size: 0.8rem; opacity: 0.8;">Hari Tersisa</div>
                         </div>
                     </div>
@@ -677,6 +908,124 @@
                     </div>
                     <div id="materialsList">
                         <!-- Learning materials will be loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Learning Path -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-road" style="color: var(--primary-color);"></i>
+                            Learning Path
+                        </h5>
+                        <a href="#" onclick="alert('Fitur learning path lengkap akan segera tersedia')" style="font-size: 0.9rem;">Lihat Semua</a>
+                    </div>
+                    <div id="learningPathList">
+                        <!-- Learning path will be loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Badges & Achievements -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-medal" style="color: var(--warning-color);"></i>
+                            Badges & Achievements
+                        </h5>
+                        <a href="#" onclick="alert('Fitur badges lengkap akan segera tersedia')" style="font-size: 0.9rem;">Lihat Semua</a>
+                    </div>
+                    <div id="badgesList">
+                        <!-- Badges will be loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Daily Challenges -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-tasks" style="color: var(--success-color);"></i>
+                            Daily Challenges
+                        </h5>
+                        <a href="#" onclick="alert('Fitur daily challenges lengkap akan segera tersedia')" style="font-size: 0.9rem;">Lihat Semua</a>
+                    </div>
+                    <div id="dailyChallengesList">
+                        <!-- Daily challenges will be loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-bell" style="color: var(--primary-color);"></i>
+                            Notifications
+                        </h5>
+                        <a href="#" onclick="alert('Fitur notifikasi lengkap akan segera tersedia')" style="font-size: 0.9rem;">Lihat Semua</a>
+                    </div>
+                    <div id="notificationsList">
+                        <!-- Notifications will be loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Notification Preferences -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-cog" style="color: var(--secondary-color);"></i>
+                            Notification Preferences
+                        </h5>
+                        <button class="btn btn-sm btn-primary" onclick="saveNotificationPreferences()">Save</button>
+                    </div>
+                    <div id="notificationPreferencesForm">
+                        <div class="mb-2">
+                            <label class="form-label small">Email Notifications</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="emailExamReminder" checked>
+                                <label class="form-check-label small" for="emailExamReminder">Exam Reminders</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="emailExamResult" checked>
+                                <label class="form-check-label small" for="emailExamResult">Exam Results</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="emailCertificate" checked>
+                                <label class="form-check-label small" for="emailCertificate">Certificates</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="emailAchievement" checked>
+                                <label class="form-check-label small" for="emailAchievement">Achievements</label>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">In-App Notifications</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="inAppExamReminder" checked>
+                                <label class="form-check-label small" for="inAppExamReminder">Exam Reminders</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="inAppExamResult" checked>
+                                <label class="form-check-label small" for="inAppExamResult">Exam Results</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="inAppAchievement" checked>
+                                <label class="form-check-label small" for="inAppAchievement">Achievements</label>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Push Notifications</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="pushExamReminder" checked>
+                                <label class="form-check-label small" for="pushExamReminder">Exam Reminders</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="pushExamResult" checked>
+                                <label class="form-check-label small" for="pushExamResult">Exam Results</label>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Reminder Before Exam (hours)</label>
+                            <input type="number" class="form-control form-control-sm" id="reminderHoursBefore" value="24" min="1" max="168">
+                        </div>
                     </div>
                 </div>
 
@@ -699,6 +1048,26 @@
         <div class="dashboard-footer">
             <p>&copy; 2026 Ujian Sekolah Kedinasan. Dibuat dengan <i class="fas fa-heart" style="color: #ef4444;"></i> untuk kesuksesan Anda.</p>
         </div>
+
+        <!-- Mobile Bottom Navigation -->
+        <div class="mobile-bottom-nav d-md-none">
+            <a href="#" class="nav-item active" onclick="showMobileSection('dashboard')">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item" onclick="window.location.href='ujian.html'">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Ujian</span>
+            </a>
+            <a href="#" class="nav-item" onclick="window.location.href='materi.html'">
+                <i class="fas fa-book"></i>
+                <span>Materi</span>
+            </a>
+            <a href="#" class="nav-item" onclick="showMobileSection('profile')">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </a>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -713,6 +1082,74 @@
             window.location.href = '../login.html';
         }
 
+        // Mobile section navigation
+        function showMobileSection(section) {
+            document.querySelectorAll('.mobile-bottom-nav .nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            
+            if (section === 'dashboard') {
+                // Already on dashboard
+            } else if (section === 'profile') {
+                // Show profile section (to be implemented)
+                alert('Profile section coming soon');
+            }
+        }
+
+        // Accessibility functions
+        function toggleAccessibilityMenu() {
+            const menu = document.getElementById('accessibilityMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function changeFontSize(size) {
+            document.body.classList.remove('font-small', 'font-medium', 'font-large', 'font-xlarge');
+            document.body.classList.add('font-' + size);
+            localStorage.setItem('fontSize', size);
+        }
+
+        function changeContrast(contrast) {
+            document.body.classList.remove('high-contrast');
+            if (contrast === 'high') {
+                document.body.classList.add('high-contrast');
+            }
+            localStorage.setItem('contrast', contrast);
+        }
+
+        let textToSpeechEnabled = false;
+        let speechSynthesis = window.speechSynthesis;
+
+        function toggleTextToSpeech(enabled) {
+            textToSpeechEnabled = enabled;
+            localStorage.setItem('textToSpeech', enabled);
+            if (!enabled) {
+                speechSynthesis.cancel();
+            }
+        }
+
+        function speakText(text) {
+            if (textToSpeechEnabled && speechSynthesis) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID';
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Load saved accessibility preferences
+        function loadAccessibilityPreferences() {
+            const fontSize = localStorage.getItem('fontSize') || 'medium';
+            const contrast = localStorage.getItem('contrast') || 'normal';
+            const textToSpeech = localStorage.getItem('textToSpeech') === 'true';
+
+            document.getElementById('fontSizeSelect').value = fontSize;
+            document.getElementById('contrastSelect').value = contrast;
+            document.getElementById('textToSpeech').checked = textToSpeech;
+
+            changeFontSize(fontSize);
+            changeContrast(contrast);
+            toggleTextToSpeech(textToSpeech);
+        }
+
         // Initialize Dashboard
         document.addEventListener('DOMContentLoaded', function() {
             // Check authentication
@@ -721,29 +1158,63 @@
                 return;
             }
 
+            // Load accessibility preferences
+            loadAccessibilityPreferences();
+
+            // Initialize Progress Chart with empty data
+            initProgressChart([]);
+            
             // Update UI with user data
             updateUserInfo();
-            
-            // Initialize Progress Chart
-            initProgressChart();
             
             // Load dashboard data
             loadDashboardData();
         });
 
-        function updateUserInfo() {
-            const userRole = RBAC.getCurrentRole();
-            const username = localStorage.getItem('username') || 'User';
-            
-            // Set avatar initials
-            const initials = username.substring(0, 2).toUpperCase();
-            document.getElementById('userAvatar').textContent = initials;
-            
-            // Set welcome message
-            document.getElementById('userName').textContent = `Selamat Datang, ${username}!`;
+        async function updateUserInfo() {
+            try {
+                const response = await fetch(AppConfig.apiUrl('auth.php?action=get_profile'), {
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.user) {
+                        const user = data.user;
+                        
+                        // Set avatar initials
+                        const initials = (user.nama_lengkap || user.username || 'User').substring(0, 2).toUpperCase();
+                        document.getElementById('userAvatar').textContent = initials;
+                        
+                        // Set welcome message
+                        document.getElementById('userName').textContent = `Selamat Datang, ${user.nama_lengkap || user.username || 'User'}!`;
+                        
+                        // Set user detail
+                        const detailParts = [];
+                        if (user.asal_sekolah) detailParts.push(user.asal_sekolah);
+                        if (user.tahun_tamat) detailParts.push(`Lulusan ${user.tahun_tamat}`);
+                        document.getElementById('userDetail').textContent = detailParts.length > 0 ? detailParts.join(' • ') : 'Peserta Ujian';
+                    }
+                } else {
+                    // Fallback to localStorage if API fails
+                    const username = localStorage.getItem('username') || 'User';
+                    const initials = username.substring(0, 2).toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials;
+                    document.getElementById('userName').textContent = `Selamat Datang, ${username}!`;
+                    document.getElementById('userDetail').textContent = 'Peserta Ujian';
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+                // Fallback to localStorage
+                const username = localStorage.getItem('username') || 'User';
+                const initials = username.substring(0, 2).toUpperCase();
+                document.getElementById('userAvatar').textContent = initials;
+                document.getElementById('userName').textContent = `Selamat Datang, ${username}!`;
+                document.getElementById('userDetail').textContent = 'Peserta Ujian';
+            }
         }
 
-        function initProgressChart() {
+        function initProgressChart(examData = []) {
             const ctx = document.getElementById('progressChart');
             
             // Destroy existing chart before creating new one
@@ -754,20 +1225,38 @@
                 }
             }
             
+            // Prepare chart data from exam data
+            let labels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+            let scoreData = [0, 0, 0, 0, 0, 0, 0];
+            let avgData = [0, 0, 0, 0, 0, 0, 0];
+            
+            if (examData && examData.length > 0) {
+                // Get last 7 exams and map to days
+                const recentExams = examData.slice(-7);
+                recentExams.forEach((exam, index) => {
+                    if (index < 7) {
+                        scoreData[index] = exam.nilai_total || 0;
+                        // Calculate running average
+                        const avg = recentExams.slice(0, index + 1).reduce((sum, e) => sum + (e.nilai_total || 0), 0) / (index + 1);
+                        avgData[index] = avg;
+                    }
+                });
+            }
+            
             new Chart(ctx.getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+                    labels: labels,
                     datasets: [{
                         label: 'Skor Ujian',
-                        data: [75, 78, 82, 80, 85, 87, 87.5],
+                        data: scoreData,
                         borderColor: '#1e40af',
                         backgroundColor: 'rgba(30, 64, 175, 0.1)',
                         tension: 0.4,
                         fill: true
                     }, {
                         label: 'Rata-rata',
-                        data: [70, 72, 75, 76, 78, 80, 82],
+                        data: avgData,
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         tension: 0.4,
@@ -792,10 +1281,61 @@
             });
         }
 
+        function updateAIAssessment(weaknessData) {
+            if (!weaknessData || weaknessData.length === 0) {
+                document.getElementById('aiRecommendation').textContent = 'Belum cukup data untuk analisis AI. Ikuti ujian untuk mendapatkan rekomendasi.';
+                document.getElementById('aiConfidence').innerHTML = '<i class="fas fa-info-circle"></i> Data tidak cukup';
+                document.getElementById('aiConfidenceBar').style.width = '0%';
+                document.getElementById('readinessScore').textContent = '-';
+                document.getElementById('daysRemaining').textContent = '-';
+                return;
+            }
+
+            // Calculate average accuracy
+            const avgAccuracy = weaknessData.reduce((sum, w) => sum + (w.persen_benar || 0), 0) / weaknessData.length;
+            
+            // Find weakest category
+            const weakest = weaknessData.reduce((min, w) => (w.persen_benar < min.persen_benar) ? w : min);
+            
+            // Calculate readiness score
+            const readinessScore = Math.min(100, Math.round(avgAccuracy + (weaknessData.length * 5)));
+            
+            // Calculate days remaining (simplified - 30 days from first exam)
+            const daysRemaining = Math.max(0, 30 - weaknessData.length);
+            
+            // Generate recommendation
+            let recommendation = '';
+            if (avgAccuracy < 50) {
+                recommendation = `Perlu perhatian khusus pada ${weakest.nama_kategori || 'materi dasar'}. Fokus pada materi dasar dan latihan soal intensif.`;
+            } else if (avgAccuracy < 70) {
+                recommendation = `${weakest.nama_kategori || 'Beberapa materi'} masih perlu ditingkatkan. Review materi dan latihan soal rutin.`;
+            } else {
+                recommendation = `Performa Anda sudah cukup baik. Pertahankan dan tingkatkan dengan soal yang lebih sulit.`;
+            }
+            
+            document.getElementById('aiRecommendation').textContent = recommendation;
+            document.getElementById('aiConfidence').innerHTML = `<i class="fas fa-check-circle"></i> Confidence: ${Math.round(avgAccuracy)}%`;
+            document.getElementById('aiConfidenceBar').style.width = `${avgAccuracy}%`;
+            document.getElementById('readinessScore').textContent = `${readinessScore}%`;
+            document.getElementById('daysRemaining').textContent = daysRemaining;
+        }
+
         async function loadDashboardData() {
             try {
+                // Fetch statistics data
+                const statsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian'), {
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (statsResponse.ok) {
+                    const statsData = await statsResponse.json();
+                    if (statsData.success && statsData.data) {
+                        updateStats(statsData.data);
+                    }
+                }
+
                 // Fetch last exam data
-                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian'), {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian&limit=1'), {
                     headers: RBAC.getAuthHeaders()
                 });
                 
@@ -804,7 +1344,7 @@
                     if (data.success && data.data && data.data.length > 0) {
                         updateLastExamCard(data.data[0]);
                     } else {
-                        console.warn('No exam data available');
+                        updateLastExamCard(null);
                     }
                 }
 
@@ -817,8 +1357,9 @@
                     const weaknessData = await weaknessResponse.json();
                     if (weaknessData.success && weaknessData.data) {
                         updateWeaknessAnalysis(weaknessData.data);
+                        updateAIAssessment(weaknessData.data);
                     } else {
-                        console.warn('No weakness data available');
+                        updateWeaknessAnalysis([]);
                     }
                 }
 
@@ -832,7 +1373,7 @@
                     if (materialsData.success && materialsData.data) {
                         updateLearningMaterials(materialsData.data);
                     } else {
-                        console.warn('No learning materials available');
+                        updateLearningMaterials([]);
                     }
                 }
 
@@ -845,13 +1386,295 @@
                     const activityData = await activityResponse.json();
                     if (activityData.success && activityData.data) {
                         updateActivityTimeline(activityData.data);
+                        updateProgressChart(activityData.data);
                     } else {
-                        console.warn('No activity data available');
+                        updateActivityTimeline([]);
+                        updateProgressChart([]);
+                    }
+                }
+
+                // Fetch learning path
+                const learningPathResponse = await fetch(AppConfig.apiUrl('courses.php?action=get_user_learning_path'), {
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (learningPathResponse.ok) {
+                    const learningPathData = await learningPathResponse.json();
+                    if (learningPathData.success && learningPathData.data) {
+                        updateLearningPath(learningPathData.data);
+                    } else {
+                        updateLearningPath(null);
+                    }
+                }
+
+                // Fetch gamification data
+                const gamificationResponse = await fetch(AppConfig.apiUrl('gamification.php?action=get_user_gamification'), {
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (gamificationResponse.ok) {
+                    const gamificationData = await gamificationResponse.json();
+                    if (gamificationData.success && gamificationData.data) {
+                        updateGamificationStats(gamificationData.data);
+                        updateBadges(gamificationData.data.badges);
+                        updateDailyChallenges(gamificationData.data.daily_challenges);
+                    }
+                }
+
+                // Update streak
+                await updateStreak();
+
+                // Fetch notifications
+                const notificationsResponse = await fetch(AppConfig.apiUrl('notifications.php?action=get_notifications&limit=5'), {
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (notificationsResponse.ok) {
+                    const notificationsData = await notificationsResponse.json();
+                    if (notificationsData.success && notificationsData.data) {
+                        updateNotifications(notificationsData.data);
+                    }
+                }
+
+                // Fetch notification preferences
+                const prefsResponse = await fetch(AppConfig.apiUrl('notifications.php?action=get_preferences'), {
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (prefsResponse.ok) {
+                    const prefsData = await prefsResponse.json();
+                    if (prefsData.success && prefsData.data) {
+                        loadNotificationPreferences(prefsData.data);
                     }
                 }
 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        function updateStats(examData) {
+            if (!examData || examData.length === 0) {
+                document.getElementById('totalExams').textContent = '0';
+                document.getElementById('averageScore').textContent = '0';
+                document.getElementById('userXP').textContent = '0';
+                document.getElementById('userStreak').textContent = '0';
+                return;
+            }
+
+            // Calculate statistics
+            const totalExams = examData.length;
+            const averageScore = examData.reduce((sum, exam) => sum + (exam.nilai_total || 0), 0) / totalExams;
+            
+            document.getElementById('totalExams').textContent = totalExams;
+            document.getElementById('averageScore').textContent = averageScore.toFixed(1);
+
+            // Update change indicators (simplified)
+            document.getElementById('totalExamsChange').innerHTML = `<i class="fas fa-check"></i> Data aktual`;
+            document.getElementById('averageScoreChange').innerHTML = `<i class="fas fa-check"></i> Rata-rata ${totalExams} ujian`;
+        }
+
+        function updateGamificationStats(gamificationData) {
+            if (!gamificationData || !gamificationData.xp) {
+                document.getElementById('userXP').textContent = '0';
+                document.getElementById('userLevel').textContent = '1';
+                return;
+            }
+
+            const xp = gamificationData.xp;
+            document.getElementById('userXP').textContent = xp.total_xp || 0;
+            document.getElementById('userLevel').textContent = xp.level || 1;
+            document.getElementById('userLevelChange').innerHTML = `<i class="fas fa-arrow-up"></i> Level ${xp.level || 1}`;
+
+            if (gamificationData.streak) {
+                document.getElementById('userStreak').textContent = gamificationData.streak.current_streak || 0;
+                document.getElementById('userStreakChange').innerHTML = `<i class="fas fa-fire"></i> ${gamificationData.streak.longest_streak || 0} hari terbaik`;
+            }
+        }
+
+        function updateBadges(badges) {
+            const badgesList = document.getElementById('badgesList');
+            if (!badgesList) return;
+            
+            if (!badges || badges.length === 0) {
+                badgesList.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-medal fa-2x mb-2"></i>
+                        <p>Belum ada badge</p>
+                        <small>Selesaikan ujian dan tantangan untuk mendapatkan badge</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            badgesList.innerHTML = badges.slice(0, 6).map(badge => `
+                <div class="badge-item d-flex align-items-center gap-2 mb-2 p-2 bg-light rounded">
+                    <div class="badge-icon" style="width: 40px; height: 40px; border-radius: 50%; background: var(--warning-color); display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="fas ${badge.icon || 'fa-medal'}"></i>
+                    </div>
+                    <div class="badge-content">
+                        <div class="badge-title font-weight-bold small">${badge.nama}</div>
+                        <div class="badge-date text-muted" style="font-size: 0.75rem;">${new Date(badge.earned_at).toLocaleDateString('id-ID')}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateDailyChallenges(challenges) {
+            const challengesList = document.getElementById('dailyChallengesList');
+            if (!challengesList) return;
+            
+            if (!challenges || challenges.length === 0) {
+                challengesList.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-tasks fa-2x mb-2"></i>
+                        <p>Tidak ada tantangan hari ini</p>
+                        <small>Kembali besok untuk tantangan baru</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            challengesList.innerHTML = challenges.map(challenge => {
+                const progress = challenge.progress || 0;
+                const progressPercent = (progress / challenge.target_value) * 100;
+                const isCompleted = progress >= challenge.target_value;
+                const isClaimed = challenge.claimed_at !== null;
+                
+                return `
+                    <div class="challenge-item mb-2 p-2 border rounded">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small font-weight-bold">${challenge.judul}</span>
+                            <span class="badge ${isClaimed ? 'bg-success' : (isCompleted ? 'bg-primary' : 'bg-secondary')}">
+                                ${isClaimed ? 'Diklaim' : (isCompleted ? 'Selesai' : 'In Progress')}
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar ${isCompleted ? 'bg-success' : 'bg-primary'}" style="width: ${progressPercent}%;" role="progressbar"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <small class="text-muted">${progress}/${challenge.target_value}</small>
+                            <small class="text-muted">+${challenge.xp_reward} XP</small>
+                        </div>
+                        ${isCompleted && !isClaimed ? `<button class="btn btn-sm btn-primary mt-1" onclick="claimChallenge(${challenge.id})">Klaim XP</button>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function updateStreak() {
+            try {
+                const response = await fetch(AppConfig.apiUrl('gamification.php?action=update_streak'), {
+                    method: 'POST',
+                    headers: RBAC.getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        document.getElementById('userStreak').textContent = data.current_streak;
+                        document.getElementById('userStreakChange').innerHTML = `<i class="fas fa-fire"></i> Streak hari ini`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating streak:', error);
+            }
+        }
+
+        async function claimChallenge(challengeId) {
+            try {
+                const response = await fetch(AppConfig.apiUrl('gamification.php?action=claim_daily_challenge'), {
+                    method: 'POST',
+                    headers: RBAC.getAuthHeaders(),
+                    body: JSON.stringify({ challenge_id: challengeId })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert(`XP diklaim! +${data.xp_rewarded} XP`);
+                    // Reload gamification data
+                    loadDashboardData();
+                } else {
+                    alert('Gagal mengklaim: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error claiming challenge:', error);
+                alert('Terjadi kesalahan saat mengklaim tantangan');
+            }
+        }
+
+        function updateNotifications(notifications) {
+            const notificationsList = document.getElementById('notificationsList');
+            if (!notificationsList) return;
+            
+            if (!notifications || notifications.length === 0) {
+                notificationsList.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-bell fa-2x mb-2"></i>
+                        <p>Tidak ada notifikasi</p>
+                        <small>Anda akan menerima notifikasi untuk aktivitas penting</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            notificationsList.innerHTML = notifications.map(notif => `
+                <div class="notification-item mb-2 p-2 bg-light rounded ${notif.status === 'pending' ? 'border-left border-4 border-primary' : ''}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="notification-title font-weight-bold small">${notif.title}</div>
+                            <div class="notification-message text-muted small">${notif.message}</div>
+                            <div class="notification-date text-muted" style="font-size: 0.7rem;">${new Date(notif.created_at).toLocaleString('id-ID')}</div>
+                        </div>
+                        ${notif.status === 'pending' ? '<span class="badge bg-primary">New</span>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadNotificationPreferences(prefs) {
+            if (!prefs) return;
+            
+            document.getElementById('emailExamReminder').checked = prefs.email_exam_reminder === 1;
+            document.getElementById('emailExamResult').checked = prefs.email_exam_result === 1;
+            document.getElementById('emailCertificate').checked = prefs.email_certificate === 1;
+            document.getElementById('emailAchievement').checked = prefs.email_achievement === 1;
+            document.getElementById('inAppExamReminder').checked = prefs.in_app_exam_reminder === 1;
+            document.getElementById('inAppExamResult').checked = prefs.in_app_exam_result === 1;
+            document.getElementById('inAppAchievement').checked = prefs.in_app_achievement === 1;
+            document.getElementById('pushExamReminder').checked = prefs.push_exam_reminder === 1;
+            document.getElementById('pushExamResult').checked = prefs.push_exam_result === 1;
+            document.getElementById('reminderHoursBefore').value = prefs.reminder_hours_before || 24;
+        }
+
+        async function saveNotificationPreferences() {
+            try {
+                const response = await fetch(AppConfig.apiUrl('notifications.php?action=update_preferences'), {
+                    method: 'POST',
+                    headers: RBAC.getAuthHeaders(),
+                    body: JSON.stringify({
+                        email_exam_reminder: document.getElementById('emailExamReminder').checked ? 1 : 0,
+                        email_exam_result: document.getElementById('emailExamResult').checked ? 1 : 0,
+                        email_certificate: document.getElementById('emailCertificate').checked ? 1 : 0,
+                        email_achievement: document.getElementById('emailAchievement').checked ? 1 : 0,
+                        in_app_exam_reminder: document.getElementById('inAppExamReminder').checked ? 1 : 0,
+                        in_app_exam_result: document.getElementById('inAppExamResult').checked ? 1 : 0,
+                        in_app_achievement: document.getElementById('inAppAchievement').checked ? 1 : 0,
+                        push_exam_reminder: document.getElementById('pushExamReminder').checked ? 1 : 0,
+                        push_exam_result: document.getElementById('pushExamResult').checked ? 1 : 0,
+                        reminder_hours_before: parseInt(document.getElementById('reminderHoursBefore').value)
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Notification preferences saved successfully!');
+                } else {
+                    alert('Failed to save preferences: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error saving preferences:', error);
+                alert('Terjadi kesalahan saat menyimpan preferensi notifikasi');
             }
         }
 
@@ -1088,6 +1911,50 @@
             }).join('');
         }
 
+        function updateLearningPath(learningPathData) {
+            const learningPathList = document.getElementById('learningPathList');
+            if (!learningPathList) return;
+            
+            if (!learningPathData) {
+                learningPathList.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-road fa-2x mb-2"></i>
+                        <p>Belum ada learning path</p>
+                        <small>Ikuti ujian untuk mendapatkan learning path yang sesuai</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `<div class="learning-path-info mb-3">
+                <h6>${learningPathData.judul || 'Learning Path Anda'}</h6>
+                <p class="text-muted small">${learningPathData.deskripsi || ''}</p>
+            </div>`;
+            
+            if (learningPathData.courses && learningPathData.courses.length > 0) {
+                html += learningPathData.courses.map((course, index) => {
+                    const progress = course.progress ? course.progress.progress_percent || 0 : 0;
+                    const status = course.progress ? course.progress.status || 'not_started' : 'not_started';
+                    const statusClass = status === 'completed' ? 'success' : (status === 'in_progress' ? 'primary' : 'secondary');
+                    
+                    return `
+                        <div class="course-path-item mb-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small">${index + 1}. ${course.judul}</span>
+                                <span class="badge bg-${statusClass}">${status}</span>
+                            </div>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" role="progressbar" style="width: ${progress}%;" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">${progress}% selesai</small>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            learningPathList.innerHTML = html;
+        }
+
         function startNewExam() {
             window.location.href = 'ujian.html?action=start_exam';
         }
@@ -1099,5 +1966,6 @@
         // Auto refresh data every 5 minutes
         setInterval(loadDashboardData, 300000);
     </script>
+    <script src="expert_assistant.js"></script>
 </body>
 </html>

@@ -2380,7 +2380,68 @@ function completeTryout() {
     $result = $generator->completeTryoutSession($session_id, $score);
     
     if ($result) {
-        echo json_encode(['success' => true, 'score' => $score]);
+        // Award XP for completing exam
+        $xp_amount = 10 + floor($score / 10); // Base 10 XP + bonus based on score
+        $user_id = $_SESSION['user_id'] ?? null;
+        
+        if ($user_id) {
+            // Call gamification API to add XP
+            $gamification_url = dirname($_SERVER['PHP_SELF']) . '/gamification.php';
+            $post_data = [
+                'xp_amount' => $xp_amount,
+                'reason' => 'Completed exam with score: ' . $score,
+                'source' => 'exam',
+                'source_id' => $session_id
+            ];
+            
+            $ch = curl_init($gamification_url . '?action=add_xp');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . ($_SESSION['auth_token'] ?? '')
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . session_id());
+            curl_exec($ch);
+            curl_close($ch);
+            
+            // Check for achievements
+            $ch = curl_init($gamification_url . '?action=check_achievements');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . ($_SESSION['auth_token'] ?? '')
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . session_id());
+            curl_exec($ch);
+            curl_close($ch);
+
+            // Send exam result notification
+            $notification_url = dirname($_SERVER['PHP_SELF']) . '/notifications.php';
+            $notif_data = [
+                'user_id' => $user_id,
+                'type' => 'in_app',
+                'category' => 'exam_result',
+                'title' => 'Hasil Ujian Tersedia',
+                'message' => 'Nilai ujian Anda: ' . $score
+            ];
+            
+            $ch = curl_init($notification_url . '?action=send_notification');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($notif_data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . ($_SESSION['auth_token'] ?? '')
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . session_id());
+            curl_exec($ch);
+            curl_close($ch);
+        }
+        
+        echo json_encode(['success' => true, 'score' => $score, 'xp_awarded' => $xp_amount]);
     } else {
         echo json_encode(['success' => false, 'error' => 'Failed to complete tryout']);
     }

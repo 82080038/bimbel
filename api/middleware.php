@@ -11,23 +11,35 @@ function requireAuth() {
         exit();
     }
     
-    $api_key = str_replace('Bearer ', '', $auth_header);
+    // Support both API key and JWT token authentication
+    $token = str_replace('Bearer ', '', $auth_header);
     
     global $conn;
     
+    // First try API key authentication
     $sql = "SELECT id, username, role FROM users WHERE api_key = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $api_key);
+    $stmt->bind_param("s", $token);
     $stmt->execute();
     $result = $stmt->get_result();
     
-    if (!$user = $result->fetch_assoc()) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'error' => 'Invalid API key']);
-        exit();
+    if ($user = $result->fetch_assoc()) {
+        return $user;
     }
     
-    return $user;
+    // If API key fails, try session-based authentication (for admin panel JWT tokens)
+    session_start();
+    if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
+        return [
+            'id' => $_SESSION['user_id'],
+            'username' => $_SESSION['username'] ?? '',
+            'role' => $_SESSION['user_role']
+        ];
+    }
+    
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Invalid authorization']);
+    exit();
 }
 
 function requireAdmin() {

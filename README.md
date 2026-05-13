@@ -25,6 +25,8 @@ Sistem ujian online modern dengan RBAC (Role-Based Access Control), dashboard ko
 - ✅ Analisa hasil peserta mendalam
 - ✅ Manajemen kategori, paket, dan user
 - ✅ Statistik komprehensif
+- ✅ Content Generation (Generate Soal, Bahan Pelajaran, Tips, Educational Content)
+- ✅ System Maintenance (Backup, Cleanup, Storage Analysis, System Status)
 
 ### Teknologi AI (Opsional)
 - 🤖 AI Generator Soal otomatis

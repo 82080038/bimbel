@@ -330,6 +330,8 @@ CREATE TABLE hasil_ujian (
    - Statistik peserta
    - Manajemen paket
    - Laporan & analytics
+   - Content Generation (Generate Soal, Bahan Pelajaran, Tips, Educational Content)
+   - System Maintenance (Backup, Cleanup, Storage Analysis, System Status)
 
 ---
 
