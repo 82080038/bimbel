@@ -1,0 +1,268 @@
+{
+  "project": {
+    "name": "Aplikasi Ujian Sekolah Kedinasan",
+    "description": "Sistem ujian online modern dengan RBAC, dashboard komprehensif, gamification, learning paths, expert system, dan analisa AI. Dirancang untuk sekolah kedinasan, CPNS, UTBK/SNBT, dan ujian seleksi lainnya.",
+    "version": "2.0.0",
+    "status": "Production Ready",
+    "branch": "kantor",
+    "tech_stack": {
+      "frontend": ["HTML5", "Bootstrap 5", "jQuery", "JavaScript", "PWA"],
+      "backend": ["PHP Native", "PHP OOP", "REST API"],
+      "database": ["MySQL", "MariaDB"],
+      "optional": ["React", "Node.js", "OCR", "AI Generator", "Socket.IO"]
+    }
+  },
+  "workspace": {
+    "root": "/opt/lampp/htdocs/ujian",
+    "exclude_patterns": [
+      "uploads/",
+      "vendor/",
+      "*.backup",
+      ".git/",
+      "cache/",
+      "logs/"
+    ]
+  },
+  "code_structure": {
+    "directories": {
+      "api": "API endpoints (13 files: auth, soal, analytics, courses, expert, gamification, notifications, rate_limiter, validator)",
+      "admin": "Admin panel interface (admin.html)",
+      "participant": "Participant interface (dashboard, ujian, register, expert_assistant)",
+      "config": "Configuration files (database, environment)",
+      "database": "SQL scripts & migrations (7 schema files)",
+      "docs": "Technical documentation",
+      "scripts": "Business logic & AI features (11 files)",
+      "tests": "Test suite (28 test files)",
+      "data": "Data files (JSON mappings)",
+      "cache": "Cache directory",
+      "logs": "Application logs"
+    },
+    "key_files": {
+      "config.php": "Enhanced configuration with RBAC, gamification, notifications",
+      "index.php": "Main application entry point",
+      "admin/admin.html": "Comprehensive admin panel with content generation",
+      "participant/ujian.html": "Exam interface with CAT system",
+      "participant/dashboard.html": "User dashboard with analytics",
+      "participant/expert_assistant.js": "AI-powered expert assistant",
+      "service-worker.js": "PWA service worker"
+    }
+  },
+  "database": {
+    "name": "ujian_sekolah_kedinasan",
+    "tables": 57,
+    "views": 4,
+    "core_tables": [
+      "users",
+      "sesi_ujian",
+      "tryout_sessions",
+      "tryout_answers",
+      "soal",
+      "hasil_ujian",
+      "kategori_soal",
+      "paket_tryout",
+      "paket_blueprint"
+    ],
+    "gamification": [
+      "achievements",
+      "badges",
+      "user_achievements",
+      "user_badges",
+      "user_xp",
+      "xp_transactions",
+      "level_rewards",
+      "daily_challenges",
+      "user_daily_challenges",
+      "user_streak"
+    ],
+    "learning_system": [
+      "courses",
+      "course_modules",
+      "course_materials",
+      "course_prerequisites",
+      "learning_paths",
+      "learning_path_courses",
+      "user_course_progress",
+      "user_module_progress",
+      "user_material_progress",
+      "user_learning_paths",
+      "learning_topics",
+      "bahan_pelajaran"
+    ],
+    "notifications": [
+      "notifications",
+      "notification_templates",
+      "notification_preferences",
+      "exam_reminders"
+    ],
+    "expert_system": [
+      "expert_knowledge",
+      "expert_knowledge_category",
+      "expert_assistance_log",
+      "expert_learning_recommendation"
+    ],
+    "analytics": [
+      "exam_analytics",
+      "question_analytics",
+      "user_analytics",
+      "funnel_analytics",
+      "answer_heatmap",
+      "question_pattern"
+    ],
+    "content_management": [
+      "content_versions",
+      "ai_generated_questions"
+    ],
+    "multi_language": [
+      "supported_languages",
+      "translations"
+    ]
+  },
+  "api_endpoints": {
+    "base": "/api",
+    "endpoints": {
+      "auth.php": "User authentication with RBAC",
+      "soal.php": "Question management & retrieval with CAT",
+      "analytics.php": "Analytics data & reporting",
+      "courses.php": "Course management & progress tracking",
+      "expert.php": "Expert system & AI assistance",
+      "gamification.php": "Gamification features (XP, badges, achievements)",
+      "notifications.php": "Notification system",
+      "rate_limiter.php": "API rate limiting",
+      "validator.php": "Input validation",
+      "pembahasan.php": "Discussion/explanation",
+      "batch_generate.php": "Batch question generation",
+      "csrf.php": "CSRF token management",
+      "middleware.php": "Authentication middleware"
+    }
+  },
+  "features": {
+    "core": [
+      "Login & register with RBAC",
+      "Bank soal dinamis dengan 57 tabel",
+      "Simulasi ujian real-time dengan timer",
+      "Random soal adaptif dengan CAT",
+      "Sistem CAT dengan status visual soal",
+      "Auto-save jawaban",
+      "Ranking & history tryout",
+      "Sertifikat digital dengan QR code",
+      "Anti-cheat system"
+    ],
+    "gamification": [
+      "XP system dengan level rewards",
+      "Badges & achievements",
+      "Daily challenges",
+      "User streak tracking",
+      "Leaderboard dengan opt-out option"
+    ],
+    "learning": [
+      "Course management system",
+      "Learning paths & modules",
+      "Progress tracking per user",
+      "Educational content generation",
+      "AI-powered learning recommendations"
+    ],
+    "notifications": [
+      "Multi-channel notifications",
+      "Notification templates",
+      "User preferences",
+      "Exam reminders"
+    ],
+    "expert_system": [
+      "AI expert assistant",
+      "Knowledge base management",
+      "Expert assistance logging",
+      "Learning recommendations"
+    ],
+    "analytics": [
+      "Exam analytics dashboard",
+      "Question performance analytics",
+      "User behavior analytics",
+      "Funnel analytics",
+      "Answer heatmap visualization"
+    ],
+    "admin": [
+      "CRUD soal dengan gambar/audio/PDF",
+      "Import soal dari Excel/CSV",
+      "AI content generation (soal, bahan pelajaran, tips)",
+      "System maintenance tools",
+      "Backup & cleanup utilities",
+      "Storage analysis",
+      "Comprehensive statistics"
+    ],
+    "ai_optional": [
+      "AI Generator Soal",
+      "AI Pembahasan",
+      "OCR foto soal",
+      "Generator distraktor cerdas",
+      "Adaptive difficulty dengan IRT",
+      "Expert AI assistant"
+    ]
+  },
+  "development": {
+    "target_exams": [
+      "UTBK / SNBT",
+      "Sekolah Kedinasan",
+      "CPNS / CAT",
+      "SD / SMP / SMA",
+      "TOEFL Dasar",
+      "Psikotes",
+      "Olimpiade",
+      "Tryout Umum"
+    ],
+    "roadmap": {
+      "phase_1": ["Login & register", "Bank soal", "Ujian dasar", "RBAC"],
+      "phase_2": ["Random soal", "Timer", "Ranking", "Gamification"],
+      "phase_3": ["Soal bergambar", "Import Excel", "Pembahasan", "Notifications"],
+      "phase_4": ["Learning paths", "Courses", "Expert system", "Analytics"],
+      "phase_5": ["AI generator", "OCR", "Adaptive testing", "Mobile app"]
+    }
+  },
+  "security": {
+    "implemented": [
+      "password_hash()",
+      "Prepared statements",
+      "CSRF token protection",
+      "Session security",
+      "Rate limiting",
+      "Input validation",
+      "RBAC (Role-Based Access Control)",
+      "HTTPS support",
+      "Validasi upload file"
+    ],
+    "anti_cheat": [
+      "Disable copy-paste",
+      "Disable klik kanan",
+      "Deteksi tab pindah",
+      "Auto logout",
+      "Token ujian unik",
+      "Limit 1 device per user"
+    ]
+  },
+  "testing": {
+    "test_suite": "28 test files",
+    "coverage": [
+      "API endpoints",
+      "Database operations",
+      "Authentication",
+      "Gamification logic",
+      "Course management"
+    ]
+  },
+  "server_requirements": {
+    "minimal": {
+      "cpu": "4 Core",
+      "ram": "8 GB",
+      "storage": "SSD",
+      "php": "8.0+",
+      "mysql": "5.7+ / MariaDB 10.3+"
+    },
+    "recommended": {
+      "cpu": "8 Core",
+      "ram": "16 GB",
+      "storage": "SSD 50GB+",
+      "php": "8.2+",
+      "mysql": "MariaDB 10.6+",
+      "redis": "6.0+ (for caching)"
+    }
+  }
+}

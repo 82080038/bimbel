@@ -904,10 +904,11 @@
                             <i class="fas fa-book" style="color: var(--info-color);"></i>
                             Bahan Ajar
                         </h5>
-                        <a href="#" onclick="alert('Fitur bahan ajar lengkap akan segera tersedia')" style="font-size: 0.9rem;">Lihat Semua</a>
+                        <a href="materi.html" style="font-size: 0.9rem;">Lihat Semua</a>
                     </div>
                     <div id="materialsList">
                         <!-- Learning materials will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">Memuat bahan ajar...</div>
                     </div>
                 </div>
 
@@ -918,10 +919,11 @@
                             <i class="fas fa-road" style="color: var(--primary-color);"></i>
                             Learning Path
                         </h5>
-                        <a href="#" onclick="alert('Fitur learning path lengkap akan segera tersedia')" style="font-size: 0.9rem;">Lihat Semua</a>
+                        <a href="#" onclick="showLearningPathModal()" style="font-size: 0.9rem;">Lihat Detail</a>
                     </div>
                     <div id="learningPathList">
                         <!-- Learning path will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">Memuat learning path...</div>
                     </div>
                 </div>
 
@@ -932,10 +934,11 @@
                             <i class="fas fa-medal" style="color: var(--warning-color);"></i>
                             Badges & Achievements
                         </h5>
-                        <a href="#" onclick="alert('Fitur badges lengkap akan segera tersedia')" style="font-size: 0.9rem;">Lihat Semua</a>
+                        <a href="#" onclick="showBadgesModal()" style="font-size: 0.9rem;">Lihat Semua</a>
                     </div>
                     <div id="badgesList">
                         <!-- Badges will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">Memuat badges...</div>
                     </div>
                 </div>
 
@@ -946,10 +949,11 @@
                             <i class="fas fa-tasks" style="color: var(--success-color);"></i>
                             Daily Challenges
                         </h5>
-                        <a href="#" onclick="alert('Fitur daily challenges lengkap akan segera tersedia')" style="font-size: 0.9rem;">Lihat Semua</a>
+                        <a href="#" onclick="showChallengesModal()" style="font-size: 0.9rem;">Lihat Semua</a>
                     </div>
                     <div id="dailyChallengesList">
                         <!-- Daily challenges will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">Memuat challenges...</div>
                     </div>
                 </div>
 
@@ -960,10 +964,11 @@
                             <i class="fas fa-bell" style="color: var(--primary-color);"></i>
                             Notifications
                         </h5>
-                        <a href="#" onclick="alert('Fitur notifikasi lengkap akan segera tersedia')" style="font-size: 0.9rem;">Lihat Semua</a>
+                        <a href="#" onclick="showNotificationsModal()" style="font-size: 0.9rem;">Lihat Semua</a>
                     </div>
                     <div id="notificationsList">
                         <!-- Notifications will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">Memuat notifikasi...</div>
                     </div>
                 </div>
 
@@ -1090,8 +1095,7 @@
             if (section === 'dashboard') {
                 // Already on dashboard
             } else if (section === 'profile') {
-                // Show profile section (to be implemented)
-                alert('Profile section coming soon');
+                window.location.href = 'profile.html';
             }
         }
 
@@ -1961,6 +1965,23 @@
 
         function viewHistory() {
             window.location.href = 'ujian.html?action=history';
+        }
+
+        // Modal functions for detailed views
+        function showLearningPathModal() {
+            alert('Learning Path detail - Fitur akan segera tersedia');
+        }
+
+        function showBadgesModal() {
+            alert('Badges detail - Fitur akan segera tersedia');
+        }
+
+        function showChallengesModal() {
+            alert('Daily Challenges detail - Fitur akan segera tersedia');
+        }
+
+        function showNotificationsModal() {
+            alert('Notifications detail - Fitur akan segera tersedia');
         }
 
         // Auto refresh data every 5 minutes

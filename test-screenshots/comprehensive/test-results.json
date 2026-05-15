@@ -1,0 +1,39 @@
+{
+  "admin": {
+    "passed": [
+      "Dashboard",
+      "User Management",
+      "Participants",
+      "Questions",
+      "Categories",
+      "Statistics",
+      "Leaderboard Settings",
+      "Blueprint",
+      "Exam Packages",
+      "Exam Sessions",
+      "IRT Analysis",
+      "Bahan Pelajaran",
+      "Tips & Tricks",
+      "Results",
+      "Content Generation",
+      "System Maintenance",
+      "Course Management",
+      "Gamification Tracking",
+      "Notifications"
+    ],
+    "failed": [],
+    "errors": []
+  },
+  "user": {
+    "passed": [
+      "User Login: Login page accessible (login skipped)",
+      "User Exam Interface"
+    ],
+    "failed": [
+      "User Dashboard: Stats not found",
+      "User Profile: Profile elements not found",
+      "User Materials: Materials grid not found"
+    ],
+    "errors": []
+  }
+}

@@ -15,8 +15,8 @@ if (!defined('DB_USER')) {
 if (!defined('DB_PASS')) {
     // MySQL password - updated based on user configuration
     // Previous: '' (empty for default XAMPP)
-    // Current: 'root'
-    define('DB_PASS', 'root');
+    // Current: '8208' (matches phpMyAdmin configuration)
+    define('DB_PASS', '8208');
 }
 if (!defined('DB_NAME')) {
     define('DB_NAME', 'ujian_sekolah_kedinasan');

@@ -27,6 +27,21 @@ switch ($action) {
     case 'verify':
         verifyToken();
         break;
+    case 'get_users':
+        get_users();
+        break;
+    case 'get_user':
+        get_user();
+        break;
+    case 'create_user':
+        create_user();
+        break;
+    case 'update_user':
+        update_user();
+        break;
+    case 'delete_user':
+        delete_user();
+        break;
     default:
         echo json_encode(['error' => 'Invalid action']);
         break;
@@ -214,6 +229,129 @@ function verifyToken() {
         echo json_encode(['success' => true, 'user' => $user]);
     } else {
         echo json_encode(['success' => false, 'error' => 'Invalid API key']);
+    }
+}
+
+function get_users() {
+    global $conn;
+    
+    $role = $_GET['role'] ?? '';
+    $search = $_GET['search'] ?? '';
+    
+    $sql = "SELECT id, username, nama_lengkap, role, nomor_hp, jenis_kelamin, tahun_tamat, asal_sekolah, created_at FROM users WHERE 1=1";
+    $params = [];
+    $types = "";
+    
+    if ($role) {
+        $sql .= " AND role = ?";
+        $params[] = $role;
+        $types .= "s";
+    }
+    
+    if ($search) {
+        $sql .= " AND (username LIKE ? OR nama_lengkap LIKE ?)";
+        $params[] = "%$search%";
+        $params[] = "%$search%";
+        $types .= "ss";
+    }
+    
+    $sql .= " ORDER BY created_at DESC";
+    
+    if (!empty($params)) {
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    } else {
+        $result = $conn->query($sql);
+    }
+    
+    $users = [];
+    while ($row = $result->fetch_assoc()) {
+        $users[] = $row;
+    }
+    
+    echo json_encode(['success' => true, 'data' => $users]);
+}
+
+function get_user() {
+    global $conn;
+    
+    $id = $_GET['id'] ?? 0;
+    
+    $sql = "SELECT id, username, nama_lengkap, role, nomor_hp, jenis_kelamin, tahun_tamat, asal_sekolah, created_at FROM users WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($user = $result->fetch_assoc()) {
+        echo json_encode(['success' => true, 'data' => $user]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'User not found']);
+    }
+}
+
+function create_user() {
+    global $conn;
+    
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    $username = $conn->real_escape_string($data['username'] ?? '');
+    $nama_lengkap = $conn->real_escape_string($data['nama_lengkap'] ?? '');
+    $role = $conn->real_escape_string($data['role'] ?? 'user');
+    $nomor_hp = $conn->real_escape_string($data['nomor_hp'] ?? '');
+    $asal_sekolah = $conn->real_escape_string($data['asal_sekolah'] ?? '');
+    $password = password_hash('password123', PASSWORD_DEFAULT);
+    $api_key = bin2hex(random_bytes(32));
+    
+    $sql = "INSERT INTO users (username, password, role, nama_lengkap, nomor_hp, asal_sekolah, api_key) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssss", $username, $password, $role, $nama_lengkap, $nomor_hp, $asal_sekolah, $api_key);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'User created successfully']);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
+    }
+}
+
+function update_user() {
+    global $conn;
+    
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    $id = $data['id'] ?? 0;
+    $username = $conn->real_escape_string($data['username'] ?? '');
+    $nama_lengkap = $conn->real_escape_string($data['nama_lengkap'] ?? '');
+    $role = $conn->real_escape_string($data['role'] ?? 'user');
+    $nomor_hp = $conn->real_escape_string($data['nomor_hp'] ?? '');
+    $asal_sekolah = $conn->real_escape_string($data['asal_sekolah'] ?? '');
+    
+    $sql = "UPDATE users SET username = ?, nama_lengkap = ?, role = ?, nomor_hp = ?, asal_sekolah = ? WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssi", $username, $nama_lengkap, $role, $nomor_hp, $asal_sekolah, $id);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'User updated successfully']);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
+    }
+}
+
+function delete_user() {
+    global $conn;
+    
+    $id = $_GET['id'] ?? 0;
+    
+    $sql = "DELETE FROM users WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
     }
 }
 

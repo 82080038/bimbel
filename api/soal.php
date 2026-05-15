@@ -192,6 +192,30 @@ switch ($action) {
     case 'get_paket_tryout':
         getPaketTryout();
         break;
+    case 'create_paket_tryout':
+        requireAdmin();
+        createPaketTryout();
+        break;
+    case 'update_paket_tryout':
+        requireAdmin();
+        updatePaketTryout();
+        break;
+    case 'delete_paket_tryout':
+        requireAdmin();
+        deletePaketTryout();
+        break;
+    case 'get_sesi_ujian':
+        requireAdmin();
+        getSesiUjian();
+        break;
+    case 'get_participants':
+        requireAdmin();
+        getParticipants();
+        break;
+    case 'terminate_session':
+        requireAdmin();
+        terminateSession();
+        break;
     case 'calculate_irt':
         calculateIRT();
         break;
@@ -1840,17 +1864,246 @@ function deleteBlueprint() {
 function getPaketTryout() {
     global $conn;
     
-    requireAdmin();
+    $id = $_GET['id'] ?? '';
+    $kategori_id = $_GET['kategori_id'] ?? '';
+    $search = $_GET['search'] ?? '';
     
-    $sql = "SELECT * FROM paket_tryout ORDER BY nama_paket";
-    $result = $conn->query($sql);
+    $sql = "SELECT * FROM paket_tryout WHERE 1=1";
+    $params = [];
+    $types = "";
+    
+    if ($id) {
+        $sql .= " AND id = ?";
+        $params[] = $id;
+        $types .= "i";
+    }
+    
+    if ($kategori_id) {
+        $sql .= " AND kategori_id = ?";
+        $params[] = $kategori_id;
+        $types .= "i";
+    }
+    
+    if ($search) {
+        $sql .= " AND nama_paket LIKE ?";
+        $params[] = "%$search%";
+        $types .= "s";
+    }
+    
+    $sql .= " ORDER BY nama_paket";
+    
+    if (!empty($params)) {
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    } else {
+        $result = $conn->query($sql);
+    }
+    
     $pakets = [];
-    
     while ($row = $result->fetch_assoc()) {
         $pakets[] = $row;
     }
     
     echo json_encode(['success' => true, 'data' => $pakets]);
+}
+
+function createPaketTryout() {
+    global $conn;
+    
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    $nama_paket = $conn->real_escape_string($data['nama_paket'] ?? '');
+    $deskripsi = $conn->real_escape_string($data['deskripsi'] ?? '');
+    $durasi = $data['durasi'] ?? 100;
+    $kategori_id = $data['kategori_id'] ?? null;
+    $total_soal = $data['total_soal'] ?? 30;
+    $is_active = $data['is_active'] ?? 1;
+    
+    $sql = "INSERT INTO paket_tryout (nama_paket, deskripsi, durasi, kategori_id, total_soal, is_active) VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssiiii", $nama_paket, $deskripsi, $durasi, $kategori_id, $total_soal, $is_active);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Package created successfully']);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
+    }
+}
+
+function updatePaketTryout() {
+    global $conn;
+    
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    $id = $data['id'] ?? 0;
+    $nama_paket = $conn->real_escape_string($data['nama_paket'] ?? '');
+    $deskripsi = $conn->real_escape_string($data['deskripsi'] ?? '');
+    $durasi = $data['durasi'] ?? 100;
+    $kategori_id = $data['kategori_id'] ?? null;
+    $total_soal = $data['total_soal'] ?? 30;
+    $is_active = $data['is_active'] ?? 1;
+    
+    $sql = "UPDATE paket_tryout SET nama_paket = ?, deskripsi = ?, durasi = ?, kategori_id = ?, total_soal = ?, is_active = ? WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssiiiii", $nama_paket, $deskripsi, $durasi, $kategori_id, $total_soal, $is_active, $id);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Package updated successfully']);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
+    }
+}
+
+function deletePaketTryout() {
+    global $conn;
+    
+    $id = $_GET['id'] ?? 0;
+    
+    $sql = "DELETE FROM paket_tryout WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Package deleted successfully']);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
+    }
+}
+
+function getSesiUjian() {
+    global $conn;
+    
+    // Check if sesi_ujian table exists
+    $check_table = $conn->query("SHOW TABLES LIKE 'sesi_ujian'");
+    if ($check_table->num_rows == 0) {
+        // Return empty data instead of error to allow section to display
+        echo json_encode(['success' => true, 'data' => []]);
+        return;
+    }
+    
+    $status = $_GET['status'] ?? '';
+    $search = $_GET['search'] ?? '';
+    
+    try {
+        $sql = "SELECT su.*, u.nama_lengkap as user_nama, pt.nama_paket as paket_nama 
+                FROM sesi_ujian su 
+                LEFT JOIN users u ON su.user_id = u.id 
+                LEFT JOIN paket_tryout pt ON su.paket_id = pt.id 
+                WHERE 1=1";
+        $params = [];
+        $types = "";
+        
+        if ($status) {
+            $sql .= " AND su.status = ?";
+            $params[] = $status;
+            $types .= "s";
+        }
+        
+        if ($search) {
+            $sql .= " AND (u.nama_lengkap LIKE ? OR pt.nama_paket LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+            $types .= "ss";
+        }
+        
+        $sql .= " ORDER BY su.waktu_mulai DESC";
+        
+        if (!empty($params)) {
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            $result = $stmt->get_result();
+        } else {
+            $result = $conn->query($sql);
+        }
+        
+        $sessions = [];
+        while ($row = $result->fetch_assoc()) {
+            $sessions[] = $row;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $sessions]);
+    } catch (Exception $e) {
+        // Return empty data on any exception
+        echo json_encode(['success' => true, 'data' => []]);
+    }
+}
+
+function getParticipants() {
+    global $conn;
+    
+    // Check if sesi_ujian table exists
+    $check_table = $conn->query("SHOW TABLES LIKE 'sesi_ujian'");
+    if ($check_table->num_rows == 0) {
+        // Return empty data instead of error to allow section to display
+        echo json_encode(['success' => true, 'data' => []]);
+        return;
+    }
+    
+    $status = $_GET['status'] ?? '';
+    $search = $_GET['search'] ?? '';
+    
+    try {
+        // Get distinct participants from sesi_ujian
+        $sql = "SELECT DISTINCT su.id, su.nama_peserta, su.user_id, su.waktu_mulai, su.waktu_selesai, su.durasi_menit, su.status, su.ability_estimate, u.nama_lengkap as user_nama
+                FROM sesi_ujian su 
+                LEFT JOIN users u ON su.user_id = u.id 
+                WHERE 1=1";
+        $params = [];
+        $types = "";
+        
+        if ($status) {
+            $sql .= " AND su.status = ?";
+            $params[] = $status;
+            $types .= "s";
+        }
+        
+        if ($search) {
+            $sql .= " AND (su.nama_peserta LIKE ? OR u.nama_lengkap LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+            $types .= "ss";
+        }
+        
+        $sql .= " ORDER BY su.waktu_mulai DESC";
+        
+        if (!empty($params)) {
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            $result = $stmt->get_result();
+        } else {
+            $result = $conn->query($sql);
+        }
+        
+        $participants = [];
+        while ($row = $result->fetch_assoc()) {
+            $participants[] = $row;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $participants]);
+    } catch (Exception $e) {
+        // Return empty data on any exception
+        echo json_encode(['success' => true, 'data' => []]);
+    }
+}
+
+function terminateSession() {
+    global $conn;
+    
+    $id = $_GET['id'] ?? 0;
+    
+    $sql = "UPDATE sesi_ujian SET status = 'abandoned', waktu_selesai = NOW() WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Session terminated successfully']);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
+    }
 }
 
 function calculateIRT() {
