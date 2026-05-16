@@ -321,11 +321,7 @@
                             <div class="col-md-3">
                                 <select class="form-select" id="filterKategori" onchange="loadQuestions()">
                                     <option value="">Semua Kategori</option>
-                                    <option value="TWK">TWK</option>
-                                    <option value="TIU">TIU</option>
-                                    <option value="TKP">TKP</option>
-                                    <option value="TPA">TPA</option>
-                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                    <!-- Loaded dynamically -->
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -406,11 +402,7 @@
                             <div class="col-md-3">
                                 <select class="form-select" id="statsKategori" onchange="loadSoalStatistics()">
                                     <option value="">Semua Kategori</option>
-                                    <option value="TWK">TWK</option>
-                                    <option value="TIU">TIU</option>
-                                    <option value="TKP">TKP</option>
-                                    <option value="TPA">TPA</option>
-                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                    <!-- Loaded dynamically -->
                                 </select>
                             </div>
                         </div>
@@ -519,11 +511,7 @@
                             <div class="col-md-3">
                                 <select class="form-select" id="tipsKategoriFilter" onchange="loadTipsTricks()">
                                     <option value="">Semua Kategori</option>
-                                    <option value="TWK">TWK</option>
-                                    <option value="TIU">TIU</option>
-                                    <option value="TKP">TKP</option>
-                                    <option value="TPA">TPA</option>
-                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                    <!-- Loaded dynamically -->
                                 </select>
                             </div>
                         </div>
@@ -566,11 +554,7 @@
                             <div class="col-md-3">
                                 <select class="form-select" id="irtKategoriFilter" onchange="loadIRTAnalysis()">
                                     <option value="">Semua Kategori</option>
-                                    <option value="TWK">TWK</option>
-                                    <option value="TIU">TIU</option>
-                                    <option value="TKP">TKP</option>
-                                    <option value="TPA">TPA</option>
-                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                    <!-- Loaded dynamically -->
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -623,11 +607,7 @@
                             <div class="col-md-3">
                                 <select class="form-select" id="bahanKategoriFilter" onchange="loadBahanPelajaran()">
                                     <option value="">Semua Kategori</option>
-                                    <option value="TWK">TWK</option>
-                                    <option value="TIU">TIU</option>
-                                    <option value="TKP">TKP</option>
-                                    <option value="TPA">TPA</option>
-                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                    <!-- Loaded dynamically -->
                                 </select>
                             </div>
                         </div>
@@ -923,11 +903,7 @@
                             <div class="col-md-3">
                                 <select class="form-select" id="filterCourseCategory" onchange="loadCourses()">
                                     <option value="">Semua Kategori</option>
-                                    <option value="TWK">TWK</option>
-                                    <option value="TIU">TIU</option>
-                                    <option value="TKP">TKP</option>
-                                    <option value="TPA">TPA</option>
-                                    <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                    <!-- Loaded dynamically -->
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -1686,6 +1662,7 @@
             }
             
             fetchCsrfToken();
+            loadKategoriDropdowns();
             hideAllSections();
             showSection('dashboard');
             
@@ -1706,6 +1683,43 @@
                 }
             } catch (error) {
                 console.error('Failed to fetch CSRF token:', error);
+            }
+        }
+
+        // Load kategori for all dropdowns
+        async function loadKategoriDropdowns() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_kategori`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    // Update all kategori dropdowns
+                    const dropdownIds = ['filterKategori', 'statsKategori', 'tipsKategoriFilter', 
+                                          'irtKategoriFilter', 'bahanKategoriFilter', 'filterCourseCategory',
+                                          'filterPackageCategory'];
+                    
+                    dropdownIds.forEach(id => {
+                        const select = document.getElementById(id);
+                        if (select) {
+                            // Keep first option ("All/Semua")
+                            const firstOption = select.options[0];
+                            select.innerHTML = '';
+                            select.appendChild(firstOption);
+                            
+                            // Add categories
+                            data.data.forEach(kat => {
+                                const option = document.createElement('option');
+                                option.value = kat.id; // Use ID for admin
+                                option.textContent = kat.nama;
+                                select.appendChild(option);
+                            });
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading kategori:', error);
             }
         }
 

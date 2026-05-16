@@ -864,11 +864,7 @@
                     <label class="form-label fw-bold">Filter Berdasarkan Kategori:</label>
                     <select class="form-select" id="filterKategori" onchange="filterPembahasan()">
                         <option value="semua">Semua Kategori</option>
-                        <option value="TWK">TWK - Tes Wawasan Kebangsaan</option>
-                        <option value="TIU">TIU - Tes Intelegensi Umum</option>
-                        <option value="TKP">TKP - Tes Karakteristik Pribadi</option>
-                        <option value="TPA">TPA - Tes Potensi Akademik</option>
-                        <option value="PSIKOLOGIS">PSIKOLOGIS - Tes Psikologis</option>
+                        <!-- Kategori loaded dynamically from API -->
                     </select>
                 </div>
 
@@ -1052,10 +1048,37 @@
             }
         }
 
+        // Load categories for filter dropdown
+        async function loadKategoriFilter() {
+            try {
+                const response = await fetch('../api/soal.php?action=get_kategori', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+                });
+                const data = await response.json();
+                
+                const select = document.getElementById('filterKategori');
+                if (data.success && data.data.length > 0) {
+                    // Keep "Semua Kategori" option
+                    select.innerHTML = '<option value="semua">Semua Kategori</option>';
+                    
+                    data.data.forEach(kat => {
+                        const option = document.createElement('option');
+                        option.value = kat.nama;
+                        option.textContent = kat.nama + (kat.deskripsi ? ` - ${kat.deskripsi}` : '');
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading kategori:', error);
+            }
+        }
+
         // DOMContentLoaded handler
         document.addEventListener('DOMContentLoaded', function() {
             // Load exam types from database
             loadExamTypes();
+            // Load categories for filter
+            loadKategoriFilter();
             
             // Check URL parameters to determine which screen to show
             const urlParams = new URLSearchParams(window.location.search);

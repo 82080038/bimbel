@@ -257,6 +257,9 @@ switch ($action) {
         deleteBahanPelajaran();
         break;
     // Tryout System Endpoints
+    case 'get_kategori':
+        getKategori();
+        break;
     case 'get_learning_topics':
         getLearningTopics();
         break;
@@ -740,6 +743,29 @@ function generateSertifikatInternal($hasil_id, $user_id, $nama_peserta, $nilai_t
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iissss", $hasil_id, $user_id, $cert_number, $uuid, $issue_date, $expiry_date);
     $stmt->execute();
+}
+
+function getKategori() {
+    global $conn;
+    
+    $sql = "SELECT id, nama_kategori, deskripsi FROM kategori_soal ORDER BY id";
+    $result = $conn->query($sql);
+    
+    $kategori = [];
+    while ($row = $result->fetch_assoc()) {
+        $kategori[] = [
+            'id' => $row['id'],
+            'nama' => $row['nama_kategori'],
+            'deskripsi' => $row['deskripsi'],
+            'code' => $row['nama_kategori'] // For backwards compatibility
+        ];
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'data' => $kategori,
+        'count' => count($kategori)
+    ]);
 }
 
 function getExamTypes() {

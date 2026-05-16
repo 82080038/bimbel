@@ -171,11 +171,7 @@
                     <label class="form-label">Kategori</label>
                     <select class="form-select" id="filterKategori" onchange="filterMaterials()">
                         <option value="">Semua Kategori</option>
-                        <option value="TWK">TWK</option>
-                        <option value="TIU">TIU</option>
-                        <option value="TKP">TKP</option>
-                        <option value="TPA">TPA</option>
-                        <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                        <!-- Loaded dynamically from API -->
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
@@ -225,7 +221,7 @@
         // Load materials
         async function loadMaterials() {
             try {
-                const response = await fetch(`${API_BASE}/soal.php?action=get_bahan_pelajaran`, {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_all_bahan_pelajaran`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 const data = await response.json();
@@ -339,9 +335,34 @@
             displayMaterials(filtered);
         }
 
+        // Load categories for filter
+        async function loadKategori() {
+            try {
+                const response = await fetch('../api/soal.php?action=get_kategori', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+                });
+                const data = await response.json();
+                
+                const select = document.getElementById('filterKategori');
+                if (data.success && data.data.length > 0) {
+                    select.innerHTML = '<option value="">Semua Kategori</option>';
+                    
+                    data.data.forEach(kat => {
+                        const option = document.createElement('option');
+                        option.value = kat.nama;
+                        option.textContent = kat.nama;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading kategori:', error);
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             if (loadAuthToken()) {
+                loadKategori();
                 loadMaterials();
             }
         });
