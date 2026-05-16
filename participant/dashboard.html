@@ -622,6 +622,29 @@
             html {
                 font-size: 14px;
             }
+            
+            body {
+                overflow-x: hidden;
+            }
+            
+            .dashboard-container {
+                padding: 1rem;
+                max-width: 100%;
+            }
+            
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .accessibility-menu {
+                min-width: auto;
+                width: 90%;
+                max-width: 350px;
+                left: 5%;
+                right: 5%;
+                transform: translateY(-50%);
+            }
         }
 
         /* Lazy loading images */

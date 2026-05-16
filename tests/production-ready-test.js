@@ -302,7 +302,7 @@ async function runTests() {
 
         // 3.3 Weakness analysis section
         {
-            const weaknessSection = await page.$eval('.weakness-section, .analisis-section, #weaknessAnalysis', 
+            const weaknessSection = await page.$eval('#weaknessList', 
                 el => el ? 'found' : 'not-found').catch(() => 'not-found');
             log(weaknessSection !== 'not-found' ? 'PASS' : 'WARN', 'DASH-003', 
                 'Weakness analysis section present', { weaknessSection });
