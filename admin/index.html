@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Ujian Sekolah Kedinasan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar p-3">
+                <div class="sidebar-header">
+                    <h4>Admin Panel</h4>
+                    <p id="userRoleDisplay" class="small mb-0"></p>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('userManagement')">
+                        <i class="fas fa-users"></i> User Management
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('participants')">
+                        <i class="fas fa-user-friends"></i> Partisipan
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('questions')">
+                        <i class="fas fa-question-circle"></i> Soal
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('categories')">
+                        <i class="fas fa-layer-group"></i> Kategori
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('statistics')">
+                        <i class="fas fa-chart-bar"></i> Statistik Soal
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('leaderboardSettings')">
+                        <i class="fas fa-user-shield"></i> Pengaturan Leaderboard
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('blueprint')">
+                        <i class="fas fa-project-diagram"></i> Paket Blueprint
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('examPackages')">
+                        <i class="fas fa-file-alt"></i> Paket Tryout
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('examSessions')">
+                        <i class="fas fa-clock"></i> Sesi Ujian
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('irt')">
+                        <i class="fas fa-chart-line"></i> IRT Analysis
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('bahanPelajaran')">
+                        <i class="fas fa-book"></i> Bahan Pelajaran
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('tips')">
+                        <i class="fas fa-lightbulb"></i> Tips & Triks
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('results')">
+                        <i class="fas fa-chart-line"></i> Hasil Ujian
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('contentGeneration')">
+                        <i class="fas fa-magic"></i> Content Generation
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('systemMaintenance')">
+                        <i class="fas fa-tools"></i> System Maintenance
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('courseManagement')">
+                        <i class="fas fa-graduation-cap"></i> Course Management
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('gamificationTracking')">
+                        <i class="fas fa-gamepad"></i> Gamification
+                    </a>
+                    <a class="nav-link" href="#" onclick="showSection('notifications')">
+                        <i class="fas fa-bell"></i> Notifications
+                    </a>
+                    <a class="nav-link text-danger" href="#" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 p-4 main-content">
+                <!-- Mobile Menu Toggle -->
+                <button class="btn btn-primary d-md-none mb-3" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
+                
+                <!-- Sections -->
+                <div id="dashboardSection" class="hidden"></div>
+                <div id="questionsSection" class="hidden"></div>
+                <div id="categoriesSection" class="hidden"></div>
+                <div id="statisticsSection" class="hidden"></div>
+                <div id="leaderboardSettingsSection" class="hidden"></div>
+                <div id="blueprintSection" class="hidden"></div>
+                <div id="tipsSection" class="hidden"></div>
+                <div id="irtSection" class="hidden"></div>
+                <div id="bahanPelajaranSection" class="hidden"></div>
+                <div id="resultsSection" class="hidden"></div>
+                <div id="contentGenerationSection" class="hidden"></div>
+                <div id="systemMaintenanceSection" class="hidden"></div>
+                <div id="courseManagementSection" class="hidden"></div>
+                <div id="gamificationTrackingSection" class="hidden"></div>
+                <div id="notificationsSection" class="hidden"></div>
+                <div id="userManagementSection" class="hidden"></div>
+                <div id="examPackagesSection" class="hidden"></div>
+                <div id="examSessionsSection" class="hidden"></div>
+                <div id="participantsSection" class="hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalsContainer"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+        <!-- Toasts will be dynamically added here -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="../js/number-formatter.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        // Load sections dynamically
+        async function loadSections() {
+            const sections = [
+                { id: 'dashboardSection', file: 'sections/dashboard.html' },
+                { id: 'questionsSection', file: 'sections/soal.html' },
+                { id: 'categoriesSection', file: 'sections/kategori.html' },
+                { id: 'statisticsSection', file: 'sections/statistik.html' },
+                { id: 'leaderboardSettingsSection', file: 'sections/leaderboard-settings.html' },
+                { id: 'blueprintSection', file: 'sections/blueprint.html' },
+                { id: 'tipsSection', file: 'sections/tips.html' },
+                { id: 'irtSection', file: 'sections/irt.html' },
+                { id: 'bahanPelajaranSection', file: 'sections/bahan-pelajaran.html' },
+                { id: 'resultsSection', file: 'sections/results.html' },
+                { id: 'contentGenerationSection', file: 'sections/content-generation.html' },
+                { id: 'systemMaintenanceSection', file: 'sections/maintenance.html' },
+                { id: 'courseManagementSection', file: 'sections/courses.html' },
+                { id: 'gamificationTrackingSection', file: 'sections/gamification.html' },
+                { id: 'notificationsSection', file: 'sections/notifications.html' },
+                { id: 'userManagementSection', file: 'sections/users.html' },
+                { id: 'examPackagesSection', file: 'sections/exam-packages.html' },
+                { id: 'examSessionsSection', file: 'sections/exam-sessions.html' },
+                { id: 'participantsSection', file: 'sections/participants.html' }
+            ];
+
+            for (const section of sections) {
+                try {
+                    const response = await fetch(section.file);
+                    const html = await response.text();
+                    document.getElementById(section.id).innerHTML = html;
+                } catch (error) {
+                    console.error(`Error loading ${section.file}:`, error);
+                }
+            }
+
+            // Load modals
+            try {
+                const response = await fetch('components/modals.html');
+                const html = await response.text();
+                document.getElementById('modalsContainer').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading modals:', error);
+            }
+        }
+
+        // Load sections on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSections();
+        });
+    </script>
+</body>
+</html>

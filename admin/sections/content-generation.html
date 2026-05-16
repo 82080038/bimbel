@@ -1,0 +1,128 @@
+<!-- Content Generation Section -->
+<div id="contentGenerationSection" class="hidden">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Content Generation</h2>
+        <button class="btn btn-primary" onclick="clearGenerationHistory()">
+            <i class="fas fa-trash"></i> Clear History
+        </button>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h4><i class="fas fa-magic"></i> Batch Generate Soal</h4>
+                <p class="text-muted">Generate multiple questions at once based on templates</p>
+                <div class="mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select class="form-select" id="batchGenerateKategori">
+                        <option value="">Pilih Kategori</option>
+                        <!-- Loaded dynamically from database -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Jumlah Soal</label>
+                    <input type="number" class="form-control" id="batchGenerateCount" value="10" min="1" max="100">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Kesulitan</label>
+                    <select class="form-select" id="batchGenerateDifficulty">
+                        <option value="mudah">Mudah</option>
+                        <option value="sedang">Sedang</option>
+                        <option value="sulit">Sulit</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="batchGenerateSoal()">
+                    <i class="fas fa-magic"></i> Generate Soal
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h4><i class="fas fa-book"></i> Generate Bahan Pelajaran</h4>
+                <p class="text-muted">Generate educational materials and study guides</p>
+                <div class="mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select class="form-select" id="bahanGenerateKategori">
+                        <option value="">Pilih Kategori</option>
+                        <!-- Loaded dynamically from database -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Limit</label>
+                    <input type="number" class="form-control" id="bahanGenerateLimit" value="5" min="1" max="20">
+                </div>
+                <button class="btn btn-success" onclick="generateBahanPelajaran()">
+                    <i class="fas fa-book"></i> Generate Bahan
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h4><i class="fas fa-lightbulb"></i> Generate Tips & Triks</h4>
+                <p class="text-muted">Generate tips and tricks for exam preparation</p>
+                <div class="mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select class="form-select" id="tipsGenerateKategori">
+                        <option value="">Pilih Kategori</option>
+                        <!-- Loaded dynamically from database -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Limit</label>
+                    <input type="number" class="form-control" id="tipsGenerateLimit" value="10" min="1" max="50">
+                </div>
+                <button class="btn btn-warning" onclick="generateTips()">
+                    <i class="fas fa-lightbulb"></i> Generate Tips
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h4><i class="fas fa-robot"></i> AI Generator Soal</h4>
+                <p class="text-muted">Generate questions using AI technology</p>
+                <div class="mb-3">
+                    <label class="form-label">Prompt</label>
+                    <textarea class="form-control" id="aiGeneratorPrompt" rows="3" placeholder="Describe the question you want to generate..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select class="form-select" id="aiGeneratorKategori">
+                        <option value="">Pilih Kategori</option>
+                        <!-- Loaded dynamically from database -->
+                    </select>
+                </div>
+                <button class="btn btn-info" onclick="aiGenerateSoal()">
+                    <i class="fas fa-robot"></i> AI Generate
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-history"></i> Generation History</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Action</th>
+                            <th>Status</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="generationHistoryTable">
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No generation history</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

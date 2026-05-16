@@ -1,0 +1,52 @@
+<!-- IRT Analysis Section -->
+<div id="irtSection" class="hidden">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>IRT Analysis (Item Response Theory)</h2>
+        <button class="btn btn-success" onclick="calculateIRT()">
+            <i class="fas fa-calculator"></i> Hitung IRT Parameters
+        </button>
+    </div>
+    
+    <div class="card p-3 mb-3">
+        <div class="row">
+            <div class="col-md-3">
+                <select class="form-select" id="irtKategoriFilter" onchange="loadIRTAnalysis()">
+                    <option value="">Semua Kategori</option>
+                    <!-- Loaded dynamically -->
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="irtQualityFilter" onchange="loadIRTAnalysis()">
+                    <option value="">Semua Quality</option>
+                    <option value="excellent">Excellent</option>
+                    <option value="good">Good</option>
+                    <option value="fair">Fair</option>
+                    <option value="poor">Poor</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Soal</th>
+                        <th>Kategori</th>
+                        <th>Discrimination</th>
+                        <th>IRT a</th>
+                        <th>IRT b</th>
+                        <th>IRT c</th>
+                        <th>Quality</th>
+                        <th>Muncul</th>
+                        <th>% Benar</th>
+                    </tr>
+                </thead>
+                <tbody id="irtTable">
+                    <!-- IRT data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

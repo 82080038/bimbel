@@ -1,0 +1,85 @@
+<!-- Dashboard Section -->
+<div id="dashboardSection">
+    <h2 class="mb-4">Dashboard</h2>
+    
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h3 id="totalSoal">0</h3>
+                <p>Total Soal</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h3 id="totalUjian">0</h3>
+                <p>Total Ujian</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h3 id="avgScore">0</h3>
+                <p>Rata-rata Nilai</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h3 id="passRate">0%</h3>
+                <p>Tingkat Kelulusan</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Analytics -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Analytics per Kategori</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Nilai Rata-rata per Kategori</h6>
+                    <canvas id="categoryScoreChart" height="200"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <h6>Distribusi Kelulusan per Kategori</h6>
+                    <canvas id="categoryPassChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Trend -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Tren Performa (7 Ujian Terakhir)</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="performanceTrendChart" height="100"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Exams -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Ujian Terbaru</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Nama Peserta</th>
+                            <th>Nilai Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentExamsTable">
+                        <!-- Recent exams will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

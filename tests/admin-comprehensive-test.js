@@ -90,7 +90,7 @@ async function testAdminComprehensive() {
 
         // 3. Navigate to admin page
         console.log('3. Navigating to admin page...');
-        await page.goto('http://localhost/bimbel/admin.html', {
+        await page.goto('http://localhost/bimbel/admin/index.html', {
             waitUntil: 'networkidle2'
         });
         await page.waitForTimeout(2000);
@@ -98,7 +98,7 @@ async function testAdminComprehensive() {
         const adminUrl = page.url();
         console.log(`   Current URL: ${adminUrl}`);
         
-        if (adminUrl.includes('admin.html')) {
+        if (adminUrl.includes('admin/index.html') || adminUrl.includes('admin.html')) {
             console.log('   ✅ Admin page loaded');
         } else if (adminUrl.includes('login.html')) {
             console.log('   ❌ Redirected to login (RBAC failed)');
@@ -165,6 +165,10 @@ async function testAdminComprehensive() {
 
         // 6. Test navigation between sections
         console.log('6. Testing navigation between sections...');
+        
+        // Wait for showSection to be available
+        await page.waitForFunction(() => typeof showSection !== 'undefined', { timeout: 5000 });
+        
         const sections = ['dashboard', 'questions', 'categories', 'statistics'];
         
         for (const section of sections) {

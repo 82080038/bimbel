@@ -1,0 +1,373 @@
+</head>
+<body>
+    <div class="dashboard-container" role="main" aria-label="Dashboard Peserta">
+        <!-- Header -->
+        <div class="dashboard-header" role="banner">
+            <div class="user-welcome">
+                <div class="user-avatar" id="userAvatar" aria-label="Avatar pengguna">-</div>
+                <div class="user-info">
+                    <h3 id="userName" aria-live="polite">Loading...</h3>
+                    <p id="userDetail" aria-live="polite">Loading...</p>
+                </div>
+            </div>
+            <div class="quick-actions">
+                <button class="btn-quick btn-primary-custom" onclick="startNewExam()" aria-label="Mulai ujian baru">
+                    <i class="fas fa-play-circle" aria-hidden="true"></i> Mulai Ujian Baru
+                </button>
+                <button class="btn-quick btn-secondary-custom" onclick="viewHistory()" aria-label="Lihat riwayat ujian">
+                    <i class="fas fa-history" aria-hidden="true"></i> Riwayat
+                </button>
+                <button class="btn-quick btn-accessibility" onclick="toggleAccessibilityMenu()" aria-label="Menu aksesibilitas">
+                    <i class="fas fa-universal-access" aria-hidden="true"></i>
+                </button>
+                <button class="btn-quick btn-danger-custom" onclick="logout()" aria-label="Logout">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Accessibility Menu -->
+        <div id="accessibilityMenu" class="accessibility-menu hidden" role="dialog" aria-label="Pengaturan aksesibilitas">
+            <div class="accessibility-content">
+                <h4>Pengaturan Aksesibilitas</h4>
+                <div class="accessibility-option">
+                    <label for="fontSizeSelect">Ukuran Font:</label>
+                    <select id="fontSizeSelect" onchange="changeFontSize(this.value)" aria-label="Pilih ukuran font">
+                        <option value="small">Kecil</option>
+                        <option value="medium" selected>Normal</option>
+                        <option value="large">Besar</option>
+                        <option value="xlarge">Sangat Besar</option>
+                    </select>
+                </div>
+                <div class="accessibility-option">
+                    <label for="contrastSelect">Kontras:</label>
+                    <select id="contrastSelect" onchange="changeContrast(this.value)" aria-label="Pilih tingkat kontras">
+                        <option value="normal" selected>Normal</option>
+                        <option value="high">Tinggi</option>
+                    </select>
+                </div>
+                <div class="accessibility-option">
+                    <label>
+                        <input type="checkbox" id="textToSpeech" onchange="toggleTextToSpeech(this.checked)" aria-label="Aktifkan text-to-speech">
+                        Text-to-Speech
+                    </label>
+                </div>
+                <button class="btn btn-sm btn-secondary mt-2" onclick="toggleAccessibilityMenu()">Tutup</button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid" role="region" aria-label="Statistik belajar">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="totalExams" aria-live="polite">-</div>
+                        <div class="stat-label">Total Ujian</div>
+                    </div>
+                    <div class="stat-icon primary" aria-hidden="true">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                </div>
+                <div class="stat-change" id="totalExamsChange">
+                    <i class="fas fa-arrow-up" aria-hidden="true"></i> Loading...
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="averageScore" aria-live="polite">-</div>
+                        <div class="stat-label">Rata-rata Nilai</div>
+                    </div>
+                    <div class="stat-icon success" aria-hidden="true">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-change" id="averageScoreChange">
+                    <i class="fas fa-arrow-up" aria-hidden="true"></i> Loading...
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="userXP" aria-live="polite">-</div>
+                        <div class="stat-label">Total XP</div>
+                    </div>
+                    <div class="stat-icon warning" aria-hidden="true">
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="stat-change" id="userLevelChange">
+                    <i class="fas fa-arrow-up" aria-hidden="true"></i> Level <span id="userLevel">-</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="userStreak" aria-live="polite">-</div>
+                        <div class="stat-label">Streak Hari</div>
+                    </div>
+                    <div class="stat-icon info" aria-hidden="true">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                </div>
+                <div class="stat-change" id="userStreakChange">
+                    <i class="fas fa-fire" aria-hidden="true"></i> Loading...
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- Last Exam Info -->
+                <div class="exam-info-card" id="lastExamCard">
+                    <!-- Last exam data will be loaded dynamically -->
+                </div>
+
+                <!-- Progress Chart -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-area" style="color: var(--primary-color);"></i>
+                            Progress Belajar
+                        </h5>
+                        <select class="form-select form-select-sm" style="width: auto;">
+                            <option>7 Hari Terakhir</option>
+                            <option>30 Hari Terakhir</option>
+                            <option>3 Bulan Terakhir</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Weakness Analysis -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>
+                            Analisis Kelemahan
+                        </h5>
+                        <a href="ujian.html?action=history" style="font-size: 0.9rem;">Lihat Detail</a>
+                    </div>
+                    <div id="weaknessList">
+                        <!-- Weakness data will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- AI Assessment -->
+                <div class="ai-assessment">
+                    <div class="ai-header">
+                        <div class="ai-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h5 class="ai-title">Penilaian AI</h5>
+                    </div>
+                    <div class="ai-recommendation">
+                        <div class="ai-recommendation-text" id="aiRecommendation">
+                            Loading...
+                        </div>
+                        <div class="ai-confidence" id="aiConfidence">
+                            <i class="fas fa-check-circle"></i> Loading...
+                        </div>
+                        <div class="progress-bar-custom">
+                            <div class="progress-fill" id="aiConfidenceBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 600;" id="readinessScore">-</div>
+                            <div style="font-size: 0.8rem; opacity: 0.8;">Kesiapan Ujian</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 600;" id="daysRemaining">-</div>
+                            <div style="font-size: 0.8rem; opacity: 0.8;">Hari Tersisa</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Materials -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-book" style="color: var(--info-color);"></i>
+                            Bahan Ajar
+                        </h5>
+                        <a href="materi.html" style="font-size: 0.9rem;">Lihat Semua</a>
+                    </div>
+                    <div id="materialsList">
+                        <!-- Learning materials will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">Memuat bahan ajar...</div>
+                    </div>
+                </div>
+
+                <!-- Learning Path -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-road" style="color: var(--primary-color);"></i>
+                            Learning Path
+                        </h5>
+                        <a href="#" onclick="showLearningPathModal()" style="font-size: 0.9rem;">Lihat Detail</a>
+                    </div>
+                    <div id="learningPathList">
+                        <!-- Learning path will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">Memuat learning path...</div>
+                    </div>
+                </div>
+
+                <!-- Badges & Achievements -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-medal" style="color: var(--warning-color);"></i>
+                            Badges & Achievements
+                        </h5>
+                        <a href="#" onclick="showBadgesModal()" style="font-size: 0.9rem;">Lihat Semua</a>
+                    </div>
+                    <div id="badgesList">
+                        <!-- Badges will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">Memuat badges...</div>
+                    </div>
+                </div>
+
+                <!-- Daily Challenges -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-tasks" style="color: var(--success-color);"></i>
+                            Daily Challenges
+                        </h5>
+                        <a href="#" onclick="showChallengesModal()" style="font-size: 0.9rem;">Lihat Semua</a>
+                    </div>
+                    <div id="dailyChallengesList">
+                        <!-- Daily challenges will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">Memuat challenges...</div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-bell" style="color: var(--primary-color);"></i>
+                            Notifications
+                        </h5>
+                        <a href="#" onclick="showNotificationsModal()" style="font-size: 0.9rem;">Lihat Semua</a>
+                    </div>
+                    <div id="notificationsList">
+                        <!-- Notifications will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">Memuat notifikasi...</div>
+                    </div>
+                </div>
+
+                <!-- Notification Preferences -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-cog" style="color: var(--secondary-color);"></i>
+                            Notification Preferences
+                        </h5>
+                        <button class="btn btn-sm btn-primary" onclick="saveNotificationPreferences()">Save</button>
+                    </div>
+                    <div id="notificationPreferencesForm">
+                        <div class="mb-2">
+                            <label class="form-label small">Email Notifications</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="emailExamReminder" checked>
+                                <label class="form-check-label small" for="emailExamReminder">Exam Reminders</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="emailExamResult" checked>
+                                <label class="form-check-label small" for="emailExamResult">Exam Results</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="emailCertificate" checked>
+                                <label class="form-check-label small" for="emailCertificate">Certificates</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="emailAchievement" checked>
+                                <label class="form-check-label small" for="emailAchievement">Achievements</label>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">In-App Notifications</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="inAppExamReminder" checked>
+                                <label class="form-check-label small" for="inAppExamReminder">Exam Reminders</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="inAppExamResult" checked>
+                                <label class="form-check-label small" for="inAppExamResult">Exam Results</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="inAppAchievement" checked>
+                                <label class="form-check-label small" for="inAppAchievement">Achievements</label>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Push Notifications</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="pushExamReminder" checked>
+                                <label class="form-check-label small" for="pushExamReminder">Exam Reminders</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="pushExamResult" checked>
+                                <label class="form-check-label small" for="pushExamResult">Exam Results</label>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Reminder Before Exam (hours)</label>
+                            <input type="number" class="form-control form-control-sm" id="reminderHoursBefore" value="24" min="1" max="168">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-history" style="color: var(--secondary-color);"></i>
+                            Aktivitas Terakhir
+                        </h5>
+                    </div>
+                    <div class="timeline">
+                        <!-- Activity timeline will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="dashboard-footer">
+            <p>&copy; 2026 Ujian Sekolah Kedinasan. Dibuat dengan <i class="fas fa-heart" style="color: #ef4444;"></i> untuk kesuksesan Anda.</p>
+        </div>
+
+        <!-- Mobile Bottom Navigation -->
+        <div class="mobile-bottom-nav d-md-none">
+            <a href="#" class="nav-item active" onclick="showMobileSection('dashboard')">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item" onclick="window.location.href='ujian.html'">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Ujian</span>
+            </a>
+            <a href="#" class="nav-item" onclick="window.location.href='materi.html'">
+                <i class="fas fa-book"></i>
+                <span>Materi</span>
+            </a>
+            <a href="#" class="nav-item" onclick="showMobileSection('profile')">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </a>
+        </div>
+    </div>

@@ -1,0 +1,30 @@
+<!-- Results Section -->
+<div id="resultsSection" class="hidden">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Hasil Ujian</h2>
+        <button class="btn btn-success" onclick="exportExcel()">
+            <i class="fas fa-file-excel"></i> Export Excel
+        </button>
+    </div>
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama Peserta</th>
+                        <th>Tanggal</th>
+                        <th>Nilai TWK</th>
+                        <th>Nilai TIU</th>
+                        <th>Nilai TKP</th>
+                        <th>Nilai Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTable">
+                    <!-- Results will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

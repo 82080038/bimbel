@@ -1,0 +1,37 @@
+<!-- Categories Section -->
+<div id="categoriesSection" class="hidden">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Manajemen Kategori</h2>
+        <button class="btn btn-primary" onclick="showCategoryModal()">
+            <i class="fas fa-plus"></i> Tambah Kategori
+        </button>
+    </div>
+    
+    <div class="card p-3 mb-3">
+        <div class="row">
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="searchCategory" placeholder="Cari kategori..." onkeyup="searchCategories()">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama Kategori</th>
+                        <th>Deskripsi</th>
+                        <th>Passing Grade</th>
+                        <th>Jumlah Soal</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="categoriesTable">
+                    <!-- Categories will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

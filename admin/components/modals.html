@@ -1,0 +1,444 @@
+<!-- Blueprint Modal -->
+<div class="modal fade" id="blueprintModal" tabindex="-1" aria-labelledby="blueprintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="blueprintModalLabel">Kelola Paket Blueprint</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <form id="blueprintForm">
+                    <input type="hidden" id="blueprintId">
+                    <div class="mb-3">
+                        <label class="form-label">Paket</label>
+                        <select class="form-select" id="blueprintPaket" required>
+                            <option value="">Pilih Paket</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Min Difficulty</label>
+                        <select class="form-select" id="blueprintMinDifficulty" required>
+                            <option value="mudah">Mudah</option>
+                            <option value="sedang">Sedang</option>
+                            <option value="sulit">Sulit</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Max Difficulty</label>
+                        <select class="form-select" id="blueprintMaxDifficulty" required>
+                            <option value="mudah">Mudah</option>
+                            <option value="sedang">Sedang</option>
+                            <option value="sulit">Sulit</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="saveBlueprint()">Simpan</button>
+                <button type="button" class="btn btn-info" onclick="validateCurrentBlueprint()">Validasi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bahan Pelajaran Modal -->
+<div class="modal fade" id="bahanPelajaranModal" tabindex="-1" aria-labelledby="bahanPelajaranModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bahanPelajaranModalLabel">Kelola Bahan Pelajaran</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bahanPelajaranForm" enctype="multipart/form-data">
+                    <input type="hidden" id="bahanId">
+                    <div class="mb-3">
+                        <label class="form-label">Kategori</label>
+                        <select class="form-select" id="bahanKategoriId" required>
+                            <option value="">Pilih Kategori</option>
+                            <!-- Loaded dynamically from database -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Soal ID</label>
+                        <input type="number" class="form-control" id="bahanSoalId">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Judul</label>
+                        <input type="text" class="form-control" id="bahanJudul" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipe</label>
+                        <select class="form-select" id="bahanTipe" required>
+                            <option value="teks">Teks</option>
+                            <option value="video">Video</option>
+                            <option value="pdf">PDF</option>
+                            <option value="link">Link</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Konten</label>
+                        <textarea class="form-control" id="bahanKonten" rows="4"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL (untuk tipe link)</label>
+                        <input type="text" class="form-control" id="bahanUrl">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Upload File (untuk tipe video/pdf)</label>
+                        <input type="file" class="form-control" id="bahanFile">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Urutan</label>
+                        <input type="number" class="form-control" id="bahanUrutan" value="0">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="saveBahanPelajaran()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Content Modal -->
+<div class="modal fade" id="previewContentModal" tabindex="-1" aria-labelledby="previewContentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewContentModalLabel">Preview Konten</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContainer" style="min-height: 400px; max-height: 70vh; overflow: auto;">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <a id="previewOpenExternal" href="#" target="_blank" class="btn btn-primary">Buka di Tab Baru</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tips Modal -->
+<div class="modal fade" id="tipsModal" tabindex="-1" aria-labelledby="tipsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tipsModalLabel">Kelola Tips & Triks</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <form id="tipsForm">
+                    <input type="hidden" id="tipsId">
+                    <div class="mb-3">
+                        <label class="form-label">Kategori</label>
+                        <select class="form-select" id="tipsKategori" required>
+                            <option value="">Semua Kategori</option>
+                            <!-- Loaded dynamically from database -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipe Tips</label>
+                        <select class="form-select" id="tipsTipe" required>
+                            <option value="umum">Umum</option>
+                            <option value="spesifik">Spesifik</option>
+                            <option value="strategi">Strategi</option>
+                            <option value="shortcut">Shortcut</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Judul</label>
+                        <input type="text" class="form-control" id="tipsJudul" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Konten</label>
+                        <textarea class="form-control" id="tipsKonten" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contoh (Opsional)</label>
+                        <textarea class="form-control" id="tipsContoh" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Prioritas</label>
+                        <input type="number" class="form-control" id="tipsPrioritas" value="0" min="0" max="10">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="saveTips()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Generator Modal -->
+<div class="modal fade" id="aiGeneratorModal" tabindex="-1" aria-labelledby="aiGeneratorModalLabel" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="aiGeneratorModalLabel">AI Generator Soal</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tipe Generator</label>
+                    <select class="form-select" id="aiGeneratorType">
+                        <option value="math">Matematika Sederhana</option>
+                        <option value="logic">Logika Pemikiran</option>
+                        <option value="general">Pengetahuan Umum</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Topik</label>
+                    <select class="form-select" id="aiGeneratorTopic">
+                        <option value="">Pilih Topik (Opsional)</option>
+                        <!-- Loaded dynamically based on category -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select class="form-select" id="aiGeneratorModalKategori">
+                        <option value="">Pilih Kategori</option>
+                        <!-- Loaded dynamically from database -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Jumlah Soal</label>
+                    <input type="number" class="form-control" id="aiGeneratorCount" value="5" min="1" max="20">
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> AI Generator akan membuat soal berdasarkan template yang tersedia. Untuk hasil yang lebih baik, gunakan AI API eksternal (OpenAI, dll).
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-success" onclick="generateAIQuestions()">
+                    <i class="fas fa-magic"></i> Generate Soal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Question Modal -->
+<div class="modal fade" id="questionModal" tabindex="-1" aria-labelledby="questionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="questionModalLabel">Tambah Soal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <form id="questionForm">
+                    <input type="hidden" id="questionId">
+                    <div class="mb-3">
+                        <label class="form-label">Kategori</label>
+                        <select class="form-select" id="questionKategori" required>
+                            <option value="">Pilih Kategori</option>
+                            <!-- Loaded dynamically from database -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pertanyaan</label>
+                        <textarea class="form-control" id="questionPertanyaan" rows="3" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Opsi A</label>
+                            <input type="text" class="form-control" id="questionOpsiA" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Opsi B</label>
+                            <input type="text" class="form-control" id="questionOpsiB" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Opsi C</label>
+                            <input type="text" class="form-control" id="questionOpsiC" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Opsi D</label>
+                            <input type="text" class="form-control" id="questionOpsiD" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Opsi E</label>
+                            <input type="text" class="form-control" id="questionOpsiE" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Jawaban Benar</label>
+                            <select class="form-select" id="questionJawaban" required>
+                                <option value="">Pilih Jawaban</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pembahasan (Opsional)</label>
+                        <textarea class="form-control" id="questionPembahasan" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="saveQuestion()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalLabel">Kelola User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" id="userUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="userFullName">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" id="userRole" required>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="userPhone">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">School</label>
+                        <input type="text" class="form-control" id="userSchool">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="saveUser()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Exam Package Modal -->
+<div class="modal fade" id="examPackageModal" tabindex="-1" aria-labelledby="examPackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="examPackageModalLabel">Kelola Paket Tryout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <form id="examPackageForm">
+                    <input type="hidden" id="examPackageId">
+                    <div class="mb-3">
+                        <label class="form-label">Package Name</label>
+                        <input type="text" class="form-control" id="examPackageName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="examPackageDesc" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="examPackageDuration" value="100" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="examPackageCategory">
+                            <option value="">All Categories</option>
+                            <!-- Loaded dynamically from database -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Total Questions</label>
+                        <input type="number" class="form-control" id="examPackageTotalQuestions" value="30" required>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="examPackageActive" checked>
+                            <label class="form-check-label">Active</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="saveExamPackage()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Universal Alert Modal -->
+<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alertModalLabel">Alert</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alertModalMessage" role="alert" aria-live="polite"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Tutup alert">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Universal Confirm Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Konfirmasi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <div id="confirmModalMessage" role="alert" aria-live="polite"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Batal">Batal</button>
+                <button type="button" class="btn btn-primary" id="confirmModalOK" aria-label="Konfirmasi">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content text-center p-4">
+            <div class="spinner-border text-primary" role="status" aria-live="polite">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 mb-0" id="loadingModalMessage" aria-live="polite">Memuat...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+    <!-- Toasts will be dynamically added here -->
+</div>

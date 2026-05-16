@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Peserta - Ujian Sekolah Kedinasan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --secondary-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --dark-color: #1f2937;
+            --light-color: #f3f4f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .profile-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h2 {
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-info p {
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-profile {
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-profile:hover {
+            transform: translateY(-2px);
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.3);
+        }
+
+        .btn-cancel {
+            background: #e5e7eb;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #d1d5db;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-actions {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 1rem;
+            }
+            .profile-card, .settings-card {
+                padding: 1rem;
+            }
+            .header-section h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Responsive adjustments for Bootstrap components */
+        @media (max-width: 576px) {
+            /* Toast container - move to top on mobile to avoid covering content */
+            .toast-container.position-fixed.bottom-0.end-0 {
+                bottom: auto !important;
+                top: 1rem !important;
+                right: 0.5rem !important;
+                left: 0.5rem !important;
+            }
+            
+            /* Ensure modals are full width on very small screens */
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            
+            .modal-dialog-centered {
+                min-height: calc(100% - 1rem);
+            }
+            
+            /* Adjust modal content padding on mobile */
+            .modal-content {
+                border-radius: 0.5rem;
+            }
+            
+            .modal-body {
+                padding: 1rem;
+            }
+            
+            .modal-footer {
+                padding: 0.75rem 1rem;
+                flex-wrap: wrap;
+            }
+            
+            .modal-footer .btn {
+                flex: 1;
+                margin: 0.25rem 0;
+            }
+        }
+        
+        @media (min-width: 576px) and (max-width: 768px) {
+            .toast-container.position-fixed.bottom-0.end-0 {
+                right: 1rem !important;
+            }
+        }
+        
+        /* Ensure toasts have high z-index */
+        .toast-container {
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar" id="profileAvatar">--</div>
+            <div class="profile-info">
+                <h2 id="profileName">Loading...</h2>
+                <p id="profileUsername">@username</p>
+                <p id="profileRole">Peserta Ujian</p>
+                <p id="profileJoined">Bergabung sejak: -</p>
+            </div>
+            <div class="profile-actions">
+                <button class="btn btn-primary btn-profile" onclick="editProfile()">
+                    <i class="fas fa-edit"></i> Edit Profil
+                </button>
+                <button class="btn btn-danger btn-profile" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Stats -->
+        <div class="profile-card">
+            <h5 class="card-title">
+                <i class="fas fa-chart-bar" style="color: var(--primary-color);"></i>
+                Statistik
+            </h5>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="statExams">-</div>
+                    <div class="stat-label">Total Ujian</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statAvgScore">-</div>
+                    <div class="stat-label">Rata-rata Nilai</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statXP">-</div>
+                    <div class="stat-label">Total XP</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statStreak">-</div>
+                    <div class="stat-label">Streak Hari</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Form (Hidden by default) -->
+        <div class="profile-card" id="profileFormCard" style="display: none;">
+            <h5 class="card-title">
+                <i class="fas fa-user-edit" style="color: var(--primary-color);"></i>
+                Edit Profil
+            </h5>
+            <form id="profileForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" id="formUsername" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-control" id="formNamaLengkap" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nomor HP</label>
+                        <input type="text" class="form-control" id="formNomorHP">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Jenis Kelamin</label>
+                        <select class="form-select" id="formJenisKelamin">
+                            <option value="">Pilih</option>
+                            <option value="L">Laki-laki</option>
+                            <option value="P">Perempuan</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tahun Tamat</label>
+                        <input type="number" class="form-control" id="formTahunTamat" min="1990" max="2030">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Asal Sekolah</label>
+                        <input type="text" class="form-control" id="formAsalSekolah">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password Baru (Biarkan kosong jika tidak ingin mengubah)</label>
+                    <input type="password" class="form-control" id="formPassword">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Konfirmasi Password</label>
+                    <input type="password" class="form-control" id="formPasswordConfirm">
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-save">Simpan Perubahan</button>
+                    <button type="button" class="btn btn-cancel" onclick="cancelEdit()">Batal</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Account Settings -->
+        <div class="profile-card">
+            <h5 class="card-title">
+                <i class="fas fa-cog" style="color: var(--primary-color);"></i>
+                Pengaturan Akun
+            </h5>
+            <div class="mb-3">
+                <label class="form-label">Mode Gelap</label>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+                    <label class="form-check-label" for="darkModeToggle">Aktifkan mode gelap</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Progress -->
+        <div class="profile-card">
+            <h5 class="card-title">
+                <i class="fas fa-graduation-cap" style="color: var(--success-color);"></i>
+                Progress Kursus
+            </h5>
+            <div id="courseProgressList">
+                <div class="text-center text-muted py-3">Memuat progress kursus...</div>
+            </div>
+        </div>
+
+        <!-- Module Progress -->
+        <div class="profile-card">
+            <h5 class="card-title">
+                <i class="fas fa-layer-group" style="color: var(--info-color);"></i>
+                Progress Modul
+            </h5>
+            <div id="moduleProgressList">
+                <div class="text-center text-muted py-3">Memuat progress modul...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/number-formatter.js"></script>
+    <script>
+        const API_BASE = '../api';
+        let authToken = '';
+        let currentUser = null;
+
+        // Load auth token
+        function loadAuthToken() {
+            authToken = localStorage.getItem('authToken') || '';
+            if (!authToken) {
+                window.location.href = '../login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Load user profile
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_BASE}/auth.php?action=verify`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    currentUser = data.user;
+                    displayProfile(data.user);
+                    loadUserStats();
+                } else {
+                    console.error('Failed to load profile');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Display profile information
+        function displayProfile(user) {
+            const initials = user.username.substring(0, 2).toUpperCase();
+            document.getElementById('profileAvatar').textContent = initials;
+            document.getElementById('profileName').textContent = user.nama_lengkap || user.username;
+            document.getElementById('profileUsername').textContent = `@${user.username}`;
+            document.getElementById('profileRole').textContent = user.role === 'admin' ? 'Administrator' : 'Peserta Ujian';
+            
+            // Load user details from API
+            loadUserDetails(user.id);
+        }
+
+        // Load user details
+        async function loadUserDetails(userId) {
+            try {
+                const response = await fetch(`${API_BASE}/auth.php?action=get_user&id=${userId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const user = data.data;
+                    document.getElementById('profileName').textContent = user.nama_lengkap || user.username;
+                    document.getElementById('profileJoined').textContent = `Bergabung sejak: ${formatDate(user.created_at, 'long')}`;
+                    
+                    // Fill form
+                    document.getElementById('formUsername').value = user.username;
+                    document.getElementById('formNamaLengkap').value = user.nama_lengkap || '';
+                    document.getElementById('formNomorHP').value = user.nomor_hp || '';
+                    document.getElementById('formJenisKelamin').value = user.jenis_kelamin || '';
+                    document.getElementById('formTahunTamat').value = user.tahun_tamat || '';
+                    document.getElementById('formAsalSekolah').value = user.asal_sekolah || '';
+                }
+            } catch (error) {
+                console.error('Error loading user details:', error);
+            }
+        }
+
+        // Load user statistics
+        async function loadUserStats() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_statistik`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    document.getElementById('statExams').textContent = formatCount(safeParseInt(data.data.total_exams, 0));
+                    document.getElementById('statAvgScore').textContent = formatNumber(safeParseFloat(data.data.average_scores?.total, 0), 1);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+
+            // Load XP and streak
+            try {
+                const response = await fetch(`${API_BASE}/gamification.php?action=get_user_gamification`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    document.getElementById('statXP').textContent = data.data.xp?.total_xp || 0;
+                    document.getElementById('statStreak').textContent = data.data.streak?.current_streak || 0;
+                }
+            } catch (error) {
+                console.error('Error loading gamification data:', error);
+                document.getElementById('statXP').textContent = '0';
+                document.getElementById('statStreak').textContent = '0';
+            }
+
+            // Load course progress
+            loadCourseProgress();
+
+            // Load module progress
+            loadModuleProgress();
+        }
+
+        // Load course progress
+        async function loadCourseProgress() {
+            try {
+                const response = await fetch(`${API_BASE}/courses.php?action=user_course_progress`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    displayCourseProgress(data.data);
+                } else {
+                    document.getElementById('courseProgressList').innerHTML = '<div class="text-center text-muted py-3">Belum ada progress kursus</div>';
+                }
+            } catch (error) {
+                console.error('Error loading course progress:', error);
+                document.getElementById('courseProgressList').innerHTML = '<div class="text-center text-muted py-3">Gagal memuat progress kursus</div>';
+            }
+        }
+
+        function displayCourseProgress(courses) {
+            const container = document.getElementById('courseProgressList');
+            if (!courses || courses.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-3">Belum ada progress kursus</div>';
+                return;
+            }
+
+            container.innerHTML = courses.map(course => `
+                <div class="d-flex align-items-center mb-3 p-2 border rounded">
+                    <i class="fas fa-graduation-cap me-3" style="color: var(--success-color);"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0">${course.nama_kursus || 'Kursus'}</h6>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: ${course.progress_percent || 0}%;" role="progressbar"></div>
+                        </div>
+                        <small class="text-muted">${course.progress_percent || 0}% selesai</small>
+                    </div>
+                    <span class="badge ${course.status === 'completed' ? 'bg-success' : course.status === 'in_progress' ? 'bg-primary' : 'bg-secondary'}">${course.status || 'not_started'}</span>
+                </div>
+            `).join('');
+        }
+
+        // Load module progress
+        async function loadModuleProgress() {
+            try {
+                const response = await fetch(`${API_BASE}/courses.php?action=user_module_progress`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    displayModuleProgress(data.data);
+                } else {
+                    document.getElementById('moduleProgressList').innerHTML = '<div class="text-center text-muted py-3">Belum ada progress modul</div>';
+                }
+            } catch (error) {
+                console.error('Error loading module progress:', error);
+                document.getElementById('moduleProgressList').innerHTML = '<div class="text-center text-muted py-3">Gagal memuat progress modul</div>';
+            }
+        }
+
+        function displayModuleProgress(modules) {
+            const container = document.getElementById('moduleProgressList');
+            if (!modules || modules.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-3">Belum ada progress modul</div>';
+                return;
+            }
+
+            container.innerHTML = modules.map(module => `
+                <div class="d-flex align-items-center mb-3 p-2 border rounded">
+                    <i class="fas fa-layer-group me-3" style="color: var(--info-color);"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0">${module.module_title || module.nama_modul || 'Modul'}</h6>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-info" style="width: ${module.progress_percent || 0}%;" role="progressbar"></div>
+                        </div>
+                        <small class="text-muted">${module.progress_percent || 0}% selesai</small>
+                    </div>
+                    <span class="badge ${module.status === 'completed' ? 'bg-success' : module.status === 'in_progress' ? 'bg-primary' : 'bg-secondary'}">${module.status || 'not_started'}</span>
+                </div>
+            `).join('');
+        }
+
+        // Edit profile
+        function editProfile() {
+            document.getElementById('profileFormCard').style.display = 'block';
+            document.getElementById('profileFormCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Cancel edit
+        function cancelEdit() {
+            document.getElementById('profileFormCard').style.display = 'none';
+            document.getElementById('profileForm').reset();
+            if (currentUser) {
+                loadUserDetails(currentUser.id);
+            }
+        }
+
+        // Save profile
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const namaLengkap = document.getElementById('formNamaLengkap').value;
+            const nomorHP = document.getElementById('formNomorHP').value;
+            const jenisKelamin = document.getElementById('formJenisKelamin').value;
+            const tahunTamat = document.getElementById('formTahunTamat').value;
+            const asalSekolah = document.getElementById('formAsalSekolah').value;
+            const password = document.getElementById('formPassword').value;
+            const passwordConfirm = document.getElementById('formPasswordConfirm').value;
+
+            // Validate password
+            if (password && password !== passwordConfirm) {
+                alert('Password tidak cocok!');
+                return;
+            }
+
+            try {
+                const updateData = {
+                    id: currentUser.id,
+                    nama_lengkap: namaLengkap,
+                    nomor_hp: nomorHP,
+                    jenis_kelamin: jenisKelamin,
+                    tahun_tamat: tahunTamat ? parseInt(tahunTamat) : null,
+                    asal_sekolah: asalSekolah
+                };
+
+                if (password) {
+                    updateData.password = password;
+                }
+
+                const response = await fetch(`${API_BASE}/auth.php?action=update_user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Profil berhasil diperbarui!');
+                    document.getElementById('profileFormCard').style.display = 'none';
+                    loadProfile();
+                } else {
+                    alert('Gagal memperbarui profil: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Terjadi kesalahan saat memperbarui profil');
+            }
+        });
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        // Load dark mode preference
+        function loadDarkMode() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').checked = true;
+            }
+        }
+
+        // Logout
+        function logout() {
+            showConfirm('Apakah Anda yakin ingin logout?', () => {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('username');
+                window.location.href = '../login.html';
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (loadAuthToken()) {
+                loadProfile();
+                loadDarkMode();
+            }
+        });
+
+        // Toast Notification Helper
+        function showToast(message, type = 'success', duration = 3000) {
+            const toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) return;
+
+            const toastId = 'toast_' + Date.now();
+            const typeMap = {
+                'success': { bg: 'text-success', icon: 'fa-check-circle' },
+                'error': { bg: 'text-danger', icon: 'fa-times-circle' },
+                'warning': { bg: 'text-warning', icon: 'fa-exclamation-triangle' },
+                'info': { bg: 'text-info', icon: 'fa-info-circle' }
+            };
+
+            const toastHTML = `
+                <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto ${typeMap[type].bg}">
+                            <i class="fas ${typeMap[type].icon}"></i> ${type.charAt(0).toUpperCase() + type.slice(1)}
+                        </strong>
+                        <small>Just now</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+
+            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+            const toastEl = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastEl, { delay: duration });
+            toast.show();
+
+            toastEl.addEventListener('hidden.bs.toast', () => {
+                toastEl.remove();
+            });
+        }
+
+        // Confirm Modal Helper
+        let confirmCallback = null;
+
+        function showConfirm(message, onConfirm, onCancel = null) {
+            const modalTitle = document.querySelector('#confirmModal .modal-title');
+            const modalMessage = document.getElementById('confirmModalMessage');
+            const okButton = document.getElementById('confirmModalOK');
+
+            modalTitle.textContent = 'Konfirmasi';
+            modalMessage.innerHTML = `<i class="fas fa-exclamation-triangle text-warning me-2"></i> ${message}`;
+
+            confirmCallback = onConfirm;
+
+            okButton.onclick = () => {
+                if (confirmCallback) confirmCallback();
+                bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+            };
+
+            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            modal.show();
+
+            modal._element.addEventListener('hidden.bs.modal', function handler() {
+                if (onCancel) onCancel();
+                modal._element.removeEventListener('hidden.bs.modal', handler);
+            }, { once: true });
+        }
+
+        // Loading Modal Helper
+        let loadingModalInstance = null;
+
+        function showLoading(message = 'Memuat...') {
+            document.getElementById('loadingModalMessage').textContent = message;
+            loadingModalInstance = new bootstrap.Modal(document.getElementById('loadingModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+            loadingModalInstance.show();
+            return loadingModalInstance;
+        }
+
+        function hideLoading() {
+            if (loadingModalInstance) {
+                loadingModalInstance.hide();
+                loadingModalInstance = null;
+            }
+        }
+    </script>
+
+    <!-- Confirm Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Konfirmasi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="confirmModalMessage" role="alert" aria-live="polite"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Batal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="confirmModalOK" aria-label="Konfirmasi">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center p-4">
+                <div class="spinner-border text-primary" role="status" aria-live="polite">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 mb-0" id="loadingModalMessage" aria-live="polite">Memuat...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+        <!-- Toasts will be dynamically added here -->
+    </div>
+</body>
+</html>
