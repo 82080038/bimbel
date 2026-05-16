@@ -1,6 +1,6 @@
 <?php
 // Course Management API
-session_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once '../config.php';
 require_once '../api/middleware.php';
 
@@ -75,6 +75,18 @@ switch ($action) {
         break;
     case 'check_prerequisites':
         checkPrerequisites();
+        break;
+    case 'get_courses':
+        listCourses();
+        break;
+    case 'user_course_progress':
+        getUserCourseProgress();
+        break;
+    case 'user_module_progress':
+        getUserModuleProgress();
+        break;
+    case 'get_statistics':
+        getCourseStatistics();
         break;
     default:
         echo json_encode(['success' => false, 'error' => 'Invalid action']);
@@ -563,20 +575,22 @@ function getUserLearningPath() {
     
     $user = requireAuth();
     
-    // Get user's latest exam scores
-    $sql = "SELECT kategori, AVG(nilai_total) as avg_score 
-            FROM riwayat_ujian 
-            WHERE user_id = ? 
-            GROUP BY kategori";
+    // Get user's latest exam scores (hasil_ujian has nilai_twk, nilai_tiu, nilai_tkp columns)
+    $sql = "SELECT AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp, AVG(nilai_total) as avg_total
+            FROM hasil_ujian 
+            WHERE user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('i', $user['id']);
     $stmt->execute();
     $scores_result = $stmt->get_result();
+    $row = $scores_result->fetch_assoc();
     
-    $scores = [];
-    while ($row = $scores_result->fetch_assoc()) {
-        $scores[$row['kategori']] = $row['avg_score'];
-    }
+    $scores = [
+        'TWK' => $row['avg_twk'] ?? 0,
+        'TIU' => $row['avg_tiu'] ?? 0,
+        'TKP' => $row['avg_tkp'] ?? 0,
+        'total' => $row['avg_total'] ?? 0
+    ];
     
     // Find matching learning path
     $sql = "SELECT lp.* FROM learning_paths lp
@@ -590,11 +604,11 @@ function getUserLearningPath() {
     
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('ddddd', 
-        $scores['TWK'] ?? 0, 
-        $scores['TIU'] ?? 0, 
-        $scores['TKP'] ?? 0, 
-        $scores['TPA'] ?? 0, 
-        $scores['PSIKOLOGIS'] ?? 0
+        $scores['TWK'], 
+        $scores['TIU'], 
+        $scores['TKP'], 
+        $scores['total'],
+        $scores['total']
     );
     $stmt->execute();
     $path = $stmt->get_result()->fetch_assoc();
@@ -700,5 +714,71 @@ function checkPrerequisites() {
         'prerequisites' => $prerequisites,
         'completed' => $completed
     ]);
+}
+
+function getUserCourseProgress() {
+    global $conn;
+    
+    $user = requireAuth();
+    
+    $sql = "SELECT ucp.*, c.judul as nama_kursus, c.deskripsi
+            FROM user_course_progress ucp
+            JOIN courses c ON ucp.course_id = c.id
+            WHERE ucp.user_id = ?
+            ORDER BY ucp.last_accessed DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $user['id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $courses = [];
+    while ($row = $result->fetch_assoc()) {
+        $courses[] = $row;
+    }
+    
+    echo json_encode(['success' => true, 'data' => $courses]);
+}
+
+function getUserModuleProgress() {
+    global $conn;
+    
+    $user = requireAuth();
+    
+    $sql = "SELECT ump.*, cm.judul as module_title, c.judul as course_title
+            FROM user_module_progress ump
+            JOIN course_modules cm ON ump.module_id = cm.id
+            JOIN courses c ON cm.course_id = c.id
+            WHERE ump.user_id = ?
+            ORDER BY ump.last_accessed DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $user['id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $modules = [];
+    while ($row = $result->fetch_assoc()) {
+        $modules[] = $row;
+    }
+    
+    echo json_encode(['success' => true, 'data' => $modules]);
+}
+
+function getCourseStatistics() {
+    global $conn;
+    
+    $user = requireAuth();
+    
+    $sql = "SELECT 
+                COUNT(DISTINCT ucp.course_id) as total_courses,
+                SUM(CASE WHEN ucp.status = 'completed' THEN 1 ELSE 0 END) as completed_courses,
+                AVG(ucp.progress_percent) as avg_progress
+            FROM user_course_progress ucp
+            WHERE ucp.user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $user['id']);
+    $stmt->execute();
+    $stats = $stmt->get_result()->fetch_assoc();
+    
+    echo json_encode(['success' => true, 'data' => $stats]);
 }
 ?>

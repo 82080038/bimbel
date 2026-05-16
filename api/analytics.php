@@ -1,6 +1,6 @@
 <?php
 // Advanced Analytics API
-session_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once '../config.php';
 require_once '../api/middleware.php';
 
@@ -44,7 +44,7 @@ function getQuestionAnalytics() {
     $limit = intval($_GET['limit'] ?? 20);
     $offset = intval($_GET['offset'] ?? 0);
     
-    $sql = "SELECT qa.*, s.pertanyaan, s.kategori 
+    $sql = "SELECT qa.*, s.pertanyaan, s.kategori_id 
             FROM question_analytics qa
             JOIN soal s ON qa.question_id = s.id
             ORDER BY qa.difficulty_score DESC

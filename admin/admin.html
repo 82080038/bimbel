@@ -3579,7 +3579,7 @@
         // Load bahan pelajaran
         async function loadBahanPelajaran() {
             try {
-                const response = await fetch(`${API_BASE}/soal.php?action=get_bahan_pelajaran`, {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_all_bahan_pelajaran`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 const data = await response.json();

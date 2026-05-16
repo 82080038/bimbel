@@ -1,6 +1,6 @@
 <?php
 // Gamification System API
-session_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once '../config.php';
 require_once '../api/middleware.php';
 
@@ -497,13 +497,13 @@ function checkAchievements() {
     $user = requireAuth();
     
     // Get user stats
-    $sql = "SELECT COUNT(*) as exam_count FROM riwayat_ujian WHERE user_id = ?";
+    $sql = "SELECT COUNT(*) as exam_count FROM hasil_ujian WHERE user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('i', $user['id']);
     $stmt->execute();
     $exam_count = $stmt->get_result()->fetch_assoc()['exam_count'];
     
-    $sql = "SELECT MAX(nilai_total) as max_score FROM riwayat_ujian WHERE user_id = ?";
+    $sql = "SELECT MAX(nilai_total) as max_score FROM hasil_ujian WHERE user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('i', $user['id']);
     $stmt->execute();
@@ -581,7 +581,7 @@ function checkAchievements() {
 function getLeaderboardGamification() {
     global $conn;
     
-    $sql = "SELECT u.nama_lengkap, u.nama_peserta, ux.total_xp, ux.level, us.current_streak, us.longest_streak
+    $sql = "SELECT u.nama_lengkap, ux.total_xp, ux.level, us.current_streak, us.longest_streak
             FROM user_xp ux
             JOIN users u ON ux.user_id = u.id
             LEFT JOIN user_streak us ON ux.user_id = us.user_id
@@ -610,7 +610,7 @@ function getAllUsersGamification() {
     
     try {
         // Simplified query without subqueries to avoid potential issues
-        $sql = "SELECT u.id, u.nama_lengkap, u.nama_peserta, 
+        $sql = "SELECT u.id, u.nama_lengkap, 
                 COALESCE(ux.total_xp, 0) as total_xp,
                 COALESCE(ux.level, 1) as level,
                 COALESCE(us.current_streak, 0) as current_streak,

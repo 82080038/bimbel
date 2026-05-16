@@ -28,7 +28,9 @@ function requireAuth() {
     }
     
     // If API key fails, try session-based authentication (for admin panel JWT tokens)
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])) {
         return [
             'id' => $_SESSION['user_id'],

@@ -1,6 +1,6 @@
 <?php
 // Notification System API
-session_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once '../config.php';
 require_once '../api/middleware.php';
 
@@ -118,13 +118,13 @@ function getPreferences() {
     
     if (!$prefs) {
         // Create default preferences
-        $sql = "INSERT INTO notification_preferences (user_id) VALUES (?)";
-        $stmt2 = $conn->prepare($sql);
+        $sql_insert = "INSERT INTO notification_preferences (user_id) VALUES (?)";
+        $stmt2 = $conn->prepare($sql_insert);
         $stmt2->bind_param('i', $user['id']);
         $stmt2->execute();
         
         // Fetch again
-        $stmt3 = $conn->prepare($sql);
+        $stmt3 = $conn->prepare("SELECT * FROM notification_preferences WHERE user_id = ?");
         $stmt3->bind_param('i', $user['id']);
         $stmt3->execute();
         $prefs = $stmt3->get_result()->fetch_assoc();
@@ -139,6 +139,20 @@ function updatePreferences() {
     $data = json_decode(file_get_contents('php://input'), true);
     $user = requireAuth();
     
+    $p_email_reminder   = intval($data['email_exam_reminder'] ?? 1);
+    $p_email_result     = intval($data['email_exam_result'] ?? 1);
+    $p_email_cert       = intval($data['email_certificate'] ?? 1);
+    $p_email_achieve    = intval($data['email_achievement'] ?? 1);
+    $p_inapp_reminder   = intval($data['in_app_exam_reminder'] ?? 1);
+    $p_inapp_result     = intval($data['in_app_exam_result'] ?? 1);
+    $p_inapp_achieve    = intval($data['in_app_achievement'] ?? 1);
+    $p_push_reminder    = intval($data['push_exam_reminder'] ?? 1);
+    $p_push_result      = intval($data['push_exam_result'] ?? 1);
+    $p_sms_reminder     = intval($data['sms_exam_reminder'] ?? 0);
+    $p_sms_result       = intval($data['sms_exam_result'] ?? 0);
+    $p_hours_before     = intval($data['reminder_hours_before'] ?? 24);
+    $p_user_id          = $user['id'];
+
     $sql = "UPDATE notification_preferences SET 
             email_exam_reminder = ?,
             email_exam_result = ?,
@@ -157,19 +171,11 @@ function updatePreferences() {
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
         'iiiiiiiiiiiii',
-        $data['email_exam_reminder'] ?? 1,
-        $data['email_exam_result'] ?? 1,
-        $data['email_certificate'] ?? 1,
-        $data['email_achievement'] ?? 1,
-        $data['in_app_exam_reminder'] ?? 1,
-        $data['in_app_exam_result'] ?? 1,
-        $data['in_app_achievement'] ?? 1,
-        $data['push_exam_reminder'] ?? 1,
-        $data['push_exam_result'] ?? 1,
-        $data['sms_exam_reminder'] ?? 0,
-        $data['sms_exam_result'] ?? 0,
-        $data['reminder_hours_before'] ?? 24,
-        $user['id']
+        $p_email_reminder, $p_email_result, $p_email_cert, $p_email_achieve,
+        $p_inapp_reminder, $p_inapp_result, $p_inapp_achieve,
+        $p_push_reminder, $p_push_result,
+        $p_sms_reminder, $p_sms_result,
+        $p_hours_before, $p_user_id
     );
     
     if ($stmt->execute()) {

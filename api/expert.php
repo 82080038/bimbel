@@ -50,7 +50,7 @@ $public_actions = [
 ];
 
 if (in_array($action, $protected_actions)) {
-    verifyAuth();
+    requireAuth();
 }
 
 switch ($action) {
@@ -222,11 +222,12 @@ function getExpertHelp() {
         
         if ($pattern_matched && !empty($matched_knowledge)) {
             // Log the assistance
-            $user_id = $_SESSION['user_id'] ?? null;
+            $auth_user = requireAuth();
+            $user_id = $auth_user['id'] ?? null;
             if ($user_id && $soal_id) {
                 $expert_knowledge_id = $matched_knowledge[0]['expert_knowledge_id'];
                 $sql_log = "INSERT INTO expert_assistance_log (user_id, soal_id, expert_knowledge_id, jenis_bantuan) 
-                            VALUES (?, ?, ?, 'pola')";
+                            VALUES (?, ?, ?, 'trik')";
                 $stmt_log = $conn->prepare($sql_log);
                 $stmt_log->bind_param("iii", $user_id, $soal_id, $expert_knowledge_id);
                 $stmt_log->execute();
@@ -256,11 +257,12 @@ function getExpertHelp() {
     }
     
     // Log the assistance
-    $user_id = $_SESSION['user_id'] ?? null;
+    $auth_user = requireAuth();
+    $user_id = $auth_user['id'] ?? null;
     if ($user_id && $soal_id && !empty($knowledge)) {
         $expert_knowledge_id = $knowledge[0]['id'];
         $sql_log = "INSERT INTO expert_assistance_log (user_id, soal_id, expert_knowledge_id, jenis_bantuan) 
-                    VALUES (?, ?, ?, 'kategori')";
+                    VALUES (?, ?, ?, 'trik')";
         $stmt_log = $conn->prepare($sql_log);
         $stmt_log->bind_param("iii", $user_id, $soal_id, $expert_knowledge_id);
         $stmt_log->execute();
@@ -480,10 +482,12 @@ function logAssistance() {
     
     $data = json_decode(file_get_contents('php://input'), true);
     
-    $user_id = $_SESSION['user_id'] ?? null;
+    $auth_user = requireAuth();
+    $user_id = $auth_user['id'] ?? null;
     $soal_id = $data['soal_id'] ?? null;
     $expert_knowledge_id = $data['expert_knowledge_id'] ?? null;
-    $jenis_bantuan = $data['jenis_bantuan'] ?? 'trik';
+    $valid_jenis = ['trik', 'tips', 'pembahasan', 'metode_cepat'];
+    $jenis_bantuan = in_array($data['jenis_bantuan'] ?? '', $valid_jenis) ? $data['jenis_bantuan'] : 'trik';
     
     if (!$user_id || !$soal_id || !$expert_knowledge_id) {
         echo json_encode(['success' => false, 'message' => 'Missing required fields']);
@@ -508,7 +512,8 @@ function rateAssistance() {
     
     $data = json_decode(file_get_contents('php://input'), true);
     
-    $user_id = $_SESSION['user_id'] ?? null;
+    $auth_user = requireAuth();
+    $user_id = $auth_user['id'] ?? null;
     $log_id = $data['log_id'] ?? null;
     $rating = $data['rating'] ?? null;
     $feedback = $data['feedback'] ?? null;
@@ -540,7 +545,8 @@ function rateAssistance() {
 function getLearningRecommendations() {
     global $conn;
     
-    $user_id = $_SESSION['user_id'] ?? null;
+    $auth_user = requireAuth();
+    $user_id = $auth_user['id'] ?? null;
     
     if (!$user_id) {
         echo json_encode(['success' => false, 'message' => 'User not authenticated']);
@@ -573,8 +579,9 @@ function addExpertKnowledge() {
     
     $data = json_decode(file_get_contents('php://input'), true);
     
-    $user_id = $_SESSION['user_id'] ?? null;
-    $user_role = $_SESSION['user_role'] ?? '';
+    $auth_user = requireAuth();
+    $user_id = $auth_user['id'] ?? null;
+    $user_role = $auth_user['role'] ?? '';
     
     if ($user_role !== 'admin') {
         echo json_encode(['success' => false, 'message' => 'Admin access required']);
@@ -613,8 +620,8 @@ function updateExpertKnowledge() {
     
     $data = json_decode(file_get_contents('php://input'), true);
     
-    $user_id = $_SESSION['user_id'] ?? null;
-    $user_role = $_SESSION['user_role'] ?? '';
+    $auth_user = requireAuth();
+    $user_role = $auth_user['role'] ?? '';
     
     if ($user_role !== 'admin') {
         echo json_encode(['success' => false, 'message' => 'Admin access required']);

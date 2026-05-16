@@ -42,6 +42,9 @@ switch ($action) {
     case 'delete_user':
         delete_user();
         break;
+    case 'get_profile':
+        get_profile();
+        break;
     default:
         echo json_encode(['error' => 'Invalid action']);
         break;
@@ -234,6 +237,8 @@ function verifyToken() {
 
 function get_users() {
     global $conn;
+    require_once 'middleware.php';
+    requireAdmin();
     
     $role = $_GET['role'] ?? '';
     $search = $_GET['search'] ?? '';
@@ -276,6 +281,8 @@ function get_users() {
 
 function get_user() {
     global $conn;
+    require_once 'middleware.php';
+    requireAuth();
     
     $id = $_GET['id'] ?? 0;
     
@@ -294,6 +301,8 @@ function get_user() {
 
 function create_user() {
     global $conn;
+    require_once 'middleware.php';
+    requireAdmin();
     
     $data = json_decode(file_get_contents('php://input'), true);
     
@@ -318,22 +327,59 @@ function create_user() {
 
 function update_user() {
     global $conn;
+    require_once 'middleware.php';
+    $caller = requireAuth();
     
     $data = json_decode(file_get_contents('php://input'), true);
     
-    $id = $data['id'] ?? 0;
-    $username = $conn->real_escape_string($data['username'] ?? '');
-    $nama_lengkap = $conn->real_escape_string($data['nama_lengkap'] ?? '');
-    $role = $conn->real_escape_string($data['role'] ?? 'user');
-    $nomor_hp = $conn->real_escape_string($data['nomor_hp'] ?? '');
-    $asal_sekolah = $conn->real_escape_string($data['asal_sekolah'] ?? '');
+    $id = intval($data['id'] ?? 0);
     
-    $sql = "UPDATE users SET username = ?, nama_lengkap = ?, role = ?, nomor_hp = ?, asal_sekolah = ? WHERE id = ?";
+    // Security: regular users can only update their own profile
+    if ($caller['role'] !== 'admin' && $caller['id'] !== $id) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Access denied']);
+        return;
+    }
+    
+    $nama_lengkap = htmlspecialchars(trim($data['nama_lengkap'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $nomor_hp = preg_replace('/[^0-9]/', '', $data['nomor_hp'] ?? '');
+    $jenis_kelamin = strtoupper($data['jenis_kelamin'] ?? '');
+    $tahun_tamat = intval($data['tahun_tamat'] ?? 0);
+    $asal_sekolah = htmlspecialchars(trim($data['asal_sekolah'] ?? ''), ENT_QUOTES, 'UTF-8');
+    
+    $sql = "UPDATE users SET nama_lengkap = ?, nomor_hp = ?, jenis_kelamin = ?, tahun_tamat = ?, asal_sekolah = ?";
+    $params = [$nama_lengkap, $nomor_hp, $jenis_kelamin, $tahun_tamat, $asal_sekolah];
+    $types = "sssis";
+    
+    // Update role only if admin
+    if ($caller['role'] === 'admin' && isset($data['role'])) {
+        $role = $conn->real_escape_string($data['role']);
+        $sql .= ", role = ?";
+        $params[] = $role;
+        $types .= "s";
+    }
+    
+    // Update password if provided
+    if (!empty($data['password'])) {
+        if (strlen($data['password']) < 8) {
+            echo json_encode(['success' => false, 'error' => 'Password minimal 8 karakter']);
+            return;
+        }
+        $hashed = password_hash($data['password'], PASSWORD_DEFAULT);
+        $sql .= ", password = ?";
+        $params[] = $hashed;
+        $types .= "s";
+    }
+    
+    $sql .= " WHERE id = ?";
+    $params[] = $id;
+    $types .= "i";
+    
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssi", $username, $nama_lengkap, $role, $nomor_hp, $asal_sekolah, $id);
+    $stmt->bind_param($types, ...$params);
     
     if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'User updated successfully']);
+        echo json_encode(['success' => true, 'message' => 'Profil berhasil diperbarui']);
     } else {
         echo json_encode(['success' => false, 'error' => $conn->error]);
     }
@@ -341,6 +387,8 @@ function update_user() {
 
 function delete_user() {
     global $conn;
+    require_once 'middleware.php';
+    requireAdmin();
     
     $id = $_GET['id'] ?? 0;
     
@@ -352,6 +400,26 @@ function delete_user() {
         echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
     } else {
         echo json_encode(['success' => false, 'error' => $conn->error]);
+    }
+}
+
+function get_profile() {
+    global $conn;
+    
+    require_once 'middleware.php';
+    $user_data = requireAuth();
+    $user_id = $user_data['id'];
+    
+    $sql = "SELECT id, username, role, nama_lengkap, nomor_hp, jenis_kelamin, tahun_tamat, asal_sekolah, created_at, last_login FROM users WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($user = $result->fetch_assoc()) {
+        echo json_encode(['success' => true, 'user' => $user]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'User not found']);
     }
 }
 

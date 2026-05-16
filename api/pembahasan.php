@@ -19,13 +19,14 @@ switch ($action) {
         getPembahasan();
         break;
     case 'get_pembahasan_kategori':
+    case 'get_kategori_pembahasan':
         getPembahasanKategori();
         break;
     case 'get_tips_umum':
         getTipsUmum();
         break;
     default:
-        echo json_encode(['error' => 'Invalid action']);
+        echo json_encode(['success' => false, 'error' => 'Invalid action']);
         break;
 }
 
@@ -95,12 +96,14 @@ function getTipsUmum() {
     $kategori = $_GET['kategori'] ?? '';
     
     if ($kategori) {
-        $sql = "SELECT * FROM tips_umum WHERE kategori = ? ORDER BY id";
+        $kategori_map = ['TWK'=>1,'TIU'=>2,'TKP'=>3,'TPA'=>4,'PSIKOLOGIS'=>5];
+        $kategori_id = $kategori_map[strtoupper($kategori)] ?? 0;
+        $sql = "SELECT * FROM tips_umum WHERE kategori_id = ? ORDER BY id";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $kategori);
+        $stmt->bind_param("i", $kategori_id);
         $stmt->execute();
     } else {
-        $sql = "SELECT * FROM tips_umum ORDER BY kategori, id";
+        $sql = "SELECT * FROM tips_umum ORDER BY kategori_id, id";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
     }

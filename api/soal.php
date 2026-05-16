@@ -51,15 +51,19 @@ $public_actions = ['get_soal_by_kategori', 'get_soal_acak', 'get_soal_by_id', 'g
 if (!in_array($action, $public_actions)) {
     requireAuth();
     
-    // CSRF validation for POST requests
+    // CSRF validation for POST requests (skip if using Bearer token - already CSRF-safe)
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $headers = getallheaders();
-        $csrf_token = $headers['X-CSRF-Token'] ?? $headers['x-csrf-token'] ?? '';
+        $auth_header = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        $is_bearer = strpos($auth_header, 'Bearer ') === 0;
         
-        if (!validateCsrfToken($csrf_token)) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
-            exit();
+        if (!$is_bearer) {
+            $csrf_token = $headers['X-CSRF-Token'] ?? $headers['x-csrf-token'] ?? '';
+            if (!validateCsrfToken($csrf_token)) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+                exit();
+            }
         }
     }
 }
@@ -82,6 +86,9 @@ switch ($action) {
         break;
     case 'selesai_ujian':
         selesaiUjian();
+        break;
+    case 'submit_ujian':
+        submitUjian();
         break;
     case 'get_riwayat_ujian':
         getRiwayatUjian();
@@ -144,6 +151,9 @@ switch ($action) {
     case 'analyze_weakness':
         analyzeWeakness();
         break;
+    case 'get_my_weakness':
+        getMyWeakness();
+        break;
     case 'get_tips_tricks':
         getTipsTricks();
         break;
@@ -160,6 +170,12 @@ switch ($action) {
         verifyCertificate();
         break;
     case 'generate_certificate':
+        generateCertificate();
+        break;
+    case 'get_sertifikat':
+        getSertifikat();
+        break;
+    case 'generate_sertifikat':
         generateCertificate();
         break;
     case 'generate_question_admin':
@@ -556,21 +572,178 @@ function selesaiUjian() {
     }
 }
 
+function submitUjian() {
+    global $conn;
+    
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    $user = requireAuth();
+    $answers = $data['answers'] ?? [];
+    $is_practice = $data['is_practice'] ?? false;
+    
+    if (empty($answers)) {
+        echo json_encode(['success' => false, 'error' => 'No answers provided']);
+        return;
+    }
+    
+    $nilai_twk = 0; $nilai_tiu = 0; $nilai_tkp = 0; $nilai_tpa = 0; $nilai_psikologis = 0;
+    
+    // Per-kategori stats for weakness analysis
+    $kategori_stats = [];
+    
+    foreach ($answers as $soal_id => $jawaban_peserta) {
+        $soal_id = intval($soal_id);
+        $jawaban_peserta = strtoupper(substr(trim((string)$jawaban_peserta), 0, 1));
+        
+        $sql = "SELECT jawaban_benar, kategori_id FROM soal WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $soal_id);
+        $stmt->execute();
+        $soal = $stmt->get_result()->fetch_assoc();
+        
+        if ($soal) {
+            $kid = $soal['kategori_id'];
+            if (!isset($kategori_stats[$kid])) {
+                $kategori_stats[$kid] = ['total' => 0, 'benar' => 0, 'salah' => 0, 'kosong' => 0];
+            }
+            $kategori_stats[$kid]['total']++;
+            
+            $is_correct = ($soal['jawaban_benar'] === $jawaban_peserta);
+            if ($is_correct) {
+                $kategori_stats[$kid]['benar']++;
+                if ($kid == 1) $nilai_twk += 5;
+                elseif ($kid == 2) $nilai_tiu += 5;
+                elseif ($kid == 3) $nilai_tkp += 5;
+                elseif ($kid == 4) $nilai_tpa += 5;
+                elseif ($kid == 5) $nilai_psikologis += 5;
+            } elseif ($jawaban_peserta !== '') {
+                $kategori_stats[$kid]['salah']++;
+            } else {
+                $kategori_stats[$kid]['kosong']++;
+            }
+        }
+    }
+    
+    $nilai_total = $nilai_twk + $nilai_tiu + $nilai_tkp + $nilai_tpa + $nilai_psikologis;
+    $status_lulus = ($nilai_twk >= PASSING_GRADE_TWK && $nilai_tiu >= PASSING_GRADE_TIU && $nilai_tkp >= PASSING_GRADE_TKP) ? 'LULUS' : 'TIDAK LULUS';
+    $nama = $user['username'] ?? 'Peserta';
+    $jawaban_json = json_encode($answers);
+    
+    $durasi = intval(DURASI_UJIAN_MENIT);
+    $user_id_ins = $user['id'];
+    $sql = "INSERT INTO hasil_ujian (nama_peserta, user_id, durasi_menit, nilai_twk, nilai_tiu, nilai_tkp, nilai_total, status_lulus, jawaban_peserta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("siiiiisss", $nama, $user_id_ins, $durasi, $nilai_twk, $nilai_tiu, $nilai_tkp, $nilai_total, $status_lulus, $jawaban_json);
+    
+    if ($stmt->execute()) {
+        $hasil_id = $conn->insert_id;
+        
+        // Fill analisis_kelemahan so dashboard weakness analysis works
+        foreach ($kategori_stats as $kategori_id => $stats) {
+            $total = $stats['total'];
+            if ($total === 0) continue;
+            $benar = $stats['benar'];
+            $salah = $stats['salah'];
+            $kosong = $stats['kosong'];
+            $persen_benar = round(($benar / $total) * 100, 2);
+            
+            if ($persen_benar >= 80) {
+                $tingkat = 'rendah';
+                $rekomendasi = 'Sudah baik, pertahankan performa.';
+            } elseif ($persen_benar >= 60) {
+                $tingkat = 'sedang';
+                $rekomendasi = 'Perlu latihan lebih banyak untuk meningkatkan pemahaman.';
+            } elseif ($persen_benar >= 40) {
+                $tingkat = 'tinggi';
+                $rekomendasi = 'Kelemahan cukup signifikan, fokus pada materi kategori ini.';
+            } else {
+                $tingkat = 'sangat_tinggi';
+                $rekomendasi = 'Kelemahan sangat tinggi, prioritaskan belajar kategori ini.';
+            }
+            
+            $ak_sql = "INSERT INTO analisis_kelemahan 
+                       (user_id, sesi_id, kategori_id, total_soal, benar, salah, kosong, persen_benar, tingkat_kelemahan, rekomendasi)
+                       VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?)
+                       ON DUPLICATE KEY UPDATE
+                       total_soal=VALUES(total_soal), benar=VALUES(benar), salah=VALUES(salah),
+                       kosong=VALUES(kosong), persen_benar=VALUES(persen_benar),
+                       tingkat_kelemahan=VALUES(tingkat_kelemahan), rekomendasi=VALUES(rekomendasi)";
+            $ak_stmt = $conn->prepare($ak_sql);
+            $ak_stmt->bind_param("iiiiiidss", $user_id_ins, $kategori_id,
+                $total, $benar, $salah, $kosong, $persen_benar, $tingkat, $rekomendasi);
+            $ak_stmt->execute();
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'data' => [
+                'id' => $hasil_id,
+                'nilai_twk' => $nilai_twk,
+                'nilai_tiu' => $nilai_tiu,
+                'nilai_tkp' => $nilai_tkp,
+                'nilai_total' => $nilai_total,
+                'status_lulus' => $status_lulus
+            ]
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
+    }
+}
+
+function getSertifikat() {
+    global $conn;
+    
+    $hasil_id = intval($_GET['hasil_id'] ?? 0);
+    
+    if ($hasil_id === 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid hasil ID']);
+        return;
+    }
+    
+    $sql = "SELECT s.*, hu.nilai_total, hu.status_lulus FROM sertifikat s JOIN hasil_ujian hu ON s.hasil_id = hu.id WHERE s.hasil_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $hasil_id);
+    $stmt->execute();
+    $cert = $stmt->get_result()->fetch_assoc();
+    
+    if ($cert) {
+        echo json_encode(['success' => true, 'data' => $cert]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Certificate not found']);
+    }
+}
+
 function getRiwayatUjian() {
     global $conn;
+    
+    $user = requireAuth();
+    $user_id = $user['id'];
+    $is_admin = ($user['role'] === 'admin');
     
     $limit = intval($_GET['limit'] ?? 10);
     $page = intval($_GET['page'] ?? 1);
     $offset = ($page - 1) * $limit;
     
-    // Get total count
-    $sql_count = "SELECT COUNT(*) as total FROM hasil_ujian";
-    $result_count = $conn->query($sql_count);
-    $total = $result_count->fetch_assoc()['total'];
-    
-    $sql = "SELECT * FROM hasil_ujian ORDER BY tanggal_ujian DESC LIMIT ? OFFSET ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $limit, $offset);
+    if ($is_admin) {
+        // Admin sees all users' records
+        $stmt_count = $conn->prepare("SELECT COUNT(*) as total FROM hasil_ujian");
+        $stmt_count->execute();
+        $total = $stmt_count->get_result()->fetch_assoc()['total'];
+        
+        $sql = "SELECT h.*, u.nama_lengkap FROM hasil_ujian h LEFT JOIN users u ON h.user_id = u.id ORDER BY h.tanggal_ujian DESC LIMIT ? OFFSET ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $limit, $offset);
+    } else {
+        // Regular user sees only their own records
+        $stmt_count = $conn->prepare("SELECT COUNT(*) as total FROM hasil_ujian WHERE user_id = ?");
+        $stmt_count->bind_param("i", $user_id);
+        $stmt_count->execute();
+        $total = $stmt_count->get_result()->fetch_assoc()['total'];
+        
+        $sql = "SELECT * FROM hasil_ujian WHERE user_id = ? ORDER BY tanggal_ujian DESC LIMIT ? OFFSET ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iii", $user_id, $limit, $offset);
+    }
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -596,20 +769,40 @@ function getRiwayatUjian() {
 function getStatistik() {
     global $conn;
     
-    // Get total exams
-    $sql_total = "SELECT COUNT(*) as total FROM hasil_ujian";
-    $result_total = $conn->query($sql_total);
-    $total_exams = $result_total->fetch_assoc()['total'];
+    $user = requireAuth();
+    $user_id = $user['id'];
+    $is_admin = ($user['role'] === 'admin');
     
-    // Get average scores
-    $sql_avg = "SELECT AVG(nilai_total) as avg_total, AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp FROM hasil_ujian";
-    $result_avg = $conn->query($sql_avg);
-    $avg_scores = $result_avg->fetch_assoc();
-    
-    // Get pass rate
-    $sql_pass = "SELECT COUNT(*) as passed FROM hasil_ujian WHERE status_lulus = 'LULUS'";
-    $result_pass = $conn->query($sql_pass);
-    $passed = $result_pass->fetch_assoc()['passed'];
+    if ($is_admin) {
+        // Admin gets global statistics (all users)
+        $stmt_total = $conn->prepare("SELECT COUNT(*) as total FROM hasil_ujian");
+        $stmt_total->execute();
+        $total_exams = $stmt_total->get_result()->fetch_assoc()['total'];
+        
+        $stmt_avg = $conn->prepare("SELECT AVG(nilai_total) as avg_total, AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp FROM hasil_ujian");
+        $stmt_avg->execute();
+        $avg_scores = $stmt_avg->get_result()->fetch_assoc();
+        
+        $stmt_pass = $conn->prepare("SELECT COUNT(*) as passed FROM hasil_ujian WHERE status_lulus = 'LULUS'");
+        $stmt_pass->execute();
+        $passed = $stmt_pass->get_result()->fetch_assoc()['passed'];
+    } else {
+        // Regular user sees only their own stats
+        $stmt_total = $conn->prepare("SELECT COUNT(*) as total FROM hasil_ujian WHERE user_id = ?");
+        $stmt_total->bind_param("i", $user_id);
+        $stmt_total->execute();
+        $total_exams = $stmt_total->get_result()->fetch_assoc()['total'];
+        
+        $stmt_avg = $conn->prepare("SELECT AVG(nilai_total) as avg_total, AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp FROM hasil_ujian WHERE user_id = ?");
+        $stmt_avg->bind_param("i", $user_id);
+        $stmt_avg->execute();
+        $avg_scores = $stmt_avg->get_result()->fetch_assoc();
+        
+        $stmt_pass = $conn->prepare("SELECT COUNT(*) as passed FROM hasil_ujian WHERE user_id = ? AND status_lulus = 'LULUS'");
+        $stmt_pass->bind_param("i", $user_id);
+        $stmt_pass->execute();
+        $passed = $stmt_pass->get_result()->fetch_assoc()['passed'];
+    }
     
     $pass_rate = $total_exams > 0 ? ($passed / $total_exams) * 100 : 0;
     
@@ -1142,18 +1335,22 @@ function saveBahanPelajaran() {
 function getRekomendasiBelajar() {
     global $conn;
     
-    $user_id = intval($_GET['user_id'] ?? 0);
+    $user = requireAuth();
+    $user_id = $user['id'];
     $sesi_id = intval($_GET['sesi_id'] ?? 0);
     
-    $where = "";
-    if ($user_id > 0) {
-        $where = "WHERE rb.user_id = $user_id";
-    } elseif ($sesi_id > 0) {
-        $where = "WHERE rb.sesi_id = $sesi_id";
+    if ($sesi_id > 0) {
+        $sql = "SELECT * FROM v_rekomendasi_belajar WHERE sesi_id = ? ORDER BY created_at DESC";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('i', $sesi_id);
+    } else {
+        $sql = "SELECT * FROM v_rekomendasi_belajar WHERE user_id = ? ORDER BY created_at DESC";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('i', $user_id);
     }
     
-    $sql = "SELECT * FROM v_rekomendasi_belajar $where ORDER BY rb.created_at DESC";
-    $result = $conn->query($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $rekomendasi = [];
     
     while ($row = $result->fetch_assoc()) {
@@ -1489,26 +1686,25 @@ function getTipsTricks() {
 function getKategoriWeakness() {
     global $conn;
     
-    $user_id = intval($_GET['user_id'] ?? 0);
-    
-    if ($user_id === 0) {
-        echo json_encode(['success' => false, 'error' => 'Invalid user ID']);
-        return;
-    }
+    $user = requireAuth();
+    $user_id = $user['id'];
     
     // Get latest analysis per category
     $sql = "SELECT ak.kategori_id, k.nama_kategori, ak.persen_benar, ak.tingkat_kelemahan, ak.rekomendasi
             FROM analisis_kelemahan ak
             JOIN kategori_soal k ON ak.kategori_id = k.id
-            WHERE ak.user_id = $user_id
+            WHERE ak.user_id = ?
             AND ak.id IN (
                 SELECT MAX(id) FROM analisis_kelemahan 
-                WHERE user_id = $user_id 
+                WHERE user_id = ? 
                 GROUP BY kategori_id
             )
             ORDER BY ak.persen_benar ASC";
     
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('ii', $user_id, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $weakness = [];
     
     while ($row = $result->fetch_assoc()) {
@@ -1519,6 +1715,39 @@ function getKategoriWeakness() {
         'success' => true,
         'data' => $weakness
     ]);
+}
+
+function getMyWeakness() {
+    global $conn;
+    
+    $user = requireAuth();
+    $user_id = $user['id'];
+    
+    $sql = "SELECT ak.kategori_id, k.nama_kategori, ak.persen_benar, ak.tingkat_kelemahan, ak.rekomendasi,
+                   COUNT(ak2.id) as muncul_count
+            FROM analisis_kelemahan ak
+            JOIN kategori_soal k ON ak.kategori_id = k.id
+            LEFT JOIN analisis_kelemahan ak2 ON ak2.user_id = ak.user_id AND ak2.kategori_id = ak.kategori_id
+            WHERE ak.user_id = ?
+            AND ak.id IN (
+                SELECT MAX(id) FROM analisis_kelemahan 
+                WHERE user_id = ?
+                GROUP BY kategori_id
+            )
+            GROUP BY ak.id, ak.kategori_id, k.nama_kategori, ak.persen_benar, ak.tingkat_kelemahan, ak.rekomendasi
+            ORDER BY ak.persen_benar ASC";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $user_id, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $weakness = [];
+    
+    while ($row = $result->fetch_assoc()) {
+        $weakness[] = $row;
+    }
+    
+    echo json_encode(['success' => true, 'data' => $weakness]);
 }
 
 function saveTips() {
@@ -1635,10 +1864,13 @@ function generateCertificate() {
     // Generate new certificate
     $verification_code = md5($hasil_id . $hasil['nama_peserta'] . time());
     $qr_code = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($verification_code);
-    
-    $sql_insert = "INSERT INTO sertifikat (nama_peserta, hasil_id, verification_code, qr_code)
-                    VALUES ('" . $conn->real_escape_string($hasil['nama_peserta']) . "', $hasil_id, '$verification_code', '$qr_code')";
-    $result_insert = $conn->query($sql_insert);
+    $user_id_cert = intval($hasil['user_id'] ?? 0);
+
+    $sql_insert = "INSERT INTO sertifikat (user_id, hasil_id, verification_code, qr_code)
+                    VALUES (?, ?, ?, ?)";
+    $stmt_ins = $conn->prepare($sql_insert);
+    $stmt_ins->bind_param("iiss", $user_id_cert, $hasil_id, $verification_code, $qr_code);
+    $result_insert = $stmt_ins->execute();
     
     if ($result_insert) {
         echo json_encode(['success' => true, 'data' => [
@@ -2463,7 +2695,8 @@ function getLearningTopics() {
 function getLearningRecommendations() {
     global $conn;
     
-    $user_id = $_SESSION['user_id'] ?? 0;
+    $auth_user = requireAuth();
+    $user_id = $auth_user['id'] ?? 0;
     if ($user_id === 0) {
         echo json_encode(['success' => false, 'error' => 'User not logged in']);
         return;
@@ -2481,7 +2714,8 @@ function getLearningRecommendations() {
 function markTopicStudied() {
     global $conn;
     
-    $user_id = $_SESSION['user_id'] ?? 0;
+    $auth_user = requireAuth();
+    $user_id = $auth_user['id'] ?? 0;
     if ($user_id === 0) {
         echo json_encode(['success' => false, 'error' => 'User not logged in']);
         return;
@@ -2510,7 +2744,8 @@ function markTopicStudied() {
 function getLearningProgress() {
     global $conn;
     
-    $user_id = $_SESSION['user_id'] ?? 0;
+    $auth_user = requireAuth();
+    $user_id = $auth_user['id'] ?? 0;
     if ($user_id === 0) {
         echo json_encode(['success' => false, 'error' => 'User not logged in']);
         return;
@@ -2525,7 +2760,8 @@ function getLearningProgress() {
 function createTryoutSession() {
     global $conn;
     
-    $user_id = $_SESSION['user_id'] ?? 0;
+    $auth_user = requireAuth();
+    $user_id = $auth_user['id'] ?? 0;
     if ($user_id === 0) {
         echo json_encode(['success' => false, 'error' => 'User not logged in']);
         return;
@@ -2635,63 +2871,37 @@ function completeTryout() {
     if ($result) {
         // Award XP for completing exam
         $xp_amount = 10 + floor($score / 10); // Base 10 XP + bonus based on score
-        $user_id = $_SESSION['user_id'] ?? null;
+        $auth_user = requireAuth();
+        $user_id = $auth_user['id'] ?? null;
+        $auth_token = $auth_user['api_key'] ?? '';
         
         if ($user_id) {
-            // Call gamification API to add XP
-            $gamification_url = dirname($_SERVER['PHP_SELF']) . '/gamification.php';
-            $post_data = [
-                'xp_amount' => $xp_amount,
-                'reason' => 'Completed exam with score: ' . $score,
-                'source' => 'exam',
-                'source_id' => $session_id
-            ];
-            
-            $ch = curl_init($gamification_url . '?action=add_xp');
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . ($_SESSION['auth_token'] ?? '')
-            ]);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . session_id());
-            curl_exec($ch);
-            curl_close($ch);
-            
-            // Check for achievements
-            $ch = curl_init($gamification_url . '?action=check_achievements');
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . ($_SESSION['auth_token'] ?? '')
-            ]);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . session_id());
-            curl_exec($ch);
-            curl_close($ch);
-
-            // Send exam result notification
-            $notification_url = dirname($_SERVER['PHP_SELF']) . '/notifications.php';
-            $notif_data = [
-                'user_id' => $user_id,
-                'type' => 'in_app',
-                'category' => 'exam_result',
-                'title' => 'Hasil Ujian Tersedia',
-                'message' => 'Nilai ujian Anda: ' . $score
-            ];
-            
-            $ch = curl_init($notification_url . '?action=send_notification');
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($notif_data));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . ($_SESSION['auth_token'] ?? '')
-            ]);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . session_id());
-            curl_exec($ch);
-            curl_close($ch);
+            // Award XP directly via DB (avoid internal curl with session token)
+            $xp_sql = "SELECT total_xp, level, xp_to_next_level FROM user_xp WHERE user_id = ?";
+            $xp_stmt = $conn->prepare($xp_sql);
+            $xp_stmt->bind_param('i', $user_id);
+            $xp_stmt->execute();
+            $xp_data = $xp_stmt->get_result()->fetch_assoc();
+            if ($xp_data) {
+                $new_total = $xp_data['total_xp'] + $xp_amount;
+                $new_level = floor(sqrt($new_total / 100)) + 1;
+                $new_next = ($new_level + 1) * ($new_level + 1) * 100;
+                $upd_stmt = $conn->prepare("UPDATE user_xp SET total_xp=?, level=?, xp_to_next_level=? WHERE user_id=?");
+                $upd_stmt->bind_param('iiii', $new_total, $new_level, $new_next, $user_id);
+                $upd_stmt->execute();
+            }
+            // Log XP transaction
+            $txn_sql = "INSERT INTO xp_transactions (user_id, xp_amount, reason, source, source_id) VALUES (?, ?, ?, 'exam', ?)";
+            $txn_stmt = $conn->prepare($txn_sql);
+            $reason = 'Completed tryout session: ' . $session_id;
+            $txn_stmt->bind_param('iisi', $user_id, $xp_amount, $reason, $session_id);
+            $txn_stmt->execute();
+            // Send in-app notification directly via DB
+            $notif_sql = "INSERT INTO notifications (user_id, type, title, message, category, status) VALUES (?, 'in_app', 'Hasil Ujian Tersedia', ?, 'exam_result', 'pending')";
+            $notif_stmt = $conn->prepare($notif_sql);
+            $notif_msg = 'Nilai ujian Anda: ' . $score;
+            $notif_stmt->bind_param('is', $user_id, $notif_msg);
+            $notif_stmt->execute();
         }
         
         echo json_encode(['success' => true, 'score' => $score, 'xp_awarded' => $xp_amount]);
@@ -2725,7 +2935,8 @@ function generateQuestionForAdmin() {
     $kategori_id = intval($data['kategori_id'] ?? 1);
     $num_questions = intval($data['num_questions'] ?? 1);
     $difficulty = $conn->real_escape_string($data['difficulty'] ?? 'sedang');
-    $created_by = $_SESSION['user_id'] ?? null;
+    $auth_user = requireAuth();
+    $created_by = $auth_user['id'] ?? null;
     
     $generator = new AIQuestionGenerator($conn);
     $generated_questions = $generator->generateQuestionForAdmin($kategori_id, $num_questions, $difficulty, $created_by);

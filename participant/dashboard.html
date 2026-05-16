@@ -6,7 +6,7 @@
     <title>Dashboard Peserta - Ujian Sekolah Kedinasan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+    <!-- Chart.js v4 does not have a separate CSS file -->
     <style>
         :root {
             --primary-color: #1e40af;
@@ -1218,6 +1218,10 @@
             }
         }
 
+        function updateProgressChart(examData = []) {
+            initProgressChart(examData);
+        }
+
         function initProgressChart(examData = []) {
             const ctx = document.getElementById('progressChart');
             
@@ -1229,22 +1233,26 @@
                 }
             }
             
-            // Prepare chart data from exam data
-            let labels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-            let scoreData = [0, 0, 0, 0, 0, 0, 0];
-            let avgData = [0, 0, 0, 0, 0, 0, 0];
-            
+            // Prepare chart data from actual exam history
+            let labels = [];
+            let scoreData = [];
+            let avgData = [];
+
             if (examData && examData.length > 0) {
-                // Get last 7 exams and map to days
-                const recentExams = examData.slice(-7);
+                const recentExams = examData.slice(-10).reverse();
+                let runningSum = 0;
                 recentExams.forEach((exam, index) => {
-                    if (index < 7) {
-                        scoreData[index] = exam.nilai_total || 0;
-                        // Calculate running average
-                        const avg = recentExams.slice(0, index + 1).reduce((sum, e) => sum + (e.nilai_total || 0), 0) / (index + 1);
-                        avgData[index] = avg;
-                    }
+                    const d = new Date(exam.tanggal_ujian);
+                    labels.push(d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }));
+                    const score = exam.nilai_total || 0;
+                    scoreData.push(score);
+                    runningSum += score;
+                    avgData.push(Math.round(runningSum / (index + 1)));
                 });
+            } else {
+                labels = ['Belum ada data'];
+                scoreData = [0];
+                avgData = [0];
             }
             
             new Chart(ctx.getContext('2d'), {
@@ -1278,7 +1286,7 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 100
+                            suggestedMax: Math.max(500, ...scoreData) + 50
                         }
                     }
                 }
@@ -1326,8 +1334,8 @@
 
         async function loadDashboardData() {
             try {
-                // Fetch statistics data
-                const statsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian'), {
+                // Fetch statistics data (from dedicated statistik endpoint)
+                const statsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_statistik'), {
                     headers: RBAC.getAuthHeaders()
                 });
                 
@@ -1353,7 +1361,7 @@
                 }
 
                 // Fetch weakness analysis
-                const weaknessResponse = await fetch(AppConfig.apiUrl('soal.php?action=analyze_weakness'), {
+                const weaknessResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_my_weakness'), {
                     headers: RBAC.getAuthHeaders()
                 });
                 
@@ -1368,7 +1376,7 @@
                 }
 
                 // Fetch learning materials
-                const materialsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_bahan_pelajaran'), {
+                const materialsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_all_bahan_pelajaran'), {
                     headers: RBAC.getAuthHeaders()
                 });
                 
@@ -1457,25 +1465,23 @@
             }
         }
 
-        function updateStats(examData) {
-            if (!examData || examData.length === 0) {
+        function updateStats(statsData) {
+            // Accepts format from get_statistik: {total_exams, average_scores, pass_rate}
+            if (!statsData || (!statsData.total_exams && !Array.isArray(statsData))) {
                 document.getElementById('totalExams').textContent = '0';
                 document.getElementById('averageScore').textContent = '0';
-                document.getElementById('userXP').textContent = '0';
-                document.getElementById('userStreak').textContent = '0';
                 return;
             }
 
-            // Calculate statistics
-            const totalExams = examData.length;
-            const averageScore = examData.reduce((sum, exam) => sum + (exam.nilai_total || 0), 0) / totalExams;
-            
-            document.getElementById('totalExams').textContent = totalExams;
-            document.getElementById('averageScore').textContent = averageScore.toFixed(1);
+            const totalExams = parseInt(statsData.total_exams || 0);
+            const avgTotal = statsData.average_scores ? (statsData.average_scores.total || 0) : 0;
+            const passRate = statsData.pass_rate || 0;
 
-            // Update change indicators (simplified)
+            document.getElementById('totalExams').textContent = totalExams;
+            document.getElementById('averageScore').textContent = avgTotal.toFixed ? avgTotal.toFixed(1) : avgTotal;
+
             document.getElementById('totalExamsChange').innerHTML = `<i class="fas fa-check"></i> Data aktual`;
-            document.getElementById('averageScoreChange').innerHTML = `<i class="fas fa-check"></i> Rata-rata ${totalExams} ujian`;
+            document.getElementById('averageScoreChange').innerHTML = `<i class="fas fa-check"></i> Lulus: ${passRate}%`;
         }
 
         function updateGamificationStats(gamificationData) {
