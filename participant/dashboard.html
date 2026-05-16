@@ -1258,7 +1258,7 @@
                 let runningSum = 0;
                 recentExams.forEach((exam, index) => {
                     const d = new Date(exam.tanggal_ujian);
-                    labels.push(d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }));
+                    labels.push(formatDate(exam.tanggal_ujian, 'medium'));
                     const score = exam.nilai_total || 0;
                     scoreData.push(score);
                     runningSum += score;
@@ -1539,7 +1539,7 @@
                     </div>
                     <div class="badge-content">
                         <div class="badge-title font-weight-bold small">${badge.nama}</div>
-                        <div class="badge-date text-muted" style="font-size: 0.75rem;">${new Date(badge.earned_at).toLocaleDateString('id-ID')}</div>
+                        <div class="badge-date text-muted" style="font-size: 0.75rem;">${formatDate(badge.earned_at, 'short')}</div>
                     </div>
                 </div>
             `).join('');
@@ -1649,7 +1649,7 @@
                         <div>
                             <div class="notification-title font-weight-bold small">${notif.title}</div>
                             <div class="notification-message text-muted small">${notif.message}</div>
-                            <div class="notification-date text-muted" style="font-size: 0.7rem;">${new Date(notif.created_at).toLocaleString('id-ID')}</div>
+                            <div class="notification-date text-muted" style="font-size: 0.7rem;">${formatDate(notif.created_at, 'datetime')}</div>
                         </div>
                         ${notif.status === 'pending' ? '<span class="badge bg-primary">New</span>' : ''}
                     </div>
@@ -1759,14 +1759,7 @@
                         <span class="status-text text-${statusClass}">${examData.status_lulus || 'Belum Dinilai'}</span>
                     </div>
                     <div class="exam-date">
-                        <small class="text-muted">${new Date(examData.tanggal_ujian).toLocaleDateString('id-ID', { 
-                            weekday: 'long', 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })}</small>
+                        <small class="text-muted">${formatDate(examData.tanggal_ujian, 'datetime')}</small>
                     </div>
                 </div>
             `;
@@ -1875,7 +1868,7 @@
                             <div class="material-meta">
                                 <span>${material.kategori || 'Umum'}</span>
                                 <span>•</span>
-                                <span>${new Date(material.created_at).toLocaleDateString('id-ID')}</span>
+                                <span>${formatDate(material.created_at, 'short')}</span>
                             </div>
                         </div>
                         <a href="${material.file_path}" target="_blank" class="material-link">
@@ -1918,14 +1911,7 @@
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
                             <div class="timeline-title">Selesai ${kategoriNames[activity.kategori] || 'Ujian'}</div>
-                            <div class="timeline-date">${new Date(activity.tanggal_ujian).toLocaleDateString('id-ID', { 
-                                weekday: 'long', 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })}</div>
+                            <div class="timeline-date">${formatDate(activity.tanggal_ujian, 'long')}</div>
                             <div class="timeline-score">
                                 <span class="badge bg-${statusClass}">${formatScore(safeParseFloat(activity.nilai_total, 0))}</span>
                                 <span class="text-muted">poin</span>

@@ -2162,7 +2162,7 @@
                     new Chart(ctx.getContext('2d'), {
                         type: 'line',
                         data: {
-                            labels: recentExams.map(e => new Date(e.tanggal_ujian).toLocaleDateString('id-ID')),
+                            labels: recentExams.map(e => formatDate(e.tanggal_ujian, 'short')),
                             datasets: [{
                                 label: 'Nilai Total',
                                 data: recentExams.map(e => e.nilai_total),
@@ -2199,7 +2199,7 @@
                 if (data.success && data.data.length > 0) {
                     document.getElementById('recentExamsTable').innerHTML = data.data.map(row => `
                         <tr>
-                            <td>${new Date(row.tanggal_ujian).toLocaleDateString('id-ID')}</td>
+                            <td>${formatDate(row.tanggal_ujian, 'short')}</td>
                             <td>${row.nama_peserta}</td>
                             <td>${formatScore(safeParseFloat(row.nilai_total, 0))}</td>
                             <td><span class="badge ${row.status_lulus === 'LULUS' ? 'bg-success' : 'bg-danger'}">${row.status_lulus}</span></td>
@@ -3987,9 +3987,9 @@
                     <td>${user.username}</td>
                     <td>${user.nama_lengkap || '-'}</td>
                     <td><span class="badge ${user.role === 'admin' ? 'bg-danger' : 'bg-primary'}">${user.role}</span></td>
-                    <td>${user.nomor_hp || '-'}</td>
+                    <td>${formatPhoneSimple(user.nomor_hp)}</td>
                     <td>${user.asal_sekolah || '-'}</td>
-                    <td>${new Date(user.created_at).toLocaleDateString('id-ID')}</td>
+                    <td>${formatDate(user.created_at, 'short')}</td>
                     <td>
                         <button class="btn btn-sm btn-warning" onclick="editUser(${user.id})">
                             <i class="fas fa-edit"></i>
@@ -4140,7 +4140,7 @@
                     <td>${pkg.durasi}</td>
                     <td>${pkg.total_soal}</td>
                     <td><span class="badge ${pkg.is_active ? 'bg-success' : 'bg-secondary'}">${pkg.is_active ? 'Active' : 'Inactive'}</span></td>
-                    <td>${new Date(pkg.created_at).toLocaleDateString('id-ID')}</td>
+                    <td>${formatDate(pkg.created_at, 'short')}</td>
                     <td>
                         <button class="btn btn-sm btn-warning" onclick="editExamPackage(${pkg.id})">
                             <i class="fas fa-edit"></i>

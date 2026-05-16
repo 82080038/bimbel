@@ -1446,7 +1446,7 @@
                 <div class="history-item">
                     <div class="history-header">
                         <h4>${getCategoryName(exam.kategori)}</h4>
-                        <span class="history-date">${new Date(exam.tanggal_ujian).toLocaleDateString('id-ID')}</span>
+                        <span class="history-date">${formatDate(exam.tanggal_ujian, 'long')}</span>
                     </div>
                     <div class="history-details">
                         <div class="history-detail">
@@ -1926,7 +1926,7 @@
                         =================================
                         
                         Nama Peserta: ${localStorage.getItem('username') || 'User'}
-                        Tanggal Ujian: ${new Date(examData.tanggal_ujian).toLocaleDateString('id-ID')}
+                        Tanggal Ujian: ${formatDate(examData.tanggal_ujian, 'long')}
                         
                         HASIL UJIAN
                         -----------
@@ -2008,7 +2008,7 @@
                             ║  Atas kelulusan dalam ujian Sekolah Kedinasan           ║
                             ║                                                           ║
                             ║  Nilai Total: ${examData.nilai_total || 0}                       ║
-                            ║  Tanggal: ${new Date(examData.tanggal_ujian).toLocaleDateString('id-ID')}              ║
+                            ║  Tanggal: ${formatDate(examData.tanggal_ujian, 'long')}              ║
                             ║                                                           ║
                             ║  Kode Verifikasi: ${certificate.verification_code || 'N/A'}                ║
                             ║                                                           ║

@@ -481,7 +481,7 @@
                 if (data.success && data.data) {
                     const user = data.data;
                     document.getElementById('profileName').textContent = user.nama_lengkap || user.username;
-                    document.getElementById('profileJoined').textContent = `Bergabung sejak: ${new Date(user.created_at).toLocaleDateString('id-ID')}`;
+                    document.getElementById('profileJoined').textContent = `Bergabung sejak: ${formatDate(user.created_at, 'long')}`;
                     
                     // Fill form
                     document.getElementById('formUsername').value = user.username;
