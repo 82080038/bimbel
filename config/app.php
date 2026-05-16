@@ -71,7 +71,7 @@ if (!defined('DB_HOST')) {
         define('DB_HOST', 'localhost');
         define('DB_NAME', 'ujian_sekolah_kedinasan');
         define('DB_USER', 'root');
-        define('DB_PASS', ''); // XAMPP default
+        define('DB_PASS', 'root'); // Updated to match config.php
     }
 }
 

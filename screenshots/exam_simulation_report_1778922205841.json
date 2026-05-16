@@ -1,0 +1,165 @@
+{
+  "timestamp": "2026-05-16T09:03:25.841Z",
+  "config": {
+    "users": [
+      {
+        "name": "Peserta TWK",
+        "examType": "TWK",
+        "kategori_id": 1,
+        "soalCount": 30
+      },
+      {
+        "name": "Peserta TIU",
+        "examType": "TIU",
+        "kategori_id": 2,
+        "soalCount": 35
+      },
+      {
+        "name": "Peserta TKP",
+        "examType": "TKP",
+        "kategori_id": 3,
+        "soalCount": 35
+      },
+      {
+        "name": "Peserta TPA",
+        "examType": "TPA",
+        "kategori_id": 4,
+        "soalCount": 15
+      },
+      {
+        "name": "Peserta Psikologis",
+        "examType": "PSIKOLOGIS",
+        "kategori_id": 5,
+        "soalCount": 15
+      },
+      {
+        "name": "Peserta Mix SKD",
+        "examType": "SKD",
+        "kategori_id": "mix",
+        "soalCount": 100
+      }
+    ],
+    "timing": {
+      "perQuestionSeconds": 2,
+      "navigationDelay": 500,
+      "submitDelay": 1000
+    }
+  },
+  "summary": {
+    "totalUsers": 6,
+    "passed": 0,
+    "failed": 6,
+    "avgTimeSeconds": 3,
+    "totalQuestionsAnswered": 0
+  },
+  "results": [
+    {
+      "user": "Peserta TWK",
+      "examType": "TWK",
+      "startTime": "2026-05-16T09:00:29.017Z",
+      "endTime": "2026-05-16T09:00:31.980Z",
+      "durationSeconds": 3,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [],
+      "categoryScores": {
+        "twk": null,
+        "tiu": null,
+        "tkp": null
+      }
+    },
+    {
+      "user": "Peserta TIU",
+      "examType": "TIU",
+      "startTime": "2026-05-16T09:01:00.922Z",
+      "endTime": "2026-05-16T09:01:03.874Z",
+      "durationSeconds": 3,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [],
+      "categoryScores": {
+        "twk": null,
+        "tiu": null,
+        "tkp": null
+      }
+    },
+    {
+      "user": "Peserta TKP",
+      "examType": "TKP",
+      "startTime": "2026-05-16T09:01:33.082Z",
+      "endTime": "2026-05-16T09:01:36.049Z",
+      "durationSeconds": 3,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [],
+      "categoryScores": {
+        "twk": null,
+        "tiu": null,
+        "tkp": null
+      }
+    },
+    {
+      "user": "Peserta TPA",
+      "examType": "TPA",
+      "startTime": "2026-05-16T09:02:05.702Z",
+      "endTime": "2026-05-16T09:02:08.662Z",
+      "durationSeconds": 3,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [],
+      "categoryScores": {
+        "twk": null,
+        "tiu": null,
+        "tkp": null
+      }
+    },
+    {
+      "user": "Peserta Psikologis",
+      "examType": "PSIKOLOGIS",
+      "startTime": "2026-05-16T09:02:39.642Z",
+      "endTime": "2026-05-16T09:02:42.602Z",
+      "durationSeconds": 3,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [],
+      "categoryScores": {
+        "twk": null,
+        "tiu": null,
+        "tkp": null
+      }
+    },
+    {
+      "user": "Peserta Mix SKD",
+      "examType": "SKD",
+      "startTime": "2026-05-16T09:03:12.875Z",
+      "endTime": "2026-05-16T09:03:15.842Z",
+      "durationSeconds": 3,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [],
+      "categoryScores": {
+        "twk": null,
+        "tiu": null,
+        "tkp": null
+      }
+    }
+  ]
+}

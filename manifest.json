@@ -2,7 +2,7 @@
   "name": "Aplikasi Ujian Sekolah Kedinasan",
   "short_name": "Ujian Kedinasan",
   "description": "Sistem Seleksi Kompetensi Dasar (SKD) untuk sekolah kedinasan",
-  "start_url": "/index.html",
+  "start_url": "/bimbel/index.html",
   "display": "standalone",
   "background_color": "#1e40af",
   "theme_color": "#1e40af",

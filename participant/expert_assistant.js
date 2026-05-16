@@ -490,6 +490,101 @@ class ExpertAssistant {
         this.isVisible = false;
     }
 
+    // Show expert analysis AFTER exam is finished (for wrong answers only)
+    async showPostExamAnalysis(wrongAnswers) {
+        if (!wrongAnswers || wrongAnswers.length === 0) {
+            console.log('No wrong answers to analyze');
+            return;
+        }
+        
+        // Show the expert assistant UI
+        document.getElementById('expertAssistant').classList.remove('hidden');
+        document.getElementById('expertAssistantToggle').classList.add('hidden');
+        this.isVisible = true;
+        
+        const contentEl = document.getElementById('expertContent');
+        contentEl.innerHTML = '<p class="loading">🧠 Sistem Pakar sedang menganalisis jawaban salah...</p>';
+        
+        let analysisHtml = `
+            <div class="post-exam-analysis">
+                <h3 style="color: #667eea; margin-bottom: 15px;">
+                    📊 Analisis Hasil Ujian
+                </h3>
+                <p style="margin-bottom: 20px;">
+                    Anda memiliki ${wrongAnswers.length} soal yang dijawab salah. 
+                    Berikut penjelasan dan tips untuk perbaikan:
+                </p>
+        `;
+        
+        // Analyze each wrong answer
+        for (const wrong of wrongAnswers) {
+            const { question, userAnswer, correctAnswer } = wrong;
+            
+            analysisHtml += `
+                <div class="expert-card" style="margin-bottom: 20px;">
+                    <h4 style="color: #ef4444; margin-bottom: 10px;">
+                        ❌ Soal #${question.id} - ${this.getCategoryName(question.kategori_id)}
+                    </h4>
+                    <p style="margin-bottom: 10px;"><strong>Pertanyaan:</strong><br>${question.pertanyaan}</p>
+                    <p style="margin-bottom: 10px;">
+                        <span style="color: #ef4444;">Jawaban Anda: ${userAnswer}</span> | 
+                        <span style="color: #10b981;">Jawaban Benar: ${correctAnswer}</span>
+                    </p>
+                    <div style="background: #fef3c7; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <strong>💡 Pembahasan:</strong><br>
+                        ${question.pembahasan || 'Pembahasan tidak tersedia untuk soal ini.'}
+                    </div>
+                </div>
+            `;
+            
+            // Try to get expert tips for this category
+            try {
+                const response = await fetch(`/bimbel/api/expert.php?action=get_expert_help&soal_id=${question.id}&kategori_id=${question.kategori_id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    const tip = result.data[0];
+                    analysisHtml += `
+                        <div class="expert-card" style="border-left-color: #10b981; margin-bottom: 20px;">
+                            <h4 style="color: #10b981;">🎯 Tips dari Pakar</h4>
+                            <p><strong>${tip.judul || tip.expert_judul || 'Tips'}</strong></p>
+                            <p>${tip.konten || tip.expert_konten || ''}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error fetching expert tip:', error);
+            }
+        }
+        
+        analysisHtml += `
+                <div style="text-align: center; margin-top: 20px; padding: 15px; background: #dbeafe; border-radius: 8px;">
+                    <p style="margin: 0; color: #1e40af;">
+                        <strong>💪 Terus berlatih!</strong> Pelajari pembahasan di atas untuk meningkatkan skor.
+                    </p>
+                </div>
+            </div>
+        `;
+        
+        contentEl.innerHTML = analysisHtml;
+    }
+
+    // Helper to get category name
+    getCategoryName(kategoriId) {
+        const categories = {
+            1: 'TWK',
+            2: 'TIU',
+            3: 'TKP',
+            4: 'TPA',
+            5: 'PSIKOLOGIS'
+        };
+        return categories[kategoriId] || 'UMUM';
+    }
+
     // Rate assistance as helpful or not
     async rateHelpful(helpful) {
         if (!this.currentQuestionId || !this.expertData || this.expertData.length === 0) {

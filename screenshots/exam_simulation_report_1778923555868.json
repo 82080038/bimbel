@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-05-16T09:25:55.868Z",
+  "config": {
+    "users": [
+      {
+        "username": "fresh_user_11778919457",
+        "password": "simulasi123",
+        "name": "Fresh User 1 - Paket TWK Basic",
+        "paketId": 1
+      },
+      {
+        "username": "fresh_user_11778919457",
+        "password": "simulasi123",
+        "name": "Fresh User 1 - Paket TWK Standar",
+        "paketId": 2
+      },
+      {
+        "username": "fresh_user_21778919457",
+        "password": "simulasi123",
+        "name": "Fresh User 2 - Paket TIU Basic",
+        "paketId": 3
+      },
+      {
+        "username": "fresh_user_21778919457",
+        "password": "simulasi123",
+        "name": "Fresh User 2 - Paket TIU Standar",
+        "paketId": 4
+      },
+      {
+        "username": "fresh_user_11778919457",
+        "password": "simulasi123",
+        "name": "Fresh User 1 - Paket TKP Standar",
+        "paketId": 5
+      }
+    ],
+    "timing": {
+      "perQuestionSeconds": 2,
+      "navigationDelay": 500,
+      "submitDelay": 1000
+    }
+  },
+  "summary": {
+    "totalUsers": 0,
+    "passed": 0,
+    "failed": 0,
+    "avgTimeSeconds": null,
+    "totalQuestionsAnswered": 0
+  },
+  "results": []
+}

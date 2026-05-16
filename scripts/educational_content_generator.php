@@ -20,16 +20,16 @@ class EducationalContentGenerator {
     /**
      * Generate comprehensive educational content based on question topic
      */
-    public function generateEducationalContent($soal_id, $kategori, $tingkat, $pertanyaan, $pembahasan, $jawaban_benar) {
+    public function generateEducationalContent($soal_id, $kategori, $kategori_id, $tingkat, $pertanyaan, $pembahasan, $jawaban_benar) {
         // Extract topic from question using the advanced topic analyzer
         $topic = $this->topicAnalyzer->analyzeTopic($pertanyaan, $kategori, $tingkat);
-        
+
         // Get detailed topic content
         $topicContent = $this->topicAnalyzer->generateTopicContent($topic, $kategori, $tingkat);
-        
+
         // Generate educational content sections
-        $content = $this->generateHTMLStructure($topic, $kategori, $tingkat, $pertanyaan, $pembahasan, $jawaban_benar, $soal_id, $topicContent);
-        
+        $content = $this->generateHTMLStructure($topic, $kategori, $kategori_id, $tingkat, $pertanyaan, $pembahasan, $jawaban_benar, $soal_id, $topicContent);
+
         return $content;
     }
     
@@ -94,7 +94,7 @@ class EducationalContentGenerator {
     /**
      * Generate comprehensive HTML structure
      */
-    private function generateHTMLStructure($topic, $kategori, $tingkat, $pertanyaan, $pembahasan, $jawaban_benar, $soal_id, $topicContent = null) {
+    private function generateHTMLStructure($topic, $kategori, $kategori_id, $tingkat, $pertanyaan, $pembahasan, $jawaban_benar, $soal_id, $topicContent = null) {
         $html = "<!DOCTYPE html>\n";
         $html .= "<html lang='id'>\n";
         $html .= "<head>\n";
@@ -182,8 +182,8 @@ class EducationalContentGenerator {
         $html .= $this->generateKeyConcepts($topic, $kategori);
         $html .= "</div>\n\n";
         
-        // Similar Questions
-        $similar_questions = $this->findSimilarQuestions($soal_id);
+        // Similar Questions (same category only)
+        $similar_questions = $this->findSimilarQuestions($soal_id, $kategori_id);
         if (!empty($similar_questions)) {
             $html .= "<h2>Soal-soal Mirip untuk Latihan</h2>\n";
             $html .= "<div class='similar-box'>\n";
@@ -396,15 +396,16 @@ class EducationalContentGenerator {
     }
     
     /**
-     * Find similar questions
+     * Find similar questions - same category only
      */
-    private function findSimilarQuestions($soal_id) {
-        $sql = "SELECT id, pertanyaan, jawaban_benar FROM soal 
-                WHERE id != $soal_id 
-                ORDER BY RAND() 
+    private function findSimilarQuestions($soal_id, $kategori_id) {
+        $sql = "SELECT id, pertanyaan, jawaban_benar FROM soal
+                WHERE id != $soal_id
+                AND kategori_id = $kategori_id
+                ORDER BY RAND()
                 LIMIT 3";
         $result = $this->conn->query($sql);
-        
+
         $similar = [];
         while ($row = $result->fetch_assoc()) {
             $similar[] = [
@@ -413,7 +414,7 @@ class EducationalContentGenerator {
                 'jawaban_benar' => $row['jawaban_benar']
             ];
         }
-        
+
         return $similar;
     }
     
@@ -478,17 +479,18 @@ if (php_sapi_name() === 'cli') {
                     $content = $generator->generateEducationalContent(
                         $soal['id'],
                         $soal['nama_kategori'],
+                        $soal['kategori_id'],
                         $soal['tingkat'],
                         $soal['pertanyaan'],
                         $soal['pembahasan'],
                         $soal['jawaban_benar']
                     );
-                    
+
                     $file_path = $generator->saveContentAsFile($soal_id, $content);
                     $judul = "Materi Pembelajaran: {$soal['nama_kategori']} - Soal #{$soal_id}";
-                    
+
                     $generator->updateDatabaseFilePath($soal_id, $file_path, $judul);
-                    
+
                     echo "Generated educational content for soal #$soal_id\n";
                     echo "Saved to: $file_path\n";
                     echo "Database updated\n";
@@ -497,17 +499,18 @@ if (php_sapi_name() === 'cli') {
                 }
             } else {
                 // Generate batch
-                $sql = "SELECT s.*, k.nama_kategori FROM soal s 
-                        LEFT JOIN kategori_soal k ON s.kategori_id = k.id 
-                        ORDER BY RAND() 
+                $sql = "SELECT s.*, k.nama_kategori FROM soal s
+                        LEFT JOIN kategori_soal k ON s.kategori_id = k.id
+                        ORDER BY RAND()
                         LIMIT $limit";
                 $result = $generator->conn->query($sql);
-                
+
                 $generated = 0;
                 while ($row = $result->fetch_assoc()) {
                     $content = $generator->generateEducationalContent(
                         $row['id'],
                         $row['nama_kategori'],
+                        $row['kategori_id'],
                         $row['tingkat'],
                         $row['pertanyaan'],
                         $row['pembahasan'],

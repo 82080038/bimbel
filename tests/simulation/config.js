@@ -4,6 +4,7 @@ const CONFIG = {
   baseUrl: 'http://localhost/bimbel',
   adminUrl: 'http://localhost/bimbel/admin.html',
   indexUrl: 'http://localhost/bimbel/index.html',
+  examUrl: 'http://localhost/bimbel/participant/ujian.html',
   
   // Test credentials
   admin: {
@@ -12,8 +13,20 @@ const CONFIG = {
   },
   participant: {
     name: 'Test Participant',
-    examType: 'CPNS'
+    examType: 'CPNS',
+    username: 'testuser',
+    password: 'password123'
   },
+  // Test users for simulation (MUST exist in database with valid credentials)
+  // Passwords have been set to 'simulasi123' for these users
+  testUsers: [
+    { username: 'fresh_user_11778919457', password: 'simulasi123', name: 'Fresh User 1 - TWK', examType: 'TWK' },
+    { username: 'fresh_user_21778919457', password: 'simulasi123', name: 'Fresh User 2 - TIU', examType: 'TIU' },
+    { username: 'fresh_user_11778919457', password: 'simulasi123', name: 'Fresh User 1 - TKP', examType: 'TKP' },
+    { username: 'fresh_user_21778919457', password: 'simulasi123', name: 'Fresh User 2 - TPA', examType: 'TPA' },
+    { username: 'fresh_user_11778919457', password: 'simulasi123', name: 'Fresh User 1 - PSIKOLOGIS', examType: 'PSIKOLOGIS' },
+    { username: 'fresh_user_21778919457', password: 'simulasi123', name: 'Fresh User 2 - SKD', examType: 'SKD' }
+  ],
   
   // Puppeteer settings
   puppeteer: {

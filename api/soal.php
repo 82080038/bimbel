@@ -308,8 +308,13 @@ function getSoalByKategori() {
         'TPA' => 4,
         'PSIKOLOGIS' => 5
     ];
-    
-    $kategori_id = $kategori_map[$kategori] ?? 1;
+
+    // Handle both numeric ID and string name
+    if (is_numeric($kategori)) {
+        $kategori_id = intval($kategori);
+    } else {
+        $kategori_id = $kategori_map[$kategori] ?? 1;
+    }
     
     $sql = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar 
             FROM soal 
@@ -926,9 +931,9 @@ function getStatistik() {
 
 function createQuestion() {
     global $conn;
-    
+
     $data = json_decode(file_get_contents('php://input'), true);
-    
+
     $kategori_map = [
         'TWK' => 1,
         'TIU' => 2,
@@ -936,10 +941,15 @@ function createQuestion() {
         'TPA' => 4,
         'PSIKOLOGIS' => 5
     ];
-    
+
     $kategori = $data['kategori'] ?? 'TWK';
-    $kategori_id = $kategori_map[$kategori] ?? 1;
-    
+    // Handle both numeric ID and string name
+    if (is_numeric($kategori)) {
+        $kategori_id = intval($kategori);
+    } else {
+        $kategori_id = $kategori_map[$kategori] ?? 1;
+    }
+
     $pertanyaan = $conn->real_escape_string($data['pertanyaan'] ?? '');
     $opsi_a = $conn->real_escape_string($data['opsi_a'] ?? '');
     $opsi_b = $conn->real_escape_string($data['opsi_b'] ?? '');
@@ -964,11 +974,11 @@ function createQuestion() {
 
 function updateQuestion() {
     global $conn;
-    
+
     $data = json_decode(file_get_contents('php://input'), true);
-    
+
     $id = intval($data['id'] ?? 0);
-    
+
     $kategori_map = [
         'TWK' => 1,
         'TIU' => 2,
@@ -976,10 +986,15 @@ function updateQuestion() {
         'TPA' => 4,
         'PSIKOLOGIS' => 5
     ];
-    
+
     $kategori = $data['kategori'] ?? 'TWK';
-    $kategori_id = $kategori_map[$kategori] ?? 1;
-    
+    // Handle both numeric ID and string name
+    if (is_numeric($kategori)) {
+        $kategori_id = intval($kategori);
+    } else {
+        $kategori_id = $kategori_map[$kategori] ?? 1;
+    }
+
     $pertanyaan = $conn->real_escape_string($data['pertanyaan'] ?? '');
     $opsi_a = $conn->real_escape_string($data['opsi_a'] ?? '');
     $opsi_b = $conn->real_escape_string($data['opsi_b'] ?? '');
@@ -1035,15 +1050,24 @@ function listQuestions() {
         'TPA' => 4,
         'PSIKOLOGIS' => 5
     ];
-    
+
     $where = "WHERE 1=1";
     $params = [];
     $types = "";
-    
-    if ($kategori && isset($kategori_map[$kategori])) {
-        $where .= " AND kategori_id = ?";
-        $params[] = $kategori_map[$kategori];
-        $types .= "i";
+
+    // Handle both numeric ID (from dropdown) and string name (from old code)
+    if ($kategori) {
+        $kategori_id = null;
+        if (is_numeric($kategori)) {
+            $kategori_id = intval($kategori);
+        } elseif (isset($kategori_map[$kategori])) {
+            $kategori_id = $kategori_map[$kategori];
+        }
+        if ($kategori_id) {
+            $where .= " AND kategori_id = ?";
+            $params[] = $kategori_id;
+            $types .= "i";
+        }
     }
     
     if ($search) {
@@ -1232,7 +1256,11 @@ function getSoalStatistics() {
             'TPA' => 4,
             'PSIKOLOGIS' => 5
         ];
-        if (isset($kategori_map[$kategori])) {
+        // Handle both numeric ID and string name
+        if (is_numeric($kategori)) {
+            $kategori_id = intval($kategori);
+            $where = "WHERE s.kategori_id = " . $kategori_id;
+        } elseif (isset($kategori_map[$kategori])) {
             $where = "WHERE s.kategori_id = " . $kategori_map[$kategori];
         }
     }
@@ -1295,42 +1323,116 @@ function getBahanPelajaran() {
 
 function getAllBahanPelajaran() {
     global $conn;
-    
-    $sql = "SELECT * FROM bahan_pelajaran ORDER BY created_at DESC";
+
+    $page = intval($_GET['page'] ?? 1);
+    $limit = intval($_GET['limit'] ?? 20);
+    $offset = ($page - 1) * $limit;
+    $kategori_id = intval($_GET['kategori_id'] ?? 0);
+
+    // Debug logging
+    error_log("getAllBahanPelajaran - kategori_id: $kategori_id, page: $page, limit: $limit");
+
+    $where = "";
+    $params = [];
+    $types = "";
+
+    if ($kategori_id > 0) {
+        $where = "WHERE kategori_id = ?";
+        $params[] = $kategori_id;
+        $types .= "i";
+    }
+
+    // Get total count
+    $count_sql = "SELECT COUNT(*) as total FROM bahan_pelajaran $where";
+    if ($kategori_id > 0) {
+        $stmt = $conn->prepare($count_sql);
+        $stmt->bind_param("i", $kategori_id);
+        $stmt->execute();
+        $count_result = $stmt->get_result();
+    } else {
+        $count_result = $conn->query($count_sql);
+    }
+    $total = $count_result->fetch_assoc()['total'];
+
+    $sql = "SELECT * FROM bahan_pelajaran $where ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= "ii";
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    if (!$stmt) {
+        error_log("SQL Prepare Error: " . $conn->error);
+        echo json_encode(['success' => false, 'error' => 'Database error: ' . $conn->error]);
+        return;
+    }
+
+    $stmt->bind_param($types, ...$params);
+    if (!$stmt->execute()) {
+        error_log("SQL Execute Error: " . $stmt->error);
+        echo json_encode(['success' => false, 'error' => 'Query error: ' . $stmt->error]);
+        return;
+    }
+
     $result = $stmt->get_result();
     $bahan = [];
-    
+
     while ($row = $result->fetch_assoc()) {
         $bahan[] = $row;
     }
-    
+
+    $total_pages = ceil($total / $limit);
+
+    error_log("getAllBahanPelajaran - Found " . count($bahan) . " items, total: $total");
+
     echo json_encode([
         'success' => true,
-        'data' => $bahan
+        'data' => $bahan,
+        'pagination' => [
+            'total' => $total,
+            'total_pages' => $total_pages,
+            'current_page' => $page,
+            'limit' => $limit
+        ]
     ]);
 }
 
 function getAllSoal() {
     global $conn;
-    
-    $sql = "SELECT s.*, k.nama_kategori 
-            FROM soal s 
-            LEFT JOIN kategori_soal k ON s.kategori_id = k.id 
-            ORDER BY s.id";
+
+    $page = intval($_GET['page'] ?? 1);
+    $limit = intval($_GET['limit'] ?? 50);
+    $offset = ($page - 1) * $limit;
+
+    // Get total count
+    $count_sql = "SELECT COUNT(*) as total FROM soal";
+    $count_result = $conn->query($count_sql);
+    $total = $count_result->fetch_assoc()['total'];
+
+    $sql = "SELECT s.*, k.nama_kategori
+            FROM soal s
+            LEFT JOIN kategori_soal k ON s.kategori_id = k.id
+            ORDER BY s.id LIMIT ? OFFSET ?";
     $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $limit, $offset);
     $stmt->execute();
     $result = $stmt->get_result();
     $soal = [];
-    
+
     while ($row = $result->fetch_assoc()) {
         $soal[] = $row;
     }
-    
+
+    $total_pages = ceil($total / $limit);
+
     echo json_encode([
         'success' => true,
-        'data' => $soal
+        'data' => $soal,
+        'pagination' => [
+            'total' => $total,
+            'total_pages' => $total_pages,
+            'current_page' => $page,
+            'limit' => $limit
+        ]
     ]);
 }
 
@@ -1339,7 +1441,9 @@ function saveBahanPelajaran() {
     
     requireAdmin();
     
+    $id = intval($_POST['id'] ?? 0);
     $soal_id = intval($_POST['soal_id'] ?? 0);
+    $kategori_id = intval($_POST['kategori_id'] ?? 0);
     $judul = $conn->real_escape_string($_POST['judul'] ?? '');
     $konten = $conn->real_escape_string($_POST['konten'] ?? '');
     $tipe = $conn->real_escape_string($_POST['tipe'] ?? 'teks');
@@ -1421,15 +1525,25 @@ function saveBahanPelajaran() {
         $konten = ''; // Clear konten since it's now in file
     }
     
-    $sql = "INSERT INTO bahan_pelajaran (soal_id, judul, konten, tipe, url, file_path, urutan)
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isssssi", $soal_id, $judul, $konten, $tipe, $url, $file_path, $urutan);
+    // INSERT or UPDATE based on id
+    if ($id > 0) {
+        // UPDATE existing record
+        $sql = "UPDATE bahan_pelajaran SET soal_id=?, kategori_id=?, judul=?, konten=?, tipe=?, url=?, file_path=COALESCE(NULLIF(?, ''), file_path), urutan=? WHERE id=?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iisssssii", $soal_id, $kategori_id, $judul, $konten, $tipe, $url, $file_path, $urutan, $id);
+    } else {
+        // INSERT new record
+        $sql = "INSERT INTO bahan_pelajaran (soal_id, kategori_id, judul, konten, tipe, url, file_path, urutan)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iisssssi", $soal_id, $kategori_id, $judul, $konten, $tipe, $url, $file_path, $urutan);
+    }
+
     $result = $stmt->execute();
     $stmt->close();
-    
+
     if ($result) {
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => true, 'id' => ($id > 0) ? $id : $conn->insert_id]);
     } else {
         echo json_encode(['success' => false, 'error' => $conn->error]);
     }
@@ -1437,32 +1551,61 @@ function saveBahanPelajaran() {
 
 function getRekomendasiBelajar() {
     global $conn;
-    
+
     $user = requireAuth();
     $user_id = $user['id'];
     $sesi_id = intval($_GET['sesi_id'] ?? 0);
-    
+    $page = intval($_GET['page'] ?? 1);
+    $limit = intval($_GET['limit'] ?? 20);
+    $offset = ($page - 1) * $limit;
+
     if ($sesi_id > 0) {
-        $sql = "SELECT * FROM v_rekomendasi_belajar WHERE sesi_id = ? ORDER BY created_at DESC";
-        $stmt = $conn->prepare($sql);
+        // Get total count
+        $count_sql = "SELECT COUNT(*) as total FROM v_rekomendasi_belajar WHERE sesi_id = ?";
+        $stmt = $conn->prepare($count_sql);
         $stmt->bind_param('i', $sesi_id);
-    } else {
-        $sql = "SELECT * FROM v_rekomendasi_belajar WHERE user_id = ? ORDER BY created_at DESC";
+        $stmt->execute();
+        $count_result = $stmt->get_result();
+        $total = $count_result->fetch_assoc()['total'];
+        $stmt->close();
+
+        $sql = "SELECT * FROM v_rekomendasi_belajar WHERE sesi_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
         $stmt = $conn->prepare($sql);
+        $stmt->bind_param('iii', $sesi_id, $limit, $offset);
+    } else {
+        // Get total count
+        $count_sql = "SELECT COUNT(*) as total FROM v_rekomendasi_belajar WHERE user_id = ?";
+        $stmt = $conn->prepare($count_sql);
         $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $count_result = $stmt->get_result();
+        $total = $count_result->fetch_assoc()['total'];
+        $stmt->close();
+
+        $sql = "SELECT * FROM v_rekomendasi_belajar WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('iii', $user_id, $limit, $offset);
     }
-    
+
     $stmt->execute();
     $result = $stmt->get_result();
     $rekomendasi = [];
-    
+
     while ($row = $result->fetch_assoc()) {
         $rekomendasi[] = $row;
     }
-    
+
+    $total_pages = ceil($total / $limit);
+
     echo json_encode([
         'success' => true,
-        'data' => $rekomendasi
+        'data' => $rekomendasi,
+        'pagination' => [
+            'total' => $total,
+            'total_pages' => $total_pages,
+            'current_page' => $page,
+            'limit' => $limit
+        ]
     ]);
 }
 
@@ -1689,9 +1832,10 @@ function getRanking() {
     $offset = ($page - 1) * $limit;
     
     $order_field = 'nilai_total';
-    if ($kategori === 'TWK') $order_field = 'nilai_twk';
-    elseif ($kategori === 'TIU') $order_field = 'nilai_tiu';
-    elseif ($kategori === 'TKP') $order_field = 'nilai_tkp';
+    // Handle both numeric ID (1,2,3) and string name (TWK,TIU,TKP)
+    if ($kategori === 'TWK' || $kategori === '1') $order_field = 'nilai_twk';
+    elseif ($kategori === 'TIU' || $kategori === '2') $order_field = 'nilai_tiu';
+    elseif ($kategori === 'TKP' || $kategori === '3') $order_field = 'nilai_tkp';
     
     // Get total count
     $sql_count = "SELECT COUNT(*) as total 

@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-05-16T09:40:14.569Z",
+  "config": {
+    "users": [
+      {
+        "username": "fresh_user_11778919457",
+        "password": "simulasi123",
+        "name": "Fresh User 1 - Paket TWK Basic",
+        "examType": "TWK",
+        "paketId": 1,
+        "useFormMode": true
+      },
+      {
+        "username": "fresh_user_11778919457",
+        "password": "simulasi123",
+        "name": "Fresh User 1 - Paket TWK Standar",
+        "examType": "TWK",
+        "paketId": 2,
+        "useFormMode": true
+      },
+      {
+        "username": "fresh_user_21778919457",
+        "password": "simulasi123",
+        "name": "Fresh User 2 - Paket TIU Basic",
+        "examType": "TIU",
+        "paketId": 3,
+        "useFormMode": true
+      },
+      {
+        "username": "fresh_user_21778919457",
+        "password": "simulasi123",
+        "name": "Fresh User 2 - Paket TIU Standar",
+        "examType": "TIU",
+        "paketId": 4,
+        "useFormMode": true
+      },
+      {
+        "username": "fresh_user_11778919457",
+        "password": "simulasi123",
+        "name": "Fresh User 1 - Paket TKP Standar",
+        "examType": "TKP",
+        "paketId": 5,
+        "useFormMode": true
+      }
+    ],
+    "timing": {
+      "perQuestionSeconds": 2,
+      "navigationDelay": 500,
+      "submitDelay": 1000
+    }
+  },
+  "summary": {
+    "totalUsers": 0,
+    "passed": 0,
+    "failed": 0,
+    "avgTimeSeconds": null,
+    "totalQuestionsAnswered": 0
+  },
+  "results": []
+}

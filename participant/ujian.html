@@ -1079,11 +1079,31 @@
             loadExamTypes();
             // Load categories for filter
             loadKategoriFilter();
-            
+
+            // Auto-fill participant name from logged-in user
+            const namaPesertaInput = document.getElementById('namaPeserta');
+            const username = localStorage.getItem('username');
+            const userData = localStorage.getItem('userData');
+
+            if (namaPesertaInput && username) {
+                // Try to get full name from userData if available
+                let displayName = username;
+                if (userData) {
+                    try {
+                        const user = JSON.parse(userData);
+                        displayName = user.nama_lengkap || user.nama || user.full_name || username;
+                    } catch (e) {
+                        displayName = username;
+                    }
+                }
+                namaPesertaInput.value = displayName;
+                console.log('Auto-filled participant name:', displayName);
+            }
+
             // Check URL parameters to determine which screen to show
             const urlParams = new URLSearchParams(window.location.search);
             const action = urlParams.get('action');
-            
+
             if (action === 'start_exam') {
                 mulaiUjian();
             } else if (action === 'history') {
@@ -1127,10 +1147,36 @@
             updateBookmarkButton();
             updateQuestionNav();
             
-            // Load expert assistant for current question
-            if (typeof expertAssistant !== 'undefined') {
-                expertAssistant.showForQuestion(question.id, question.kategori_id);
-            }
+            // Add auto-next feature after selecting answer
+            setTimeout(() => {
+                document.querySelectorAll('input[name="answer"]').forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        // Save answer to localStorage/session
+                        saveAnswer(currentQuestionIndex, radio.value);
+                        // Auto next after 0.5s delay
+                        setTimeout(() => {
+                            if (currentQuestionIndex < currentQuestions.length - 1) {
+                                selanjutnya();
+                            }
+                        }, 500);
+                    });
+                });
+            }, 100);
+        }
+
+        // Save answer to session storage
+        function saveAnswer(questionIndex, answer) {
+            const savedAnswers = JSON.parse(sessionStorage.getItem('examAnswers') || '{}');
+            savedAnswers[currentQuestions[questionIndex].id] = answer;
+            sessionStorage.setItem('examAnswers', JSON.stringify(savedAnswers));
+            // Update navigation to show answered status
+            updateQuestionNav();
+        }
+
+        // Get saved answer
+        function getSavedAnswer(questionId) {
+            const savedAnswers = JSON.parse(sessionStorage.getItem('examAnswers') || '{}');
+            return savedAnswers[questionId] || null;
         }
 
         // Get category name
@@ -1171,14 +1217,184 @@
             }
         }
 
-        // Collect answers
+        // Collect answers (from current form + saved session)
         function collectAnswers() {
             const answers = {};
+            const savedAnswers = JSON.parse(sessionStorage.getItem('examAnswers') || '{}');
+            
             currentQuestions.forEach((question, index) => {
+                // Try to get from current form first
                 const selectedAnswer = document.querySelector(`input[name="answer"]:checked`);
-                answers[question.id] = selectedAnswer ? selectedAnswer.value : null;
+                if (selectedAnswer) {
+                    answers[question.id] = selectedAnswer.value;
+                } else {
+                    // Fallback to saved session
+                    answers[question.id] = savedAnswers[question.id] || null;
+                }
             });
             return answers;
+        }
+
+        // Get list of unanswered questions
+        function getUnansweredQuestions() {
+            const answers = collectAnswers();
+            const unanswered = [];
+            currentQuestions.forEach((question, index) => {
+                if (!answers[question.id]) {
+                    unanswered.push({ index, question });
+                }
+            });
+            return unanswered;
+        }
+
+        // Show unanswered question dialog
+        async function showUnansweredDialog(unanswered) {
+            const questionNumbers = unanswered.map(u => u.index + 1).join(', ');
+            const userChoice = confirm(
+                `Anda masih memiliki ${unanswered.length} soal yang belum dijawab (Soal: ${questionNumbers}).\n\n` +
+                `Klik "OK" untuk menjawab soal yang belum dijawab.\n` +
+                `Klik "Cancel" untuk tetap menyelesaikan ujian.`
+            );
+            return userChoice; // true = answer unanswered, false = finish anyway
+        }
+
+        // Show specific unanswered question
+        function showUnansweredQuestion(unansweredIndex) {
+            const { index, question } = unansweredQuestionsList[unansweredIndex];
+            currentQuestionIndex = index;
+            displayQuestion();
+            
+            // Restore saved answer if any
+            const savedAnswer = getSavedAnswer(question.id);
+            if (savedAnswer) {
+                const radio = document.querySelector(`input[name="answer"][value="${savedAnswer}"]`);
+                if (radio) radio.checked = true;
+            }
+            
+            // Show dialog for this question
+            updateUnansweredDialog(unansweredIndex);
+        }
+
+        // Update dialog for unanswered question mode
+        function updateUnansweredDialog(currentIdx) {
+            const total = unansweredQuestionsList.length;
+            const isLast = currentIdx === total - 1;
+            
+            // Modify navigation buttons
+            const navButtons = document.querySelector('.exam-navigation');
+            if (navButtons) {
+                navButtons.innerHTML = `
+                    <button class="btn btn-secondary-custom btn-custom" onclick="skipUnanswered()">
+                        <i class="fas fa-forward"></i> Lewati
+                    </button>
+                    <span class="unanswered-counter">${currentIdx + 1}/${total} soal tersisa</span>
+                    <button class="btn btn-success-custom btn-custom" onclick="finishAfterUnanswered()">
+                        <i class="fas fa-check"></i> ${isLast ? 'Selesai' : 'Lanjut'}
+                    </button>
+                `;
+            }
+        }
+
+        // Skip current unanswered question
+        function skipUnanswered() {
+            currentUnansweredIndex++;
+            if (currentUnansweredIndex < unansweredQuestionsList.length) {
+                showUnansweredQuestion(currentUnansweredIndex);
+            } else {
+                finishAfterUnanswered();
+            }
+        }
+
+        // Finish after answering unanswered questions
+        function finishAfterUnanswered() {
+            // Restore original navigation
+            const navButtons = document.querySelector('.exam-navigation');
+            if (navButtons) {
+                navButtons.innerHTML = `
+                    <button class="btn btn-secondary-custom btn-custom" onclick="sebelumnya()">
+                        <i class="fas fa-arrow-left"></i> Sebelumnya
+                    </button>
+                    <button class="btn btn-primary-custom btn-custom" onclick="selanjutnya()">
+                        Selanjutnya <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="btn btn-success-custom btn-custom" onclick="selesaiUjian()">
+                        <i class="fas fa-check"></i> Selesai Ujian
+                    </button>
+                `;
+            }
+            
+            // Submit exam and show expert after truly finished
+            finalizeExam();
+        }
+
+        // Submit exam data (without showing expert - expert shown after finalize)
+        async function submitExamData() {
+            try {
+                const answers = collectAnswers();
+                const response = await fetch('../api/soal.php?action=submit_ujian', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({
+                        answers: answers,
+                        is_practice: isPracticeMode
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showResultScreen(data.data);
+                    return data.data; // Return result for further processing
+                } else {
+                    alert('Gagal menyelesaikan ujian');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error submitting exam:', error);
+                alert('Terjadi kesalahan saat menyelesaikan ujian');
+                return null;
+            }
+        }
+
+        // Global variables for unanswered flow
+        let unansweredQuestionsList = [];
+        let currentUnansweredIndex = 0;
+
+        // Finalize exam - called ONLY when exam is truly finished
+        async function finalizeExam() {
+            // Clear session storage
+            sessionStorage.removeItem('examAnswers');
+            
+            // Submit exam
+            const resultData = await submitExamData();
+            
+            // Only show expert system after successful submission
+            if (resultData) {
+                const answers = collectAnswers();
+                showExpertAfterExam(resultData, answers);
+            }
+        }
+
+        // Show expert system after exam with wrong answers
+        async function showExpertAfterExam(resultData, userAnswers) {
+            // Get wrong answers
+            const wrongAnswers = [];
+            currentQuestions.forEach((question, index) => {
+                const userAnswer = userAnswers[question.id];
+                if (userAnswer && userAnswer !== question.jawaban_benar) {
+                    wrongAnswers.push({
+                        question: question,
+                        userAnswer: userAnswer,
+                        correctAnswer: question.jawaban_benar
+                    });
+                }
+            });
+            
+            if (wrongAnswers.length > 0 && typeof expertAssistant !== 'undefined') {
+                // Show expert assistant with analysis of wrong answers
+                expertAssistant.showPostExamAnalysis(wrongAnswers);
+            }
         }
 
         // Show result screen
@@ -1287,13 +1503,23 @@
             const questionNav = document.getElementById('questionNav');
             if (!questionNav) return;
             
+            const savedAnswers = JSON.parse(sessionStorage.getItem('examAnswers') || '{}');
+            
             questionNav.innerHTML = currentQuestions.map((question, index) => {
                 let classes = 'nav-item';
                 if (index === currentQuestionIndex) classes += ' current';
                 if (flaggedQuestions[question.id]?.length > 0) classes += ' doubtful';
                 if (bookmarkedQuestions[question.id]) classes += ' bookmarked';
                 
-                return `<button class="${classes}" onclick="goToQuestion(${index})">${index + 1}</button>`;
+                // Check if question is answered
+                const hasAnswer = savedAnswers[question.id] || (document.querySelector(`input[name="answer"]:checked`) && currentQuestionIndex === index);
+                if (hasAnswer) {
+                    classes += ' answered';
+                } else if (index !== currentQuestionIndex) {
+                    classes += ' unanswered';
+                }
+                
+                return `<button class="${classes}" onclick="goToQuestion(${index})" title="${hasAnswer ? 'Sudah dijawab' : 'Belum dijawab'}">${index + 1}</button>`;
             }).join('');
         }
 
@@ -1360,6 +1586,17 @@
             document.getElementById('welcomeScreen').classList.add('hidden');
             document.getElementById('historyScreen').classList.add('hidden');
             document.getElementById('examScreen').classList.remove('hidden');
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('discussionScreen').classList.add('hidden');
+            
+            // Set display nama peserta
+            const displayNama = document.getElementById('displayNama');
+            const namaInput = document.getElementById('namaPeserta');
+            if (displayNama) {
+                const nama = namaInput && namaInput.value ? namaInput.value : 
+                             localStorage.getItem('username') || 'Peserta';
+                displayNama.textContent = nama;
+            }
         }
 
         // Show history screen
@@ -1533,33 +1770,29 @@
             }
         }
 
-        // Complete exam
+        // Complete exam - with unanswered question check
         async function selesaiUjian() {
-            if (!confirm('Apakah Anda yakin ingin menyelesaikan ujian?')) return;
+            // Check for unanswered questions
+            unansweredQuestionsList = getUnansweredQuestions();
             
-            try {
-                const answers = collectAnswers();
-                const response = await fetch('../api/soal.php?action=submit_ujian', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                    },
-                    body: JSON.stringify({
-                        answers: answers,
-                        is_practice: isPracticeMode
-                    })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    showResultScreen(data.data);
-                } else {
-                    alert('Gagal menyelesaikan ujian');
+            if (unansweredQuestionsList.length > 0) {
+                // Show dialog: answer unanswered or finish anyway
+                const shouldAnswer = await showUnansweredDialog(unansweredQuestionsList);
+                
+                if (shouldAnswer) {
+                    // Start answering unanswered questions
+                    currentUnansweredIndex = 0;
+                    showUnansweredQuestion(0);
+                    return; // Don't finish yet
                 }
-            } catch (error) {
-                console.error('Error submitting exam:', error);
-                alert('Terjadi kesalahan saat menyelesaikan ujian');
+                // If user clicks Cancel, continue to finish anyway
             }
+            
+            // Final confirmation
+            showConfirm('Apakah Anda yakin ingin menyelesaikan ujian?', async () => {
+                // Finalize exam - this will submit and show expert system ONLY after truly finished
+                await finalizeExam();
+            });
         }
 
         // View explanation
@@ -1832,7 +2065,129 @@
             document.getElementById('learningScreen').classList.add('hidden');
             document.getElementById('resultScreen').classList.remove('hidden');
         }
+
+        // Toast Notification Helper
+        function showToast(message, type = 'success', duration = 3000) {
+            const toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) return;
+
+            const toastId = 'toast_' + Date.now();
+            const typeMap = {
+                'success': { bg: 'text-success', icon: 'fa-check-circle' },
+                'error': { bg: 'text-danger', icon: 'fa-times-circle' },
+                'warning': { bg: 'text-warning', icon: 'fa-exclamation-triangle' },
+                'info': { bg: 'text-info', icon: 'fa-info-circle' }
+            };
+
+            const toastHTML = `
+                <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto ${typeMap[type].bg}">
+                            <i class="fas ${typeMap[type].icon}"></i> ${type.charAt(0).toUpperCase() + type.slice(1)}
+                        </strong>
+                        <small>Just now</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+
+            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+            const toastEl = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastEl, { delay: duration });
+            toast.show();
+
+            toastEl.addEventListener('hidden.bs.toast', () => {
+                toastEl.remove();
+            });
+        }
+
+        // Confirm Modal Helper
+        let confirmCallback = null;
+
+        function showConfirm(message, onConfirm, onCancel = null) {
+            const modalTitle = document.querySelector('#confirmModal .modal-title');
+            const modalMessage = document.getElementById('confirmModalMessage');
+            const okButton = document.getElementById('confirmModalOK');
+
+            modalTitle.textContent = 'Konfirmasi';
+            modalMessage.innerHTML = `<i class="fas fa-exclamation-triangle text-warning me-2"></i> ${message}`;
+
+            confirmCallback = onConfirm;
+
+            okButton.onclick = () => {
+                if (confirmCallback) confirmCallback();
+                bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+            };
+
+            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            modal.show();
+
+            modal._element.addEventListener('hidden.bs.modal', function handler() {
+                if (onCancel) onCancel();
+                modal._element.removeEventListener('hidden.bs.modal', handler);
+            }, { once: true });
+        }
+
+        // Loading Modal Helper
+        let loadingModalInstance = null;
+
+        function showLoading(message = 'Memuat...') {
+            document.getElementById('loadingModalMessage').textContent = message;
+            loadingModalInstance = new bootstrap.Modal(document.getElementById('loadingModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+            loadingModalInstance.show();
+            return loadingModalInstance;
+        }
+
+        function hideLoading() {
+            if (loadingModalInstance) {
+                loadingModalInstance.hide();
+                loadingModalInstance = null;
+            }
+        }
     </script>
+
+    <!-- Confirm Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Konfirmasi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="confirmModalMessage" role="alert" aria-live="polite"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Batal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="confirmModalOK" aria-label="Konfirmasi">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center p-4">
+                <div class="spinner-border text-primary" role="status" aria-live="polite">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 mb-0" id="loadingModalMessage" aria-live="polite">Memuat...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+        <!-- Toasts will be dynamically added here -->
+    </div>
+
     <script src="expert_assistant.js"></script>
 </body>
 </html>

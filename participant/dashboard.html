@@ -427,15 +427,6 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 0.85rem;
-            color: #a0a0a0;
-        }
-
-        .progress-bar-custom {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 0.5rem;
         }
 
         .progress-fill {
@@ -2013,9 +2004,131 @@
             alert('Notifications detail - Fitur akan segera tersedia');
         }
 
+        // Toast Notification Helper
+        function showToast(message, type = 'success', duration = 3000) {
+            const toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) return;
+
+            const toastId = 'toast_' + Date.now();
+            const typeMap = {
+                'success': { bg: 'text-success', icon: 'fa-check-circle' },
+                'error': { bg: 'text-danger', icon: 'fa-times-circle' },
+                'warning': { bg: 'text-warning', icon: 'fa-exclamation-triangle' },
+                'info': { bg: 'text-info', icon: 'fa-info-circle' }
+            };
+
+            const toastHTML = `
+                <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto ${typeMap[type].bg}">
+                            <i class="fas ${typeMap[type].icon}"></i> ${type.charAt(0).toUpperCase() + type.slice(1)}
+                        </strong>
+                        <small>Just now</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+
+            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+            const toastEl = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastEl, { delay: duration });
+            toast.show();
+
+            toastEl.addEventListener('hidden.bs.toast', () => {
+                toastEl.remove();
+            });
+        }
+
+        // Confirm Modal Helper
+        let confirmCallback = null;
+
+        function showConfirm(message, onConfirm, onCancel = null) {
+            const modalTitle = document.querySelector('#confirmModal .modal-title');
+            const modalMessage = document.getElementById('confirmModalMessage');
+            const okButton = document.getElementById('confirmModalOK');
+
+            modalTitle.textContent = 'Konfirmasi';
+            modalMessage.innerHTML = `<i class="fas fa-exclamation-triangle text-warning me-2"></i> ${message}`;
+
+            confirmCallback = onConfirm;
+
+            okButton.onclick = () => {
+                if (confirmCallback) confirmCallback();
+                bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+            };
+
+            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            modal.show();
+
+            modal._element.addEventListener('hidden.bs.modal', function handler() {
+                if (onCancel) onCancel();
+                modal._element.removeEventListener('hidden.bs.modal', handler);
+            }, { once: true });
+        }
+
+        // Loading Modal Helper
+        let loadingModalInstance = null;
+
+        function showLoading(message = 'Memuat...') {
+            document.getElementById('loadingModalMessage').textContent = message;
+            loadingModalInstance = new bootstrap.Modal(document.getElementById('loadingModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+            loadingModalInstance.show();
+            return loadingModalInstance;
+        }
+
+        function hideLoading() {
+            if (loadingModalInstance) {
+                loadingModalInstance.hide();
+                loadingModalInstance = null;
+            }
+        }
+
         // Auto refresh data every 5 minutes
         setInterval(loadDashboardData, 300000);
     </script>
+
+    <!-- Confirm Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Konfirmasi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="confirmModalMessage" role="alert" aria-live="polite"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Batal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="confirmModalOK" aria-label="Konfirmasi">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center p-4">
+                <div class="spinner-border text-primary" role="status" aria-live="polite">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 mb-0" id="loadingModalMessage" aria-live="polite">Memuat...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+        <!-- Toasts will be dynamically added here -->
+    </div>
+
     <script src="expert_assistant.js"></script>
 </body>
 </html>

@@ -68,7 +68,12 @@ function getPembahasanKategori() {
         'PSIKOLOGIS' => 5
     ];
     
-    $kategori_id = $kategori_map[$kategori] ?? 1;
+    // Handle both numeric ID and string name
+    if (is_numeric($kategori)) {
+        $kategori_id = intval($kategori);
+    } else {
+        $kategori_id = $kategori_map[$kategori] ?? 1;
+    }
     
     $sql = "SELECT s.*, k.nama_kategori 
             FROM soal s 
@@ -97,7 +102,12 @@ function getTipsUmum() {
     
     if ($kategori) {
         $kategori_map = ['TWK'=>1,'TIU'=>2,'TKP'=>3,'TPA'=>4,'PSIKOLOGIS'=>5];
-        $kategori_id = $kategori_map[strtoupper($kategori)] ?? 0;
+        // Handle both numeric ID and string name
+        if (is_numeric($kategori)) {
+            $kategori_id = intval($kategori);
+        } else {
+            $kategori_id = $kategori_map[strtoupper($kategori)] ?? 0;
+        }
         $sql = "SELECT * FROM tips_umum WHERE kategori_id = ? ORDER BY id";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $kategori_id);

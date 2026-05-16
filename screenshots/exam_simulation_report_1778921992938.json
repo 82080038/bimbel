@@ -1,0 +1,147 @@
+{
+  "timestamp": "2026-05-16T08:59:52.939Z",
+  "config": {
+    "users": [
+      {
+        "name": "Peserta TWK",
+        "examType": "TWK",
+        "kategori_id": 1,
+        "soalCount": 30
+      },
+      {
+        "name": "Peserta TIU",
+        "examType": "TIU",
+        "kategori_id": 2,
+        "soalCount": 35
+      },
+      {
+        "name": "Peserta TKP",
+        "examType": "TKP",
+        "kategori_id": 3,
+        "soalCount": 35
+      },
+      {
+        "name": "Peserta TPA",
+        "examType": "TPA",
+        "kategori_id": 4,
+        "soalCount": 15
+      },
+      {
+        "name": "Peserta Psikologis",
+        "examType": "PSIKOLOGIS",
+        "kategori_id": 5,
+        "soalCount": 15
+      },
+      {
+        "name": "Peserta Mix SKD",
+        "examType": "SKD",
+        "kategori_id": "mix",
+        "soalCount": 100
+      }
+    ],
+    "timing": {
+      "perQuestionSeconds": 2,
+      "navigationDelay": 500,
+      "submitDelay": 1000
+    }
+  },
+  "summary": {
+    "totalUsers": 6,
+    "passed": 0,
+    "failed": 6,
+    "avgTimeSeconds": 0,
+    "totalQuestionsAnswered": 0
+  },
+  "results": [
+    {
+      "user": "Peserta TWK",
+      "examType": "TWK",
+      "startTime": null,
+      "endTime": null,
+      "durationSeconds": 0,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [
+        "Fatal: Waiting for selector `#namaPeserta` failed: Waiting failed: 10000ms exceeded"
+      ]
+    },
+    {
+      "user": "Peserta TIU",
+      "examType": "TIU",
+      "startTime": null,
+      "endTime": null,
+      "durationSeconds": 0,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [
+        "Fatal: Waiting for selector `#namaPeserta` failed: Waiting failed: 10000ms exceeded"
+      ]
+    },
+    {
+      "user": "Peserta TKP",
+      "examType": "TKP",
+      "startTime": null,
+      "endTime": null,
+      "durationSeconds": 0,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [
+        "Fatal: Waiting for selector `#namaPeserta` failed: Waiting failed: 10000ms exceeded"
+      ]
+    },
+    {
+      "user": "Peserta TPA",
+      "examType": "TPA",
+      "startTime": null,
+      "endTime": null,
+      "durationSeconds": 0,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [
+        "Fatal: Waiting for selector `#namaPeserta` failed: Waiting failed: 10000ms exceeded"
+      ]
+    },
+    {
+      "user": "Peserta Psikologis",
+      "examType": "PSIKOLOGIS",
+      "startTime": null,
+      "endTime": null,
+      "durationSeconds": 0,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [
+        "Fatal: Waiting for selector `#namaPeserta` failed: Waiting failed: 10000ms exceeded"
+      ]
+    },
+    {
+      "user": "Peserta Mix SKD",
+      "examType": "SKD",
+      "startTime": null,
+      "endTime": null,
+      "durationSeconds": 0,
+      "totalQuestions": 0,
+      "answeredCount": 0,
+      "score": null,
+      "status": null,
+      "answers": [],
+      "errors": [
+        "Fatal: Waiting for selector `#namaPeserta` failed: Waiting failed: 10000ms exceeded"
+      ]
+    }
+  ]
+}
