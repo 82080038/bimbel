@@ -2,8 +2,8 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 // Configuration
-const BASE_URL = 'http://localhost/ujian/admin/admin.html';
-const LOGIN_URL = 'http://localhost/ujian/login.html';
+const BASE_URL = 'http://localhost/bimbel/admin/admin.html';
+const LOGIN_URL = 'http://localhost/bimbel/login.html';
 const SCREENSHOT_DIR = './test-screenshots';
 
 // Test credentials (update these with actual admin credentials)

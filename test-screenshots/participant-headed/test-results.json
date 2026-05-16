@@ -1,0 +1,27 @@
+{
+  "passed": [
+    "Registration form",
+    "Submit button",
+    "Back to login link",
+    "Participant login",
+    "Dashboard header",
+    "Stats cards",
+    "Menu items",
+    "Gamification section",
+    "Profile header",
+    "Profile avatar",
+    "Profile cards",
+    "Ujian link",
+    "Materi link",
+    "Profile link",
+    "Header section",
+    "Question card",
+    "Timer display",
+    "Navigation buttons",
+    "Materi page loads",
+    "Materi header",
+    "Materi cards"
+  ],
+  "failed": [],
+  "errors": []
+}

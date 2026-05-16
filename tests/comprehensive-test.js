@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const BASE_URL = 'http://localhost/ujian';
+const BASE_URL = 'http://localhost/bimbel';
 const ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
 const USER_CREDENTIALS = { username: 'testuser', password: 'test123' };
 

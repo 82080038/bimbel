@@ -1,0 +1,321 @@
+{
+  "timestamp": "2026-05-16T07:06:18.073Z",
+  "summary": {
+    "passed": 62,
+    "failed": 0,
+    "warned": 0,
+    "total": 62
+  },
+  "results": [
+    {
+      "status": "PASS",
+      "label": "Login testuser",
+      "detail": "api_key: 3e86e34c70e78e7b..."
+    },
+    {
+      "status": "PASS",
+      "label": "Login admin",
+      "detail": "role: admin"
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_profile (Bearer auth)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Profile has username field",
+      "detail": "testuser"
+    },
+    {
+      "status": "PASS",
+      "label": "Profile has nama_lengkap field",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Reject invalid Bearer token",
+      "detail": "Invalid authorization"
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_soal_acak (public)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Returns array of soal",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_paket (public)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_statistik (auth)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_riwayat_ujian (auth)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_my_weakness (auth)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_learning_topics (auth)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_learning_recommendations (auth)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_learning_progress (auth)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "POST submit_ujian — CSRF bypassed correctly (empty answers rejected by business logic)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "POST submit_ujian with real answers",
+      "detail": "hasil_id: 8, nilai_total: 650"
+    },
+    {
+      "status": "PASS",
+      "label": "POST generate_sertifikat (nama_peserta column fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Sertifikat has verification_code",
+      "detail": "d1fce7b78465e615..."
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_sertifikat (data persisted)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Sertifikat has hasil_id",
+      "detail": "hasil_id: 8"
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_user_gamification",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Has xp data",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Has streak data",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Has badges array",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Has achievements array",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_user_xp",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET update_streak",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Streak returns current_streak",
+      "detail": "streak: 1"
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_user_badges",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_user_achievements",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET check_achievements (hasil_ujian fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_daily_challenges",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "POST add_xp",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "add_xp returns new_xp",
+      "detail": "xp: 1740"
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_leaderboard_gamification (nama_peserta fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_notifications",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_preferences (fetch bug fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "POST update_preferences (bind_param fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_history",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_user_analytics",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_question_analytics (kolom fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "POST track_funnel_event",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_expert_knowledge (verifyAuth fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Returns data array",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_expert_help (session fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_expert_tips",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_learning_recommendations (session fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET user_course_progress (updated_at fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Returns data array",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET user_module_progress (updated_at fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Returns data array",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_statistics",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_user_learning_path",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_courses (alias fix)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET list_courses",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_pembahasan (reachable)",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_pembahasan_kategori",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "GET get_tips_umum",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Reject request without auth token",
+      "detail": "No authorization header"
+    },
+    {
+      "status": "PASS",
+      "label": "Reject invalid Bearer token",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "label": "Bearer POST bypasses CSRF (no X-CSRF-Token needed)",
+      "detail": "No answers provided"
+    }
+  ]
+}
