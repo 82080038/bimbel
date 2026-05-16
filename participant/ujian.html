@@ -9,9 +9,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Ujian Kedinasan">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="icon-192.svg">
-    <link rel="apple-touch-icon" href="icon-192.svg">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" type="image/svg+xml" href="../icon-192.svg">
+    <link rel="apple-touch-icon" href="../icon-192.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -659,6 +659,18 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label fw-bold">Jenis Ujian:</label>
+                    <select class="form-select form-select-lg" id="examTypeSelection">
+                        <option value="skd">SKD (Seleksi Kompetensi Dasar)</option>
+                        <option value="skd_cat">SKD - CAT Mode</option>
+                        <option value="tpa">TPA (Tes Potensi Akademik)</option>
+                        <option value="psikotes">Psikotes</option>
+                        <option value="tryout">Tryout Umum</option>
+                        <option value="latihan">Latihan Bebas</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label fw-bold">Pilih Paket Ujian:</label>
                     <select class="form-select form-select-lg" id="paketSelection">
                         <option value="">Loading paket...</option>
@@ -1106,38 +1118,25 @@
             document.getElementById('examScreen').classList.add('hidden');
             document.getElementById('resultScreen').classList.remove('hidden');
             
-            // Display results
-            const resultContainer = document.getElementById('resultContainer');
-            resultContainer.innerHTML = `
-                <div class="result-summary">
-                    <h2>Hasil Ujian</h2>
-                    <div class="score-display">
-                        <div class="score-circle">
-                            <span class="score-value">${resultData.nilai_total || 0}</span>
-                            <span class="score-label">Nilai Total</span>
-                        </div>
-                    </div>
-                    <div class="score-breakdown">
-                        <div class="score-item">
-                            <span class="score-label">TWK:</span>
-                            <span class="score-value">${resultData.nilai_twk || 0}</span>
-                        </div>
-                        <div class="score-item">
-                            <span class="score-label">TIU:</span>
-                            <span class="score-value">${resultData.nilai_tiu || 0}</span>
-                        </div>
-                        <div class="score-item">
-                            <span class="score-label">TKP:</span>
-                            <span class="score-value">${resultData.nilai_tkp || 0}</span>
-                        </div>
-                    </div>
-                    <div class="result-status">
-                        <span class="badge ${resultData.status_lulus === 'Lulus' ? 'bg-success' : 'bg-warning'}">
-                            ${resultData.status_lulus || 'Belum Dinilai'}
-                        </span>
-                    </div>
-                </div>
-            `;
+            if (!resultData) return;
+            
+            // Populate result screen elements that exist in HTML
+            const totalScoreEl = document.getElementById('totalScore');
+            const passFailEl = document.getElementById('passFail');
+            const twkScoreEl = document.getElementById('twkScore');
+            const tiuScoreEl = document.getElementById('tiuScore');
+            const tkpScoreEl = document.getElementById('tkpScore');
+            const resultNamaEl = document.getElementById('resultNama');
+            
+            if (totalScoreEl) totalScoreEl.textContent = resultData.nilai_total || 0;
+            if (passFailEl) {
+                passFailEl.textContent = resultData.status_lulus || 'Belum Dinilai';
+                passFailEl.className = 'pass-fail ' + (resultData.status_lulus === 'Lulus' ? 'text-success' : 'text-warning');
+            }
+            if (twkScoreEl) twkScoreEl.textContent = resultData.nilai_twk || 0;
+            if (tiuScoreEl) tiuScoreEl.textContent = resultData.nilai_tiu || 0;
+            if (tkpScoreEl) tkpScoreEl.textContent = resultData.nilai_tkp || 0;
+            if (resultNamaEl) resultNamaEl.textContent = localStorage.getItem('username') || 'Peserta';
         }
 
         // Display tips
@@ -1238,13 +1237,6 @@
             }
         }
 
-        // Show welcome screen
-        function showExamScreen() {
-            document.getElementById('welcomeScreen').classList.add('hidden');
-            document.getElementById('historyScreen').classList.add('hidden');
-            document.getElementById('examScreen').classList.remove('hidden');
-        }
-
         // Role-based UI updates on page load
         document.addEventListener('DOMContentLoaded', () => {
             const userRole = localStorage.getItem('userRole') || 'guest';
@@ -1332,7 +1324,7 @@
         // Start exam
         async function mulaiUjian() {
             try {
-                const response = await fetch('../api/soal.php?action=get_soal&limit=20', {
+                const response = await fetch('../api/soal.php?action=get_soal_acak&limit=20', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -1356,7 +1348,7 @@
         // Start practice mode
         async function mulaiLatihan() {
             try {
-                const response = await fetch('../api/soal.php?action=get_soal&limit=10', {
+                const response = await fetch('../api/soal.php?action=get_soal_acak&limit=10', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -1503,25 +1495,14 @@
         }
 
         // View explanation
-        async function lihatPembahasan() {
-            try {
-                const response = await fetch('../api/soal.php?action=get_soal', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                    }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('resultScreen').classList.add('hidden');
-                    document.getElementById('discussionScreen').classList.remove('hidden');
-                    displayPembahasan(data.data);
-                } else {
-                    alert('Gagal memuat pembahasan');
-                }
-            } catch (error) {
-                console.error('Error loading pembahasan:', error);
-                alert('Terjadi kesalahan saat memuat pembahasan');
+        function lihatPembahasan() {
+            if (!currentQuestions || currentQuestions.length === 0) {
+                alert('Tidak ada soal untuk ditampilkan pembahasannya');
+                return;
             }
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('discussionScreen').classList.remove('hidden');
+            displayPembahasan(currentQuestions);
         }
 
         // Display pembahasan
@@ -1549,7 +1530,7 @@
         async function lihatRekomendasiBelajar() {
             try {
                 // Fetch weakness data
-                const response = await fetch('../api/soal.php?action=analyze_weakness', {
+                const response = await fetch('../api/soal.php?action=get_my_weakness', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -1779,8 +1760,8 @@
 
         // Return to result screen
         function kembaliKeHasil() {
-            document.getElementById('pembahasanScreen').classList.add('hidden');
-            document.getElementById('rekomendasiScreen').classList.add('hidden');
+            document.getElementById('discussionScreen').classList.add('hidden');
+            document.getElementById('learningScreen').classList.add('hidden');
             document.getElementById('resultScreen').classList.remove('hidden');
         }
     </script>

@@ -687,6 +687,11 @@ function submitUjian() {
             updateStreakInternal($user_id_ins);
         }
         
+        // Auto-generate certificate if passed
+        if ($status_lulus === 'LULUS') {
+            generateSertifikatInternal($hasil_id, $user_id_ins, $nama, $nilai_total);
+        }
+        
         echo json_encode([
             'success' => true,
             'data' => [
@@ -701,6 +706,37 @@ function submitUjian() {
     } else {
         echo json_encode(['success' => false, 'error' => $conn->error]);
     }
+}
+
+function generateSertifikatInternal($hasil_id, $user_id, $nama_peserta, $nilai_total) {
+    global $conn;
+    
+    // Check if certificate already exists
+    $check = $conn->prepare("SELECT id FROM sertifikat WHERE hasil_id = ?");
+    $check->bind_param("i", $hasil_id);
+    $check->execute();
+    if ($check->get_result()->num_rows > 0) {
+        return; // Already exists
+    }
+    
+    // Generate certificate number
+    $cert_number = 'CERT-' . date('Y') . '-' . str_pad($hasil_id, 6, '0', STR_PAD_LEFT);
+    $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+        mt_rand(0, 0xffff),
+        mt_rand(0x1000, 0x4fff),
+        mt_rand(0x8000, 0xbfff),
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+    );
+    
+    $issue_date = date('Y-m-d H:i:s');
+    $expiry_date = date('Y-m-d H:i:s', strtotime('+5 years'));
+    
+    $sql = "INSERT INTO sertifikat (hasil_id, user_id, nomor_sertifikat, uuid, status, issue_date, expiry_date) 
+            VALUES (?, ?, ?, ?, 'active', ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iissss", $hasil_id, $user_id, $cert_number, $uuid, $issue_date, $expiry_date);
+    $stmt->execute();
 }
 
 function getSertifikat() {

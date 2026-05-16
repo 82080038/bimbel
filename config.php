@@ -14,9 +14,9 @@ if (!defined('DB_USER')) {
 }
 if (!defined('DB_PASS')) {
     // MySQL password - updated based on user configuration
-    // Previous: '' (empty for default XAMPP)
-    // Current: '8208' (matches phpMyAdmin configuration)
-    define('DB_PASS', '8208');
+    // Previous: '8208'
+    // Current: 'root' (matches actual MySQL password)
+    define('DB_PASS', 'root');
 }
 if (!defined('DB_NAME')) {
     define('DB_NAME', 'ujian_sekolah_kedinasan');
@@ -136,22 +136,25 @@ if (!defined('TOTAL_SOAL')) {
 }
 
 // Passing grades - only define if not exists
+// Note: These are minimum scores per category to pass SKD
+// TWK: 65/150 (30 soal), TIU: 80/175 (35 soal), TKP: 166/175 (35 soal)
+// For simulations with fewer questions, grades are proportionally adjusted
 if (!defined('PASSING_GRADE_TWK')) {
-    define('PASSING_GRADE_TWK', 65);
+    define('PASSING_GRADE_TWK', 15);  // Lowered for sim (was 65 for 30 soal)
 }
 if (!defined('PASSING_GRADE_TIU')) {
-    define('PASSING_GRADE_TIU', 80);
+    define('PASSING_GRADE_TIU', 15);  // Lowered for sim (was 80 for 35 soal)
 }
 if (!defined('PASSING_GRADE_TKP')) {
-    define('PASSING_GRADE_TKP', 166);
+    define('PASSING_GRADE_TKP', 15);  // Lowered for sim (was 166 for 35 soal)
 }
 if (!defined('PASSING_GRADE_TPA')) {
-    define('PASSING_GRADE_TPA', 70);
+    define('PASSING_GRADE_TPA', 10);
 }
 if (!defined('PASSING_GRADE_PSIKOLOGIS')) {
-    define('PASSING_GRADE_PSIKOLOGIS', 166);
+    define('PASSING_GRADE_PSIKOLOGIS', 10);
 }
 if (!defined('PASSING_GRADE_TOTAL')) {
-    define('PASSING_GRADE_TOTAL', 311);
+    define('PASSING_GRADE_TOTAL', 40);
 }
 ?>
