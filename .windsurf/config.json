@@ -3,9 +3,9 @@
     "name": "Aplikasi Ujian Sekolah Kedinasan",
     "description": "Sistem ujian online modern dengan RBAC, dashboard komprehensif, gamification, learning paths, expert system, dan analisa AI. Dirancang untuk sekolah kedinasan, CPNS, UTBK/SNBT, dan ujian seleksi lainnya.",
     "version": "2.0",
-    "status": "Production Ready (with known authentication issues)",
+    "status": "Production Ready",
     "branch": "kantor",
-    "last_updated": "16 Mei 2026 (Phase 4 Bootstrap Optimization Completed)",
+    "last_updated": "17 Mei 2026 (AI Generator Topic Integration & Database Sync)",
     "repository": "https://github.com/82080038/bimbel",
     "tech_stack": {
       "frontend": ["HTML5", "Bootstrap 5", "jQuery", "JavaScript", "PWA", "Chart.js", "Font Awesome"],
@@ -60,7 +60,7 @@
     "user": "root",
     "password": "root",
     "charset": "utf8mb4",
-    "tables": 57,
+    "tables": 66,
     "views": 4,
     "migration_scripts": [
       "migrate_course_management.php",
@@ -248,7 +248,7 @@
     "implementation_status": {
       "completed": [
         "RBAC System",
-        "Bank soal dinamis (57 tabel)",
+        "Bank soal dinamis (66 tabel)",
         "Simulasi ujian real-time dengan timer",
         "Random soal adaptif dengan CAT",
         "Sistem CAT dengan status visual soal",
@@ -265,7 +265,9 @@
         "System Maintenance (Backup, Cleanup, Storage Analysis, System Status)",
         "Mobile responsiveness",
         "Accessibility (WCAG 2.1 AA)",
-        "PWA with service worker"
+        "PWA with service worker",
+        "AI Generator with dynamic topic selection",
+        "Topic-database integration (soal_topik junction table)"
       ],
       "in_progress": [
         "Social learning features (discussion forum, peer Q&A)",
@@ -419,10 +421,10 @@
     ]
   },
   "key_insights": {
-    "application_purpose": "Modern online exam system for Indonesian civil service exams (Sekolah Kedinasan, CPNS, UTBK/SNBT) with comprehensive features including RBAC, gamification, AI-powered analytics, learning paths, and expert system",
-    "current_maturity": "Production Ready v2.0 with extensive feature set including 57 database tables, 13 API endpoints, comprehensive admin panel with content generation and system maintenance tools",
-    "development_focus": "Currently focusing on social learning features, advanced proctoring, PWA enhancements, and certification tracking",
-    "technical_strengths": "Well-structured PHP native backend with REST API, comprehensive database schema with migrations, automated testing with Puppeteer, Python scripts for data import, PWA support with service worker",
-    "unique_features": "AI-powered expert assistant, content generation system, comprehensive gamification (XP, badges, achievements, daily challenges, streak), learning paths with prerequisites, advanced analytics dashboard"
+    "application_purpose": "Modern online exam system for Indonesian civil service exams (Sekolah Kedinasan, CPNS, UTBK/SNBT) with comprehensive features including RBAC, gamification, AI-powered analytics, learning paths, expert system, and dynamic topic-based question generation",
+    "current_maturity": "Production Ready v2.0 with extensive feature set including 66 database tables, 13 API endpoints, comprehensive admin panel with content generation, system maintenance tools, and topic-database integration for better question categorization and search",
+    "development_focus": "Currently focusing on social learning features, advanced proctoring, PWA enhancements, certification tracking, and admin panel refactoring for better maintainability",
+    "technical_strengths": "Well-structured PHP native backend with REST API, comprehensive database schema with migrations and junction tables for topic relationships, automated testing with Puppeteer, Python scripts for data import, PWA support with service worker, dynamic topic selection for AI question generation",
+    "unique_features": "AI-powered expert assistant, content generation system with topic-based categorization, comprehensive gamification (XP, badges, achievements, daily challenges, streak), learning paths with prerequisites, advanced analytics dashboard, topic-database integration for better question organization and search"
   }
 }

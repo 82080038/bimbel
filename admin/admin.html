@@ -739,9 +739,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Kategori</label>
                                     <select class="form-select" id="batchGenerateKategori">
-                                        <option value="1">TWK</option>
-                                        <option value="2">TIU</option>
-                                        <option value="3">TKP</option>
+                                        <option value="">Pilih Kategori</option>
+                                        <!-- Loaded dynamically from database -->
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -768,9 +767,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Kategori</label>
                                     <select class="form-select" id="bahanGenerateKategori">
-                                        <option value="1">TWK</option>
-                                        <option value="2">TIU</option>
-                                        <option value="3">TKP</option>
+                                        <option value="">Pilih Kategori</option>
+                                        <!-- Loaded dynamically from database -->
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -792,9 +790,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Kategori</label>
                                     <select class="form-select" id="tipsGenerateKategori">
-                                        <option value="1">TWK</option>
-                                        <option value="2">TIU</option>
-                                        <option value="3">TKP</option>
+                                        <option value="">Pilih Kategori</option>
+                                        <!-- Loaded dynamically from database -->
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -817,9 +814,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Kategori</label>
                                     <select class="form-select" id="aiGeneratorKategori">
-                                        <option value="1">TWK</option>
-                                        <option value="2">TIU</option>
-                                        <option value="3">TKP</option>
+                                        <option value="">Pilih Kategori</option>
+                                        <!-- Loaded dynamically from database -->
                                     </select>
                                 </div>
                                 <button class="btn btn-info" onclick="aiGenerateSoal()">
@@ -1178,9 +1174,7 @@
                             <div class="col-md-3">
                                 <select class="form-select" id="filterPackageCategory" onchange="loadExamPackages()">
                                     <option value="">All Categories</option>
-                                    <option value="1">TWK</option>
-                                    <option value="2">TIU</option>
-                                    <option value="3">TKP</option>
+                                    <!-- Loaded dynamically from database -->
                                 </select>
                             </div>
                         </div>
@@ -1333,21 +1327,6 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Kategori</label>
-                            <select class="form-select" id="blueprintKategori" required>
-                                <option value="">Pilih Kategori</option>
-                                <option value="1">TWK</option>
-                                <option value="2">TIU</option>
-                                <option value="3">TKP</option>
-                                <option value="4">TPA</option>
-                                <option value="5">PSIKOLOGIS</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Target Count</label>
-                            <input type="number" class="form-control" id="blueprintTargetCount" required min="1">
-                        </div>
-                        <div class="mb-3">
                             <label class="form-label">Min Difficulty</label>
                             <select class="form-select" id="blueprintMinDifficulty" required>
                                 <option value="mudah">Mudah</option>
@@ -1389,11 +1368,7 @@
                             <label class="form-label">Kategori</label>
                             <select class="form-select" id="bahanKategoriId" required>
                                 <option value="">Pilih Kategori</option>
-                                <option value="1">TWK</option>
-                                <option value="2">TIU</option>
-                                <option value="3">TKP</option>
-                                <option value="4">TPA</option>
-                                <option value="5">PSIKOLOGIS</option>
+                                <!-- Loaded dynamically from database -->
                             </select>
                         </div>
                         <div class="mb-3">
@@ -1475,11 +1450,7 @@
                             <label class="form-label">Kategori</label>
                             <select class="form-select" id="tipsKategori" required>
                                 <option value="">Semua Kategori</option>
-                                <option value="1">TWK</option>
-                                <option value="2">TIU</option>
-                                <option value="3">TKP</option>
-                                <option value="4">TPA</option>
-                                <option value="5">PSIKOLOGIS</option>
+                                <!-- Loaded dynamically from database -->
                             </select>
                         </div>
                         <div class="mb-3">
@@ -1518,11 +1489,11 @@
     </div>
 
     <!-- AI Generator Modal -->
-    <div class="modal fade" id="aiGeneratorModal" tabindex="-1" aria-labelledby="aiGeneratorModalLabel" aria-hidden="true">
+    <div class="modal fade" id="aiGeneratorModal" tabindex="-1" aria-labelledby="aiGeneratorModalLabel" data-bs-backdrop="static">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="aiGeneratorModalLabel">AI Generator Soal</h5>
+                    <h1 class="modal-title fs-5" id="aiGeneratorModalLabel">AI Generator Soal</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                 </div>
                 <div class="modal-body">
@@ -1535,11 +1506,17 @@
                         </select>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Topik</label>
+                        <select class="form-select" id="aiGeneratorTopic">
+                            <option value="">Pilih Topik (Opsional)</option>
+                            <!-- Loaded dynamically based on category -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Kategori</label>
-                        <select class="form-select" id="aiGeneratorKategori">
-                            <option value="TIU">TIU - Tes Intelegensi Umum</option>
-                            <option value="TWK">TWK - Tes Wawasan Kebangsaan</option>
-                            <option value="TKP">TKP - Tes Karakteristik Pribadi</option>
+                        <select class="form-select" id="aiGeneratorModalKategori">
+                            <option value="">Pilih Kategori</option>
+                            <!-- Loaded dynamically from database -->
                         </select>
                     </div>
                     <div class="mb-3">
@@ -1575,11 +1552,7 @@
                             <label class="form-label">Kategori</label>
                             <select class="form-select" id="questionKategori" required>
                                 <option value="">Pilih Kategori</option>
-                                <option value="TWK">TWK</option>
-                                <option value="TIU">TIU</option>
-                                <option value="TKP">TKP</option>
-                                <option value="TPA">TPA</option>
-                                <option value="PSIKOLOGIS">PSIKOLOGIS</option>
+                                <!-- Loaded dynamically from database -->
                             </select>
                         </div>
                         <div class="mb-3">
@@ -1704,9 +1677,7 @@
                             <label class="form-label">Category</label>
                             <select class="form-select" id="examPackageCategory">
                                 <option value="">All Categories</option>
-                                <option value="1">TWK</option>
-                                <option value="2">TIU</option>
-                                <option value="3">TKP</option>
+                                <!-- Loaded dynamically from database -->
                             </select>
                         </div>
                         <div class="mb-3">
@@ -1925,16 +1896,35 @@
                 });
                 const data = await response.json();
                 
+                console.log('loadKategoriDropdowns response:', data);
+                
                 if (data.success && data.data.length > 0) {
+                    // Store categories globally for dynamic lookups
+                    window.categoriesData = data.data;
+                    
                     // Update all kategori dropdowns
-                    const dropdownIds = ['filterKategori', 'statsKategori', 'tipsKategoriFilter', 
-                                          'irtKategoriFilter', 'bahanKategoriFilter', 'filterCourseCategory',
-                                          'filterPackageCategory'];
+                    const dropdownIds = [
+                        'filterKategori', 
+                        'statsKategori', 
+                        'tipsKategoriFilter', 
+                        'irtKategoriFilter', 
+                        'bahanKategoriFilter', 
+                        'filterCourseCategory',
+                        'filterPackageCategory',
+                        'batchGenerateKategori',
+                        'bahanGenerateKategori',
+                        'tipsGenerateKategori',
+                        'bahanKategoriId',
+                        'tipsKategori',
+                        'examPackageCategory',
+                        'aiGeneratorModalKategori'
+                    ];
                     
                     dropdownIds.forEach(id => {
                         const select = document.getElementById(id);
                         if (select) {
-                            // Keep first option ("All/Semua")
+                            const currentValue = select.value;
+                            // Keep first option ("All/Semua/Pilih")
                             const firstOption = select.options[0];
                             select.innerHTML = '';
                             select.appendChild(firstOption);
@@ -1942,10 +1932,22 @@
                             // Add categories
                             data.data.forEach(kat => {
                                 const option = document.createElement('option');
-                                option.value = kat.id; // Use ID for admin
-                                option.textContent = kat.nama;
+                                option.value = kat.nama; // Use nama for consistency
+                                option.textContent = `${kat.nama} - ${kat.deskripsi || ''}`;
                                 select.appendChild(option);
                             });
+                            
+                            console.log(`Loaded ${select.options.length - 1} categories into ${id}`);
+                            
+                            // Restore previously selected value if it still exists
+                            if (currentValue) {
+                                const exists = Array.from(select.options).some(opt => opt.value === currentValue);
+                                if (exists) {
+                                    select.value = currentValue;
+                                }
+                            }
+                        } else {
+                            console.warn(`Dropdown ${id} not found`);
                         }
                     });
                 }
@@ -2040,7 +2042,11 @@
                 const response = await fetch(`${API_BASE}/soal.php?action=get_statistik`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
-                const data = await response.json();
+                
+                const text = await response.text();
+                console.log('API Response:', text);
+                
+                const data = JSON.parse(text);
 
                 if (data.success && data.data) {
                     document.getElementById('totalUjian').textContent = formatCount(safeParseInt(data.data.total_exams, 0));
@@ -2075,6 +2081,14 @@
 
                 if (data.success && data.data && data.data.average_scores) {
                     const avgScores = data.data.average_scores;
+                    const categories = data.data.categories || [];
+                    
+                    // Filter out 'total' from category scores for charts
+                    const categoryLabels = categories.filter(cat => cat !== 'total');
+                    const categoryScores = categoryLabels.map(cat => avgScores[cat.toLowerCase()] || 0);
+                    
+                    // Generate dynamic colors for categories
+                    const colors = generateColors(categoryLabels.length);
                     
                     // Destroy existing charts before creating new ones
                     const ctx1 = document.getElementById('categoryScoreChart');
@@ -2099,11 +2113,11 @@
                     new Chart(ctx1.getContext('2d'), {
                         type: 'bar',
                         data: {
-                            labels: ['TWK', 'TIU', 'TKP'],
+                            labels: categoryLabels,
                             datasets: [{
                                 label: 'Nilai Rata-rata',
-                                data: [avgScores.twk || 0, avgScores.tiu || 0, avgScores.tkp || 0],
-                                backgroundColor: ['#1e40af', '#f59e0b', '#10b981']
+                                data: categoryScores,
+                                backgroundColor: colors
                             }]
                         },
                         options: {
@@ -2123,10 +2137,10 @@
                     new Chart(ctx2.getContext('2d'), {
                         type: 'doughnut',
                         data: {
-                            labels: ['TWK', 'TIU', 'TKP'],
+                            labels: categoryLabels,
                             datasets: [{
-                                data: [avgScores.twk || 0, avgScores.tiu || 0, avgScores.tkp || 0],
-                                backgroundColor: ['#1e40af', '#f59e0b', '#10b981']
+                                data: categoryScores,
+                                backgroundColor: colors
                             }]
                         },
                         options: {
@@ -2137,6 +2151,19 @@
             } catch (error) {
                 console.error('Error loading category analytics:', error);
             }
+        }
+        
+        // Generate colors dynamically for charts
+        function generateColors(count) {
+            const baseColors = [
+                '#1e40af', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6',
+                '#ec4899', '#06b6d4', '#f97316', '#6366f1', '#14b8a6'
+            ];
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                colors.push(baseColors[i % baseColors.length]);
+            }
+            return colors;
         }
 
         // Load performance trend
@@ -2871,29 +2898,256 @@
         }
 
         // Show question modal
-        function showQuestionModal(id = null) {
+        async function showQuestionModal(id = null) {
             document.getElementById('questionForm').reset();
             document.getElementById('questionId').value = '';
-            document.getElementById('questionModalTitle').textContent = 'Tambah Soal';
-            new bootstrap.Modal(document.getElementById('questionModal')).show();
+            document.getElementById('questionModalLabel').textContent = 'Tambah Soal';
+            
+            // Load categories dynamically
+            await loadQuestionCategories();
+            
+            // Fix accessibility: Disable focus trap to prevent aria-hidden warnings
+            const modalElement = document.getElementById('questionModal');
+            const modal = new bootstrap.Modal(modalElement, {
+                focus: false
+            });
+            
+            modal.show();
+        }
+
+        // Load categories for question form dropdown
+        async function loadQuestionCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_kategori`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    const select = document.getElementById('questionKategori');
+                    if (select) {
+                        select.innerHTML = '<option value="">Pilih Kategori</option>';
+                        
+                        data.data.forEach(cat => {
+                            const option = document.createElement('option');
+                            option.value = cat.nama;
+                            option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
+                            select.appendChild(option);
+                        });
+                    }
+                    
+                    // Store categories globally for dynamic lookups
+                    window.categoriesData = data.data;
+                }
+            } catch (error) {
+                console.error('Error loading question categories:', error);
+            }
+        }
+
+        // Get category name by ID (dynamic lookup)
+        function getCategoryNameById(categoryId) {
+            if (!window.categoriesData) return 'Unknown';
+            const cat = window.categoriesData.find(c => c.id === parseInt(categoryId));
+            return cat ? cat.nama : 'Unknown';
+        }
+
+        // Load categories into multiple dropdowns
+        async function loadCategoriesIntoDropdowns() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_kategori`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    // Store categories globally
+                    window.categoriesData = data.data;
+                    
+                    // Load into all category dropdowns
+                    const dropdownIds = [
+                        'filterKategori', 
+                        'statsKategori', 
+                        'tipsKategoriFilter', 
+                        'irtKategoriFilter', 
+                        'bahanKategoriFilter', 
+                        'filterCourseCategory',
+                        'filterPackageCategory',
+                        'batchGenerateKategori',
+                        'bahanGenerateKategori',
+                        'tipsGenerateKategori',
+                        'bahanKategoriId',
+                        'tipsKategori',
+                        'examPackageCategory'
+                    ];
+                    
+                    dropdownIds.forEach(id => {
+                        const select = document.getElementById(id);
+                        if (select) {
+                            const currentValue = select.value;
+                            select.innerHTML = '<option value="">Semua Kategori</option>';
+                            
+                            data.data.forEach(cat => {
+                                const option = document.createElement('option');
+                                option.value = cat.nama;
+                                option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
+                                select.appendChild(option);
+                            });
+                            
+                            // Restore previously selected value if it still exists
+                            if (currentValue) {
+                                const exists = Array.from(select.options).some(opt => opt.value === currentValue);
+                                if (exists) {
+                                    select.value = currentValue;
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading categories into dropdowns:', error);
+            }
         }
 
         // Show AI Generator modal
-        function showAIGeneratorModal() {
-            new bootstrap.Modal(document.getElementById('aiGeneratorModal')).show();
+        async function showAIGeneratorModal() {
+            try {
+                const modalElement = document.getElementById('aiGeneratorModal');
+                if (!modalElement) {
+                    console.error('AI Generator modal element not found');
+                    alert('Modal AI Generator tidak ditemukan');
+                    return;
+                }
+                
+                console.log('Showing AI Generator modal...');
+                
+                // Load categories BEFORE showing modal to ensure element is accessible
+                await loadAIGeneratorCategories();
+                
+                // Fix accessibility: Disable focus trap to prevent aria-hidden warnings
+                const modal = new bootstrap.Modal(modalElement, {
+                    focus: false
+                });
+                
+                modal.show();
+                console.log('AI Generator modal shown');
+            } catch (error) {
+                console.error('Error showing AI Generator modal:', error);
+                alert('Gagal membuka modal AI Generator: ' + error.message);
+            }
+        }
+
+        // Load categories for AI Generator dropdown
+        async function loadAIGeneratorCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_kategori`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                console.log('AI Generator categories response:', data);
+
+                if (data.success && data.data) {
+                    const select = document.getElementById('aiGeneratorModalKategori');
+                    if (!select) {
+                        console.error('aiGeneratorModalKategori element not found');
+                        return;
+                    }
+                    
+                    console.log('Found aiGeneratorModalKategori element, current options:', select.options.length);
+                    
+                    select.innerHTML = '<option value="">Pilih Kategori</option>';
+                    
+                    data.data.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.nama;
+                        option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
+                        select.appendChild(option);
+                        console.log('Added option:', cat.nama);
+                    });
+                    
+                    console.log('AI Generator categories loaded successfully. Total options:', select.options.length);
+                    
+                    // Add event listener to load topics when category changes
+                    select.addEventListener('change', function() {
+                        const selectedKategori = this.value;
+                        loadTopicsByKategori(selectedKategori);
+                    });
+                    
+                    // Store categories globally for dynamic lookups
+                    window.categoriesData = data.data;
+                } else {
+                    console.error('Failed to load categories:', data);
+                }
+            } catch (error) {
+                console.error('Error loading AI Generator categories:', error);
+            }
+        }
+
+        // Load topics based on selected category
+        async function loadTopicsByKategori(kategoriNama) {
+            try {
+                const select = document.getElementById('aiGeneratorTopic');
+                if (!select) {
+                    console.error('aiGeneratorTopic element not found');
+                    return;
+                }
+                
+                if (!kategoriNama) {
+                    select.innerHTML = '<option value="">Pilih Topik (Opsional)</option>';
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE}/soal.php?action=get_topics_by_kategori&kategori=${encodeURIComponent(kategoriNama)}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                console.log('Topics response:', data);
+
+                if (data.success && data.data) {
+                    select.innerHTML = '<option value="">Pilih Topik (Opsional)</option>';
+                    
+                    data.data.forEach(topic => {
+                        const option = document.createElement('option');
+                        option.value = topic.nama;
+                        option.textContent = `${topic.nama} - ${topic.deskripsi || ''}`;
+                        select.appendChild(option);
+                    });
+                    
+                    console.log('Topics loaded successfully. Total options:', select.options.length);
+                } else {
+                    console.error('Failed to load topics:', data);
+                    select.innerHTML = '<option value="">Tidak ada topik tersedia</option>';
+                }
+            } catch (error) {
+                console.error('Error loading topics:', error);
+            }
+        }
+
+        // Generate questions (alias for showAIGeneratorModal)
+        function generateQuestions() {
+            console.log('generateQuestions called');
+            showAIGeneratorModal();
         }
 
         // Generate AI questions
         async function generateAIQuestions() {
             const type = document.getElementById('aiGeneratorType').value;
-            const kategori = document.getElementById('aiGeneratorKategori').value;
+            const kategori = document.getElementById('aiGeneratorModalKategori').value;
+            const topic = document.getElementById('aiGeneratorTopic').value;
             const count = parseInt(document.getElementById('aiGeneratorCount').value);
-            
+
+            if (!kategori) {
+                alert('Silakan pilih kategori terlebih dahulu');
+                return;
+            }
+
             let generated = 0;
-            
+
             for (let i = 0; i < count; i++) {
-                const questionData = generateQuestionByType(type, kategori);
-                
+                // Use topic if selected, otherwise use type
+                const questionData = generateQuestionByType(type, kategori, topic);
+
                 try {
                     const response = await fetch(`${API_BASE}/soal.php?action=create_question`, {
                         method: 'POST',
@@ -2904,10 +3158,20 @@
                         },
                         body: JSON.stringify(questionData)
                     });
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        generated++;
+
+                    const responseText = await response.text();
+                    console.log('create_question response:', responseText);
+
+                    try {
+                        const data = JSON.parse(responseText);
+
+                        if (data.success) {
+                            generated++;
+                        } else {
+                            console.error('Failed to create question:', data);
+                        }
+                    } catch (jsonError) {
+                        console.error('Invalid JSON response:', responseText);
                     }
                 } catch (error) {
                     console.error('Error generating question:', error);
@@ -2919,7 +3183,13 @@
             loadQuestions(currentPage);
         }
 
-        function generateQuestionByType(type, kategori) {
+        function generateQuestionByType(type, kategori, topic = null) {
+            // If topic is selected, use it to generate more relevant questions
+            if (topic) {
+                return generateTopicBasedQuestion(kategori, topic);
+            }
+            
+            // Otherwise fall back to type-based generation
             if (type === 'math') {
                 return generateMathQuestion(kategori);
             } else if (type === 'logic') {
@@ -2927,6 +3197,70 @@
             } else {
                 return generateGeneralQuestion(kategori);
             }
+        }
+
+        function generateTopicBasedQuestion(kategori, topic) {
+            // Generate question based on topic
+            const templates = {
+                'TWK': [
+                    `Jelaskan tentang ${topic} dalam konteks kebangsaan Indonesia.`,
+                    `Apa peran ${topic} dalam membangun karakter bangsa?`,
+                    `Bagaimana ${topic} berhubungan dengan Pancasila?`
+                ],
+                'TIU': [
+                    `Selesaikan logika terkait ${topic}.`,
+                    `Analisis hubungan antara ${topic} dan kemampuan intelektual.`,
+                    `Tentukan kesimpulan dari kasus tentang ${topic}.`
+                ],
+                'TKP': [
+                    `Bagaimana sikap Anda terhadap ${topic} dalam kehidupan sehari-hari?`,
+                    `Jelaskan pentingnya ${topic} dalam pembentukan karakter pribadi.`,
+                    `Apa tindakan yang tepat terkait ${topic}?`
+                ],
+                'TPA': [
+                    `Tentukan pola dalam data terkait ${topic}.`,
+                    `Analisis kemampuan potensial dalam bidang ${topic}.`,
+                    `Selesaikan masalah logika berkaitan ${topic}.`
+                ],
+                'PSIKOLOGIS': [
+                    `Bagaimana ${topic} mempengaruhi kepribadian seseorang?`,
+                    `Jelaskan aspek psikologis dari ${topic}.`,
+                    `Apa motivasi yang berkaitan dengan ${topic}?`
+                ]
+            };
+
+            const categoryTemplates = templates[kategori] || templates['TWK'];
+            const template = categoryTemplates[Math.floor(Math.random() * categoryTemplates.length)];
+            
+            // Generate options based on topic
+            const options = generateOptionsForTopic(topic);
+            const correctAnswer = options[Math.floor(Math.random() * options.length)];
+            
+            return {
+                kategori: kategori,
+                topic: topic, // Include topic for database relationship
+                pertanyaan: template,
+                opsi_a: options[0],
+                opsi_b: options[1],
+                opsi_c: options[2],
+                opsi_d: options[3],
+                jawaban_benar: correctAnswer,
+                pembahasan: `Pembahasan tentang ${topic}: Soal ini dirancang untuk menguji pemahaman Anda tentang ${topic}. Jawaban yang benar adalah ${correctAnswer}.`,
+                tingkat: 'sedang'
+            };
+        }
+
+        function generateOptionsForTopic(topic) {
+            // Generate plausible options based on topic
+            const optionTemplates = [
+                `Sangat setuju dengan ${topic}`,
+                `Setuju dengan ${topic}`,
+                `Netral terhadap ${topic}`,
+                `Tidak setuju dengan ${topic}`
+            ];
+            
+            // Shuffle and return
+            return optionTemplates.sort(() => Math.random() - 0.5);
         }
 
         function generateMathQuestion(kategori) {
@@ -3115,7 +3449,7 @@
                 if (data.success) {
                     const q = data.data;
                     document.getElementById('questionId').value = q.id;
-                    document.getElementById('questionKategori').value = ['TWK', 'TIU', 'TKP', 'TPA', 'PSIKOLOGIS'][q.kategori_id - 1];
+                    document.getElementById('questionKategori').value = getCategoryNameById(q.kategori_id);
                     document.getElementById('questionPertanyaan').value = q.pertanyaan;
                     document.getElementById('questionOpsiA').value = q.opsi_a;
                     document.getElementById('questionOpsiB').value = q.opsi_b;
@@ -3124,7 +3458,7 @@
                     document.getElementById('questionOpsiE').value = q.opsi_e;
                     document.getElementById('questionJawaban').value = q.jawaban_benar;
                     document.getElementById('questionPembahasan').value = q.pemabahasan || q.pembahasan || '';
-                    document.getElementById('questionModalTitle').textContent = 'Edit Soal';
+                    document.getElementById('questionModalLabel').textContent = 'Edit Soal';
                     new bootstrap.Modal(document.getElementById('questionModal')).show();
                 }
             } catch (error) {
@@ -3355,8 +3689,7 @@
         function displayTipsTricks(tips) {
             const tbody = document.getElementById('tipsTable');
             tbody.innerHTML = tips.map(t => {
-                const kategoriMap = {1: 'TWK', 2: 'TIU', 3: 'TKP', 4: 'TPA', 5: 'PSIKOLOGIS'};
-                const kategoriName = kategoriMap[t.kategori_id] || 'Semua';
+                const kategoriName = getCategoryNameById(t.kategori_id) || 'Semua';
                 return `
                     <tr>
                         <td>${t.judul}</td>
@@ -3572,8 +3905,7 @@
         function displayBlueprints(blueprints) {
             const tbody = document.getElementById('blueprintTable');
             tbody.innerHTML = blueprints.map(b => {
-                const kategoriMap = {1: 'TWK', 2: 'TIU', 3: 'TKP', 4: 'TPA', 5: 'PSIKOLOGIS'};
-                const kategoriName = kategoriMap[b.kategori_id] || 'Unknown';
+                const kategoriName = getCategoryNameById(b.kategori_id) || 'Unknown';
                 const statusClass = b.valid ? 'success' : 'danger';
                 const statusText = b.valid ? 'Valid' : 'Invalid';
                 return `
@@ -3887,8 +4219,6 @@
             // Store data for editing
             currentBahanData = bahan;
 
-            const kategoriMap = {1: 'TWK', 2: 'TIU', 3: 'TKP', 4: 'TPA', 5: 'PSIKOLOGIS'};
-
             tbody.innerHTML = bahan.map((b, index) => {
                 const filePath = b.file_path ? `../${b.file_path}` : '';
                 const hasContent = filePath || b.url;
@@ -3900,7 +4230,7 @@
                     fileOrUrl = `<a href="#" onclick="previewBahanContent('${contentUrl}', '${contentType}', '${b.judul.replace(/'/g, "\\'")}'); return false;" class="text-primary">${b.tipe === 'teks' ? 'Baca' : b.tipe === 'video' ? 'Tonton' : 'Buka'}</a>`;
                 }
 
-                const kategoriName = kategoriMap[b.kategori_id] || '-';
+                const kategoriName = getCategoryNameById(b.kategori_id) || '-';
                 return `
                     <tr>
                         <td><span class="badge bg-info">${kategoriName}</span></td>

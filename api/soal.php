@@ -260,6 +260,9 @@ switch ($action) {
     case 'get_kategori':
         getKategori();
         break;
+    case 'get_topics_by_kategori':
+        getTopicsByKategori();
+        break;
     case 'get_learning_topics':
         getLearningTopics();
         break;
@@ -768,9 +771,63 @@ function getKategori() {
     
     echo json_encode([
         'success' => true,
-        'data' => $kategori,
-        'count' => count($kategori)
+        'data' => $kategori
     ]);
+}
+
+function getTopicsByKategori() {
+    global $conn;
+
+    header('Content-Type: application/json');
+
+    try {
+        $kategori_nama = $_GET['kategori'] ?? '';
+
+        // Get kategori_id from nama
+        $kategori_map = [
+            'TWK' => 1,
+            'TIU' => 2,
+            'TKP' => 3,
+            'TPA' => 4,
+            'PSIKOLOGIS' => 5
+        ];
+
+        $kategori_id = $kategori_map[$kategori_nama] ?? null;
+
+        if (!$kategori_id) {
+            echo json_encode([
+                'success' => false,
+                'error' => 'Invalid category'
+            ]);
+            return;
+        }
+
+        $sql = "SELECT id, nama_topik, deskripsi, urutan FROM topik_pelajaran WHERE kategori_id = ? ORDER BY urutan";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $kategori_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $topics = [];
+        while ($row = $result->fetch_assoc()) {
+            $topics[] = [
+                'id' => $row['id'],
+                'nama' => $row['nama_topik'],
+                'deskripsi' => $row['deskripsi'],
+                'urutan' => $row['urutan']
+            ];
+        }
+
+        echo json_encode([
+            'success' => true,
+            'data' => $topics
+        ]);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
+    }
 }
 
 function getExamTypes() {
@@ -881,15 +938,30 @@ function getStatistik() {
     $user_id = $user['id'];
     $is_admin = ($user['role'] === 'admin');
     
+    // Fixed categories that exist in hasil_ujian table
+    $categories = ['TWK', 'TIU', 'TKP'];
+    
     if ($is_admin) {
         // Admin gets global statistics (all users)
         $stmt_total = $conn->prepare("SELECT COUNT(*) as total FROM hasil_ujian");
         $stmt_total->execute();
         $total_exams = $stmt_total->get_result()->fetch_assoc()['total'];
         
-        $stmt_avg = $conn->prepare("SELECT AVG(nilai_total) as avg_total, AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp FROM hasil_ujian");
+        // Calculate average for total score
+        $stmt_avg_total = $conn->prepare("SELECT AVG(nilai_total) as avg_total FROM hasil_ujian");
+        $stmt_avg_total->execute();
+        $avg_total = $stmt_avg_total->get_result()->fetch_assoc()['avg_total'] ?? 0;
+        
+        // Calculate average for each category
+        $stmt_avg = $conn->prepare("SELECT AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp FROM hasil_ujian");
         $stmt_avg->execute();
         $avg_scores = $stmt_avg->get_result()->fetch_assoc();
+        
+        $category_averages = [
+            'twk' => round($avg_scores['avg_twk'] ?? 0, 2),
+            'tiu' => round($avg_scores['avg_tiu'] ?? 0, 2),
+            'tkp' => round($avg_scores['avg_tkp'] ?? 0, 2)
+        ];
         
         $stmt_pass = $conn->prepare("SELECT COUNT(*) as passed FROM hasil_ujian WHERE status_lulus = 'LULUS'");
         $stmt_pass->execute();
@@ -901,10 +973,23 @@ function getStatistik() {
         $stmt_total->execute();
         $total_exams = $stmt_total->get_result()->fetch_assoc()['total'];
         
-        $stmt_avg = $conn->prepare("SELECT AVG(nilai_total) as avg_total, AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp FROM hasil_ujian WHERE user_id = ?");
+        // Calculate average for total score
+        $stmt_avg_total = $conn->prepare("SELECT AVG(nilai_total) as avg_total FROM hasil_ujian WHERE user_id = ?");
+        $stmt_avg_total->bind_param("i", $user_id);
+        $stmt_avg_total->execute();
+        $avg_total = $stmt_avg_total->get_result()->fetch_assoc()['avg_total'] ?? 0;
+        
+        // Calculate average for each category
+        $stmt_avg = $conn->prepare("SELECT AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp FROM hasil_ujian WHERE user_id = ?");
         $stmt_avg->bind_param("i", $user_id);
         $stmt_avg->execute();
         $avg_scores = $stmt_avg->get_result()->fetch_assoc();
+        
+        $category_averages = [
+            'twk' => round($avg_scores['avg_twk'] ?? 0, 2),
+            'tiu' => round($avg_scores['avg_tiu'] ?? 0, 2),
+            'tkp' => round($avg_scores['avg_tkp'] ?? 0, 2)
+        ];
         
         $stmt_pass = $conn->prepare("SELECT COUNT(*) as passed FROM hasil_ujian WHERE user_id = ? AND status_lulus = 'LULUS'");
         $stmt_pass->bind_param("i", $user_id);
@@ -918,12 +1003,8 @@ function getStatistik() {
         'success' => true,
         'data' => [
             'total_exams' => $total_exams,
-            'average_scores' => [
-                'total' => round($avg_scores['avg_total'] ?? 0, 2),
-                'twk' => round($avg_scores['avg_twk'] ?? 0, 2),
-                'tiu' => round($avg_scores['avg_tiu'] ?? 0, 2),
-                'tkp' => round($avg_scores['avg_tkp'] ?? 0, 2)
-            ],
+            'average_scores' => array_merge(['total' => round($avg_total, 2)], $category_averages),
+            'categories' => $categories,
             'pass_rate' => round($pass_rate, 2)
         ]
     ]);
@@ -932,43 +1013,74 @@ function getStatistik() {
 function createQuestion() {
     global $conn;
 
-    $data = json_decode(file_get_contents('php://input'), true);
+    // Set header to ensure JSON response
+    header('Content-Type: application/json');
 
-    $kategori_map = [
-        'TWK' => 1,
-        'TIU' => 2,
-        'TKP' => 3,
-        'TPA' => 4,
-        'PSIKOLOGIS' => 5
-    ];
+    try {
+        $data = json_decode(file_get_contents('php://input'), true);
 
-    $kategori = $data['kategori'] ?? 'TWK';
-    // Handle both numeric ID and string name
-    if (is_numeric($kategori)) {
-        $kategori_id = intval($kategori);
-    } else {
-        $kategori_id = $kategori_map[$kategori] ?? 1;
-    }
+        $kategori_map = [
+            'TWK' => 1,
+            'TIU' => 2,
+            'TKP' => 3,
+            'TPA' => 4,
+            'PSIKOLOGIS' => 5
+        ];
 
-    $pertanyaan = $conn->real_escape_string($data['pertanyaan'] ?? '');
-    $opsi_a = $conn->real_escape_string($data['opsi_a'] ?? '');
-    $opsi_b = $conn->real_escape_string($data['opsi_b'] ?? '');
-    $opsi_c = $conn->real_escape_string($data['opsi_c'] ?? '');
-    $opsi_d = $conn->real_escape_string($data['opsi_d'] ?? '');
-    $opsi_e = $conn->real_escape_string($data['opsi_e'] ?? '');
-    $jawaban_benar = $conn->real_escape_string($data['jawaban_benar'] ?? '');
-    $pembahasan = $conn->real_escape_string($data['pembahasan'] ?? '');
-    
-    $sql = "INSERT INTO soal (kategori_id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, pembahasan) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issssssss", $kategori_id, $pertanyaan, $opsi_a, $opsi_b, $opsi_c, $opsi_d, $opsi_e, $jawaban_benar, $pembahasan);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'id' => $conn->insert_id]);
-    } else {
-        echo json_encode(['success' => false, 'error' => $conn->error]);
+        $kategori = $data['kategori'] ?? 'TWK';
+        // Handle both numeric ID and string name
+        if (is_numeric($kategori)) {
+            $kategori_id = intval($kategori);
+        } else {
+            $kategori_id = $kategori_map[$kategori] ?? 1;
+        }
+
+        $pertanyaan = $conn->real_escape_string($data['pertanyaan'] ?? '');
+        $opsi_a = $conn->real_escape_string($data['opsi_a'] ?? '');
+        $opsi_b = $conn->real_escape_string($data['opsi_b'] ?? '');
+        $opsi_c = $conn->real_escape_string($data['opsi_c'] ?? '');
+        $opsi_d = $conn->real_escape_string($data['opsi_d'] ?? '');
+        $opsi_e = $conn->real_escape_string($data['opsi_e'] ?? '');
+        $jawaban_benar = $conn->real_escape_string($data['jawaban_benar'] ?? '');
+        $pembahasan = $conn->real_escape_string($data['pembahasan'] ?? '');
+        $topic_nama = $data['topic'] ?? '';
+
+        $sql = "INSERT INTO soal (kategori_id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, pembahasan)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("issssssss", $kategori_id, $pertanyaan, $opsi_a, $opsi_b, $opsi_c, $opsi_d, $opsi_e, $jawaban_benar, $pembahasan);
+
+        if ($stmt->execute()) {
+            $soal_id = $conn->insert_id;
+
+            // If topic is provided, save the relationship
+            if (!empty($topic_nama)) {
+                // Get topic_id from topic name
+                $topic_sql = "SELECT id FROM topik_pelajaran WHERE nama_topik = ? AND kategori_id = ?";
+                $topic_stmt = $conn->prepare($topic_sql);
+                $topic_stmt->bind_param("si", $topic_nama, $kategori_id);
+                $topic_stmt->execute();
+                $topic_result = $topic_stmt->get_result();
+                $topic_row = $topic_result->fetch_assoc();
+
+                if ($topic_row) {
+                    $topic_id = $topic_row['id'];
+
+                    // Save to soal_topik junction table
+                    $junction_sql = "INSERT INTO soal_topik (soal_id, topik_id) VALUES (?, ?)";
+                    $junction_stmt = $conn->prepare($junction_sql);
+                    $junction_stmt->bind_param("ii", $soal_id, $topic_id);
+                    $junction_stmt->execute();
+                }
+            }
+
+            echo json_encode(['success' => true, 'id' => $soal_id]);
+        } else {
+            echo json_encode(['success' => false, 'error' => $conn->error]);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
 
