@@ -1093,6 +1093,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="../js/config.js"></script>
     <script src="../js/rbac.js"></script>
+    <script src="../js/number-formatter.js"></script>
     <script>
         // Logout function
         function logout() {
@@ -1482,37 +1483,37 @@
         function updateStats(statsData) {
             // Accepts format from get_statistik: {total_exams, average_scores, pass_rate}
             if (!statsData || (!statsData.total_exams && !Array.isArray(statsData))) {
-                document.getElementById('totalExams').textContent = '0';
-                document.getElementById('averageScore').textContent = '0';
+                document.getElementById('totalExams').textContent = formatCount(0);
+                document.getElementById('averageScore').textContent = formatNumber(0, 1);
                 return;
             }
 
-            const totalExams = parseInt(statsData.total_exams || 0);
-            const avgTotal = statsData.average_scores ? (statsData.average_scores.total || 0) : 0;
-            const passRate = statsData.pass_rate || 0;
+            const totalExams = safeParseInt(statsData.total_exams, 0);
+            const avgTotal = safeParseFloat(statsData.average_scores ? (statsData.average_scores.total || 0) : 0, 0);
+            const passRate = safeParseFloat(statsData.pass_rate, 0);
 
-            document.getElementById('totalExams').textContent = totalExams;
-            document.getElementById('averageScore').textContent = avgTotal.toFixed ? avgTotal.toFixed(1) : avgTotal;
+            document.getElementById('totalExams').textContent = formatCount(totalExams);
+            document.getElementById('averageScore').textContent = formatNumber(avgTotal, 1);
 
             document.getElementById('totalExamsChange').innerHTML = `<i class="fas fa-check"></i> Data aktual`;
-            document.getElementById('averageScoreChange').innerHTML = `<i class="fas fa-check"></i> Lulus: ${passRate}%`;
+            document.getElementById('averageScoreChange').innerHTML = `<i class="fas fa-check"></i> Lulus: ${formatPercentage(passRate / 100, 1)}`;
         }
 
         function updateGamificationStats(gamificationData) {
             if (!gamificationData || !gamificationData.xp) {
-                document.getElementById('userXP').textContent = '0';
+                document.getElementById('userXP').textContent = formatXP(0);
                 document.getElementById('userLevel').textContent = '1';
                 return;
             }
 
             const xp = gamificationData.xp;
-            document.getElementById('userXP').textContent = xp.total_xp || 0;
-            document.getElementById('userLevel').textContent = xp.level || 1;
-            document.getElementById('userLevelChange').innerHTML = `<i class="fas fa-arrow-up"></i> Level ${xp.level || 1}`;
+            document.getElementById('userXP').textContent = formatXP(safeValue(xp, 'total_xp', 0));
+            document.getElementById('userLevel').textContent = safeValue(xp, 'level', 1);
+            document.getElementById('userLevelChange').innerHTML = `<i class="fas fa-arrow-up"></i> Level ${safeValue(xp, 'level', 1)}`;
 
             if (gamificationData.streak) {
-                document.getElementById('userStreak').textContent = gamificationData.streak.current_streak || 0;
-                document.getElementById('userStreakChange').innerHTML = `<i class="fas fa-fire"></i> ${gamificationData.streak.longest_streak || 0} hari terbaik`;
+                document.getElementById('userStreak').textContent = formatCount(safeValue(gamificationData.streak, 'current_streak', 0));
+                document.getElementById('userStreakChange').innerHTML = `<i class="fas fa-fire"></i> ${formatCount(safeValue(gamificationData.streak, 'longest_streak', 0))} hari terbaik`;
             }
         }
 
@@ -1560,25 +1561,25 @@
             }
             
             challengesList.innerHTML = challenges.map(challenge => {
-                const progress = challenge.progress || 0;
-                const progressPercent = (progress / challenge.target_value) * 100;
-                const isCompleted = progress >= challenge.target_value;
+                const progress = safeParseInt(challenge.progress, 0);
+                const targetValue = safeParseInt(challenge.target_value, 0);
+                const progressPercent = targetValue > 0 ? (progress / targetValue) * 100 : 0;
+                const isCompleted = progress >= targetValue;
                 const isClaimed = challenge.claimed_at !== null;
-                
+                const xpReward = safeParseInt(challenge.xp_reward, 0);
+
                 return `
-                    <div class="challenge-item mb-2 p-2 border rounded">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="small font-weight-bold">${challenge.judul}</span>
-                            <span class="badge ${isClaimed ? 'bg-success' : (isCompleted ? 'bg-primary' : 'bg-secondary')}">
-                                ${isClaimed ? 'Diklaim' : (isCompleted ? 'Selesai' : 'In Progress')}
-                            </span>
+                    <div class="challenge-card mb-3 p-3 border rounded">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">${challenge.title}</h6>
+                            <span class="badge ${isCompleted ? 'bg-success' : 'bg-primary'}">${isCompleted ? 'Selesai' : 'Berjalan'}</span>
                         </div>
                         <div class="progress" style="height: 5px;">
                             <div class="progress-bar ${isCompleted ? 'bg-success' : 'bg-primary'}" style="width: ${progressPercent}%;" role="progressbar"></div>
                         </div>
                         <div class="d-flex justify-content-between mt-1">
-                            <small class="text-muted">${progress}/${challenge.target_value}</small>
-                            <small class="text-muted">+${challenge.xp_reward} XP</small>
+                            <small class="text-muted">${formatCount(progress)}/${formatCount(targetValue)}</small>
+                            <small class="text-muted">+${formatXP(xpReward)} XP</small>
                         </div>
                         ${isCompleted && !isClaimed ? `<button class="btn btn-sm btn-primary mt-1" onclick="claimChallenge(${challenge.id})">Klaim XP</button>` : ''}
                     </div>
@@ -1736,21 +1737,21 @@
                         <span class="badge bg-primary">${kategoriNames[examData.kategori] || 'Ujian Umum'}</span>
                     </div>
                     <div class="exam-score">
-                        <h3>${examData.nilai_total || 0}</h3>
+                        <h3>${formatScore(safeParseFloat(examData.nilai_total, 0))}</h3>
                         <span class="score-label">Nilai Total</span>
                     </div>
                     <div class="exam-details">
                         <div class="detail-item">
                             <span class="detail-label">TWK:</span>
-                            <span class="detail-value">${examData.nilai_twk || 0}</span>
+                            <span class="detail-value">${formatScore(safeParseFloat(examData.nilai_twk, 0))}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">TIU:</span>
-                            <span class="detail-value">${examData.nilai_tiu || 0}</span>
+                            <span class="detail-value">${formatScore(safeParseFloat(examData.nilai_tiu, 0))}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">TKP:</span>
-                            <span class="detail-value">${examData.nilai_tkp || 0}</span>
+                            <span class="detail-value">${formatScore(safeParseFloat(examData.nilai_tkp, 0))}</span>
                         </div>
                     </div>
                     <div class="exam-status">
@@ -1835,8 +1836,8 @@
                         <div class="weakness-content">
                             <div class="weakness-title">${weakness.nama_kategori}</div>
                             <div class="weakness-stats">
-                                <span class="weakness-score">${weakness.persen_benar}% Benar</span>
-                                <span class="weakness-count">${weakness.muncul_count} kali muncul</span>
+                                <span class="weakness-score">${formatNumber(safeParseFloat(weakness.persen_benar, 0), 0)}% Benar</span>
+                                <span class="weakness-count">${formatCount(safeParseInt(weakness.muncul_count, 0))} kali muncul</span>
                             </div>
                             <div class="weakness-suggestion text-${priorityColors[weakness.priority]}">
                                 <i class="fas fa-lightbulb"></i> ${weakness.suggestion}
@@ -1926,7 +1927,7 @@
                                 minute: '2-digit'
                             })}</div>
                             <div class="timeline-score">
-                                <span class="badge bg-${statusClass}">${activity.nilai_total || 0}</span>
+                                <span class="badge bg-${statusClass}">${formatScore(safeParseFloat(activity.nilai_total, 0))}</span>
                                 <span class="text-muted">poin</span>
                             </div>
                         </div>

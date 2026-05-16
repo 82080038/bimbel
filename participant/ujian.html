@@ -951,6 +951,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="../js/config.js"></script>
     <script src="../js/rbac.js"></script>
+    <script src="../js/number-formatter.js"></script>
     <script>
         // Swipe gesture support for mobile
         let touchStartX = 0;
@@ -1412,14 +1413,14 @@
             const tkpScoreEl = document.getElementById('tkpScore');
             const resultNamaEl = document.getElementById('resultNama');
             
-            if (totalScoreEl) totalScoreEl.textContent = resultData.nilai_total || 0;
+            if (totalScoreEl) totalScoreEl.textContent = formatScore(safeParseFloat(resultData.nilai_total, 0));
             if (passFailEl) {
                 passFailEl.textContent = resultData.status_lulus || 'Belum Dinilai';
                 passFailEl.className = 'pass-fail ' + (resultData.status_lulus === 'Lulus' ? 'text-success' : 'text-warning');
             }
-            if (twkScoreEl) twkScoreEl.textContent = resultData.nilai_twk || 0;
-            if (tiuScoreEl) tiuScoreEl.textContent = resultData.nilai_tiu || 0;
-            if (tkpScoreEl) tkpScoreEl.textContent = resultData.nilai_tkp || 0;
+            if (twkScoreEl) twkScoreEl.textContent = formatScore(safeParseFloat(resultData.nilai_twk, 0));
+            if (tiuScoreEl) tiuScoreEl.textContent = formatScore(safeParseFloat(resultData.nilai_tiu, 0));
+            if (tkpScoreEl) tkpScoreEl.textContent = formatScore(safeParseFloat(resultData.nilai_tkp, 0));
             if (resultNamaEl) resultNamaEl.textContent = localStorage.getItem('username') || 'Peserta';
         }
 
