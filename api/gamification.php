@@ -287,6 +287,58 @@ function updateStreak() {
     }
 }
 
+function updateStreakInternal($user_id) {
+    global $conn;
+    
+    $today = date('Y-m-d');
+    $streak = getUserStreakData($user_id);
+    
+    if (!$streak) {
+        // Create new streak entry
+        $sql = "INSERT INTO user_streak (user_id, current_streak, longest_streak, last_activity_date) VALUES (?, 1, 1, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('is', $user_id, $today);
+        $stmt->execute();
+        return ['current_streak' => 1, 'is_new_streak' => true];
+    }
+    
+    $last_date = $streak['last_activity_date'];
+    $last_datetime = strtotime($last_date);
+    $today_datetime = strtotime($today);
+    $days_diff = ($today_datetime - $last_datetime) / (60 * 60 * 24);
+    
+    if ($days_diff == 0) {
+        // Already active today, no change
+        return ['current_streak' => $streak['current_streak'], 'is_new_streak' => false];
+    } elseif ($days_diff == 1) {
+        // Consecutive day, increment streak
+        $new_streak = $streak['current_streak'] + 1;
+        $new_longest = max($streak['longest_streak'], $new_streak);
+        
+        $sql = "UPDATE user_streak SET current_streak = ?, longest_streak = ?, last_activity_date = ? WHERE user_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('iisi', $new_streak, $new_longest, $today, $user_id);
+        $stmt->execute();
+        
+        // Award streak badges
+        if ($new_streak == 7) {
+            awardBadgeByName($user_id, 'Week Warrior');
+        } elseif ($new_streak == 30) {
+            awardBadgeByName($user_id, 'Month Warrior');
+        }
+        
+        return ['current_streak' => $new_streak, 'is_new_streak' => true];
+    } else {
+        // Streak broken, reset
+        $sql = "UPDATE user_streak SET current_streak = 1, last_activity_date = ? WHERE user_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('si', $today, $user_id);
+        $stmt->execute();
+        
+        return ['current_streak' => 1, 'streak_broken' => true];
+    }
+}
+
 function awardBadgeByName($user_id, $badge_name) {
     global $conn;
     

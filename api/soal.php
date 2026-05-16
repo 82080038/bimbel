@@ -674,6 +674,19 @@ function submitUjian() {
             $ak_stmt->execute();
         }
         
+        // Award XP for completing exam
+        require_once 'gamification.php';
+        if (function_exists('addXPInternal')) {
+            $xp_reason = 'Menyelesaikan ujian';
+            $xp_source = 'exam';
+            addXPInternal($user_id_ins, 50, $xp_reason, $xp_source, $hasil_id);
+        }
+        
+        // Update streak
+        if (function_exists('updateStreakInternal')) {
+            updateStreakInternal($user_id_ins);
+        }
+        
         echo json_encode([
             'success' => true,
             'data' => [
