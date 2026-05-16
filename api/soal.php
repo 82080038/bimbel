@@ -175,6 +175,9 @@ switch ($action) {
     case 'get_sertifikat':
         getSertifikat();
         break;
+    case 'get_exam_types':
+        getExamTypes();
+        break;
     case 'generate_sertifikat':
         generateCertificate();
         break;
@@ -737,6 +740,31 @@ function generateSertifikatInternal($hasil_id, $user_id, $nama_peserta, $nilai_t
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iissss", $hasil_id, $user_id, $cert_number, $uuid, $issue_date, $expiry_date);
     $stmt->execute();
+}
+
+function getExamTypes() {
+    global $conn;
+    
+    $sql = "SELECT id, code, name, description, icon, color, is_active, 
+                   passing_grade_twk, passing_grade_tiu, passing_grade_tkp, 
+                   passing_grade_tpa, passing_grade_psikologis, passing_grade_total,
+                   durasi_menit, jumlah_soal
+            FROM exam_types 
+            WHERE is_active = TRUE 
+            ORDER BY id";
+    
+    $result = $conn->query($sql);
+    
+    $types = [];
+    while ($row = $result->fetch_assoc()) {
+        $types[] = $row;
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'data' => $types,
+        'count' => count($types)
+    ]);
 }
 
 function getSertifikat() {

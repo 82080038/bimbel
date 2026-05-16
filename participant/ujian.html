@@ -661,19 +661,15 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">Jenis Ujian:</label>
                     <select class="form-select form-select-lg" id="examTypeSelection">
-                        <option value="skd">SKD (Seleksi Kompetensi Dasar)</option>
-                        <option value="skd_cat">SKD - CAT Mode</option>
-                        <option value="tpa">TPA (Tes Potensi Akademik)</option>
-                        <option value="psikotes">Psikotes</option>
-                        <option value="tryout">Tryout Umum</option>
-                        <option value="latihan">Latihan Bebas</option>
+                        <option value="">Memuat jenis ujian...</option>
                     </select>
+                    <small class="text-muted">Pilih jenis ujian sesuai kebutuhan Anda</small>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Pilih Paket Ujian:</label>
-                    <select class="form-select form-select-lg" id="paketSelection">
-                        <option value="">Loading paket...</option>
+                    <select class="form-select form-select-lg" id="paketSelection" disabled>
+                        <option value="">Pilih jenis ujian terlebih dahulu</option>
                     </select>
                 </div>
 
@@ -1010,8 +1006,57 @@
         let timerInterval = null;
         let timeRemaining = 0;
 
+        // Load exam types from database
+        async function loadExamTypes() {
+            try {
+                const response = await fetch('../api/soal.php?action=get_exam_types', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                
+                const data = await response.json();
+                const select = document.getElementById('examTypeSelection');
+                
+                if (data.success && data.data.length > 0) {
+                    select.innerHTML = '<option value="">Pilih jenis ujian...</option>';
+                    
+                    data.data.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type.code;
+                        option.textContent = type.name;
+                        option.dataset.durasi = type.durasi_menit;
+                        option.dataset.jumlah = type.jumlah_soal;
+                        select.appendChild(option);
+                    });
+                    
+                    // Enable paket selection after exam type chosen
+                    select.addEventListener('change', function() {
+                        const paketSelect = document.getElementById('paketSelection');
+                        if (this.value) {
+                            paketSelect.disabled = false;
+                            paketSelect.innerHTML = '<option value="">Pilih paket...</option>';
+                            // TODO: Load paket based on exam type
+                        } else {
+                            paketSelect.disabled = true;
+                            paketSelect.innerHTML = '<option value="">Pilih jenis ujian terlebih dahulu</option>';
+                        }
+                    });
+                } else {
+                    select.innerHTML = '<option value="skd">SKD (Default)</option>';
+                }
+            } catch (error) {
+                console.error('Error loading exam types:', error);
+                document.getElementById('examTypeSelection').innerHTML = 
+                    '<option value="skd">SKD (Seleksi Kompetensi Dasar)</option>';
+            }
+        }
+
         // DOMContentLoaded handler
         document.addEventListener('DOMContentLoaded', function() {
+            // Load exam types from database
+            loadExamTypes();
+            
             // Check URL parameters to determine which screen to show
             const urlParams = new URLSearchParams(window.location.search);
             const action = urlParams.get('action');
