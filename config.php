@@ -13,10 +13,8 @@ if (!defined('DB_USER')) {
     define('DB_USER', 'root');
 }
 if (!defined('DB_PASS')) {
-    // MySQL password - updated based on user configuration
-    // Previous: '8208'
-    // Current: 'root' (matches actual MySQL password)
-    define('DB_PASS', 'root');
+    // MySQL password - updated to 8208
+    define('DB_PASS', '8208');
 }
 if (!defined('DB_NAME')) {
     define('DB_NAME', 'ujian_sekolah_kedinasan');

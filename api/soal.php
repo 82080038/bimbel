@@ -5,6 +5,7 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-CSRF-Token');
 
 require_once '../config.php';
+require_once '../scripts/logger.php';
 
 // Check database connection (prevents HTML errors in JSON responses)
 checkDatabaseConnection();
@@ -14,7 +15,6 @@ require_once 'csrf.php';
 require_once 'rate_limiter.php';
 require_once '../scripts/learning_recommendation_system.php';
 require_once '../scripts/ai_question_generator.php';
-require_once '../scripts/logger.php';
 
 // Start session if not already active
 if (session_status() === PHP_SESSION_NONE) {
