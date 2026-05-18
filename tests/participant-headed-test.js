@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const BASE_URL = 'http://localhost/bimbel';
+const BASE_URL = 'http://localhost/ujian';
 const USER_CREDENTIALS = { username: 'testuser', password: 'test123' };
 const SCREENSHOT_DIR = './test-screenshots/participant-headed';
 
@@ -371,7 +371,7 @@ async function runTests() {
     try {
         browser = await puppeteer.launch({
             headless: false, // Headed mode as requested
-            args: ['--start-maximized'],
+            args: ['--start-maximized', '--no-sandbox', '--disable-setuid-sandbox'],
             defaultViewport: null
         });
 
