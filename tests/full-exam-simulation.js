@@ -205,19 +205,43 @@ async function simulateFullExam(page, examType) {
         
         await ss(page, `${examType.code}_04_exam_finished`);
         
-        // 7. Check if results are shown
-        const hasResults = await page.evaluate(() => {
-            return document.body.textContent.includes('nilai') || 
-                   document.body.textContent.includes('score') ||
-                   document.body.textContent.includes('hasil') ||
-                   document.body.textContent.includes('LULUS') ||
-                   document.body.textContent.includes('TIDAK LULUS');
-        });
+        // Wait for redirect to happen
+        await sleep(3000);
         
-        log(hasResults ? 'PASS' : 'WARN', 'Results displayed', hasResults ? 'Yes' : 'No');
+        // 7. Check if redirected to resume page
+        const currentUrl = page.url();
+        const isResumePage = currentUrl.includes('resume-ujian.html');
         
-        if (hasResults) {
-            await ss(page, `${examType.code}_05_results`);
+        let hasResults = false;
+        
+        if (isResumePage) {
+            log('PASS', 'Redirected to resume page', currentUrl);
+            await ss(page, `${examType.code}_05_resume_page`);
+            
+            // Wait for resume page to load
+            await sleep(3000);
+            
+            // Check if resume page displays exam result
+            hasResults = await page.evaluate(() => {
+                return document.body.textContent.includes('Hasil Ujian') || 
+                       document.body.textContent.includes('nilai') ||
+                       document.body.textContent.includes('LULUS') ||
+                       document.body.textContent.includes('TIDAK LULUS');
+            });
+            
+            log(hasResults ? 'PASS' : 'WARN', 'Resume page displays result', hasResults ? 'Yes' : 'No');
+        } else {
+            log('WARN', 'Not redirected to resume page', 'Current: ' + currentUrl);
+            // Check if results are shown on current page
+            hasResults = await page.evaluate(() => {
+                return document.body.textContent.includes('nilai') || 
+                       document.body.textContent.includes('score') ||
+                       document.body.textContent.includes('hasil') ||
+                       document.body.textContent.includes('LULUS') ||
+                       document.body.textContent.includes('TIDAK LULUS');
+            });
+            
+            log(hasResults ? 'PASS' : 'WARN', 'Results displayed', hasResults ? 'Yes' : 'No');
         }
         
         // 8. Check dashboard for updated stats

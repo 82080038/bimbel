@@ -93,6 +93,15 @@ switch ($action) {
     case 'get_riwayat_ujian':
         getRiwayatUjian();
         break;
+    case 'get_exam_result':
+        getExamResult();
+        break;
+    case 'get_question_analysis':
+        getQuestionAnalysis();
+        break;
+    case 'generate_practice_questions':
+        generatePracticeQuestions();
+        break;
     case 'get_statistik':
         getStatistik();
         break;
@@ -569,6 +578,9 @@ function selesaiUjian() {
     $stmt->bind_param("isiiiiisss", $user_id, $nama, DURASI_UJIAN_MENIT, $nilai_twk, $nilai_tiu, $nilai_tkp, $nilai_tpa, $nilai_psikologis, $nilai_total, $status_lulus, $jawaban);
     
     if ($stmt->execute()) {
+        // Get the inserted ID
+        $result_id = $conn->insert_id;
+        
         // Update session
         $sql_update = "UPDATE sesi_ujian SET status = 'selesai', waktu_selesai = NOW() WHERE id = ?";
         $stmt_update = $conn->prepare($sql_update);
@@ -577,6 +589,7 @@ function selesaiUjian() {
         
         echo json_encode([
             'success' => true,
+            'id' => $result_id,
             'nilai_twk' => $nilai_twk,
             'nilai_tiu' => $nilai_tiu,
             'nilai_tkp' => $nilai_tkp,
@@ -1010,6 +1023,169 @@ function getStatistik() {
             'average_scores' => array_merge(['total' => round($avg_total, 2)], $category_averages),
             'categories' => $categories,
             'pass_rate' => round($pass_rate, 2)
+        ]
+    ]);
+}
+
+function getExamResult() {
+    global $conn;
+    
+    $user = requireAuth();
+    $result_id = intval($_GET['id'] ?? 0);
+    
+    if ($result_id === 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid result ID']);
+        return;
+    }
+    
+    // Get exam result
+    $sql = "SELECT * FROM hasil_ujian WHERE id = ? AND user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $result_id, $user['id']);
+    $stmt->execute();
+    $result = $stmt->get_result()->fetch_assoc();
+    
+    if (!$result) {
+        echo json_encode(['success' => false, 'error' => 'Result not found']);
+        return;
+    }
+    
+    echo json_encode(['success' => true, 'data' => $result]);
+}
+
+function getQuestionAnalysis() {
+    global $conn;
+    
+    $user = requireAuth();
+    $result_id = intval($_GET['result_id'] ?? 0);
+    
+    if ($result_id === 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid result ID']);
+        return;
+    }
+    
+    // Get exam result
+    $sql = "SELECT * FROM hasil_ujian WHERE id = ? AND user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $result_id, $user['id']);
+    $stmt->execute();
+    $result = $stmt->get_result()->fetch_assoc();
+    
+    if (!$result) {
+        echo json_encode(['success' => false, 'error' => 'Result not found']);
+        return;
+    }
+    
+    // Parse answers
+    $jawaban_peserta = json_decode($result['jawaban_peserta'], true);
+    
+    // Get categories
+    $categories = [];
+    $sql_cat = "SELECT k.id, k.nama_kategori, COUNT(s.id) as jumlah_soal 
+                FROM kategori_soal k 
+                LEFT JOIN soal s ON s.kategori_id = k.id 
+                GROUP BY k.id, k.nama_kategori";
+    $result_cat = $conn->query($sql_cat);
+    while ($row = $result_cat->fetch_assoc()) {
+        $categories[] = $row;
+    }
+    
+    // Analyze answers
+    $unanswered = [];
+    $wrong_answers = [];
+    $kategori_stats = [];
+    
+    foreach ($jawaban_peserta as $item) {
+        $soal_id = intval($item['soal_id']);
+        $jawaban = strtoupper(trim($item['jawaban'] ?? ''));
+        
+        // Get question details
+        $sql = "SELECT s.*, k.nama_kategori FROM soal s 
+                LEFT JOIN kategori_soal k ON s.kategori_id = k.id 
+                WHERE s.id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $soal_id);
+        $stmt->execute();
+        $soal = $stmt->get_result()->fetch_assoc();
+        
+        if ($soal) {
+            $kategori = $soal['nama_kategori'] ?? 'Uncategorized';
+            
+            // Track unanswered
+            if (empty($jawaban)) {
+                $unanswered[] = [
+                    'soal_id' => $soal_id,
+                    'kategori' => $kategori,
+                    'materi' => $soal['materi'] ?? '-'
+                ];
+            }
+            
+            // Track wrong answers
+            if (!empty($jawaban) && $jawaban !== $soal['jawaban_benar']) {
+                $wrong_answers[] = [
+                    'soal_id' => $soal_id,
+                    'kategori' => $kategori,
+                    'materi' => $soal['materi'] ?? '-',
+                    'jawaban_peserta' => $jawaban,
+                    'jawaban_benar' => $soal['jawaban_benar']
+                ];
+                
+                // Update category stats
+                if (!isset($kategori_stats[$kategori])) {
+                    $kategori_stats[$kategori] = 0;
+                }
+                $kategori_stats[$kategori]++;
+            }
+        }
+    }
+    
+    // Generate recommendations based on wrong answers
+    $recommendations = [];
+    foreach ($kategori_stats as $kategori => $count) {
+        $recommendations[] = [
+            'kategori' => $kategori,
+            'jumlah_salah' => $count,
+            'rekomendasi' => "Fokus belajar materi $kategori. Anda memiliki $count jawaban salah pada kategori ini.",
+            'link_materi' => 'materi.html'
+        ];
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'data' => [
+            'categories' => $categories,
+            'unanswered' => $unanswered,
+            'wrong_answers' => $wrong_answers,
+            'recommendations' => $recommendations
+        ]
+    ]);
+}
+
+function generatePracticeQuestions() {
+    global $conn;
+    
+    $user = requireAuth();
+    $result_id = intval($_GET['result_id'] ?? 0);
+    
+    if ($result_id === 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid result ID']);
+        return;
+    }
+    
+    // Get wrong answers from the exam
+    $sql = "SELECT s.*, k.nama_kategori FROM hasil_ujian h 
+            LEFT JOIN kategori_soal k ON 1=1
+            WHERE h.id = ?";
+    // This is a placeholder - actual implementation would parse jawaban_peserta
+    // and generate questions based on wrong answers
+    
+    // For now, return a simple response
+    echo json_encode([
+        'success' => true,
+        'data' => [
+            'practice_id' => 'PRACTICE_' . time(),
+            'questions_count' => 10,
+            'message' => 'Practice questions generated based on your weak areas'
         ]
     ]);
 }

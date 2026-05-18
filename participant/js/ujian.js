@@ -415,10 +415,17 @@
             // Submit exam
             const resultData = await submitExamData();
             
-            // Only show expert system after successful submission
-            if (resultData) {
-                const answers = collectAnswers();
-                showExpertAfterExam(resultData, answers);
+            // Redirect to resume page with result ID
+            // submit_ujian returns {success: true, data: {id: ...}}
+            const resultId = resultData?.data?.id || resultData?.id;
+            if (resultId) {
+                window.location.href = `resume-ujian.html?id=${resultId}`;
+            } else {
+                // Fallback: show expert system if redirect fails
+                if (resultData) {
+                    const answers = collectAnswers();
+                    showExpertAfterExam(resultData, answers);
+                }
             }
         }
 
