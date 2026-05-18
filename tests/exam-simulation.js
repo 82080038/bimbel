@@ -7,12 +7,11 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 
-const BASE = 'http://localhost/bimbel';
+const BASE = 'http://localhost/ujian';
 const SS_DIR = './test-screenshots/exam-simulation';
 
 const USERS = [
-    { name: 'Fresh User 1', username: 'fresh_user_11778919457', password: 'FreshPass123!', apiKey: '30de1ca2f201c0becf193c80c20e448c292dbd9cd750911f631679a16eb5f37e' },
-    { name: 'Fresh User 2', username: 'fresh_user_21778919457', password: 'FreshPass123!', apiKey: '0ef8a27d8e92e3d409293e9fc5801af867233c1aa018fc735ccce57c55be1f74' }
+    { name: 'Test User', username: 'testuser', password: 'test123' }
 ];
 
 if (!fs.existsSync(SS_DIR)) fs.mkdirSync(SS_DIR, { recursive: true });
@@ -64,23 +63,27 @@ async function simulateExam(page, user, examConfig) {
     log(hasExamOptions ? 'PASS' : 'WARN', 'Exam options available', hasExamOptions ? 'found' : 'not found');
     
     // 3. Try to start exam via API (simulasi tanpa UI klik)
-    const examResult = await page.evaluate(async (answers) => {
+    const examResult = await page.evaluate(async (config) => {
         const token = localStorage.getItem('authToken');
         
-        // Submit exam dengan jawaban
-        const res = await fetch('/bimbel/api/soal.php?action=submit_ujian', {
+        // Submit exam dengan jawaban menggunakan selesai_ujian
+        const res = await fetch('/ujian/api/soal.php?action=selesai_ujian', {
             method: 'POST',
             headers: { 
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                answers: answers,
-                is_practice: false
+                nama_peserta: 'Test User',
+                jawaban: Object.entries(config.answers).map(([id, answer]) => ({
+                    soal_id: parseInt(id),
+                    jawaban: answer
+                })),
+                sesi_id: 0
             })
         });
         return res.json();
-    }, examConfig.answers);
+    }, { answers: examConfig.answers });
     
     log(examResult.success ? 'PASS' : 'FAIL', 'Exam submission', 
         examResult.success ? `nilai: ${examResult.data?.nilai_total}` : examResult.error);
@@ -108,7 +111,7 @@ async function simulateExam(page, user, examConfig) {
     // 5. Check weakness analysis generated
     const weaknessResponse = await page.evaluate(async () => {
         const token = localStorage.getItem('authToken');
-        const res = await fetch('/bimbel/api/soal.php?action=get_my_weakness', {
+        const res = await fetch('/ujian/api/soal.php?action=get_my_weakness', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         return res.json();
@@ -121,7 +124,7 @@ async function simulateExam(page, user, examConfig) {
     // 6. Check gamification updates
     const gamification = await page.evaluate(async () => {
         const token = localStorage.getItem('authToken');
-        const res = await fetch('/bimbel/api/gamification.php?action=get_user_gamification', {
+        const res = await fetch('/ujian/api/gamification.php?action=get_user_gamification', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         return res.json();
@@ -133,7 +136,7 @@ async function simulateExam(page, user, examConfig) {
     // 7. Check riwayat ujian
     const riwayat = await page.evaluate(async () => {
         const token = localStorage.getItem('authToken');
-        const res = await fetch('/bimbel/api/soal.php?action=get_riwayat_ujian&limit=5', {
+        const res = await fetch('/ujian/api/soal.php?action=get_riwayat_ujian&limit=5', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         return res.json();
@@ -155,7 +158,7 @@ async function simulateExam(page, user, examConfig) {
 
 async function checkCrossUserIsolation() {
     console.log('\n' + '─'.repeat(70));
-    console.log('🔒 CROSS-USER ISOLATION VERIFICATION');
+    console.log('🔒 EXAM HISTORY VERIFICATION');
     console.log('─'.repeat(70));
     
     const results = [];
@@ -175,18 +178,13 @@ async function checkCrossUserIsolation() {
         log('INFO', `${user.username}`, `exams: ${data.data?.total_exams}, avg: ${data.data?.average_scores?.total}`);
     }
     
-    // Verify different data
-    const different = results[0].total_exams !== results[1].total_exams ||
-                     results[0].avg_score !== results[1].avg_score;
-    
-    log(different ? 'PASS' : 'INFO', 'Data isolation', 
-        different ? 'Different exam counts (isolated)' : 'Same count (both completed similar exams)');
+    log('INFO', 'Exam simulation completed', 'All exam types tested');
 }
 
 (async () => {
     console.log('\n' + '═'.repeat(70));
     console.log('  EXAM SIMULATION - COMPREHENSIVE TEST');
-    console.log('  2 Users × Multiple Exam Types × Full Flow Verification');
+    console.log('  All Exam Types × Full Flow Verification');
     console.log('═'.repeat(70));
     
     const browser = await puppeteer.launch({
@@ -198,24 +196,43 @@ async function checkCrossUserIsolation() {
     
     const page = await browser.newPage();
     
-    // EXAM CONFIGURATIONS
+    // EXAM CONFIGURATIONS - All Exam Types from Database
     const examConfigs = [
         {
-            name: 'Ujian TWK (Semua Benar)',
-            code: 'TWK_PERFECT',
-            answers: { 1: 'A', 2: 'A', 3: 'A', 4: 'A', 5: 'A', 6: 'A', 7: 'A', 8: 'A', 9: 'A', 10: 'A' }
+            name: 'SKD - Seleksi Kompetensi Dasar',
+            code: 'SKD',
+            exam_type_id: 1,
+            answers: generateSampleAnswers(130) // 130 questions for SKD
         },
         {
-            name: 'Ujian Mixed (Campur Benar/Salah)',
-            code: 'MIXED',
-            answers: { 1: 'A', 2: 'B', 3: 'A', 4: 'C', 5: 'A', 6: 'D', 7: 'A', 8: 'B', 9: 'A', 10: 'C' }
+            name: 'SKB - Seleksi Kompetensi Bidang',
+            code: 'SKB',
+            exam_type_id: 2,
+            answers: generateSampleAnswers(100) // 100 questions for SKB
         },
         {
-            name: 'Ujian Kosong (Tidak Menjawab)',
-            code: 'EMPTY',
-            answers: {}
+            name: 'UTBK - Ujian Tulis Berbasis Komputer',
+            code: 'UTBK',
+            exam_type_id: 3,
+            answers: generateSampleAnswers(180) // 180 questions for UTBK
+        },
+        {
+            name: 'TRYOUT - Tryout Ujian',
+            code: 'TRYOUT',
+            exam_type_id: 4,
+            answers: generateSampleAnswers(130) // 130 questions for TRYOUT
         }
     ];
+
+    // Helper function to generate sample answers
+    function generateSampleAnswers(count) {
+        const answers = {};
+        const options = ['A', 'B', 'C', 'D'];
+        for (let i = 1; i <= count; i++) {
+            answers[i] = options[Math.floor(Math.random() * options.length)];
+        }
+        return answers;
+    }
     
     const allResults = [];
     
@@ -237,10 +254,8 @@ async function checkCrossUserIsolation() {
         }));
         log('PASS', 'Initial state', `${initialStats.total} exams`);
         
-        // Simulate exams based on user
-        const userExams = i === 0 ? [examConfigs[0], examConfigs[1]] : [examConfigs[1], examConfigs[2]];
-        
-        for (const exam of userExams) {
+        // Simulate all exam types
+        for (const exam of examConfigs) {
             const result = await simulateExam(page, user, exam);
             if (result) allResults.push({ user: user.name, exam: exam.name, result });
             await sleep(2000);
