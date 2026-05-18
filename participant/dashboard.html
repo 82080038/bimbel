@@ -40,6 +40,11 @@
                 const modalsResponse = await fetch('components/modals.html');
                 const modalsHTML = await modalsResponse.text();
                 document.getElementById('modalsContainer').innerHTML = modalsHTML;
+                
+                // Load dashboard data after components are loaded
+                if (typeof loadDashboardData === 'function') {
+                    loadDashboardData();
+                }
             } catch (error) {
                 console.error('Error loading dashboard components:', error);
             }
