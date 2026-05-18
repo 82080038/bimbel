@@ -24,6 +24,7 @@ uploads/
 database/export_*.sql
 database/*backup*.sql
 database/*_backup_*.sql
+database/ujian_sekolah_kedinasan.sql
 
 # IDE
 .vscode/
