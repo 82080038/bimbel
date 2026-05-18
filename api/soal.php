@@ -491,6 +491,10 @@ function selesaiUjian() {
     
     $data = json_decode(file_get_contents('php://input'), true);
     
+    // Get authenticated user
+    $user = requireAuth();
+    $user_id = $user['id'];
+    
     // Validate required fields
     if (empty($data['nama_peserta']) || !is_array($data['jawaban'])) {
         echo json_encode(['success' => false, 'error' => 'Invalid input data']);
@@ -558,11 +562,11 @@ function selesaiUjian() {
                      $nilai_tkp >= PASSING_GRADE_TKP) ? 'LULUS' : 'TIDAK LULUS';
     
     // Save result
-    $sql = "INSERT INTO hasil_ujian (nama_peserta, durasi_menit, nilai_twk, nilai_tiu, nilai_tkp, nilai_tpa, nilai_psikologis, nilai_total, status_lulus, jawaban_peserta) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO hasil_ujian (user_id, nama_peserta, durasi_menit, nilai_twk, nilai_tiu, nilai_tkp, nilai_tpa, nilai_psikologis, nilai_total, status_lulus, jawaban_peserta) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("siiiiisss", $nama, DURASI_UJIAN_MENIT, $nilai_twk, $nilai_tiu, $nilai_tkp, $nilai_tpa, $nilai_psikologis, $nilai_total, $status_lulus, $jawaban);
+    $stmt->bind_param("isiiiiisss", $user_id, $nama, DURASI_UJIAN_MENIT, $nilai_twk, $nilai_tiu, $nilai_tkp, $nilai_tpa, $nilai_psikologis, $nilai_total, $status_lulus, $jawaban);
     
     if ($stmt->execute()) {
         // Update session

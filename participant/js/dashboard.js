@@ -89,8 +89,8 @@
             // Update UI with user data
             updateUserInfo();
             
-            // Load dashboard data
-            loadDashboardData();
+            // Load dashboard components (which will then load dashboard data)
+            loadDashboardComponents();
         });
 
         async function updateUserInfo() {
@@ -380,6 +380,23 @@
 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        async function loadDashboardComponents() {
+            try {
+                const contentResponse = await fetch('sections/dashboard-content.html');
+                const contentHTML = await contentResponse.text();
+                document.getElementById('dashboardContent').innerHTML = contentHTML;
+
+                const modalsResponse = await fetch('components/modals.html');
+                const modalsHTML = await modalsResponse.text();
+                document.getElementById('modalsContainer').innerHTML = modalsHTML;
+                
+                // Load dashboard data after components are loaded
+                loadDashboardData();
+            } catch (error) {
+                console.error('Error loading dashboard components:', error);
             }
         }
 
