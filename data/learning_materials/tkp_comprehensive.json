@@ -97,6 +97,144 @@
         ]
       }
     },
+    "pelayanan_publik": {
+      "judul": "Pelayanan Publik",
+      "deskripsi": "Sikap dan perilaku dalam memberikan pelayanan kepada masyarakat",
+      "prinsip_pelayanan": {
+        "judul": "Prinsip-Prinsip Pelayanan Publik",
+        "prinsip": [
+          "Transparansi - keterbukaan informasi",
+          "Akuntabilitas - pertanggungjawaban",
+          "Partisipatif - melibatkan masyarakat",
+          "Non-diskriminatif - perlakuan adil",
+          "Kepastian hukum - jelas dan pasti"
+        ]
+      },
+      "standar_pelayanan": {
+        "judul": "Standar Pelayanan Prima",
+        "aspek": [
+          "Kecepatan dalam pelayanan",
+          "Ketepatan dalam prosedur",
+          "Kefasihan dalam komunikasi",
+          "Kenyamanan lingkungan",
+          "Kepuasan penerima layanan"
+        ]
+      },
+      "soal_contoh": [
+        "Prinsip pelayanan publik yang mengutamakan keterbukaan informasi adalah...",
+        "Standar pelayanan prima yang menekankan kecepatan adalah...",
+        "Sikap yang menunjukkan pelayanan publik yang baik adalah..."
+      ]
+    },
+    "jejaring_kerja": {
+      "judul": "Jejaring Kerja",
+      "deskripsi": "Kemampuan membangun dan memelihara hubungan kerja",
+      "membangun_hubungan": {
+        "judul": "Membangun Hubungan Kerja",
+        "tips": [
+          "Kommunikasi yang efektif",
+          "Saling menghargai",
+          "Kolaborasi yang baik",
+          "Dukungan timbal balik"
+        ]
+      },
+      "manfaat_jejaring": {
+        "judul": "Manfaat Jejaring Kerja",
+        "manfaat": [
+          "Meningkatkan produktivitas",
+          "Memperluas peluang kerja",
+          "Berbagi pengetahuan",
+          "Dukungan profesional"
+        ]
+      },
+      "soal_contoh": [
+        "Cara membangun jejaring kerja yang baik adalah...",
+        "Manfaat utama dari jejaring kerja adalah...",
+        "Sikap yang mendukung kerjasama dalam tim adalah..."
+      ]
+    },
+    "sosial_budaya": {
+      "judul": "Sosial Budaya",
+      "deskripsi": "Pemahaman dan penghargaan terhadap keberagaman sosial budaya",
+      "keberagaman": {
+        "judul": "Keberagaman Sosial Budaya",
+        "aspek": [
+          "Perbedaan suku dan etnis",
+          "Perbedaan agama dan kepercayaan",
+          "Perbedaan adat istiadat",
+          "Perbedaan bahasa daerah"
+        ]
+      },
+      "penghargaan": {
+        "judul": "Penghargaan Terhadap Keberagaman",
+        "sikap": [
+          "Toleransi terhadap perbedaan",
+          "Menghargai budaya lain",
+          "Tidak diskriminatif",
+          "Mempertahankan persatuan"
+        ]
+      },
+      "soal_contoh": [
+        "Sikap yang menunjukkan penghargaan terhadap keberagaman adalah...",
+        "Cara menjaga persatuan dalam keberagaman adalah...",
+        "Peran ASN dalam menjaga keberagaman sosial budaya adalah..."
+      ]
+    },
+    "teknologi_informasi": {
+      "judul": "Teknologi Informasi dan Komunikasi",
+      "deskripsi": "Pemanfaatan TIK dalam pelayanan publik dan pekerjaan",
+      "pemanfaatan_tik": {
+        "judul": "Pemanfaatan TIK dalam Pelayanan",
+        "aspek": [
+          "E-government untuk efisiensi",
+          "Sistem informasi terpadu",
+          "Layanan online",
+          "Digitalisasi arsip"
+        ]
+      },
+      "kompetensi_digital": {
+        "judul": "Kompetensi Digital ASN",
+        "aspek": [
+          "Kemampuan menggunakan komputer",
+          "Pemahaman aplikasi kantor",
+          "Komunikasi digital",
+          "Keamanan informasi"
+        ]
+      },
+      "soal_contoh": [
+        "Manfaat pemanfaatan TIK dalam pelayanan publik adalah...",
+        "Kompetensi digital yang penting bagi ASN adalah...",
+        "Sikap yang tepat dalam menggunakan TIK adalah..."
+      ]
+    },
+    "profesionalisme": {
+      "judul": "Profesionalisme",
+      "deskripsi": "Sikap dan perilaku profesional dalam bekerja",
+      "ciri_profesional": {
+        "judul": "Ciri-Ciri Profesional",
+        "ciri": [
+          "Kompeten dalam bidangnya",
+          "Etos kerja tinggi",
+          "Integritas moral",
+          "Tanggung jawab",
+          "Terus belajar dan berkembang"
+        ]
+      },
+      "pengembangan_profesi": {
+        "judul": "Pengembangan Profesionalisme",
+        "aspek": [
+          "Pelatihan dan pendidikan",
+          "Sertifikasi profesional",
+          "Pengalaman kerja",
+          "Jaringan profesional"
+        ]
+      },
+      "soal_contoh": [
+        "Ciri utama seorang profesional adalah...",
+        "Cara mengembangkan profesionalisme adalah...",
+        "Sikap yang menunjukkan profesionalisme adalah..."
+      ]
+    },
     "integritas_moral": {
       "judul": "Integritas Moral",
       "deskripsi": "Keselarasan antara nilai moral, ucapan, tindakan, dan tanggung jawab",

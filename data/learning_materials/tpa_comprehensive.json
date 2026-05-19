@@ -3,6 +3,190 @@
   "nama_kategori": "Tes Potensi Akademik",
   "deskripsi": "Materi lengkap Tes Potensi Akademik CPNS mencakup matematika, bahasa, dan sains",
   "materi": {
+    "matematika_dasar": {
+      "judul": "Matematika Dasar",
+      "deskripsi": "Materi matematika dasar untuk TPA mencakup aljabar, aritmetika, dan statistik",
+      "aljabar": {
+        "judul": "Aljabar",
+        "deskripsi": "Operasi aljabar dan persamaan",
+        "operasi": [
+          "Penjumlahan dan pengurangan variabel",
+          "Perkalian dan pembagian variabel",
+          "Pangkat dan akar",
+          "Operasi campuran"
+        ],
+        "persamaan": [
+          "Persamaan linear satu variabel",
+          "Persamaan linear dua variabel",
+          "Persamaan kuadrat",
+          "Sistem persamaan linear"
+        ],
+        "soal_contoh": [
+          "Jika 3x + 5 = 20, maka x = ...",
+          "Penyelesaian dari 2x - 7 = 13 adalah...",
+          "Nilai x yang memenuhi x² - 9 = 0 adalah..."
+        ]
+      },
+      "aritmetika": {
+        "judul": "Aritmetika",
+        "deskripsi": "Operasi hitung dasar dan bilangan",
+        "operasi_dasar": [
+          "Penjumlahan, pengurangan, perkalian, pembagian",
+          "Pecahan dan desimal",
+          "Persentase dan rasio",
+          "Pangkat dan akar"
+        ],
+        "bilangan": [
+          "Bilangan bulat, pecahan, desimal",
+          "Bilangan positif dan negatif",
+          "Bilangan prima dan komposit",
+          "Faktor dan kelipatan"
+        ],
+        "soal_contoh": [
+          "Hasil dari 15 + (-8) adalah...",
+          "Bentuk sederhana dari 3/4 + 1/2 adalah...",
+          "20% dari 150 adalah..."
+        ]
+      },
+      "statistika": {
+        "judul": "Statistika Dasar",
+        "deskripsi": "Pengolahan data dan statistik",
+        "ukuran_pemusatan": [
+          "Mean (rata-rata)",
+          "Median (nilai tengah)",
+          "Modus (nilai yang paling sering muncul)"
+        ],
+        "ukuran_sebaran": [
+          "Rentang (range)",
+          "Simpangan baku",
+          "Variansi"
+        ],
+        "soal_contoh": [
+          "Mean dari data 2, 4, 6, 8, 10 adalah...",
+          "Median dari data 1, 3, 5, 7, 9, 11 adalah...",
+          "Modus dari data 2, 3, 3, 4, 5, 5, 5 adalah..."
+        ]
+      },
+      "soal_contoh": [
+        "Jika 2x + 3 = 9, maka nilai x adalah...",
+        "Hasil dari 15% dari 200 adalah...",
+        "Rata-rata dari data 10, 20, 30, 40, 50 adalah..."
+      ]
+    },
+    "bahasa_indonesia": {
+      "judul": "Bahasa Indonesia",
+      "deskripsi": "Materi bahasa Indonesia untuk TPA mencakup tata bahasa, pemahaman bacaan, dan kosakata",
+      "tata_bahasa": {
+        "judul": "Tata Bahasa",
+        "deskripsi": "Struktur kalimat dan penggunaan kata",
+        "struktur_kalimat": [
+          "Subjek, predikat, objek, keterangan",
+          "Kalimat efektif",
+          "Kalimat aktif dan pasif",
+          "Kalimat langsung dan tidak langsung"
+        ],
+        "penggunaan_kata": [
+          "Sinonim dan antonim",
+          "Istilah dan kata baku",
+          "Ejaan dan tanda baca",
+          "Kata serapan"
+        ],
+        "soal_contoh": [
+          "Kalimat efektif dari kalimat 'Saya pergi ke pasar membeli sayur' adalah...",
+          "Sinonim dari kata 'komprehensif' adalah...",
+          "Kata baku yang tepat untuk 'aplikasi' adalah..."
+        ]
+      },
+      "pemahaman_bacaan": {
+        "judul": "Pemahaman Bacaan",
+        "deskripsi": "Membaca dan memahami isi teks",
+        "kemampuan": [
+          "Menemukan ide pokok",
+          "Menemukan informasi tersurat",
+          "Menarik kesimpulan",
+          "Memahami makna tersirat"
+        ],
+        "soal_contoh": [
+          "Ide pokok paragraf tersebut adalah...",
+          "Informasi tersurat dalam teks adalah...",
+          "Kesimpulan yang tepat dari teks tersebut adalah..."
+        ]
+      },
+      "kosakata": {
+        "judul": "Kosakata",
+        "deskripsi": "Perbendaharaan kata dan makna",
+        "jenis": [
+          "Kata umum dan khusus",
+          "Kata asing dan Indonesia",
+          "Istilah ilmiah",
+          "Kata berimbuhan"
+        ],
+        "soal_contoh": [
+          "Makna kata 'inovatif' adalah...",
+          "Kata asing yang berasal dari bahasa Inggris adalah...",
+          "Istilah 'demokrasi' berasal dari bahasa..."
+        ]
+      },
+      "soal_contoh": [
+        "Kalimat yang efektif adalah...",
+        "Ide pokok dalam teks tersebut adalah...",
+        "Sinonim dari kata 'analitis' adalah..."
+      ]
+    },
+    "bahasa_inggris": {
+      "judul": "Bahasa Inggris",
+      "deskripsi": "Materi bahasa Inggris untuk TPA mencakup grammar, vocabulary, dan reading comprehension",
+      "grammar": {
+        "judul": "Grammar",
+        "deskripsi": "Tata bahasa Inggris",
+        "topik": [
+          "Tenses (present, past, future)",
+          "Subject-verb agreement",
+          "Articles (a, an, the)",
+          "Prepositions (in, on, at, etc.)"
+        ],
+        "soal_contoh": [
+          "She ___ to school every day (go/goes/going)",
+          "I ___ my homework last night (do/did/doing)",
+          "The book is ___ table (in/on/at)"
+        ]
+      },
+      "vocabulary": {
+        "judul": "Vocabulary",
+        "deskripsi": "Perbendaharaan kata Inggris",
+        "kategori": [
+          "Synonyms and antonyms",
+          "Word formation",
+          "Collocations",
+          "Idioms and expressions"
+        ],
+        "soal_contoh": [
+          "Synonym of 'happy' is...",
+          "The opposite of 'increase' is...",
+          "Choose the correct word: She made a ___ (decision/decide)"
+        ]
+      },
+      "reading_comprehension": {
+        "judul": "Reading Comprehension",
+        "deskripsi": "Pemahaman bacaan bahasa Inggris",
+        "kemampuan": [
+          "Main idea identification",
+          "Detail information",
+          "Inference",
+          "Vocabulary in context"
+        ],
+        "soal_contoh": [
+          "The main idea of the passage is...",
+          "According to the text, the author believes...",
+          "The word 'significant' in the text means..."
+        ]
+      },
+      "soal_contoh": [
+        "She ___ to the meeting yesterday (go/went/gone)",
+        "The synonym of 'important' is...",
+        "Based on the passage, the author's purpose is..."
+      ]
+    },
     "matematika": {
       "judul": "Matematika",
       "deskripsi": "Materi matematika dasar untuk TPA",

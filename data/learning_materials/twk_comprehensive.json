@@ -3,6 +3,226 @@
   "nama_kategori": "Tes Wawasan Kebangsaan",
   "deskripsi": "Materi lengkap Tes Wawasan Kebangsaan CPNS mencakup nasionalisme, integritas, bela negara, pilar negara, dan bahasa Indonesia",
   "materi": {
+    "nasionalisme": {
+      "judul": "Nasionalisme",
+      "deskripsi": "Paham dan sikap yang menumbuhkan rasa memiliki terhadap bangsa dan negara",
+      "pengertian": {
+        "judul": "Pengertian Nasionalisme",
+        "deskripsi": "Paham dan sikap yang menumbuhkan rasa memiliki terhadap bangsa dan negara",
+        "sikap_moderat": [
+          "Menjunjung persatuan",
+          "Menghormati perbedaan",
+          "Mengutamakan kepentingan nasional"
+        ]
+      },
+      "tujuan_fungsi": {
+        "judul": "Tujuan dan Fungsi Nasionalisme",
+        "tujuan": [
+          "Menjaga keutuhan NKRI",
+          "Mempertahankan kedaulatan negara",
+          "Memperkuat identitas nasional",
+          "Mendorong partisipasi aktif membangun bangsa"
+        ],
+        "fungsi": [
+          "Integrasi nasional",
+          "Ketahanan nasional",
+          "Stabilitas politik"
+        ]
+      },
+      "sejarah": {
+        "judul": "Sejarah Nasionalisme Indonesia",
+        "perkembangan": [
+          "Munculnya organisasi pergerakan nasional",
+          "Ikrar Sumpah Pemuda 1928",
+          "Puncak pada Proklamasi Kemerdekaan 17 Agustus 1945"
+        ],
+        "sifat": "Nasionalisme Indonesia bersifat kebangsaan, bukan berdasarkan kesamaan suku, agama, atau ras"
+      },
+      "pancasila": {
+        "judul": "Nasionalisme dalam Pancasila",
+        "penjelasan": "Nilai nasionalisme paling jelas tercermin dalam Sila ke-3: Persatuan Indonesia",
+        "makna": [
+          "Persatuan tanpa menghapus perbedaan",
+          "Keadilan sosial",
+          "Demokrasi",
+          "Penghormatan terhadap kemanusiaan"
+        ]
+      },
+      "uud_1945": {
+        "judul": "Nasionalisme dalam UUD 1945",
+        "penjelasan": "Nilai nasionalisme diatur secara konstitusional dalam UUD 1945",
+        "kewajiban": [
+          "Kewajiban bela negara",
+          "Pertahanan dan keamanan nasional",
+          "Persatuan wilayah Indonesia"
+        ]
+      },
+      "bentuk": {
+        "judul": "Bentuk-Bentuk Nasionalisme",
+        "bidang": [
+          "Nasionalisme politik (setia pada negara dan pemerintahan sah)",
+          "Nasionalisme budaya (melestarikan budaya bangsa)",
+          "Nasionalisme ekonomi (mengutamakan kepentingan ekonomi nasional)",
+          "Nasionalisme kewarganegaraan (kesetaraan hak dan kewajiban)"
+        ]
+      },
+      "nilai": {
+        "judul": "Nilai-Nilai Nasionalisme",
+        "nilai": [
+          "Cinta tanah air",
+          "Rela berkorban",
+          "Persatuan dan kesatuan",
+          "Toleransi",
+          "Gotong royong",
+          "Ketaatan terhadap hukum"
+        ]
+      },
+      "bhinneka_tunggal_ika": {
+        "judul": "Nasionalisme dan Bhinneka Tunggal Ika",
+        "penjelasan": "Bhinneka Tunggal Ika berarti berbeda-beda tetapi tetap satu",
+        "prinsip": [
+          "Mengakui keberagaman",
+          "Menolak konflik SARA",
+          "Menjunjung persaudaraan nasional"
+        ]
+      },
+      "bela_negara": {
+        "judul": "Nasionalisme dan Bela Negara",
+        "penjelasan": "Bela negara adalah wujud nyata nasionalisme",
+        "contoh_non_militer": [
+          "Taat hukum",
+          "Membayar pajak",
+          "Menjaga ketertiban",
+          "Bekerja dengan jujur dan bertanggung jawab"
+        ]
+      },
+      "contoh_sikap": {
+        "judul": "Contoh Sikap Nasionalisme dalam Kehidupan Sehari-hari",
+        "contoh": [
+          "Menghormati simbol negara",
+          "Menggunakan produk dalam negeri",
+          "Menjaga kerukunan antarwarga",
+          "Tidak menyebarkan hoaks atau provokasi",
+          "Mendahulukan kepentingan umum"
+        ]
+      },
+      "soal_contoh": [
+        "Nasionalisme dalam konteks TWK SKD CPNS dimaknai sebagai...",
+        "Tujuan utama nasionalisme adalah untuk...",
+        "Nasionalisme Indonesia bersifat kebangsaan artinya...",
+        "Sila Pancasila yang paling mencerminkan nilai nasionalisme adalah...",
+        "Bentuk nasionalisme yang menekankan pada melestarikan budaya bangsa adalah...",
+        "Nilai nasionalisme yang sering muncul dalam soal TWK adalah...",
+        "Prinsip Bhinneka Tunggal Ika dalam konteks nasionalisme adalah...",
+        "Contoh bela negara non-militer adalah...",
+        "Sikap nasionalisme dalam kehidupan sehari-hari adalah...",
+        "Jawaban yang sesuai dengan nasionalisme dalam soal TWK adalah..."
+      ]
+    },
+    "integritas_nasional": {
+      "judul": "Integritas Nasional",
+      "deskripsi": "Keselarasan antara nilai moral, ucapan, tindakan, dan tanggung jawab dalam konteks kebangsaan",
+      "pengertian": {
+        "judul": "Pengertian Integritas Nasional",
+        "deskripsi": "Keselarasan antara nilai moral, ucapan, tindakan, dan tanggung jawab sebagai warga negara",
+        "ciri": [
+          "Konsisten antara perkataan dan perbuatan",
+          "Taat aturan meskipun tidak diawasi",
+          "Menolak penyimpangan sekecil apa pun",
+          "Berani menanggung risiko demi kebenaran"
+        ]
+      },
+      "pentingnya": {
+        "judul": "Mengapa Integritas Nasional Sangat Penting",
+        "alasan": [
+          "Warga negara memegang kepercayaan publik",
+          "Penyimpangan berawal dari runtuhnya integritas",
+          "Sistem yang baik akan rusak bila dijalankan tanpa integritas",
+          "Negara membutuhkan warga yang kokoh secara moral"
+        ]
+      },
+      "ciri": {
+        "judul": "Ciri Warga Negara yang Memiliki Integritas Nasional",
+        "ciri": [
+          "Tidak mudah tergoda keuntungan pribadi",
+          "Tegas menolak pelanggaran",
+          "Tidak mencari pembenaran atas kesalahan",
+          "Bersikap jujur dan transparan",
+          "Konsisten dalam prinsip meski ada tekanan"
+        ]
+      },
+      "nilai_dasar": {
+        "judul": "Nilai-Nilai Dasar Integritas Nasional",
+        "kejujuran": "Bersikap jujur dalam setiap tindakan dan keputusan, tanpa manipulasi atau kebohongan",
+        "konsistensi_moral": "Nilai yang diyakini tetap dipegang, baik saat diawasi maupun tidak",
+        "komitmen_pada_aturan": "Menjalankan kewajiban sesuai hukum dan konstitusi",
+        "keberanian_moral": "Berani berkata benar dan menolak penyimpangan meskipun berisiko",
+        "tanggung_jawab": "Siap mempertanggungjawabkan keputusan dan konsekuensinya"
+      },
+      "soal_contoh": [
+        "Integritas nasional tercermin dalam sikap...",
+        "Mengapa integritas nasional sangat penting bagi warga negara...",
+        "Ciri warga negara yang memiliki integritas nasional adalah...",
+        "Nilai dasar integritas nasional meliputi...",
+        "Sikap yang menunjukkan integritas nasional adalah..."
+      ]
+    },
+    "pilar_negara": {
+      "judul": "Pilar Negara",
+      "deskripsi": "Empat pilar kehidupan berbangsa dan bernegara yang menjadi fondasi NKRI",
+      "empat_pilar": {
+        "judul": "Empat Pilar Negara",
+        "pilar": [
+          {
+            "nama": "Pancasila",
+            "penjelasan": "Ideologi dasar negara Indonesia",
+            "fungsi": "Sebagai dasar filosofis dan sumber dari segala sumber hukum"
+          },
+          {
+            "nama": "UUD 1945",
+            "penjelasan": "Konstitusi negara Indonesia",
+            "fungsi": "Sebagai hukum dasar yang mengatur kehidupan berbangsa dan bernegara"
+          },
+          {
+            "nama": "NKRI",
+            "penjelasan": "Negara Kesatuan Republik Indonesia",
+            "fungsi": "Sebagai bentuk negara yang utuh dan tidak terpecah"
+          },
+          {
+            "nama": "Bhinneka Tunggal Ika",
+            "penjelasan": "Semboyan negara Indonesia",
+            "fungsi": "Sebagai prinsip persatuan dalam keberagaman"
+          }
+        ]
+      },
+      "keterkaitan": {
+        "judul": "Keterkaitan Empat Pilar",
+        "penjelasan": "Empat pilar saling terkait dan tidak dapat dipisahkan",
+        "hubungan": [
+          "Pancasila sebagai dasar ideologi",
+          "UUD 1945 sebagai konstitusi",
+          "NKRI sebagai bentuk negara",
+          "Bhinneka Tunggal Ika sebagai semangat persatuan"
+        ]
+      },
+      "peran": {
+        "judul": "Peran Pilar Negara",
+        "peran": [
+          "Menjaga persatuan dan kesatuan bangsa",
+          "Menjadi pedoman dalam kehidupan berbangsa dan bernegara",
+          "Menjadi fondasi pembangunan nasional",
+          "Menjadi rujukan dalam pengambilan keputusan"
+        ]
+      },
+      "soal_contoh": [
+        "Empat pilar negara meliputi...",
+        "Pancasila berperan sebagai pilar negara karena...",
+        "UUD 1945 sebagai pilar negara berfungsi sebagai...",
+        "Bhinneka Tunggal Ika sebagai pilar negara memiliki makna...",
+        "Keterkaitan antara empat pilar negara adalah...",
+        "Peran pilar negara dalam kehidupan berbangsa dan bernegara adalah..."
+      ]
+    },
     "pancasila": {
       "judul": "Pancasila sebagai Dasar Negara",
       "deskripsi": "Pancasila adalah ideologi dasar negara Indonesia yang terdiri dari 5 sila",

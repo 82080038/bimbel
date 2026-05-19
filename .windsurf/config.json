@@ -5,7 +5,7 @@
     "version": "2.0",
     "status": "Production Ready",
     "branch": "kantor",
-    "last_updated": "18 Mei 2026 (Database Analysis & Configuration Update)",
+    "last_updated": "20 Mei 2026 (Internet Materials Enhancement - Added comprehensive learning materials from internet research for all categories: TWK, TIU, TKP, TPA, PSIKOLOGIS, and added 29 new questions to database)",
     "repository": "https://github.com/82080038/bimbel",
     "tech_stack": {
       "frontend": ["HTML5", "Bootstrap 5", "jQuery", "JavaScript", "PWA", "Chart.js", "Font Awesome"],
@@ -32,7 +32,7 @@
   },
   "code_structure": {
     "directories": {
-      "api": "API endpoints (13 files: auth, soal, analytics, courses, expert, gamification, notifications, rate_limiter, validator)",
+      "api": "API endpoints (15 files: auth, soal, analytics, courses, expert, gamification, notifications, rate_limiter, validator, export_database_web, add_internet_materials_v2)",
       "admin": "Admin panel interface (admin.html)",
       "participant": "Participant interface (dashboard, ujian, register, expert_assistant)",
       "config": "Configuration files (database, environment)",
@@ -58,7 +58,7 @@
     "name": "ujian_sekolah_kedinasan",
     "host": "127.0.0.1",
     "user": "root",
-    "password": "8208",
+    "password": "root",
     "charset": "utf8mb4",
     "tables": 59,
     "views": 4,
@@ -161,7 +161,8 @@
       "pembahasan.php": "Discussion/explanation",
       "batch_generate.php": "Batch question generation",
       "csrf.php": "CSRF token management",
-      "middleware.php": "Authentication middleware"
+      "export_database_web.php": "Database export via web endpoint",
+      "add_internet_materials_v2.php": "Add questions from internet research materials"
     }
   },
   "features": {
@@ -188,7 +189,8 @@
       "Learning paths & modules",
       "Progress tracking per user",
       "Educational content generation",
-      "AI-powered learning recommendations"
+      "AI-powered learning recommendations",
+      "Comprehensive learning materials from internet research (TWK, TIU, TKP, TPA, PSIKOLOGIS)"
     ],
     "notifications": [
       "Multi-channel notifications",
@@ -267,7 +269,10 @@
         "Accessibility (WCAG 2.1 AA)",
         "PWA with service worker",
         "AI Generator with dynamic topic selection",
-        "Topic-database integration (soal_topik junction table)"
+        "Topic-database integration (soal_topik junction table)",
+        "Comprehensive learning materials from internet research (TWK, TIU, TKP, TPA, PSIKOLOGIS)",
+        "Database export via web endpoint",
+        "29 new questions added from internet materials research"
       ],
       "in_progress": [
         "Social learning features (discussion forum, peer Q&A)",
@@ -422,9 +427,9 @@
   },
   "key_insights": {
     "application_purpose": "Modern online exam system for Indonesian civil service exams (Sekolah Kedinasan, CPNS, UTBK/SNBT) with comprehensive features including RBAC, gamification, AI-powered analytics, learning paths, expert system, and dynamic topic-based question generation",
-    "current_maturity": "Production Ready v2.0 with extensive feature set including 66 database tables, 13 API endpoints, comprehensive admin panel with content generation, system maintenance tools, and topic-database integration for better question categorization and search",
+    "current_maturity": "Production Ready v2.0 with extensive feature set including 66 database tables, 15 API endpoints, comprehensive admin panel with content generation, system maintenance tools, topic-database integration for better question categorization and search, and comprehensive learning materials from internet research",
     "development_focus": "Currently focusing on social learning features, advanced proctoring, PWA enhancements, certification tracking, and admin panel refactoring for better maintainability",
-    "technical_strengths": "Well-structured PHP native backend with REST API, comprehensive database schema with migrations and junction tables for topic relationships, automated testing with Puppeteer, Python scripts for data import, PWA support with service worker, dynamic topic selection for AI question generation",
-    "unique_features": "AI-powered expert assistant, content generation system with topic-based categorization, comprehensive gamification (XP, badges, achievements, daily challenges, streak), learning paths with prerequisites, advanced analytics dashboard, topic-database integration for better question organization and search"
+    "technical_strengths": "Well-structured PHP native backend with REST API, comprehensive database schema with migrations and junction tables for topic relationships, automated testing with Puppeteer, Python scripts for data import, PWA support with service worker, dynamic topic selection for AI question generation, comprehensive learning materials from internet research",
+    "unique_features": "AI-powered expert assistant, content generation system with topic-based categorization, comprehensive gamification (XP, badges, achievements, daily challenges, streak), learning paths with prerequisites, advanced analytics dashboard, topic-database integration for better question organization and search, comprehensive learning materials from internet research for all exam categories"
   }
 }

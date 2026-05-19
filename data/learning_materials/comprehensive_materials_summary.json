@@ -6,6 +6,9 @@
       "icon": "fas fa-landmark",
       "deskripsi": "Menguji pengetahuan dan pemahaman tentang sejarah, ideologi, dan sistem ketatanegaraan Indonesia",
       "materi": [
+        "Nasionalisme (pengertian, tujuan, sejarah, Pancasila, UUD 1945, bentuk-bentuk, nilai-nilai, Bhinneka Tunggal Ika, Bela Negara)",
+        "Integritas Nasional (pengertian, pentingnya, ciri warga berintegritas, nilai dasar)",
+        "Pilar Negara (Pancasila, UUD 1945, NKRI, Bhinneka Tunggal Ika)",
         "Pancasila (ideologi, dasar negara, sejarah perumusan, nilai-nilai, Piagam Jakarta)",
         "Sejarah Kemerdekaan Indonesia (penjajahan Belanda dan Jepang, Pergerakan Nasional, Proklamasi)",
         "Bhinneka Tunggal Ika (sejarah, lambang negara, konsep dasar)",
@@ -27,11 +30,11 @@
       "deskripsi": "Menguji kemampuan verbal, numerik, dan logika berpikir",
       "materi": [
         "Kemampuan Verbal (Sinonim, Antonim, Analogi, Pemahaman Bacaan)",
-        "Kemampuan Numerik (Himpunan, Persentase, Perbandingan, Aritmatika Sosial)",
-        "Aritmetika dan Geometri (barisan aritmatika, barisan geometri, deret geometri tak berhingga)",
-        "Deret Angka (pola penjumlahan, pola perkalian)",
-        "Aljabar (persamaan linear, persamaan kuadrat)",
-        "Geometri (bangun datar, bangun ruang)"
+        "Kemampuan Numerik (Himpunan, Persentase, Perbandingan, Aritmatika Sosial, Aritmetika dan Geometri)",
+        "Deret Gambar (Figural) - Rotasi, Refleksi, Translasi, Skala",
+        "Teori Bilangan (Bilangan bulat, pecahan, desimal, positif/negatif, prima/komposit)",
+        "Operasi Bilangan Pecahan (Penjumlahan, pengurangan, perkalian, pembagian)",
+        "Kemampuan Logika (Deret Angka, Deret Huruf, Silogisme)"
       ]
     },
     {
@@ -42,8 +45,13 @@
       "materi": [
         "Sikap Kerja (Disiplin, Tanggung Jawab, Kerjasama Tim, Inisiatif, Kreativitas, Etos Kerja)",
         "Perilaku Sosial (Adaptasi, Komunikasi, Kerjasama, Manajemen Konflik)",
-        "Kepemimpinan (Kemampuan memimpin, pengambilan keputusan, motivasi)",
-        "Integritas Moral (Kejujuran, Konsistensi Moral, Komitmen pada Aturan, Keberanian Moral)"
+        "Kepemimpinan (Pengambilan Keputusan, Motivasi Tim, Delegasi)",
+        "Integritas Moral (Pengertian, Pentingnya, Ciri ASN Berintegritas, Nilai Dasar)",
+        "Pelayanan Publik (Prinsip pelayanan, standar pelayanan prima)",
+        "Jejaring Kerja (Membangun hubungan kerja, manfaat jejaring)",
+        "Sosial Budaya (Keberagaman, penghargaan terhadap perbedaan)",
+        "Teknologi Informasi dan Komunikasi (Pemanfaatan TIK, kompetensi digital)",
+        "Profesionalisme (Ciri profesional, pengembangan profesi)"
       ]
     },
     {
@@ -52,12 +60,10 @@
       "icon": "fas fa-graduation-cap",
       "deskripsi": "Menguji potensi akademik dalam matematika, bahasa, dan sains",
       "materi": [
-        "Matematika (persentase, jarak kecepatan waktu, deret huruf, logika matematika)",
-        "Bahasa Indonesia (pemahaman bacaan, sinonim, antonim, analogi)",
-        "Bahasa Inggris (reading comprehension, vocabulary, grammar)",
-        "Fisika Dasar (konsep dasar fisika)",
-        "Kimia Dasar (konsep dasar kimia)",
-        "Biologi Dasar (konsep dasar biologi)"
+        "Matematika Dasar (Aljabar, Aritmetika, Statistika)",
+        "Bahasa Indonesia (Tata bahasa, Pemahaman bacaan, Kosakata)",
+        "Bahasa Inggris (Grammar, Vocabulary, Reading Comprehension)",
+        "Sains (Fisika, Kimia, Biologi dasar)"
       ]
     },
     {
@@ -66,10 +72,18 @@
       "icon": "fas fa-puzzle-piece",
       "deskripsi": "Menguji kepribadian, mental, dan kemampuan sosial",
       "materi": [
+        "Tes IQ (Mengukur kecerdasan intelektual, berpikir abstrak, logis, rasional)",
+        "Tes Logika Aritmatika (Deret angka, logika angka, pola matematika)",
+        "Tes Analog Verbal (Sinonim, antonim, analogi kata, tata bahasa)",
+        "Tes Wartegg (Kreativitas, ketelitian, kepribadian)",
+        "Tes Spasial (Imajinasi visual, rotasi bentuk, pola geometris)",
+        "Tes Pauli/Kraepelin (Konsistensi, daya tahan, konsentrasi)",
+        "Tes Gambar Pohon (Aspek emosional, kepribadian, persepsi lingkungan)",
+        "Tes EPPS (Preferensi kepribadian, tanggung jawab, ambisi)",
+        "Tes MBTI (Tipe kepribadian, preferensi psikologis, potensi kerja)",
         "Kepribadian (Karakter dan Temperamen, Motivasi dan Emosi, Kecerdasan Emosional)",
         "Mental (Kestabilan Emosi, Ketahanan Stres, Konsentrasi, Keseimbangan Mental)",
-        "Sosial (Interaksi Sosial, Komunikasi, Empati)",
-        "Jenis Tes Psikotes (Tes IQ, Logika Aritmatika, Analog Verbal, Wartegg, Spasial, Pauli/Kraepelin, Gambar Pohon, EPPS, MBTI)"
+        "Sosial (Interaksi Sosial, Komunikasi, Empati)"
       ]
     }
   ]

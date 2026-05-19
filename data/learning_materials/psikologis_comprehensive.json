@@ -3,6 +3,149 @@
   "nama_kategori": "Tes Psikologis",
   "deskripsi": "Materi lengkap Tes Psikologis CPNS mencakup kepribadian, mental, dan sosial",
   "materi": {
+    "tes_iq": {
+      "judul": "Tes IQ",
+      "deskripsi": "Tes yang mengukur tingkat kecerdasan intelektual seseorang",
+      "tujuan": "Mengukur tingkat kecerdasan intelektual",
+      "materi": [
+        "Soal-soal yang melibatkan angka",
+        "Pola dan logika bahasa",
+        "Pemecahan masalah"
+      ],
+      "fungsi": [
+        "Menilai kemampuan berpikir abstrak",
+        "Menilai kemampuan berpikir logis",
+        "Menilai kemampuan berpikir rasional"
+      ],
+      "soal_contoh": [
+        "Lanjutkan deret angka: 2, 4, 8, 16, ...",
+        "Temukan pola dalam deret huruf: A, C, E, G, ...",
+        "Selesaikan pola logika yang diberikan"
+      ]
+    },
+    "tes_logika_aritmatika": {
+      "judul": "Tes Logika Aritmatika",
+      "deskripsi": "Tes yang menguji kemampuan analisis matematis",
+      "tujuan": "Mengukur kemampuan analisis, ketelitian, dan kecermatan dalam memecahkan masalah matematis",
+      "materi": [
+        "Deret angka",
+        "Logika angka",
+        "Pola matematika"
+      ],
+      "fungsi": "Melatih logika berpikir kritis dalam menyelesaikan masalah kuantitatif dengan cepat",
+      "soal_contoh": [
+        "Angka selanjutnya dari 3, 6, 12, 24, ... adalah",
+        "Pola dari 5, 10, 17, 26, 37, ... adalah",
+        "Selesaikan deret matematika yang diberikan"
+      ]
+    },
+    "tes_analog_verbal": {
+      "judul": "Tes Analog Verbal",
+      "deskripsi": "Tes yang berfokus pada kemampuan bahasa dan tata bahasa",
+      "tujuan": "Menguji kemampuan verbal dan pemahaman bahasa seseorang",
+      "materi": [
+        "Sinonim",
+        "Antonim",
+        "Analogi kata",
+        "Pemahaman tata bahasa"
+      ],
+      "fungsi": "Menilai kemampuan memahami hubungan antar kata serta logika bahasa",
+      "soal_contoh": [
+        "Sinonim dari kata 'cepat' adalah",
+        "Antonim dari kata 'besar' adalah",
+        "Hubungan antara kata 'Dokter' dan 'Pasien' sama dengan"
+      ]
+    },
+    "tes_wartegg": {
+      "judul": "Tes Wartegg",
+      "deskripsi": "Tes yang banyak digunakan untuk mengungkap kepribadian",
+      "tujuan": "Menilai kreativitas, ketelitian, dan kepribadian peserta",
+      "materi": "Gambar pola sederhana (garis atau titik) yang harus dilanjutkan oleh peserta menjadi gambar utuh",
+      "fungsi": [
+        "Mengungkap aspek psikologis seperti kreativitas",
+        "Mengungkap stabilitas emosional",
+        "Mengungkap pola berpikir"
+      ],
+      "soal_contoh": [
+        "Lanjutkan pola garis menjadi gambar yang bermakna",
+        "Buat gambar dari titik-titik yang diberikan",
+        "Selesaikan pola yang tidak lengkap"
+      ]
+    },
+    "tes_spasial": {
+      "judul": "Tes Spasial",
+      "deskripsi": "Tes yang berkaitan dengan kemampuan visual dan imajinasi",
+      "tujuan": "Mengukur kemampuan imajinasi dan kejelian terhadap bentuk atau pola",
+      "materi": [
+        "Gambar bangun ruang",
+        "Rotasi bentuk",
+        "Susunan pola geometris"
+      ],
+      "fungsi": "Menguji kecerdasan visual dan kemampuan memahami hubungan antar ruang",
+      "soal_contoh": [
+        "Bentuk selanjutnya dalam deret rotasi adalah",
+        "Susunan yang benar dari bangun ruang adalah",
+        "Identifikasi pola geometris yang sesuai"
+      ]
+    },
+    "tes_pauli": {
+      "judul": "Tes Pauli (Kraepelin)",
+      "deskripsi": "Tes yang digunakan untuk menilai konsistensi dan daya tahan",
+      "tujuan": "Mengukur konsistensi, daya tahan, dan tingkat konsentrasi peserta",
+      "materi": "Gugusan angka yang tersusun vertikal dalam bentuk lajur yang harus dijumlahkan secara cepat dan konsisten",
+      "fungsi": "Menilai ketahanan fisik dan mental saat bekerja di bawah tekanan",
+      "soal_contoh": [
+        "Jumlahkan angka-angka dalam kolom secara cepat",
+        "Selesaikan penjumlahan berurutan dengan tepat",
+        "Jumlahkan deret angka dalam waktu terbatas"
+      ]
+    },
+    "tes_gambar_pohon": {
+      "judul": "Tes Gambar Pohon",
+      "deskripsi": "Tes yang sering digunakan untuk menggali aspek psikologis yang lebih dalam",
+      "tujuan": "Menyelidiki hubungan peserta dengan kehidupan sosial dan keluarga",
+      "materi": "Peserta diminta menggambar pohon dengan detail tertentu",
+      "fungsi": [
+        "Menyingkap aspek emosional",
+        "Menyingkap kepribadian",
+        "Menyingkap persepsi individu terhadap lingkungan sosial"
+      ],
+      "soal_contoh": [
+        "Gambar pohon sesuai imajinasi Anda",
+        "Tambahkan detail pada gambar pohon",
+        "Jelaskan makna dari gambar pohon yang dibuat"
+      ]
+    },
+    "tes_epps": {
+      "judul": "Tes Edward Personal Preference Schedule (EPPS)",
+      "deskripsi": "Tes kepribadian yang fokus pada preferensi individu",
+      "tujuan": "Mengukur kecenderungan kepribadian dan preferensi seseorang",
+      "materi": "Pernyataan verbal di mana peserta harus memilih salah satu dari dua pernyataan yang diberikan",
+      "fungsi": "Menilai kecenderungan kepribadian seperti tanggung jawab, ambisi, dan kebutuhan sosial",
+      "soal_contoh": [
+        "Pilih pernyataan yang lebih menggambarkan diri Anda",
+        "Pilih preferensi yang sesuai dengan kepribadian",
+        "Tentukan pernyataan yang paling relevan"
+      ]
+    },
+    "tes_mbti": {
+      "judul": "Tes MBTI (Myers-Briggs Type Indicator)",
+      "deskripsi": "Tes untuk memahami cara seseorang berpikir dan bertindak",
+      "tujuan": "Memahami preferensi psikologis individu dalam memandang dunia dan membuat keputusan",
+      "materi": "Serangkaian pertanyaan yang mengukur dimensi kepribadian seperti introversi-ekstroversi, penginderaan-intuisi, pemikiran-perasaan, dan penilaian-persepsi",
+      "fungsi": "Membantu memahami tipe kepribadian dan potensi seseorang dalam dunia kerja",
+      "dimensi": [
+        "Introversi vs Ekstroversi",
+        "Penginderaan vs Intuisi",
+        "Pemikiran vs Perasaan",
+        "Penilaian vs Persepsi"
+      ],
+      "soal_contoh": [
+        "Pilih pernyataan yang menggambarkan cara Anda berinteraksi",
+        "Tentukan preferensi dalam pengambilan keputusan",
+        "Identifikasi tipe kepribadian yang sesuai"
+      ]
+    },
     "kepribadian": {
       "judul": "Kepribadian",
       "deskripsi": "Struktur dan karakteristik kepribadian manusia",

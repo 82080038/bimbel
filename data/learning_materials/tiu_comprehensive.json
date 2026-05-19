@@ -392,26 +392,132 @@
     "logika": {
       "judul": "Kemampuan Logika",
       "deskripsi": "Menguji kemampuan berpikir logis dan analitis",
-      "silogisme": {
-        "judul": "Silogisme",
-        "deskripsi": "Menarik kesimpulan dari dua premis (mayor dan minor)",
-        "struktur": {
-          "premis_mayor": "Pernyataan umum",
-          "premis_minor": "Pernyataan khusus",
-          "konklusi": "Kesimpulan dari premis mayor dan minor"
+      "deret_angka": {
+        "judul": "Deret Angka",
+        "deskripsi": "Menentukan angka selanjutnya dalam pola deret",
+        "pola_deret": [
+          "Penjumlahan (misal: 2, 4, 6, 8, ...)",
+          "Perkalian (misal: 2, 4, 8, 16, ...)",
+          "Campuran (misal: 2, 6, 12, 20, ...)",
+          "Pangkat (misal: 2, 4, 16, 256, ...)"
+        ],
+        "tips_mengerjakan": [
+          "Cari selisih antar angka berturut-turut",
+          "Perhatikan pola perkalian atau pembagian",
+          "Cek apakah ada pola campuran",
+          "Gunakan operasi matematika dasar"
+        ],
+        "soal_contoh": [
+          "Angka selanjutnya dari deret 2, 6, 12, 20, ... adalah...",
+          "Deret 3, 9, 27, 81, ... mengikuti pola...",
+          "Angka yang hilang dari deret 1, 4, 9, 16, ..., 36 adalah..."
+        ]
+      },
+      "deret_huruf": {
+        "judul": "Deret Huruf",
+        "deskripsi": "Menentukan huruf selanjutnya dalam pola deret",
+        "pola_deret": [
+          "Urutan alfabet (A, B, C, D, ...)",
+          "Lompat huruf (A, C, E, G, ...)",
+          "Urutan terbalik (Z, Y, X, W, ...)"
+        ],
+        "tips_mengerjakan": [
+          "Hafal urutan abjad",
+          "Perhatikan pola lompatan",
+          "Cek apakah ada pola urutan terbalik",
+          "Gunakan logika penomoran huruf"
+        ],
+        "soal_contoh": [
+          "Huruf selanjutnya dari deret A, C, E, G, ... adalah...",
+          "Deret Z, W, T, Q, ... mengikuti pola...",
+          "Huruf yang hilang dari deret A, D, G, ..., M adalah..."
+        ]
+      },
+      "deret_gambar": {
+        "judul": "Deret Gambar (Figural)",
+        "deskripsi": "Menentukan pola atau gambar selanjutnya dalam deret",
+        "jenis_pola": [
+          "Rotasi (perputaran bentuk)",
+          "Refleksi (cerminan bentuk)",
+          "Translasi (pergeseran posisi)",
+          "Skala (perbesaran/perkecilan)"
+        ],
+        "tips_mengerjakan": [
+          "Perhatikan perubahan posisi dari satu gambar ke gambar berikutnya",
+          "Cari pola rotasi berlawanan atau searah jarum jam",
+          "Perhatikan perubahan ukuran atau bentuk",
+          "Identifikasi pola berulang dalam deret"
+        ],
+        "soal_contoh": [
+          "Gambar selanjutnya dalam deret mengikuti pola...",
+          "Perubahan yang terjadi dari gambar pertama ke kedua adalah...",
+          "Gambar yang tidak mengikuti pola deret adalah..."
+        ]
+      },
+      "teori_bilangan": {
+        "judul": "Teori Bilangan",
+        "deskripsi": "Pemahaman tentang jenis-jenis bilangan dan operasinya",
+        "jenis_bilangan": [
+          "Bilangan bulat (integer)",
+          "Bilangan pecahan (fraction)",
+          "Bilangan desimal",
+          "Bilangan positif dan negatif",
+          "Bilangan prima dan komposit"
+        ],
+        "operasi_dasar": [
+          "Penjumlahan dan pengurangan",
+          "Perkalian dan pembagian",
+          "Pangkat dan akar",
+          "Operasi campuran"
+        ],
+        "tips_mengerjakan": [
+          "Pahami sifat-sifat operasi bilangan",
+          "Perhatikan aturan tanda dalam operasi",
+          "Gunakan sifat komutatif dan asosiatif",
+          "Sederhanakan pecahan sebelum operasi"
+        ],
+        "soal_contoh": [
+          "Hasil dari 15 + (-8) adalah...",
+          "Bentuk sederhana dari 3/4 + 1/2 adalah...",
+          "Bilangan prima di antara 10 dan 20 adalah..."
+        ]
+      },
+      "operasi_pecahan": {
+        "judul": "Operasi Bilangan Pecahan",
+        "deskripsi": "Penjumlahan, pengurangan, perkalian, dan pembagian pecahan",
+        "penjumlahan_pengurangan": {
+          "deskripsi": "Samakan penyebut terlebih dahulu",
+          "langkah": ["Cari KPK dari penyebut", "Samakan penyebut", "Jumlahkan/kurangkan pembilang", "Sederhanakan hasil"]
         },
-        "contoh": {
-          "premis_mayor": "Semua manusia fana",
-          "premis_minor": "Socrates adalah manusia",
-          "konklusi": "Socrates fana"
+        "perkalian_pembagian": {
+          "deskripsi": "Kalikan pembilang dengan pembilang, penyebut dengan penyebut",
+          "langkah": ["Kalikan pembilang dengan pembilang", "Kalikan penyebut dengan penyebut", "Sederhanakan hasil"]
         },
         "tips_mengerjakan": [
+          "Samakan penyebut untuk penjumlahan/pengurangan",
+          "Sederhanakan pecahan sebelum operasi",
+          "Perhatikan tanda negatif pada pecahan",
+          "Cek kembali hasil perhitungan"
+        ],
+        "soal_contoh": [
+          "Hasil dari 2/3 + 1/4 adalah...",
+          "3/5 dikurangi 1/3 sama dengan...",
+          "Hasil kali dari 2/3 dan 4/5 adalah..."
+        ]
+      },
+      "silogisme": {
+        "judul": "Silogisme",
+        "deskripsi": "Menarik kesimpulan dari premis yang diberikan",
+        "struktur_silogisme": [
+          "Premis mayor: Pernyataan umum",
+          "Premis minor: Pernyataan khusus",
+          "Kesimpulan: Pernyataan hasil penarikan"
+        ],
+        "tips_mengerjakan": [
           "Identifikasi premis mayor dan minor",
-          "Cari hubungan antar-subjek dalam premis",
-          "Gunakan diagram Venn jika perlu untuk visualisasi",
-          "Hindari asumsi luar yang tidak ada dalam premis",
-          "Perhatikan kata kunci: semua, sebagian, tidak ada",
-          "Konklusi harus mengikuti secara logis dari premis"
+          "Cari hubungan logis antar premis",
+          "Tarik kesimpulan yang logis",
+          "Hindari kesimpulan yang tidak didukung premis"
         ],
         "soal_contoh": [
           "Semua atlet harus menjaga pola makan. Sebagian warga desa adalah atlet. Kesimpulan yang tepat adalah...",
