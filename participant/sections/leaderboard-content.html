@@ -1,0 +1,101 @@
+<button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+    <i class="fas fa-moon" id="darkModeIcon"></i>
+</button>
+
+<div class="container">
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-section">
+            <h1><i class="fas fa-trophy"></i> Leaderboard</h1>
+            <p>Peringkat peserta berdasarkan performa ujian</p>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">Filter Periode:</label>
+                    <select class="form-select" id="periodFilter">
+                        <option value="all">Semua Waktu</option>
+                        <option value="week">Minggu Ini</option>
+                        <option value="month">Bulan Ini</option>
+                        <option value="year">Tahun Ini</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Filter Kategori:</label>
+                    <select class="form-select" id="categoryFilter">
+                        <option value="all">Semua Kategori</option>
+                        <option value="skd">SKD</option>
+                        <option value="tpa">TPA</option>
+                        <option value="psikotes">Psikotes</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Urutkan Berdasarkan:</label>
+                    <select class="form-select" id="sortBy">
+                        <option value="xp">Total XP</option>
+                        <option value="score">Rata-rata Skor</option>
+                        <option value="streak">Streak</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 3 Podium -->
+        <div class="podium-section" id="podiumSection">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Memuat leaderboard...</p>
+            </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="leaderboard-table-section">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Peringkat</th>
+                                    <th>Peserta</th>
+                                    <th>Total XP</th>
+                                    <th>Level</th>
+                                    <th>Rata-rata Skor</th>
+                                    <th>Streak</th>
+                                    <th>Badges</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Position -->
+        <div class="my-position-section">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-user me-2"></i>Posisi Anda</h5>
+                    <div id="myPositionContent">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

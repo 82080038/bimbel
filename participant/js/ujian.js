@@ -694,6 +694,8 @@
                     showExamScreen();
                     displayQuestion();
                     startTimer();
+                    // Show Jawab Random button during development
+                    document.getElementById('jawabRandomBtn').style.display = 'inline-block';
                 } else {
                     alert('Gagal memuat soal');
                 }
@@ -718,12 +720,53 @@
                     isPracticeMode = true;
                     showExamScreen();
                     displayQuestion();
+                    // Show Jawab Random button during development
+                    document.getElementById('jawabRandomBtn').style.display = 'inline-block';
                 } else {
                     alert('Gagal memuat soal latihan');
                 }
             } catch (error) {
                 console.error('Error loading practice questions:', error);
                 alert('Terjadi kesalahan saat memuat soal latihan');
+            }
+        }
+
+        // Jawab Random - Development/testing feature
+        async function jawabRandom() {
+            if (!currentQuestions || currentQuestions.length === 0) {
+                alert('Tidak ada soal untuk dijawab');
+                return;
+            }
+
+            if (!confirm('Anda yakin ingin menjawab semua soal secara random? Ini akan menyelesaikan ujian secara otomatis.')) {
+                return;
+            }
+
+            // Randomly answer all questions
+            const options = ['A', 'B', 'C', 'D', 'E'];
+            for (let i = 0; i < currentQuestions.length; i++) {
+                const randomOption = options[Math.floor(Math.random() * options.length)];
+                currentQuestions[i].userAnswer = randomOption;
+                
+                // Update the UI to show the answer
+                if (i === currentQuestionIndex) {
+                    const optionElement = document.querySelector(`input[value="${randomOption}"]`);
+                    if (optionElement) {
+                        optionElement.checked = true;
+                    }
+                }
+                
+                // Small delay to show progress
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+
+            // Auto-submit the exam with fallback
+            try {
+                alert('Semua soal telah dijawab secara random. Ujian akan disubmit otomatis.');
+                await finalizeExam();
+            } catch (error) {
+                console.error('Error in finalizeExam:', error);
+                alert('Terjadi kesalahan saat submit otomatis. Silakan selesaikan ujian secara manual dengan tombol "Selesai Ujian".');
             }
         }
 

@@ -1,0 +1,384 @@
+{
+  "kategori": "TPA",
+  "nama_kategori": "Tes Potensi Akademik",
+  "deskripsi": "Materi lengkap Tes Potensi Akademik CPNS mencakup matematika, bahasa, dan sains",
+  "materi": {
+    "matematika": {
+      "judul": "Matematika",
+      "deskripsi": "Materi matematika dasar untuk TPA",
+      "aljabar": {
+        "judul": "Aljabar Dasar",
+        "deskripsi": "Operasi aljabar dan persamaan linear",
+        "operasi_dasar": {
+          "penjumlahan": "a + b = c",
+          "pengurangan": "a - b = c",
+          "perkalian": "a × b = c",
+          "pembagian": "a ÷ b = c"
+        },
+        "persamaan_linear": {
+          "bentuk": "ax + b = c",
+          "contoh": "2x + 3 = 7 → 2x = 4 → x = 2",
+          "soal_contoh": [
+            "Jika 3x + 5 = 14, maka x = ...",
+            "Penyelesaian dari 5x - 7 = 13 adalah...",
+            "Jika 2x + 8 = 20, maka nilai x adalah..."
+          ]
+        },
+        "persamaan_kuadrat": {
+          "bentuk": "ax² + bx + c = 0",
+          "rumus_abc": "x = (-b ± √(b² - 4ac)) / 2a",
+          "contoh": "x² - 5x + 6 = 0 → (x-2)(x-3) = 0 → x = 2 atau x = 3",
+          "soal_contoh": [
+            "Akar-akar dari x² - 7x + 12 = 0 adalah...",
+            "Penyelesaian dari x² - 9 = 0 adalah...",
+            "Jika x² - 4x + 3 = 0, maka nilai x adalah..."
+          ]
+        }
+      },
+      "geometri": {
+        "judul": "Geometri",
+        "deskripsi": "Bangun datar dan ruang",
+        "bangun_datar": {
+          "persegi": {
+            "luas": "s × s",
+            "keliling": "4 × s",
+            "diagonal": "s√2",
+            "soal_contoh": [
+              "Luas persegi dengan sisi 10 cm adalah...",
+              "Keliling persegi dengan sisi 8 cm adalah...",
+              "Diagonal persegi dengan sisi 6 cm adalah..."
+            ]
+          },
+          "persegi_panjang": {
+            "luas": "p × l",
+            "keliling": "2 × (p + l)",
+            "diagonal": "√(p² + l²)",
+            "soal_contoh": [
+              "Luas persegi panjang dengan panjang 12 cm dan lebar 8 cm adalah...",
+              "Keliling persegi panjang dengan panjang 15 cm dan lebar 10 cm adalah...",
+              "Diagonal persegi panjang dengan panjang 9 cm dan lebar 12 cm adalah..."
+            ]
+          },
+          "segitiga": {
+            "luas": "½ × alas × tinggi",
+            "keliling": "a + b + c",
+            "soal_contoh": [
+              "Luas segitiga dengan alas 12 cm dan tinggi 8 cm adalah...",
+              "Keliling segitiga dengan sisi 5 cm, 12 cm, 13 cm adalah...",
+              "Jika luas segitiga 24 cm² dan alas 8 cm, maka tingginya adalah..."
+            ]
+          },
+          "lingkaran": {
+            "luas": "π × r²",
+            "keliling": "2 × π × r",
+            "diameter": "2 × r",
+            "π": "3.14 atau 22/7",
+            "soal_contoh": [
+              "Luas lingkaran dengan jari-jari 7 cm adalah...",
+              "Keliling lingkaran dengan diameter 14 cm adalah...",
+              "Jika luas lingkaran 154 cm², maka jari-jarinya adalah..."
+            ]
+          }
+        },
+        "bangun_ruang": {
+          "kubus": {
+            "volume": "s³",
+            "luas_permukaan": "6 × s²",
+            "rusuk": "12 × s",
+            "soal_contoh": [
+              "Volume kubus dengan rusuk 5 cm adalah...",
+              "Luas permukaan kubus dengan rusuk 4 cm adalah...",
+              "Jika volume kubus 216 cm³, maka panjang rusuknya adalah..."
+            ]
+          },
+          "balok": {
+            "volume": "p × l × t",
+            "luas_permukaan": "2 × (pl + pt + lt)",
+            "soal_contoh": [
+              "Volume balok dengan panjang 10 cm, lebar 5 cm, dan tinggi 8 cm adalah...",
+              "Luas permukaan balok dengan panjang 12 cm, lebar 6 cm, dan tinggi 4 cm adalah...",
+              "Jika volume balok 240 cm³, panjang 10 cm, dan lebar 6 cm, maka tingginya adalah..."
+            ]
+          },
+          "tabung": {
+            "volume": "π × r² × t",
+            "luas_permukaan": "2πr(r + t)",
+            "soal_contoh": [
+              "Volume tabung dengan jari-jari 7 cm dan tinggi 10 cm adalah...",
+              "Luas permukaan tabung dengan jari-jari 5 cm dan tinggi 12 cm adalah..."
+            ]
+          },
+          "bola": {
+            "volume": "(4/3) × π × r³",
+            "luas_permukaan": "4 × π × r²",
+            "soal_contoh": [
+              "Volume bola dengan jari-jari 7 cm adalah...",
+              "Luas permukaan bola dengan jari-jari 14 cm adalah..."
+            ]
+          }
+        }
+      },
+      "statistik": {
+        "judul": "Statistik Dasar",
+        "deskripsi": "Pengolahan data sederhana",
+        "mean": {
+          "definisi": "Rata-rata dari sekumpulan data",
+          "rumus": "Mean = (Σx) / n",
+          "contoh": "Mean dari 2, 4, 6, 8, 10 = (2+4+6+8+10)/5 = 6",
+          "soal_contoh": [
+            "Mean dari data 3, 5, 7, 9, 11 adalah...",
+            "Jika mean dari 5 data adalah 20 dan jumlah 4 data adalah 80, maka data ke-5 adalah...",
+            "Rata-rata dari 10, 20, 30, 40, 50 adalah..."
+          ]
+        },
+        "median": {
+          "definisi": "Nilai tengah dari data yang diurutkan",
+          "contoh": "Median dari 2, 4, 6, 8, 10 adalah 6",
+          "soal_contoh": [
+            "Median dari data 1, 3, 5, 7, 9, 11 adalah...",
+            "Median dari 10, 20, 30, 40, 50 adalah...",
+            "Jika median dari 5 data adalah 15, maka..."
+          ]
+        },
+        "modus": {
+          "definisi": "Nilai yang paling sering muncul",
+          "contoh": "Modus dari 2, 3, 3, 4, 4, 4, 5 adalah 4",
+          "soal_contoh": [
+            "Modus dari data 1, 2, 2, 3, 3, 3, 4 adalah...",
+            "Nilai yang paling sering muncul dari 5, 5, 6, 7, 7, 7, 8 adalah..."
+          ]
+        }
+      },
+      "trigonometri": {
+        "judul": "Trigonometri Dasar",
+        "deskripsi": "Perbandingan sisi pada segitiga siku-siku",
+        "perbandingan": {
+          "sin": "Sinus = depan / miring",
+          "cos": "Cosinus = samping / miring",
+          "tan": "Tangen = depan / samping"
+        },
+        "sudut_istimewa": {
+          "0_derajat": {"sin": "0", "cos": "1", "tan": "0"},
+          "30_derajat": {"sin": "1/2", "cos": "√3/2", "tan": "1/√3"},
+          "45_derajat": {"sin": "1/√2", "cos": "1/√2", "tan": "1"},
+          "60_derajat": {"sin": "√3/2", "cos": "1/2", "tan": "√3"},
+          "90_derajat": {"sin": "1", "cos": "0", "tan": "tak terhingga"}
+        },
+        "soal_contoh": [
+          "Sin 30° adalah...",
+          "Cos 60° adalah...",
+          "Tan 45° adalah...",
+          "Jika sin A = 3/5 dan sudut A lancip, maka cos A adalah..."
+        ]
+      }
+    },
+    "bahasa": {
+      "judul": "Bahasa",
+      "deskripsi": "Materi bahasa Indonesia dan Inggris",
+      "bahasa_indonesia": {
+        "judul": "Bahasa Indonesia",
+        "deskripsi": "Tata bahasa dan pemahaman bacaan",
+        "tata_bahasa": {
+          "kata_baku": {
+            "deskripsi": "Kata yang sesuai dengan kaidah bahasa baku",
+            "contoh": [
+              {"baku": "aplikasi", "tidak_baku": "aplikasi"},
+              {"baku": "analisis", "tidak_baku": "analisa"},
+              {"baku": "aktivitas", "tidak_baku": "aktifitas"},
+              {"baku": "bibit", "tidak_baku": "bihibit"},
+              {"baku": "cendekia", "tidak_baku": "cendekiawan"}
+            ],
+            "soal_contoh": [
+              "Kata baku dari 'aplikasi' adalah...",
+              "Kata yang tidak baku adalah...",
+              "Penulisan kata yang benar adalah..."
+            ]
+          },
+          "ejaan": {
+            "deskripsi": "Ketentuan penulisan yang benar",
+            "aturan": [
+              "Kata depan di- ke- dan se- ditulis serangkai",
+              "Kata ulang ditulis dengan tanda hubung",
+              "Nama jabatan ditulis dengan huruf kapital",
+              "Singkatan nama gelar tidak diakhiri titik"
+            ],
+            "soal_contoh": [
+              "Penulisan yang benar adalah...",
+              "Ejaan yang sesuai dengan EYD adalah...",
+              "Kata ulang yang benar adalah..."
+            ]
+          },
+          "struktur_kalimat": {
+            "deskripsi": "Susunan kata yang membentuk kalimat",
+            "jenis_kalimat": [
+              "Kalimat efektif",
+              "Kalimat pasif",
+              "Kalimat aktif",
+              "Kalimat tanya",
+              "Kalimat perintah"
+            ],
+            "soal_contoh": [
+              "Kalimat efektif dari pernyataan tersebut adalah...",
+              "Kalimat pasif dari 'Saya membeli buku' adalah...",
+              "Kalimat tanya yang benar adalah..."
+            ]
+          }
+        },
+        "pemahaman_bacaan": {
+          "judul": "Pemahaman Bacaan",
+          "deskripsi": "Memahami isi teks",
+          "tips": [
+            "Baca teks secara seksama",
+            "Identifikasi ide pokok",
+            "Cari informasi spesifik",
+            "Buat kesimpulan"
+          ],
+          "soal_contoh": [
+            "Ide pokok paragraf tersebut adalah...",
+            "Informasi utama dalam teks adalah...",
+            "Kesimpulan yang tepat dari teks adalah..."
+          ]
+        }
+      },
+      "bahasa_inggris": {
+        "judul": "Bahasa Inggris",
+        "deskripsi": "Tata bahasa dan kosakata Inggris",
+        "grammar": {
+          "tenses": {
+            "present_simple": "S + V1/es",
+            "present_continuous": "S + am/is/are + V-ing",
+            "past_simple": "S + V2",
+            "present_perfect": "S + have/has + V3",
+            "future_simple": "S + will + V1"
+          },
+          "contoh_soal": [
+            "She ___ to school every day (go)",
+            "They ___ playing football now (are)",
+            "I ___ finished my homework (have)",
+            "He ___ come tomorrow (will)"
+          ]
+        },
+        "vocabulary": {
+          "judul": "Kosakata",
+          "contoh": [
+            {"kata": "success", "arti": "kesuksesan"},
+            {"kata": "achievement", "arti": "pencapaian"},
+            {"kata": "opportunity", "arti": "kesempatan"},
+            {"kata": "challenge", "arti": "tantangan"},
+            {"kata": "development", "arti": "pengembangan"}
+          ],
+          "soal_contoh": [
+            "Antonym of 'success' is...",
+            "Synonym of 'achievement' is...",
+            "The meaning of 'opportunity' is..."
+          ]
+        },
+        "reading_comprehension": {
+          "judul": "Reading Comprehension",
+          "deskripsi": "Memahami teks bahasa Inggris",
+          "soal_contoh": [
+            "Based on the text, the main idea is...",
+            "The author's purpose is to...",
+            "According to the passage..."
+          ]
+        }
+      }
+    },
+    "sains": {
+      "judul": "Sains",
+      "deskripsi": "Materi fisika, kimia, dan biologi dasar",
+      "fisika": {
+        "judul": "Fisika Dasar",
+        "deskripsi": "Konsep dasar fisika",
+        "besaran": {
+          "panjang": "meter (m)",
+          "massa": "kilogram (kg)",
+          "waktu": "sekon (s)",
+          "suhu": "kelvin (K)",
+          "kuat_arus": "ampere (A)"
+        },
+        "hukum_newton": {
+          "hukum_1": "Benda diam tetap diam, bergerak tetap bergerak",
+          "hukum_2": "F = m × a",
+          "hukum_3": "Aksi = -reaksi"
+        },
+        "energi": {
+          "kinetik": "Ek = ½mv²",
+          "potensial": "Ep = mgh",
+          "soal_contoh": [
+            "Energi kinetik benda 2 kg yang bergerak 10 m/s adalah...",
+            "Energi potensial benda 5 kg pada ketinggian 10 m adalah..."
+          ]
+        },
+        "soal_contoh": [
+          "Satuan SI untuk panjang adalah...",
+          "Hukum Newton kedua dirumuskan sebagai...",
+          "Jika gaya 10 N bekerja pada benda 2 kg, percepatannya adalah..."
+        ]
+      },
+      "kimia": {
+        "judul": "Kimia Dasar",
+        "deskripsi": "Konsep dasar kimia",
+        "atom": {
+          "proton": "Bermuatan positif",
+          "neutron": "Tidak bermuatan",
+          "elektron": "Bermuatan negatif"
+        },
+        "unsur": {
+          "hidrogen": "H, nomor atom 1",
+          "oksigen": "O, nomor atom 8",
+          "karbon": "C, nomor atom 6",
+          "nitrogen": "N, nomor atom 7"
+        },
+        "reaksi": {
+          "sintesis": "A + B → AB",
+          "dekomposisi": "AB → A + B",
+          "penukaran": "AB + C → AC + B"
+        },
+        "soal_contoh": [
+          "Partikel atom yang bermuatan positif adalah...",
+          "Nomor atom oksigen adalah...",
+          "Reaksi sintesis ditunjukkan oleh..."
+        ]
+      },
+      "biologi": {
+        "judul": "Biologi Dasar",
+        "deskripsi": "Konsep dasar biologi",
+        "sel": {
+          "membran_sel": "Melindungi sel",
+          "sitoplasma": "Cairan sel",
+          "inti_sel": "Mengendalikan aktivitas sel",
+          "mitokondria": "Pabrik energi"
+        },
+        "organ": {
+          "jantung": "Memompa darah",
+          "paru_paru": "Pernapasan",
+          "hati": "Detoksifikasi",
+          "ginjal": "Ekskresi"
+        },
+        "sistem": {
+          "pencernaan": "Mencerna makanan",
+          "peredaran_darah": "Mengedarkan darah",
+          "pernapasan": "Pertukaran gas",
+          "saraf": "Koordinasi tubuh"
+        },
+        "soal_contoh": [
+          "Bagian sel yang berfungsi sebagai pabrik energi adalah...",
+          "Organ yang berfungsi memompa darah adalah...",
+          "Sistem yang bertugas mencerna makanan adalah..."
+        ]
+      }
+    }
+  },
+  "referensi": [
+    "Buku Matematika SMA",
+    "Buku Fisika SMA",
+    "Buku Kimia SMA",
+    "Buku Biologi SMA",
+    "Buku Bahasa Indonesia SMA",
+    "Buku Bahasa Inggris SMA"
+  ],
+  "tags": ["TPA", "Matematika", "Bahasa", "Sains", "Fisika", "Kimia", "Biologi", "CPNS"],
+  "created_at": "2026-05-20",
+  "version": "2.0"
+}

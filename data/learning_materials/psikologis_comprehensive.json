@@ -1,0 +1,281 @@
+{
+  "kategori": "PSIKOLOGIS",
+  "nama_kategori": "Tes Psikologis",
+  "deskripsi": "Materi lengkap Tes Psikologis CPNS mencakup kepribadian, mental, dan sosial",
+  "materi": {
+    "kepribadian": {
+      "judul": "Kepribadian",
+      "deskripsi": "Struktur dan karakteristik kepribadian manusia",
+      "karakter_dan_temperamen": {
+        "judul": "Karakter dan Temperamen",
+        "deskripsi": "Sifat dasar yang mempengaruhi perilaku",
+        "temperamen": {
+          "sanguinis": {
+            "deskripsi": "Optimis, ceria, mudah bergaul",
+            "kelebihan": ["Ramah", "Pandai bergaul", "Optimis"],
+            "kekurangan": ["Kurang fokus", "Mudah terpengaruh", "Impulsif"]
+          },
+          "koleris": {
+            "deskripsi": "Pemimpin, tegas, dominan",
+            "kelebihan": ["Pemimpin", "Tegas", "Berani"],
+            "kekurangan": ["Keras kepala", "Sensitif", "Terburu-buru"]
+          },
+          "melankolis": {
+            "deskripsi": "Perfeksionis, detail, analitis",
+            "kelebihan": ["Detail", "Analitis", "Terorganisir"],
+            "kekurangan": ["Pesimis", "Overthinking", "Kritis"]
+          },
+          "fleugmatis": {
+            "deskripsi": "Tenang, sabar, stabil",
+            "kelebihan": ["Sabar", "Stabil", "Diplomatis"],
+            "kekurangan": ["Lambat", "Pasif", "Menghindari konflik"]
+          }
+        },
+        "soal_contoh": [
+          "Temperamen yang cenderung optimis dan ceria adalah...",
+          "Karakter yang suka menjadi pemimpin adalah...",
+          "Sifat perfeksionis lebih cenderung pada temperamen..."
+        ]
+      },
+      "motivasi_dan_emosi": {
+        "judul": "Motivasi dan Emosi",
+        "deskripsi": "Penggerak perilaku dan perasaan",
+        "jenis_motivasi": {
+          "intrinsik": "Datang dari dalam diri sendiri",
+          "ekstrinsik": "Datang dari luar (hadiah, hukuman)",
+          "afiliasi": "Keinginan untuk bergaul",
+          "prestasi": "Keinginan untuk sukses",
+          "kekuasaan": "Keinginan untuk mengontrol"
+        },
+        "jenis_emosi": {
+          "senang": "Perasaan positif dan menyenangkan",
+          "sedih": "Perasaan negatif karena kehilangan",
+          "marah": "Perasaan negatif karena ketidakadilan",
+          "takut": "Perasaan negatif karena ancaman",
+          "jijik": "Perasaan negatif karena sesuatu yang menjijikkan"
+        },
+        "soal_contoh": [
+          "Motivasi yang datang dari dalam diri disebut...",
+          "Emosi yang timbul karena ketidakadilan adalah...",
+          "Motivasi untuk bergaul dengan orang lain adalah..."
+        ]
+      },
+      "kecerdasan_emosional": {
+        "judul": "Kecerdasan Emosional (EQ)",
+        "deskripsi": "Kemampuan mengelola emosi diri dan orang lain",
+        "komponen_eq": {
+          "self_awareness": "Mengenali emosi diri sendiri",
+          "self_regulation": "Mengelola emosi diri",
+          "motivation": "Memotivasi diri",
+          "empathy": "Memahami emosi orang lain",
+          "social_skills": "Keterampilan sosial"
+        },
+        "cara_meningkatkan_eq": [
+          "Kenali emosi diri",
+          "Latih mengelola stres",
+          "Kembangkan empati",
+          "Tingkatkan keterampilan komunikasi",
+          "Belajar dari pengalaman"
+        ],
+        "soal_contoh": [
+          "Kemampuan mengenali emosi diri sendiri disebut...",
+          "Cara meningkatkan kecerdasan emosional adalah...",
+          "Komponen EQ yang berkaitan dengan memahami orang lain adalah..."
+        ]
+      },
+      "adaptasi_lingkungan": {
+        "judul": "Adaptasi Lingkungan",
+        "deskripsi": "Kemampuan menyesuaikan diri dengan lingkungan",
+        "tahap_adaptasi": [
+          "Honeymoon period - periode awal yang menyenangkan",
+          "Culture shock - kejutan budaya",
+          "Adjustment - penyesuaian",
+          "Adaptation - adaptasi penuh"
+        ],
+        "faktor_adaptasi": [
+          "Fleksibilitas",
+          "Open-mindedness",
+          "Kemampuan belajar",
+          "Dukungan sosial"
+        ],
+        "soal_contoh": [
+          "Tahap adaptasi di mana seseorang merasa senang dengan lingkungan baru disebut...",
+          "Faktor yang mempengaruhi kemampuan adaptasi adalah...",
+          "Tahap kejutan budaya dalam adaptasi disebut..."
+        ]
+      }
+    },
+    "mental": {
+      "judul": "Mental",
+      "deskripsi": "Kestabilan mental dan ketahanan dalam bekerja",
+      "kestabilan_emosi": {
+        "judul": "Kestabilan Emosi",
+        "penjelasan": "Kemampuan mengendalikan emosi dalam berbagai situasi",
+        "tes_wartegg": {
+          "tujuan": "Menilai kreativitas, ketelitian, dan kepribadian peserta",
+          "materi": "Gambar pola sederhana (garis atau titik) yang harus dilanjutkan menjadi gambar utuh",
+          "fungsi": "Mengungkap aspek psikologis seperti kreativitas, stabilitas emosional, dan pola berpikir"
+        }
+      },
+      "ketahanan_stres": {
+        "judul": "Ketahanan Stres",
+        "penjelasan": "Kemampuan bekerja di bawah tekanan",
+        "tes_pauli_kraepelin": {
+          "tujuan": "Mengukur konsistensi, daya tahan, dan tingkat konsentrasi peserta",
+          "materi": "Gugusan angka yang tersusun vertikal dalam bentuk lajur yang harus dijumlahkan secara cepat dan konsisten",
+          "fungsi": "Menilai ketahanan fisik dan mental saat bekerja di bawah tekanan"
+        }
+      },
+      "konsentrasi": {
+        "judul": "Konsentrasi",
+        "penjelasan": "Kemampuan fokus pada tugas yang diberikan",
+        "contoh_penerapan": [
+          "Fokus pada pekerjaan tanpa gangguan",
+          "Menyelesaikan tugas dengan teliti",
+          "Menghindari kesalahan karena tidak fokus"
+        ],
+        "soal_contoh": [
+          "Cara menjaga konsentrasi dalam bekerja adalah...",
+          "Jika banyak gangguan, sikap yang tepat adalah...",
+          "Cara mengembangkan kemampuan konsentrasi adalah..."
+        ]
+      },
+      "keseimbangan_mental": {
+        "judul": "Keseimbangan Mental",
+        "penjelasan": "Keseimbangan antara pekerjaan dan kehidupan pribadi",
+        "contoh_penerapan": [
+          "Mengatur waktu kerja dan istirahat",
+          "Menjaga kesehatan mental",
+          "Mengelola stres dengan baik"
+        ],
+        "soal_contoh": [
+          "Cara menjaga keseimbangan mental adalah...",
+          "Jika mengalami stres berat, tindakan yang tepat adalah...",
+          "Cara mengembangkan keseimbangan mental adalah..."
+        ]
+      }
+    },
+    "sosial": {
+      "judul": "Sosial",
+      "deskripsi": "Interaksi dan hubungan sosial",
+      "interaksi_sosial": {
+        "judul": "Interaksi Sosial",
+        "deskripsi": "Cara berinteraksi dengan orang lain",
+        "jenis_interaksi": [
+          "Verbal - komunikasi lisan",
+          "Non-verbal - bahasa tubuh",
+          "Tertulis - komunikasi tulisan",
+          "Digital - komunikasi online"
+        ],
+        "prinsip_interaksi": [
+          "Hormati orang lain",
+          "Dengarkan dengan baik",
+          "Jujur dan terbuka",
+          "Empati",
+          "Saling menghargai"
+        ],
+        "soal_contoh": [
+          "Jenis interaksi yang menggunakan bahasa tubuh adalah...",
+          "Prinsip interaksi sosial yang penting adalah...",
+          "Cara meningkatkan kemampuan interaksi sosial adalah..."
+        ]
+      },
+      "komunikasi": {
+        "judul": "Komunikasi",
+        "deskripsi": "Kemampuan menyampaikan dan menerima informasi",
+        "komponen_komunikasi": {
+          "pengirim": "Orang yang menyampaikan pesan",
+          "penerima": "Orang yang menerima pesan",
+          "pesan": "Informasi yang disampaikan",
+          "media": "Alat komunikasi",
+          "konteks": "Situasi komunikasi"
+        },
+        "hambatan_komunikasi": [
+          "Bahasa",
+          "Fisik",
+          "Psikologis"
+        ],
+        "cara_mengembangkan_empati": [
+          "Dengarkan dengan penuh perhatian",
+          "Coba memahami perspektif orang lain",
+          "Jangan menghakimi",
+          "Tanyakan bagaimana perasaan mereka",
+          "Latih kepekaan emosional"
+        ],
+        "soal_contoh": [
+          "Jenis empati yang berkaitan dengan memahami perspektif adalah...",
+          "Cara mengembangkan empati adalah...",
+          "Manfaat memiliki empati yang tinggi adalah..."
+        ]
+      }
+    },
+    "jenis_tes_psikotes": {
+      "judul": "Jenis Tes Psikotes CPNS",
+      "deskripsi": "Jenis-jenis tes psikotes yang umum digunakan dalam seleksi CPNS",
+      "tes_iq": {
+        "judul": "Tes IQ",
+        "tujuan": "Mengukur tingkat kecerdasan intelektual seseorang",
+        "materi": "Soal-soal yang melibatkan angka, pola, logika bahasa, dan pemecahan masalah",
+        "fungsi": "Membantu menilai kemampuan berpikir abstrak, logis, dan rasional"
+      },
+      "tes_logika_aritmatika": {
+        "judul": "Tes Logika Aritmatika",
+        "tujuan": "Mengukur kemampuan analisis, ketelitian, dan kecermatan dalam memecahkan masalah matematis",
+        "materi": "Soal berupa deret angka, logika angka, atau pola matematika",
+        "fungsi": "Melatih logika berpikir kritis dalam menyelesaikan masalah kuantitatif dengan cepat"
+      },
+      "tes_analog_verbal": {
+        "judul": "Tes Analog Verbal",
+        "tujuan": "Menguji kemampuan verbal dan pemahaman bahasa seseorang",
+        "materi": "Soal sinonim, antonim, analogi kata, dan pemahaman tata bahasa",
+        "fungsi": "Menilai kemampuan memahami hubungan antar kata serta logika bahasa"
+      },
+      "tes_wartegg": {
+        "judul": "Tes Wartegg",
+        "tujuan": "Menilai kreativitas, ketelitian, dan kepribadian peserta",
+        "materi": "Gambar pola sederhana (garis atau titik) yang harus dilanjutkan oleh peserta menjadi gambar utuh",
+        "fungsi": "Mengungkap aspek psikologis seperti kreativitas, stabilitas emosional, dan pola berpikir"
+      },
+      "tes_spasial": {
+        "judul": "Tes Spasial",
+        "tujuan": "Mengukur kemampuan imajinasi dan kejelian terhadap bentuk atau pola",
+        "materi": "Soal berupa gambar bangun ruang, rotasi bentuk, atau susunan pola geometris",
+        "fungsi": "Menguji kecerdasan visual dan kemampuan memahami hubungan antar ruang"
+      },
+      "tes_pauli_kraepelin": {
+        "judul": "Tes Pauli (Kraepelin)",
+        "tujuan": "Mengukur konsistensi, daya tahan, dan tingkat konsentrasi peserta",
+        "materi": "Gugusan angka yang tersusun vertikal dalam bentuk lajur yang harus dijumlahkan secara cepat dan konsisten",
+        "fungsi": "Menilai ketahanan fisik dan mental saat bekerja di bawah tekanan"
+      },
+      "tes_gambar_pohon": {
+        "judul": "Tes Gambar Pohon",
+        "tujuan": "Menyelidiki hubungan peserta dengan kehidupan sosial dan keluarga",
+        "materi": "Peserta diminta menggambar pohon dengan detail tertentu",
+        "fungsi": "Menyingkap aspek emosional, kepribadian, serta persepsi individu terhadap lingkungan sosial"
+      },
+      "tes_epps": {
+        "judul": "Tes Edward Personal Preference Schedule (EPPS)",
+        "tujuan": "Mengukur kecenderungan kepribadian dan preferensi seseorang",
+        "materi": "Pernyataan verbal di mana peserta harus memilih salah satu dari dua pernyataan yang diberikan",
+        "fungsi": "Menilai kecenderungan kepribadian seperti tanggung jawab, ambisi, dan kebutuhan sosial"
+      },
+      "tes_mbti": {
+        "judul": "MBTI (The Myers-Briggs Type Indicator)",
+        "tujuan": "Memahami preferensi psikologis individu dalam memandang dunia dan membuat keputusan",
+        "materi": "Serangkaian pertanyaan yang mengukur dimensi kepribadian seperti introversi-ekstroversi, penginderaan-intuisi, pemikiran-perasaan, dan penilaian-persepsi",
+        "fungsi": "Membantu memahami tipe kepribadian dan potensi seseorang dalam dunia kerja"
+      }
+    },
+    "referensi": [
+      "Buku Psikologi Umum",
+      "Buku Psikologi Kepribadian",
+      "Buku Psikologi Sosial",
+      "Buku Kesehatan Mental",
+      "Buku Tes Psikologi"
+    ],
+    "tags": ["PSIKOLOGIS", "Kepribadian", "Mental", "Sosial", "EQ", "CPNS"],
+    "created_at": "2026-05-20",
+    "version": "2.0"
+  }
+}

@@ -153,8 +153,15 @@
             for (const section of sections) {
                 try {
                     const response = await fetch(section.file);
+                    if (!response.ok) {
+                        console.error(`HTTP error loading ${section.file}: ${response.status}`);
+                        continue;
+                    }
                     const html = await response.text();
-                    document.getElementById(section.id).innerHTML = html;
+                    const element = document.getElementById(section.id);
+                    if (element) {
+                        element.innerHTML = html;
+                    }
                 } catch (error) {
                     console.error(`Error loading ${section.file}:`, error);
                 }
@@ -163,8 +170,13 @@
             // Load modals
             try {
                 const response = await fetch('components/modals.html');
-                const html = await response.text();
-                document.getElementById('modalsContainer').innerHTML = html;
+                if (response.ok) {
+                    const html = await response.text();
+                    const modalsContainer = document.getElementById('modalsContainer');
+                    if (modalsContainer) {
+                        modalsContainer.innerHTML = html;
+                    }
+                }
             } catch (error) {
                 console.error('Error loading modals:', error);
             }

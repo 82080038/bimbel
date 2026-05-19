@@ -243,13 +243,17 @@ function displayExamResult(result) {
 // Load question analysis
 async function loadQuestionAnalysis(resultId) {
     try {
-        // Fetch question analysis
-        const response = await fetch(AppConfig.apiUrl(`soal.php?action=get_question_analysis&result_id=${resultId}`), {
+        const response = await fetch(`${AppConfig.apiUrl}/soal.php?action=get_question_analysis&result_id=${resultId}`, {
             headers: RBAC.getAuthHeaders()
         });
 
         if (!response.ok) {
-            throw new Error('Gagal memuat analisis soal');
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Response is not JSON');
         }
 
         const data = await response.json();

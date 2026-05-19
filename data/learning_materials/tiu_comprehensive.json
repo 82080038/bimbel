@@ -1,0 +1,463 @@
+{
+  "kategori": "TIU",
+  "nama_kategori": "Tes Intelegensi Umum",
+  "deskripsi": "Materi lengkap Tes Intelegensi Umum CPNS mencakup kemampuan verbal, numerik, dan logika",
+  "materi": {
+    "verbal": {
+      "judul": "Kemampuan Verbal",
+      "deskripsi": "Menguji kemampuan bahasa dan pemahaman kata",
+      "sinonim": {
+        "judul": "Sinonim (Padanan Kata)",
+        "deskripsi": "Kata yang memiliki makna yang sama atau mirip",
+        "contoh": [
+          {"kata": "gembira", "sinonim": ["senang", "bahagia", "riang"]},
+          {"kata": "besar", "sinonim": ["luas", "raksasa", "gagah"]},
+          {"kata": "cepat", "sinonim": ["kilat", "gesit", "lincah"]},
+          {"kata": "benar", "sinonim": ["tepat", "betul", "sah"]},
+          {"kata": "indah", "sinonim": ["cantik", "elok", "permai"]}
+        ],
+        "tips_mengerjakan": [
+          "Perhatikan konteks kalimat untuk menentukan makna",
+          "Gunakan pengetahuan kosakata yang luas",
+          "Eliminasi pilihan yang jelas salah",
+          "Cari kata yang paling dekat maknanya"
+        ],
+        "soal_contoh": [
+          "Sinonim dari kata 'redundan' adalah...",
+          "Padanan kata 'inovatif' adalah...",
+          "Kata yang memiliki makna sama dengan 'komprehensif' adalah..."
+        ]
+      },
+      "antonim": {
+        "judul": "Antonim (Lawan Kata)",
+        "deskripsi": "Kata yang memiliki makna yang berlawanan",
+        "contoh": [
+          {"kata": "panjang", "antonim": ["pendek", "kecil", "ringkas"]},
+          {"kata": "besar", "antonim": ["kecil", "remeh", "sedikit"]},
+          {"kata": "cepat", "antonim": ["lambat", "pelan", "tenang"]},
+          {"kata": "benar", "antonim": ["salah", "keliru", "dusta"]},
+          {"kata": "indah", "antonim": ["jelek", "buruk", "hina"]}
+        ],
+        "tips_mengerjakan": [
+          "Cari kata yang memiliki makna berlawanan",
+          "Perhatikan prefiks/sufks untuk mengidentifikasi makna",
+          "Gunakan konteks kalimat untuk membantu",
+          "Eliminasi pilihan yang memiliki makna sama"
+        ],
+        "soal_contoh": [
+          "Antonim dari kata 'ekspansif' adalah...",
+          "Lawan kata 'proaktif' adalah...",
+          "Kata yang berlawanan dengan 'analitis' adalah..."
+        ]
+      },
+      "analogi": {
+        "judul": "Analogi (Hubungan Kata)",
+        "deskripsi": "Menentukan hubungan antara dua kata dan menerapkannya pada pasangan lain",
+        "jenis_hubungan": [
+          "Fungsi: Buku : Membaca",
+          "Bagian: Daun : Pohon",
+          "Sebab-Akibat: Hujan : Basah",
+          "Ciri-Ciri: Singa : Ganas",
+          "Asal-Usul: Gajah : Afrika"
+        ],
+        "tips_mengerjakan": [
+          "Buat kalimat penghubung antara dua kata pertama",
+          "Terapkan pola kalimat yang sama pada pilihan jawaban",
+          "Perhatikan jenis hubungan antar kata",
+          "Gunakan pengetahuan umum untuk memahami hubungan"
+        ],
+        "soal_contoh": [
+          "Buku : Membaca = Radio : ...",
+          "Mobil : Bensin = Komputer : ...",
+          "Dokter : Obat = Guru : ..."
+        ]
+      },
+      "pemahaman_bacaan": {
+        "judul": "Pemahaman Bacaan",
+        "deskripsi": "Membaca dan memahami isi teks",
+        "tips_mengerjakan": [
+          "Baca teks secara seksama",
+          "Perhatikan ide pokok dan ide penjelas",
+          "Cari informasi spesifik dalam teks",
+          "Buat kesimpulan berdasarkan teks"
+        ],
+        "soal_contoh": [
+          "Berdasarkan teks di atas, kesimpulan yang tepat adalah...",
+          "Informasi utama dalam teks tersebut adalah...",
+          "Apa yang dimaksud dengan... dalam teks tersebut?"
+        ]
+      }
+    },
+    "numerik": {
+      "judul": "Kemampuan Numerik",
+      "deskripsi": "Menguji kemampuan berhitung dan logika matematika",
+      "himpunan": {
+        "judul": "Himpunan",
+        "deskripsi": "Kumpulan objek yang memiliki sifat tertentu",
+        "jenis_himpunan": {
+          "himpunan_terhingga": "Himpunan yang jumlah anggotanya terhingga",
+          "himpunan_tak_terhingga": "Himpunan yang jumlah anggotanya tidak terhingga"
+        },
+        "operasi_himpunan": {
+          "irisan": {
+            "deskripsi": "Anggota persekutuan dari dua himpunan",
+            "notasi": "A ∩ B",
+            "contoh": "A = {1, 2, 4, 7, 8}, B = {2, 3, 4, 8, 10}, A ∩ B = {2, 4, 8}"
+          },
+          "gabungan": {
+            "deskripsi": "Anggota A atau anggota B",
+            "notasi": "A ∪ B",
+            "contoh": "A = {1, 2, 4, 5}, B = {2, 3, 4, 6, 9}, A ∪ B = {1, 2, 3, 4, 5, 6, 9}"
+          },
+          "selisih": {
+            "deskripsi": "Anggota A tetapi bukan anggota B",
+            "notasi": "A - B",
+            "contoh": "A = {1, 2, 3, 4, 5}, B = {2, 3, 4, 8, 10}, A - B = {1, 5}"
+          },
+          "komplemen": {
+            "deskripsi": "Anggota S tetapi bukan anggota A",
+            "notasi": "A' atau Ac",
+            "contoh": "A = {1, 2, ..., 7}, S = {bilangan riil < 10}, Ac = {8}"
+          },
+          "beda_setangkup": {
+            "deskripsi": "Anggota A dan B yang bukan anggota keduanya sekaligus",
+            "notasi": "A ⊕ B = (A ∪ B) - (A ∩ B)",
+            "contoh": "A = {1, 2, 3, 4, 5}, B = {1, 5, 6, 8, 10}, A ⊕ B = {2, 3, 4, 6, 8, 10}"
+          },
+          "perkalian_kartesian": {
+            "deskripsi": "Memasangkan setiap anggota A ke setiap anggota B",
+            "notasi": "A × B",
+            "contoh": "A = {1, 2, 3}, B = {a, b}, A × B = {(1, a), (1, b), (2, a), (2, b), (3, a), (3, b)}"
+          }
+        },
+        "sifat_operasi": {
+          "komutatif": "A ∩ B = B ∩ A dan A ∪ B = B ∪ A",
+          "asosiatif": "A ∩ (B ∩ C) = (A ∩ B) ∩ C",
+          "distributif": "A ∩ (B ∪ C) = (A ∩ B) ∪ (A ∩ C)",
+          "hukum_de_morgan": "(A ∩ B)C = AC ∪ BC",
+          "hukum_identitas": "A ∪ A = A, A ∩ A = A, A ∪ Ø = A, A ∩ Ø = Ø",
+          "sifat_dasar": "n(A ∩ B) = n(A) + n(B) - n(A ∪ B)"
+        },
+        "soal_contoh": [
+          "Jika A = {1, 2, 3, 4, 5} dan B = {3, 4, 5, 6, 7}, maka A ∩ B adalah...",
+          "Himpunan A = {a, b, c, d}, B = {c, d, e, f}, maka A ∪ B adalah...",
+          "n(A) = 15, n(B) = 20, n(A ∩ B) = 8, maka n(A ∪ B) adalah..."
+        ]
+      },
+      "persentase": {
+        "judul": "Persentase",
+        "deskripsi": "Perbandingan terhadap 100",
+        "rumus_dasar": "Persentase = (bagian / total) x 100%",
+        "mencari_bagian": "Bagian = (persentase / 100%) x total",
+        "mencari_total": "Total = (bagian / persentase) x 100%",
+        "tips": "Jangan menghapal rumus, pahami konsep rumus pertama dan ubah posisi",
+        "soal_contoh": [
+          "Persentase dari 25 adalah 5, maka persentase tersebut adalah...",
+          "Jika 75% dari 40 siswa adalah laki-laki, maka jumlah laki-laki adalah...",
+          "Sebuah nilai 80% dari 150 adalah..."
+        ]
+      },
+      "perbandingan": {
+        "judul": "Perbandingan",
+        "deskripsi": "Membandingkan dua atau lebih besaran",
+        "perbandingan_senilai": {
+          "deskripsi": "Bila suatu komponen bertambah, komponen lain juga bertambah",
+          "rumus": "a1/b1 = a2/b2"
+        },
+        "perbandingan_berbalik_nilai": {
+          "deskripsi": "Bila suatu komponen bertambah, komponen lain berkurang",
+          "rumus": "a1 x b1 = a2 x b2"
+        },
+        "perbandingan_campuran": {
+          "deskripsi": "Perbandingan 3 komponen dengan senilai dan berbalik nilai",
+          "rumus": "O = objek, S = subjek, T = waktu, O1 x S2 x T2 = O2 x S1 x T1"
+        },
+        "tips": "Cari komponen yang dibandingkan, gunakan logika kehidupan sehari-hari",
+        "soal_contoh": [
+          "10 pekerja menyelesaikan 15 hari, berapa hari untuk 5 pekerja...",
+          "Jarak 120 km dengan kecepatan 60 km/jam, waktu yang dibutuhkan adalah...",
+          "2 rumah oleh 4 pekerja butuh 20 hari, 5 rumah dalam 40 hari butuh berapa pekerja..."
+        ]
+      },
+      "aritmatika_sosial": {
+        "judul": "Aritmatika Sosial",
+        "deskripsi": "Perhitungan dalam kehidupan sehari-hari",
+        "bunga": {
+          "judul": "Perhitungan Bunga",
+          "deskripsi": "Balas jasa bank kepada nasabah atau sebaliknya",
+          "bunga_tunggal": "Bunga atas modal awal saja"
+        },
+        "rabat_diskon": {
+          "judul": "Rabat (Diskon)",
+          "deskripsi": "Potongan harga yang diberikan kepada pembeli",
+          "diskon_ganda": "Diskon bertingkat, misal 50% + 50% = 75%",
+          "rumus": "Diskon 1 x harga, Diskon 2 x sisa setelah diskon 1"
+        },
+        "bruto_neto_tara": {
+          "judul": "Bruto, Neto, dan Tara",
+          "bruto": "Berat barang dengan kemasan (berat kotor)",
+          "neto": "Berat barang tanpa kemasan (berat bersih)",
+          "tara": "Berat kemasannya saja"
+        },
+        "tips": "Ilustrasikan dalam kehidupan sehari-hari, tentukan alur penyelesaian",
+        "soal_contoh": [
+          "Diskon 30% + 20% dari Rp100.000, total diskon adalah...",
+          "Berat parfum dengan botol 100g, cairan 90g, maka tara adalah...",
+          "Modal Rp100.000, bunga 10% per tahun, setelah 2 tahun menjadi..."
+        ]
+      },
+      "aritmetika_geometri": {
+        "judul": "Aritmetika dan Geometri",
+        "deskripsi": "Barisan dan deret bilangan",
+        "barisan_aritmatika": {
+          "deskripsi": "Barisan dengan selisih tetap",
+          "rumus_suku_ke_n": "Un = a + (n-1)b",
+          "rumus_jumlah_n_suku": "Sn = n/2 (2a + (n-1)b)",
+          "penyisipan_suku": "b' = b/(k+1)"
+        },
+        "barisan_geometri": {
+          "deskripsi": "Barisan dengan rasio tetap",
+          "rumus_suku_ke_n": "Un = a x r^(n-1)",
+          "rumus_jumlah_n_suku": "Sn = a(r^n - 1)/(r - 1)",
+          "penyisipan_suku": "r' = r^(1/(k+1))"
+        },
+        "deret_geometri_tak_berhingga": {
+          "deskripsi": "Deret dengan banyak suku tak berhingga",
+          "syarat": "-1 < r < 1",
+          "rumus": "S∞ = a/(1 - r)"
+        },
+        "soal_contoh": [
+          "Deret 10, 20, 30, 40, disisipkan 4 suku, beda baru adalah...",
+          "Bola dijatuhkan dari 2m, pantul 3/4 tinggi sebelumnya, lintasan dari pantulan 3 sampai berhenti adalah...",
+          "Jumlah n bilangan genap pertama 272, jumlah 5 bilangan terakhir adalah..."
+        ]
+      },
+      "deret_angka": {
+        "judul": "Deret Angka",
+        "deskripsi": "Menentukan pola deret angka dan mencari angka selanjutnya",
+        "jenis_pola": {
+          "penjumlahan": {
+            "deskripsi": "Pola penjumlahan dengan selisih tetap",
+            "contoh": "2, 5, 8, 11, 14 (selisih +3)"
+          },
+          "perkalian": {
+            "deskripsi": "Pola perkalian dengan rasio tetap",
+            "contoh": "2, 4, 8, 16, 32 (rasio x2)"
+          }
+        },
+        "tips_mengerjakan": [
+          "Perhatikan pola antar angka",
+          "Cari selisih atau rasio antar angka",
+          "Perhatikan pola kombinasi penjumlahan dan perkalian",
+          "Gunakan logika matematika"
+        ],
+        "soal_contoh": [
+          "Deret angka: 2, 4, 8, 16, ... Angka selanjutnya adalah...",
+          "3, 6, 9, 12, ... Pola deret tersebut adalah...",
+          "Deret: 1, 4, 9, 16, 25, ... Angka berikutnya adalah..."
+        ]
+      },
+      "aritmatika": {
+        "judul": "Aritmatika Dasar",
+        "deskripsi": "Operasi hitung dasar",
+        "operasi": {
+          "penjumlahan": {
+            "deskripsi": "Menjumlahkan dua atau lebih bilangan",
+            "contoh": "5 + 3 = 8"
+          },
+          "pengurangan": {
+            "deskripsi": "Mengurangkan dua bilangan",
+            "contoh": "10 - 4 = 6"
+          },
+          "perkalian": {
+            "deskripsi": "Mengalikan dua atau lebih bilangan",
+            "contoh": "6 x 4 = 24"
+          },
+          "pembagian": {
+            "deskripsi": "Membagi dua bilangan",
+            "contoh": "20 : 4 = 5"
+          }
+        },
+        "tips_mengerjakan": [
+          "Perhatikan tanda operasi hitung",
+          "Hitung dari kiri ke kanan",
+          "Gunakan sifat operasi hitung",
+          "Cek ulang hasil perhitungan"
+        ],
+        "soal_contoh": [
+          "15 + 3 x 5 = ...",
+          "24 : 4 + 12 = ...",
+          "Hasil dari (10 + 5) x 3 adalah..."
+        ]
+      },
+      "aljabar": {
+        "judul": "Aljabar",
+        "deskripsi": "Penyelesaian persamaan dan pertidaksamaan",
+        "persamaan_linear": {
+          "deskripsi": "Persamaan dengan pangkat satu",
+          "contoh": "2x + 3 = 11, maka x = 4"
+        },
+        "persamaan_kuadrat": {
+          "deskripsi": "Persamaan dengan pangkat dua",
+          "contoh": "x² - 5x + 6 = 0"
+        },
+        "tips_mengerjakan": [
+          "Pisahkan variabel dan konstanta",
+          "Gunakan operasi kebalikan",
+          "Perhatikan tanda positif dan negatif",
+          "Substitusi nilai untuk memeriksa"
+        ],
+        "soal_contoh": [
+          "Jika 2x + 3y = 10 dan x = 2, maka y = ...",
+          "Persamaan 3x - 2y = 8, jika y = 2 maka x = ...",
+          "Selesaikan sistem persamaan: x + y = 10, x - y = 2"
+        ]
+      },
+      "geometri": {
+        "judul": "Geometri",
+        "deskripsi": "Bentuk-bentuk geometri dan perhitungannya",
+        "bangun_datar": {
+          "persegi": {
+            "deskripsi": "Bangun datar dengan 4 sisi sama panjang",
+            "rumus": {
+              "keliling": "s x 4",
+              "luas": "s x s"
+            }
+          },
+          "persegipanjang": {
+            "deskripsi": "Bangun datar dengan 2 pasang sisi sejajar sama panjang",
+            "rumus": {
+              "keliling": "2 x (p + l)",
+              "luas": "p x l"
+            }
+          },
+          "segitiga": {
+            "deskripsi": "Bangun datar dengan 3 sisi",
+            "rumus": {
+              "keliling": "a + b + c",
+              "luas": "0.5 x alas x tinggi"
+            }
+          },
+          "lingkaran": {
+            "deskripsi": "Bangun datar melengkung",
+            "rumus": {
+              "keliling": "2 x π x r",
+              "luas": "π x r²"
+            }
+          }
+        },
+        "bangun_ruang": {
+          "kubus": {
+            "deskripsi": "Bangun ruang dengan 6 sisi persegi",
+            "rumus": {
+              "volume": "s³",
+              "luas_permukaan": "6 x s²"
+            }
+          },
+          "balok": {
+            "deskripsi": "Bangun ruang dengan 6 sisi persegi panjang",
+            "rumus": {
+              "volume": "p x l x t",
+              "luas_permukaan": "2 x (pl + pt + lt)"
+            }
+          },
+          "tabung": {
+            "deskripsi": "Bangun ruang dengan 2 lingkaran dan 1 persegi panjang",
+            "rumus": {
+              "volume": "π x r² x t",
+              "luas_permukaan": "2πr(r + t)"
+            }
+          },
+          "bola": {
+            "deskripsi": "Bangun ruang lengkung",
+            "rumus": {
+              "volume": "4/3 x π x r³",
+              "luas_permukaan": "4 x π x r²"
+            }
+          }
+        },
+        "tips_mengerjakan": [
+          "Hafal rumus-rumus geometri",
+          "Perhatikan satuan yang digunakan",
+          "Gambar bangun untuk memahami",
+          "Gunakan π = 22/7 atau 3.14"
+        ],
+        "soal_contoh": [
+          "Volume kubus dengan sisi 6 cm adalah...",
+          "Luas lingkaran dengan jari-jari 14 cm adalah...",
+          "Volume tabung dengan r = 10 cm, t = 15 cm adalah..."
+        ]
+      }
+    },
+    "logika": {
+      "judul": "Kemampuan Logika",
+      "deskripsi": "Menguji kemampuan berpikir logis dan analitis",
+      "silogisme": {
+        "judul": "Silogisme",
+        "deskripsi": "Menarik kesimpulan dari dua premis (mayor dan minor)",
+        "struktur": {
+          "premis_mayor": "Pernyataan umum",
+          "premis_minor": "Pernyataan khusus",
+          "konklusi": "Kesimpulan dari premis mayor dan minor"
+        },
+        "contoh": {
+          "premis_mayor": "Semua manusia fana",
+          "premis_minor": "Socrates adalah manusia",
+          "konklusi": "Socrates fana"
+        },
+        "tips_mengerjakan": [
+          "Identifikasi premis mayor dan minor",
+          "Cari hubungan antar-subjek dalam premis",
+          "Gunakan diagram Venn jika perlu untuk visualisasi",
+          "Hindari asumsi luar yang tidak ada dalam premis",
+          "Perhatikan kata kunci: semua, sebagian, tidak ada",
+          "Konklusi harus mengikuti secara logis dari premis"
+        ],
+        "soal_contoh": [
+          "Semua atlet harus menjaga pola makan. Sebagian warga desa adalah atlet. Kesimpulan yang tepat adalah...",
+          "Jika semua A adalah B, dan semua B adalah C, maka...",
+          "Premis mayor: Semua kucing adalah hewan. Premis minor: Garfield adalah kucing. Konklusi..."
+        ]
+      },
+      "analisis": {
+        "judul": "Analisis",
+        "deskripsi": "Menganalisis informasi untuk menarik kesimpulan",
+        "tips_mengerjakan": [
+          "Baca informasi secara seksama",
+          "Identifikasi informasi penting",
+          "Buat kesimpulan berdasarkan informasi yang ada",
+          "Hindari asumsi yang tidak didukung informasi"
+        ],
+        "soal_contoh": [
+          "Berdasarkan informasi di atas, kesimpulan yang paling tepat adalah...",
+          "Dari pernyataan-pernyataan tersebut, dapat disimpulkan bahwa..."
+        ]
+      },
+      "deduksi": {
+        "judul": "Penalaran Deduktif",
+        "deskripsi": "Menarik kesimpulan dari pernyataan umum ke khusus",
+        "tips": "Mulai dari pernyataan umum, lalu terapkan pada kasus khusus",
+        "soal_contoh": [
+          "Jika semua siswa kelas A lulus, dan Budi adalah siswa kelas A, maka..."
+        ]
+      },
+      "induksi": {
+        "judul": "Penalaran Induktif",
+        "deskripsi": "Menarik kesimpulan dari kasus khusus ke umum",
+        "tips": "Kumpulkan beberapa contoh khusus, lalu buat kesimpulan umum",
+        "soal_contoh": [
+          "Budi lulus, Andi lulus, Citra lulus. Maka dapat disimpulkan bahwa..."
+        ]
+      }
+    }
+  },
+  "referensi": [
+    "Buku Logika Matematika",
+    "Buku Psikologi Kognitif",
+    "Buku Matematika Dasar",
+    "Buku Bahasa Indonesia"
+  ],
+  "tags": ["TIU", "Verbal", "Numerik", "Logika", "CPNS"],
+  "created_at": "2026-05-20",
+  "version": "2.0"
+}

@@ -1,9 +1,9 @@
-        const API_BASE = '../api';
-        let authToken = '';
-        let userRole = '';
-        let csrfToken = '';
-        let currentPage = 1;
-        const perPage = 10;
+const API_BASE = '../api';
+let authToken = '';
+let userRole = '';
+let csrfToken = '';
+let currentPage = 1;
+const perPage = 10;
 
         // Toast Notification Helper
         function showToast(message, type = 'success', duration = 3000) {
@@ -281,6 +281,15 @@
                 const response = await fetch(`${API_BASE}/soal.php?action=get_statistik`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Response is not JSON');
+                }
                 
                 const text = await response.text();
                 console.log('API Response:', text);
@@ -1402,6 +1411,12 @@
                     console.log('create_question response:', responseText);
 
                     try {
+                        // Check if response is valid JSON before parsing
+                        if (!responseText.trim().startsWith('{') && !responseText.trim().startsWith('[')) {
+                            console.error('Response is not JSON:', responseText.substring(0, 100));
+                            continue;
+                        }
+                        
                         const data = JSON.parse(responseText);
 
                         if (data.success) {
@@ -3091,4 +3106,4 @@
                 }
             });
         }
-    </script>
+

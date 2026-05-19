@@ -1,0 +1,307 @@
+{
+  "kategori": "TKP",
+  "nama_kategori": "Tes Karakteristik Pribadi",
+  "deskripsi": "Materi lengkap Tes Karakteristik Pribadi CPNS mencakup sikap kerja, perilaku sosial, kepemimpinan, dan integritas moral",
+  "materi": {
+    "sikap_kerja": {
+      "judul": "Sikap Kerja",
+      "deskripsi": "Sikap dan perilaku dalam bekerja",
+      "disiplin": {
+        "judul": "Disiplin Kerja",
+        "penjelasan": "Kemampuan untuk mematuhi aturan, jadwal, dan standar kerja",
+        "contoh_penerapan": [
+          "Datang tepat waktu ke tempat kerja",
+          "Menyelesaikan tugas sesuai deadline",
+          "Mematuhi peraturan kantor",
+          "Menggunakan jam kerja secara efektif"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan disiplin kerja adalah...",
+          "Jika terlambat datang ke kantor, sikap yang sebaiknya ditunjukkan adalah...",
+          "Cara menjaga disiplin dalam bekerja adalah..."
+        ]
+      },
+      "tanggung_jawab": {
+        "judul": "Tanggung Jawab",
+        "penjelasan": "Kemauan untuk menerima konsekuensi dari tindakan dan keputusan",
+        "contoh_penerapan": [
+          "Mengakui kesalahan yang dilakukan",
+          "Mengambil tindakan perbaikan",
+          "Tidak menyalahkan orang lain",
+          "Melaporkan hasil kerja dengan jujur"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan tanggung jawab adalah...",
+          "Jika melakukan kesalahan dalam pekerjaan, tindakan yang tepat adalah...",
+          "Cara menunjukkan tanggung jawab dalam tim adalah..."
+        ]
+      },
+      "kerjasama_tim": {
+        "judul": "Kerjasama Tim",
+        "penjelasan": "Kemampuan untuk bekerja sama dengan anggota tim lain",
+        "contoh_penerapan": [
+          "Membantu rekan yang kesulitan",
+          "Menghargai pendapat orang lain",
+          "Mengkomunikasikan ide secara terbuka",
+          "Mencapai tujuan tim bersama-sama"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan kerjasama tim adalah...",
+          "Jika rekan tim kesulitan dalam pekerjaan, tindakan yang tepat adalah...",
+          "Cara membangun kerjasama tim yang baik adalah..."
+        ]
+      },
+      "inisiatif": {
+        "judul": "Inisiatif",
+        "penjelasan": "Kemampuan untuk mengambil tindakan tanpa menunggu perintah",
+        "contoh_penerapan": [
+          "Mencari solusi tanpa diminta",
+          "Mengusulkan perbaikan proses kerja",
+          "Mengambil tindakan proaktif",
+          "Menemukan cara kerja yang lebih efisien"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan inisiatif adalah...",
+          "Cara menunjukkan inisiatif dalam pekerjaan adalah...",
+          "Jika ada masalah di tempat kerja, sikap yang tepat adalah..."
+        ]
+      },
+      "kreativitas": {
+        "judul": "Kreativitas",
+        "penjelasan": "Kemampuan untuk menghasilkan ide baru dan solusi inovatif",
+        "contoh_penerapan": [
+          "Mencari cara baru menyelesaikan masalah",
+          "Mengembangkan ide yang inovatif",
+          "Mengadaptasi diri dengan perubahan",
+          "Menghasilkan solusi yang unik"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan kreativitas adalah...",
+          "Cara mengembangkan kreativitas dalam pekerjaan adalah...",
+          "Jika menghadapi masalah baru, sikap yang tepat adalah..."
+        ]
+      },
+      "etos_kerja": {
+        "judul": "Etos Kerja",
+        "penjelasan": "Semangat dan dedikasi dalam bekerja",
+        "contoh_penerapan": [
+          "Bekerja dengan sungguh-sungguh",
+          "Mengutamakan kualitas hasil kerja",
+          "Tidak mudah menyerah",
+          "Selalu berusaha meningkatkan kemampuan"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan etos kerja tinggi adalah...",
+          "Cara menjaga etos kerja dalam pekerjaan adalah...",
+          "Jika menghadapi tantangan kerja, sikap yang tepat adalah..."
+        ]
+      }
+    },
+    "integritas_moral": {
+      "judul": "Integritas Moral",
+      "deskripsi": "Keselarasan antara nilai moral, ucapan, tindakan, dan tanggung jawab",
+      "pengertian": {
+        "judul": "Pengertian Integritas Diri",
+        "deskripsi": "Keselarasan antara nilai moral, ucapan, tindakan, dan tanggung jawab",
+        "asn_berintegritas": {
+          "deskripsi": "ASN yang berintegritas",
+          "ciri": [
+            "Konsisten antara perkataan dan perbuatan",
+            "Taat aturan meskipun tidak diawasi",
+            "Menolak penyimpangan sekecil apa pun",
+            "Berani menanggung risiko demi kebenaran"
+          ]
+        }
+      },
+      "pentingnya": {
+        "judul": "Mengapa Integritas Diri Sangat Penting",
+        "alasan": [
+          "ASN memegang kewenangan dan kepercayaan publik",
+          "Penyimpangan birokrasi berawal dari runtuhnya integritas",
+          "Sistem yang baik akan rusak bila dijalankan tanpa integritas",
+          "Negara membutuhkan aparatur yang kokoh secara moral"
+        ]
+      },
+      "ciri_asn_berintegritas": {
+        "judul": "Ciri ASN yang Memiliki Integritas Diri Tinggi",
+        "ciri": [
+          "Tidak mudah tergoda keuntungan pribadi",
+          "Tegas menolak pelanggaran",
+          "Tidak mencari pembenaran atas kesalahan",
+          "Bersikap jujur dan transparan",
+          "Konsisten dalam prinsip meski ada tekanan"
+        ]
+      },
+      "nilai_dasar": {
+        "judul": "Nilai-Nilai Dasar Integritas Diri ASN",
+        "kejujuran": "Bersikap jujur dalam setiap tindakan dan keputusan, tanpa manipulasi atau kebohongan",
+        "konsistensi_moral": "Nilai yang diyakini tetap dipegang, baik saat diawasi maupun tidak",
+        "komitmen_pada_aturan": "Menjalankan tugas sesuai hukum, SOP, dan etika profesi",
+        "keberanian_moral": "Berani berkata benar dan menolak penyimpangan meskipun berisiko",
+        "tanggung_jawab": "Siap mempertanggungjawabkan keputusan dan konsekuensinya"
+      },
+      "bentuk_soal": {
+        "judul": "Bentuk Soal TKP Integritas Diri yang Sering Muncul",
+        "godaan_penyimpangan": {
+          "situasi": ["Gratifikasi", "Ucapan terima kasih tidak resmi"],
+          "jawaban_skor_tinggi": "Menolak secara tegas dan menjaga integritas"
+        },
+        "tekanan_atasan": {
+          "situasi": ["Diminta menutup pelanggaran", "Diminta memanipulasi data"],
+          "jawaban_terbaik": "Menolak secara profesional dan tetap berpegang pada aturan"
+        },
+        "mengetahui_pelanggaran": {
+          "situasi": ["Rekan melakukan penyimpangan", "Pelanggaran prosedur"],
+          "jawaban_ideal": "Tidak ikut terlibat dan melaporkan melalui mekanisme yang berlaku"
+        },
+        "konflik_kepentingan": {
+          "situasi": ["Kepentingan pribadi atau keluarga", "Titipan pihak tertentu"],
+          "jawaban_skor_maksimal": "Mengutamakan kepentingan organisasi dan transparansi"
+        }
+      },
+      "soal_contoh": [
+        "Jika diminta menutupi pelanggaran oleh atasan, sikap yang tepat adalah...",
+        "Ketika mengetahui rekan melakukan penyimpangan, tindakan yang sebaiknya dilakukan adalah...",
+        "Jika ditawari gratifikasi, sikap yang menunjukkan integritas adalah...",
+        "Dalam situasi konflik kepentingan, sikap yang sebaiknya ditunjukkan adalah..."
+      ]
+    },
+    "perilaku_sosial": {
+      "judul": "Perilaku Sosial",
+      "deskripsi": "Sikap dan perilaku dalam interaksi sosial",
+      "adaptasi": {
+        "judul": "Kemampuan Beradaptasi",
+        "penjelasan": "Kemampuan menyesuaikan diri dengan lingkungan baru",
+        "contoh_penerapan": [
+          "Menerima perubahan dengan positif",
+          "Mempelajari budaya baru",
+          "Menghargai perbedaan",
+          "Menyesuaikan diri dengan cepat"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan kemampuan adaptasi adalah...",
+          "Jika ditempatkan di lingkungan baru, sikap yang tepat adalah...",
+          "Cara mengembangkan kemampuan adaptasi adalah..."
+        ]
+      },
+      "komunikasi": {
+        "judul": "Komunikasi Efektif",
+        "penjelasan": "Kemampuan menyampaikan dan menerima informasi dengan baik",
+        "contoh_penerapan": [
+          "Menyampaikan ide dengan jelas",
+          "Mendengarkan pendapat orang lain",
+          "Menggunakan bahasa yang sopan",
+          "Menghindari kesalahpahaman"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan komunikasi efektif adalah...",
+          "Cara mengkomunikasikan ide dengan baik adalah...",
+          "Jika ada perbedaan pendapat, sikap yang tepat adalah..."
+        ]
+      },
+      "toleransi": {
+        "judul": "Toleransi",
+        "penjelasan": "Menghormati perbedaan pendapat, agama, dan budaya",
+        "contoh_penerapan": [
+          "Menghargai perbedaan agama",
+          "Menerima pendapat berbeda",
+          "Menghormati budaya lain",
+          "Tidak memaksakan kehendak"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan toleransi adalah...",
+          "Jika ada perbedaan pendapat, sikap yang tepat adalah...",
+          "Cara menghargai perbedaan adalah..."
+        ]
+      },
+      "empati": {
+        "judul": "Empati",
+        "penjelasan": "Kemampuan memahami perasaan orang lain",
+        "contoh_penerapan": [
+          "Mengerti perasaan rekan kerja",
+          "Memberikan dukungan emosional",
+          "Menyikapi masalah orang lain",
+          "Menunjukkan kepedulian"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan empati adalah...",
+          "Jika rekan mengalami masalah, sikap yang tepat adalah...",
+          "Cara menunjukkan empati dalam pekerjaan adalah..."
+        ]
+      }
+    },
+    "kepemimpinan": {
+      "judul": "Kepemimpinan",
+      "deskripsi": "Kemampuan memimpin dan mengelola tim",
+      "kemampuan_memimpin": {
+        "judul": "Kemampuan Memimpin",
+        "penjelasan": "Kemampuan mengarahkan dan memotivasi tim",
+        "contoh_penerapan": [
+          "Mengarahkan tim dengan jelas",
+          "Memberikan contoh yang baik",
+          "Mengambil keputusan yang tepat",
+          "Membangun semangat tim"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan kemampuan memimpin adalah...",
+          "Cara memimpin tim yang baik adalah...",
+          "Jika tim menghadapi masalah, sikap pemimpin yang tepat adalah..."
+        ]
+      },
+      "pengambilan_keputusan": {
+        "judul": "Pengambilan Keputusan",
+        "penjelasan": "Kemampuan membuat keputusan yang tepat",
+        "contoh_penerapan": [
+          "Menganalisis situasi dengan baik",
+          "Mempertimbangkan berbagai opsi",
+          "Mengambil keputusan berdasarkan fakta",
+          "Bertanggung jawab atas keputusan"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan kemampuan pengambilan keputusan adalah...",
+          "Cara mengambil keputusan yang baik adalah...",
+          "Jika menghadapi situasi sulit, sikap yang tepat adalah..."
+        ]
+      },
+      "motivasi": {
+        "judul": "Motivasi",
+        "penjelasan": "Kemampuan memotivasi diri dan orang lain",
+        "contoh_penerapan": [
+          "Memberikan semangat pada tim",
+          "Menjaga motivasi diri",
+          "Menciptakan lingkungan positif",
+          "Mengapresiasi pencapaian tim"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan kemampuan motivasi adalah...",
+          "Cara memotivasi tim yang baik adalah...",
+          "Jika tim kehilangan semangat, sikap yang tepat adalah..."
+        ]
+      },
+      "manajemen_konflik": {
+        "judul": "Manajemen Konflik",
+        "penjelasan": "Kemampuan menyelesaikan konflik dengan baik",
+        "contoh_penerapan": [
+          "Mendengarkan semua pihak",
+          "Mencari solusi win-win",
+          "Menjaga emosi tetap stabil",
+          "Membuat keputusan yang adil"
+        ],
+        "soal_contoh": [
+          "Sikap yang menunjukkan kemampuan manajemen konflik adalah...",
+          "Cara menyelesaikan konflik dalam tim adalah...",
+          "Jika ada konflik di tempat kerja, sikap yang tepat adalah..."
+        ]
+      }
+    }
+  },
+  "referensi": [
+    "Buku Psikologi Industri",
+    "Buku Tes Psikologi",
+    "Buku Manajemen SDM",
+    "Buku Etika Profesi"
+  ],
+  "tags": ["TKP", "Sikap Kerja", "Perilaku Sosial", "Kepemimpinan", "Integritas", "CPNS"],
+  "created_at": "2026-05-20",
+  "version": "2.0"
+}

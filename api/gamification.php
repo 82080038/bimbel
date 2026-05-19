@@ -43,6 +43,12 @@ switch ($action) {
     case 'check_achievements':
         checkAchievements();
         break;
+    case 'get_leaderboard':
+        getLeaderboard();
+        break;
+    case 'get_achievements':
+        getAchievements();
+        break;
     case 'get_leaderboard_gamification':
         getLeaderboardGamification();
         break;
@@ -644,10 +650,96 @@ function getLeaderboardGamification() {
     
     $leaderboard = [];
     while ($row = $result->fetch_assoc()) {
-        $leaderboard[] = $row;
+        $leaderboard[] = [
+            'nama' => $row['nama_lengkap'],
+            'total_xp' => $row['total_xp'],
+            'level' => $row['level'],
+            'streak' => $row['current_streak'],
+            'badge_count' => 0 // Will be calculated
+        ];
     }
     
-    echo json_encode(['success' => true, 'data' => $leaderboard]);
+    echo json_encode(['success' => true, 'data' => ['leaderboard' => $leaderboard]]);
+}
+
+function getLeaderboard() {
+    global $conn;
+    
+    $user = requireAuth();
+    
+    // Get leaderboard data
+    $sql = "SELECT u.id, u.nama_lengkap as nama, ux.total_xp, ux.level, 
+            us.current_streak as streak, us.longest_streak,
+            (SELECT COUNT(*) FROM user_badges ub WHERE ub.user_id = u.id) as badge_count
+            FROM user_xp ux
+            JOIN users u ON ux.user_id = u.id
+            LEFT JOIN user_streak us ON ux.user_id = us.user_id
+            ORDER BY ux.total_xp DESC
+            LIMIT 100";
+    $result = $conn->query($sql);
+    
+    $leaderboard = [];
+    $myRank = null;
+    
+    while ($row = $result->fetch_assoc()) {
+        $leaderboard[] = [
+            'nama' => $row['nama'],
+            'total_xp' => $row['total_xp'],
+            'level' => $row['level'],
+            'streak' => $row['streak'],
+            'badge_count' => $row['badge_count']
+        ];
+        
+        if ($row['id'] == $user['id']) {
+            $myRank = count($leaderboard);
+        }
+    }
+    
+    // Calculate my position details
+    $myPosition = null;
+    if ($myRank) {
+        $myPosition = [
+            'rank' => $myRank,
+            'total_xp' => $user['total_xp'] ?? 0,
+            'level' => $user['level'] ?? 1,
+            'avg_score' => 0, // Calculate from exam results if needed
+            'streak' => $user['current_streak'] ?? 0
+        ];
+    }
+    
+    echo json_encode(['success' => true, 'data' => ['leaderboard' => $leaderboard, 'my_position' => $myPosition]]);
+}
+
+function getAchievements() {
+    global $conn;
+    
+    $user = requireAuth();
+    
+    // Get all achievements
+    $sql = "SELECT a.*, ua.unlocked, ua.completed_at as unlocked_at
+            FROM achievements a
+            LEFT JOIN user_achievements ua ON a.id = ua.achievement_id AND ua.user_id = ?
+            ORDER BY a.category, a.nama";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $user['id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $achievements = [];
+    while ($row = $result->fetch_assoc()) {
+        $achievements[] = [
+            'id' => $row['id'],
+            'name' => $row['nama'],
+            'description' => $row['deskripsi'],
+            'icon' => $row['icon'] ?? 'fas fa-medal',
+            'category' => $row['kategori'] ?? 'special',
+            'requirement' => $row['criteria_type'] . ': ' . ($row['criteria_value'] ?? 'TBD'),
+            'unlocked' => !is_null($row['unlocked']),
+            'unlocked_at' => $row['unlocked_at']
+        ];
+    }
+    
+    echo json_encode(['success' => true, 'data' => ['achievements' => $achievements]]);
 }
 
 function getAllUsersGamification() {

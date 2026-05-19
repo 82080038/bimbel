@@ -63,9 +63,19 @@
             const contrast = localStorage.getItem('contrast') || 'normal';
             const textToSpeech = localStorage.getItem('textToSpeech') === 'true';
 
-            document.getElementById('fontSizeSelect').value = fontSize;
-            document.getElementById('contrastSelect').value = contrast;
-            document.getElementById('textToSpeech').checked = textToSpeech;
+            const fontSizeSelect = document.getElementById('fontSizeSelect');
+            const contrastSelect = document.getElementById('contrastSelect');
+            const textToSpeechCheckbox = document.getElementById('textToSpeech');
+
+            if (fontSizeSelect) {
+                fontSizeSelect.value = fontSize;
+            }
+            if (contrastSelect) {
+                contrastSelect.value = contrast;
+            }
+            if (textToSpeechCheckbox) {
+                textToSpeechCheckbox.checked = textToSpeech;
+            }
 
             changeFontSize(fontSize);
             changeContrast(contrast);
@@ -143,12 +153,16 @@
         function initProgressChart(examData = []) {
             const ctx = document.getElementById('progressChart');
             
+            // Check if canvas element exists
+            if (!ctx) {
+                console.warn('Progress chart canvas element not found');
+                return;
+            }
+            
             // Destroy existing chart before creating new one
-            if (ctx) {
-                const existingChart = Chart.getChart(ctx);
-                if (existingChart) {
-                    existingChart.destroy();
-                }
+            const existingChart = Chart.getChart(ctx);
+            if (existingChart) {
+                existingChart.destroy();
             }
             
             // Prepare chart data from actual exam history
@@ -420,20 +434,26 @@
         }
 
         function updateGamificationStats(gamificationData) {
+            const userXPElement = document.getElementById('userXP');
+            const userLevelElement = document.getElementById('userLevel');
+            const userLevelChangeElement = document.getElementById('userLevelChange');
+            const userStreakElement = document.getElementById('userStreak');
+            const userStreakChangeElement = document.getElementById('userStreakChange');
+
             if (!gamificationData || !gamificationData.xp) {
-                document.getElementById('userXP').textContent = formatXP(0);
-                document.getElementById('userLevel').textContent = '1';
+                if (userXPElement) userXPElement.textContent = formatXP(0);
+                if (userLevelElement) userLevelElement.textContent = '1';
                 return;
             }
 
             const xp = gamificationData.xp;
-            document.getElementById('userXP').textContent = formatXP(safeValue(xp, 'total_xp', 0));
-            document.getElementById('userLevel').textContent = safeValue(xp, 'level', 1);
-            document.getElementById('userLevelChange').innerHTML = `<i class="fas fa-arrow-up"></i> Level ${safeValue(xp, 'level', 1)}`;
+            if (userXPElement) userXPElement.textContent = formatXP(safeValue(xp, 'total_xp', 0));
+            if (userLevelElement) userLevelElement.textContent = safeValue(xp, 'level', 1);
+            if (userLevelChangeElement) userLevelChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i> Level ${safeValue(xp, 'level', 1)}`;
 
             if (gamificationData.streak) {
-                document.getElementById('userStreak').textContent = formatCount(safeValue(gamificationData.streak, 'current_streak', 0));
-                document.getElementById('userStreakChange').innerHTML = `<i class="fas fa-fire"></i> ${formatCount(safeValue(gamificationData.streak, 'longest_streak', 0))} hari terbaik`;
+                if (userStreakElement) userStreakElement.textContent = formatCount(safeValue(gamificationData.streak, 'current_streak', 0));
+                if (userStreakChangeElement) userStreakChangeElement.innerHTML = `<i class="fas fa-fire"></i> ${formatCount(safeValue(gamificationData.streak, 'longest_streak', 0))} hari terbaik`;
             }
         }
 

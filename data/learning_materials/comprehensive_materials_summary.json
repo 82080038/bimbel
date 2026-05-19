@@ -1,0 +1,76 @@
+{
+  "categories": [
+    {
+      "kode": "TWK",
+      "nama": "Tes Wawasan Kebangsaan",
+      "icon": "fas fa-landmark",
+      "deskripsi": "Menguji pengetahuan dan pemahaman tentang sejarah, ideologi, dan sistem ketatanegaraan Indonesia",
+      "materi": [
+        "Pancasila (ideologi, dasar negara, sejarah perumusan, nilai-nilai, Piagam Jakarta)",
+        "Sejarah Kemerdekaan Indonesia (penjajahan Belanda dan Jepang, Pergerakan Nasional, Proklamasi)",
+        "Bhinneka Tunggal Ika (sejarah, lambang negara, konsep dasar)",
+        "Demokrasi (sistem tata negara, sejarah, prinsip, macam-macam)",
+        "Kedaulatan Rakyat (teori kedaulatan, struktur ketatanegaraan)",
+        "Sistem Pemerintahan (presidensial, parlementer, semi presidensial)",
+        "Perundang-undangan Nasional (urutan, fungsi, proses pembuatan)",
+        "Hak Asasi Manusia (pengertian, instrumen internasional dan nasional)",
+        "Otonomi Daerah (pengertian, asas, prinsip, kewenangan)",
+        "Partisipasi Masyarakat dalam Perumusan Kebijakan Publik",
+        "Bela Negara (pengertian, tujuan, bentuk, contoh penerapan)",
+        "UUD 1945 (sejarah perumusan, konstitusi sebelumnya, amandemen)"
+      ]
+    },
+    {
+      "kode": "TIU",
+      "nama": "Tes Intelegensi Umum",
+      "icon": "fas fa-brain",
+      "deskripsi": "Menguji kemampuan verbal, numerik, dan logika berpikir",
+      "materi": [
+        "Kemampuan Verbal (Sinonim, Antonim, Analogi, Pemahaman Bacaan)",
+        "Kemampuan Numerik (Himpunan, Persentase, Perbandingan, Aritmatika Sosial)",
+        "Aritmetika dan Geometri (barisan aritmatika, barisan geometri, deret geometri tak berhingga)",
+        "Deret Angka (pola penjumlahan, pola perkalian)",
+        "Aljabar (persamaan linear, persamaan kuadrat)",
+        "Geometri (bangun datar, bangun ruang)"
+      ]
+    },
+    {
+      "kode": "TKP",
+      "nama": "Tes Karakteristik Pribadi",
+      "icon": "fas fa-user-check",
+      "deskripsi": "Menguji sikap kerja, perilaku sosial, kepemimpinan, dan integritas moral",
+      "materi": [
+        "Sikap Kerja (Disiplin, Tanggung Jawab, Kerjasama Tim, Inisiatif, Kreativitas, Etos Kerja)",
+        "Perilaku Sosial (Adaptasi, Komunikasi, Kerjasama, Manajemen Konflik)",
+        "Kepemimpinan (Kemampuan memimpin, pengambilan keputusan, motivasi)",
+        "Integritas Moral (Kejujuran, Konsistensi Moral, Komitmen pada Aturan, Keberanian Moral)"
+      ]
+    },
+    {
+      "kode": "TPA",
+      "nama": "Tes Potensi Akademik",
+      "icon": "fas fa-graduation-cap",
+      "deskripsi": "Menguji potensi akademik dalam matematika, bahasa, dan sains",
+      "materi": [
+        "Matematika (persentase, jarak kecepatan waktu, deret huruf, logika matematika)",
+        "Bahasa Indonesia (pemahaman bacaan, sinonim, antonim, analogi)",
+        "Bahasa Inggris (reading comprehension, vocabulary, grammar)",
+        "Fisika Dasar (konsep dasar fisika)",
+        "Kimia Dasar (konsep dasar kimia)",
+        "Biologi Dasar (konsep dasar biologi)"
+      ]
+    },
+    {
+      "kode": "PSIKOLOGIS",
+      "nama": "Tes Psikologis",
+      "icon": "fas fa-puzzle-piece",
+      "deskripsi": "Menguji kepribadian, mental, dan kemampuan sosial",
+      "materi": [
+        "Kepribadian (Karakter dan Temperamen, Motivasi dan Emosi, Kecerdasan Emosional)",
+        "Mental (Kestabilan Emosi, Ketahanan Stres, Konsentrasi, Keseimbangan Mental)",
+        "Sosial (Interaksi Sosial, Komunikasi, Empati)",
+        "Jenis Tes Psikotes (Tes IQ, Logika Aritmatika, Analog Verbal, Wartegg, Spasial, Pauli/Kraepelin, Gambar Pohon, EPPS, MBTI)"
+      ]
+    }
+  ]
+}

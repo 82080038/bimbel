@@ -34,7 +34,12 @@ switch ($action) {
 function getPembahasan() {
     global $conn;
     
-    $soal_id = intval($_GET['soal_id']);
+    $soal_id = intval($_GET['soal_id'] ?? 0);
+    
+    if ($soal_id <= 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid soal_id parameter']);
+        return;
+    }
     
     $sql = "SELECT s.*, k.nama_kategori 
             FROM soal s 

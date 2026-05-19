@@ -1,0 +1,849 @@
+{
+  "kategori": "TWK",
+  "nama_kategori": "Tes Wawasan Kebangsaan",
+  "deskripsi": "Materi lengkap Tes Wawasan Kebangsaan CPNS mencakup nasionalisme, integritas, bela negara, pilar negara, dan bahasa Indonesia",
+  "materi": {
+    "pancasila": {
+      "judul": "Pancasila sebagai Dasar Negara",
+      "deskripsi": "Pancasila adalah ideologi dasar negara Indonesia yang terdiri dari 5 sila",
+      "sila_satu": {
+        "sila": "Ketuhanan Yang Maha Esa",
+        "penjelasan": "Mengakui adanya Tuhan Yang Maha Esa sebagai pencipta alam semesta",
+        "contoh_penerapan": [
+          "Beribadah sesuai agama masing-masing",
+          "Menghormati perbedaan agama",
+          "Menjunjung nilai keagamaan dalam kehidupan"
+        ],
+        "soal_contoh": [
+          "Nilai ketuhanan tercermin dalam sikap...",
+          "Bentuk pengamalan sila pertama dalam kehidupan berbangsa dan bernegara adalah...",
+          "Perbedaan agama di Indonesia merupakan wujud dari..."
+        ]
+      },
+      "sila_dua": {
+        "sila": "Kemanusiaan yang Adil dan Beradab",
+        "penjelasan": "Mengakui persamaan derajat, hak kewajiban, dan martabat manusia",
+        "contoh_penerapan": [
+          "Menjunjung hak asasi manusia",
+          "Memperlakukan orang lain dengan adil",
+          "Menghormati martabat manusia"
+        ],
+        "soal_contoh": [
+          "Sila kedua Pancasila tercermin dalam sikap...",
+          "Pengamalan sila kedua dalam kehidupan sehari-hari adalah...",
+          "Perlakuan yang mencerminkan sila kedua adalah..."
+        ]
+      },
+      "sila_tiga": {
+        "sila": "Persatuan Indonesia",
+        "penjelasan": "Mewujudkan persatuan bangsa Indonesia untuk menjaga keutuhan negara",
+        "contoh_penerapan": [
+          "Menjaga persatuan dan kesatuan bangsa",
+          "Mengutamakan kepentingan bangsa di atas kepentingan pribadi",
+          "Menghargai keanekaragaman budaya Indonesia"
+        ],
+        "soal_contoh": [
+          "Sila ketiga Pancasila bertujuan untuk...",
+          "Contoh pengamalan sila ketiga dalam kehidupan berbangsa adalah...",
+          "Sikap yang mencerminkan sila ketiga adalah..."
+        ]
+      },
+      "sila_empat": {
+        "sila": "Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
+        "penjelasan": "Sistem pemerintahan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan",
+        "contoh_penerapan": [
+          "Mengikuti pemilihan umum secara demokratis",
+          "Menghargai hasil musyawarah mufakat",
+          "Berpartisipasi dalam pembuatan keputusan bersama"
+        ],
+        "soal_contoh": [
+          "Sila keempat Pancasila mengandung makna...",
+          "Pengamalan sila keempat dalam sistem pemerintahan Indonesia adalah...",
+          "Musyawarah mufakat merupakan pengamalan dari sila..."
+        ]
+      },
+      "sila_lima": {
+        "sila": "Keadilan Sosial bagi Seluruh Rakyat Indonesia",
+        "penjelasan": "Mewujudkan keadilan sosial bagi seluruh rakyat Indonesia",
+        "contoh_penerapan": [
+          "Menegakkan keadilan bagi seluruh rakyat",
+          "Menyediakan fasilitas umum yang merata",
+          "Menghormati hak orang lain secara adil"
+        ],
+        "soal_contoh": [
+          "Sila kelima Pancasila menekankan pada...",
+          "Contoh pengamalan sila kelima dalam kehidupan bermasyarakat adalah...",
+          "Keadilan sosial tercermin dalam sikap..."
+        ]
+      }
+    },
+    "sejarah_kemerdekaan": {
+      "judul": "Sejarah Kemerdekaan Indonesia",
+      "deskripsi": "Perjalanan sejarah Indonesia menuju kemerdekaan",
+      "periode_penjajahan": {
+        "judul": "Masa Penjajahan",
+        "deskripsi": "Indonesia dijajah oleh bangsa asing selama ratusan tahun",
+        "penjajah_belanda": {
+          "masa": "350 tahun (1602-1945)",
+          "peristiwa_penting": [
+            "VOC didirikan pada 1602",
+            "Perang Diponegoro (1825-1830)",
+            "Perang Aceh (1873-1904)",
+            "Politik Etis (1901)",
+            "Sumpah Pemuda 1928"
+          ],
+          "soal_contoh": [
+            "VOC didirikan pada tahun...",
+            "Perang Diponegoro dipimpin oleh...",
+            "Politik Etis diterapkan oleh Belanda pada tahun..."
+          ]
+        },
+        "penjajah_jepang": {
+          "masa": "3.5 tahun (1942-1945)",
+          "peristiwa_penting": [
+            "Jepang masuk ke Indonesia pada 1942",
+            "Pembentukan PETA, Heiho, Ganro",
+            "Jepang menjanjikan kemerdekaan",
+            "Pembentukan BPUPKI dan PPKI",
+            "Proklamasi Kemerdekaan 17 Agustus 1945"
+          ],
+          "soal_contoh": [
+            "Jepang masuk ke Indonesia pada tahun...",
+            "PETA dibentuk oleh Jepang untuk...",
+            "BPUPKI dibentuk pada tahun..."
+          ]
+        }
+      },
+      "pergerakan_nasional": {
+        "judul": "Pergerakan Nasional",
+        "deskripsi": "Organisasi pergerakan nasional melawan penjajahan",
+        "latar_belakang": {
+          "deskripsi": "Faktor-faktor yang mendorong timbulnya pergerakan nasional",
+          "faktor": [
+            "Politik pemerintah kolonial yang menindas",
+            "Kebangkitan nasional di Asia",
+            "Pendidikan modern",
+            "Kesadaran nasionalisme"
+          ]
+        },
+        "organisasi": {
+          "budi_utomo": {
+            "nama": "Budi Utomo",
+            "tahun": "1908",
+            "pendiri": "Dr. Soetomo",
+            "tujuan": "Memajukan pendidikan dan kebudayaan Jawa"
+          },
+          "sarekat_islam": {
+            "nama": "Sarekat Islam",
+            "tahun": "1912",
+            "pendiri": "H. Samanhudi",
+            "tujuan": "Pergerakan Islam dan ekonomi",
+            "perpecahan": "SI Merah (Semaun) dan SI Putih (H.O.S. Cokroaminoto)"
+          },
+          "indische_partij": {
+            "nama": "Indische Partij",
+            "tahun": "1912",
+            "pendiri": "Douwes Dekker, Tjipto Mangoenkoesoemo, Soewardi Soerjaningrat",
+            "tujuan": "Mencetuskan konsep merdeka"
+          },
+          "perhimpunan_indonesia": {
+            "nama": "Perhimpunan Indonesia",
+            "tahun": "1922",
+            "pendiri": "R.P. Sosrokartono, R. Husein Jayadiningrat",
+            "tujuan": "Memperjuangkan persatuan Indonesia"
+          },
+          "pni": {
+            "nama": "Partai Nasional Indonesia",
+            "tahun": "1927",
+            "pendiri": "Soekarno",
+            "tujuan": "Merdeka Indonesia"
+          },
+          "parindra": {
+            "nama": "Partai Indonesia Raya",
+            "tahun": "1935",
+            "tujuan": "Pendidikan, persatuan, kesejahteraan rakyat"
+          },
+          "gerindo": {
+            "nama": "Gerakan Rakyat Indonesia",
+            "tahun": "1937",
+            "tujuan": "Kemerdekaan Indonesia"
+          },
+          "gapi": {
+            "nama": "Gabungan Politik Indonesia",
+            "tahun": "1939",
+            "tujuan": "Persatuan politik Indonesia"
+          },
+          "pergerakan_wanita": {
+            "judul": "Pergerakan Wanita",
+            "organisasi": [
+              {
+                "nama": "Sekolah Kautamaan Istri",
+                "pendiri": "Dewi Sartika",
+                "tahun": "1904"
+              },
+              {
+                "nama": "Putri Merdiko",
+                "pendiri": "R.A. Sabarudin dan R.A. Sutinah Joyopranoto",
+                "tahun": "1912"
+              }
+            ]
+          },
+          "soal_contoh": [
+            "Budi Utomo didirikan pada tahun...",
+            "Indische Partij didirikan oleh...",
+            "PNI didirikan oleh Soekarno pada tahun...",
+            "Pergerakan wanita yang didirikan oleh Dewi Sartika adalah..."
+          ]
+        }
+      },
+      "proklamasi": {
+        "judul": "Proklamasi Kemerdekaan",
+        "tanggal": "17 Agustus 1945",
+        "tempat": "Jalan Pegangsaan Timur No. 56, Jakarta",
+        "proklamator": ["Soekarno", "Mohammad Hatta"],
+        "teks_proklamasi": "Kami bangsa Indonesia dan seluruh tumpah darah Indonesia menjunjukkan kemerdekaan Indonesia. Hal-hal yang mengenai pemindahan kekuasaan, dll., diselenggarakan dengan cara seksama dan dalam tempo yang sesingkat-singkatnya.",
+        "peristiwa_penting": [
+          "Penyerahan Jepang kepada Sekutu pada 14 Agustus 1945",
+          "Soekarno dan Hatta diculik oleh pemuda pada 16 Agustus 1945",
+          "Proklamasi dibacakan pada 17 Agustus 1945 pukul 10.00 WIB",
+          "Bendera Merah Putih dikibarkan pertama kali",
+          "Indonesia Raya dinyanyikan pertama kali"
+        ],
+        "soal_contoh": [
+          "Proklamasi Kemerdekaan dibacakan pada tanggal...",
+          "Proklamator kemerdekaan Indonesia adalah...",
+          "Teks proklamasi kemerdekaan dibacakan di..."
+        ]
+      }
+    },
+    "bhinneka_tunggal_ika": {
+      "judul": "Bhinneka Tunggal Ika",
+      "deskripsi": "Semboyan negara Indonesia yang berarti 'Berbeda-beda tetapi tetap satu'",
+      "sejarah": {
+        "deskripsi": "Sejarah penetapan Bhinneka Tunggal Ika sebagai semboyan negara",
+        "penetapan": "PP No. 66 Tahun 1951 menetapkan Bhinneka Tunggal Ika sebagai semboyan resmi",
+        "amandemen": "Pada amandemen kedua UUD 1945, Bhinneka Tunggal Ika dikukuhkan dalam Pasal 36A"
+      },
+      "lambang_negara": {
+        "judul": "Lambang Negara Indonesia",
+        "deskripsi": "Garuda Pancasila dengan semboyan Bhinneka Tunggal Ika",
+        "bagian": [
+          "Burung Garuda yang menengok ke kanan",
+          "Perisai berupa jantung yang digantung dengan rantai",
+          "Semboyan Bhinneka Tunggal Ika ditulis di atas pita"
+        ]
+      },
+      "konsep_dasar": {
+        "judul": "Konsep Dasar Bhinneka Tunggal Ika",
+        "deskripsi": "Mengutamakan kepentingan bangsa di atas kepentingan individu",
+        "implementasi": [
+          "Menampung keanekaragaman dalam NKRI",
+          "Menghargai perbedaan budaya, agama, suku",
+          "Menjaga persatuan dan kesatuan bangsa"
+        ]
+      },
+      "soal_contoh": [
+        "Bhinneka Tunggal Ika ditetapkan sebagai semboyan negara pada tahun...",
+        "Bhinneka Tunggal Ika tercantum dalam Pasal... UUD 1945",
+        "Lambang negara Indonesia adalah...",
+        "Makna Bhinneka Tunggal Ika adalah..."
+      ]
+    },
+    "demokrasi": {
+      "judul": "Demokrasi",
+      "deskripsi": "Sistem pemerintahan yang memberikan kekuasaan kepada rakyat",
+      "sejarah": {
+        "judul": "Sejarah Demokrasi",
+        "tokoh": [
+          {
+            "nama": "John Locke",
+            "negara": "Inggris",
+            "kontribusi": "Hak-hak dasar manusia: hidup, kebebasan, kepemilikan"
+          },
+          {
+            "nama": "Montesquieu",
+            "negara": "Prancis",
+            "kontribusi": "Konsep Trias Politika (pemisahan kekuasaan)"
+          }
+        ]
+      },
+      "prinsip": {
+        "judul": "Prinsip-Prinsip Demokrasi",
+        "daftar": [
+          "Pemerintahan berdasarkan konstitusi",
+          "Pemilihan umum yang bebas, jujur, dan adil",
+          "Terjaminnya hak asasi manusia",
+          "Persamaan kedudukan di hadapan hukum",
+          "Peradilan yang bebas dan tidak memihak",
+          "Keterlibatan warga negara dalam pembuatan keputusan publik",
+          "Kebebasan berserikat atau berorganisasi",
+          "Kebebasan pers atau media massa"
+        ]
+      },
+      "jenis": {
+        "judul": "Macam-Macam Demokrasi",
+        "berdasarkan_cara_penyaluran": {
+          "demokrasi_langsung": "Melibatkan seluruh rakyat secara langsung",
+          "demokrasi_perwakilan": "Dijalankan melalui lembaga perwakilan"
+        },
+        "berdasarkan_paham": {
+          "demokrasi_liberal": "Menitikberatkan pada kebebasan individu",
+          "demokrasi_rakyat": "Dianut negara berpaham Marxisme-Komunisme",
+          "demokrasi_pancasila": "Bersumber dari nilai-nilai Pancasila"
+        }
+      },
+      "pelaksanaan_di_indonesia": {
+        "judul": "Pelaksanaan Demokrasi di Indonesia",
+        "demokrasi_liberal": {
+          "periode": "1950-1959",
+          "ciri": [
+            "Para menteri bertanggung jawab kepada parlemen",
+            "Sistem multipartai",
+            "Overpower legislatif",
+            "Keterbatasan presiden"
+          ]
+        },
+        "demokrasi_terpimpin": {
+          "periode": "1959-1965",
+          "ciri": [
+            "Over power presiden",
+            "Keterbatasan hak pesertaan rakyat",
+            "Berkembangnya pengaruh komunis",
+            "Meluasnya peranan TNI"
+          ]
+        },
+        "demokrasi_pancasila": {
+          "periode": "1965-sekarang",
+          "ciri": [
+            "Keseimbangan tuntutan masyarakat",
+            "Keseimbangan kekuasaan lembaga negara",
+            "Stabilitas masyarakat",
+            "Pesertaan rakyat",
+            "Persamaan hak warga negara"
+          ]
+        }
+      },
+      "soal_contoh": [
+        "Tokoh yang mengemukakan konsep Trias Politika adalah...",
+        "Prinsip demokrasi yang meliputi pemilihan umum bebas, jujur, dan adil adalah...",
+        "Demokrasi yang bersumber dari nilai-nilai Pancasila disebut...",
+        "Ciri demokrasi liberal di Indonesia adalah..."
+      ]
+    },
+    "kedaulatan_rakyat": {
+      "judul": "Kedaulatan Rakyat",
+      "deskripsi": "Kekuasaan tertinggi berada di tangan rakyat",
+      "jenis": {
+        "kedaulatan_ke_dalam": "Kekuasaan tertinggi di dalam negara",
+        "kedaulatan_ke_luar": "Kekuasaan tertinggi untuk mengatur pemerintahan dan memelihara keutuhan wilayah"
+      },
+      "teori": {
+        "judul": "Teori-Teori Kedaulatan",
+        "teori_tuhan": {
+          "deskripsi": "Kekuasaan tertinggi ada pada Tuhan",
+          "tokoh": []
+        },
+        "teori_raja": {
+          "deskripsi": "Kekuasaan tertinggi berada di tangan raja",
+          "tokoh": ["Nicollo Machiavelli", "Thomas Hobbes", "Hegel"]
+        },
+        "teori_negara": {
+          "deskripsi": "Kekuasaan tertinggi ada pada negara",
+          "tokoh": ["Jean Bodin", "George Jellinek"]
+        },
+        "teori_hukum": {
+          "deskripsi": "Kekuasaan tertinggi adalah hukum",
+          "tokoh": ["Krabbe"]
+        },
+        "teori_rakyat": {
+          "deskripsi": "Kedaulatan berada di tangan rakyat",
+          "tokoh": ["John Locke", "Montesquie", "J.J. Rousseau"]
+        }
+      },
+      "struktur_ketatanegaraan": {
+        "judul": "Struktur Ketatanegaraan Indonesia",
+        "lembaga_pelaksana": [
+          "Majelis Permusyawaratan Rakyat (MPR)",
+          "Presiden",
+          "Dewan Perwakilan Rakyat (DPR)",
+          "Badan Pemeriksa Keuangan (BPK)",
+          "Mahkamah Agung (MA)",
+          "Mahkamah Konstitusi (MK)",
+          "Komisi Yudisial (KY)",
+          "Dewan Perwakilan Daerah (DPD)",
+          "Komisi Pemilihan Umum (KPU)",
+          "Pemerintah Daerah (Pemda)",
+          "Dewan Perwakilan Rakyat Daerah (DPRD)"
+        ],
+        "landasan": {
+          "ideal": "Pancasila",
+          "konstitusional": "Undang-Undang Dasar 1945"
+        }
+      },
+      "soal_contoh": [
+        "Teori kedaulatan yang menyatakan kekuasaan tertinggi ada pada rakyat adalah...",
+        "Tokoh yang mengemukakan teori kedaulatan hukum adalah...",
+        "Lembaga yang melaksanakan kedaulatan rakyat di Indonesia adalah...",
+        "Landasan ideal pelaksanaan kedaulatan rakyat di Indonesia adalah..."
+      ]
+    },
+    "sistem_pemerintahan": {
+      "judul": "Sistem Pemerintahan",
+      "deskripsi": "Sistem pemerintahan yang berlaku di Indonesia",
+      "jenis": {
+        "presidensial": {
+          "deskripsi": "Presiden sebagai kepala negara sekaligus kepala pemerintahan",
+          "ciri": [
+            "Presiden dipilih langsung oleh rakyat",
+            "Presiden tidak termasuk pemegang kekuasaan legislatif",
+            "Presiden tidak dapat membubarkan kekuasaan legislatif",
+            "Presiden memiliki hak prerogatif mengangkat dan memberhentikan menteri",
+            "Para menteri bertanggung jawab kepada presiden"
+          ]
+        },
+        "parlementer": {
+          "deskripsi": "Kabinet dipimpin oleh perdana menteri",
+          "ciri": [
+            "Kabinet dibentuk berdasarkan kekuasaan yang menguasai parlemen",
+            "Anggota kabinet sebagian atau seluruhnya berasal dari anggota parlemen",
+            "Perdana menteri bersama kabinet bertanggung jawab kepada parlemen",
+            "Kepala negara dapat membubarkan parlemen dan memerintahkan pemilihan umum"
+          ]
+        },
+        "semipresidensial": {
+          "deskripsi": "Presiden dipilih melalui hak pilih umum dengan perdana menteri",
+          "ciri": [
+            "Presiden memiliki kekuasaan yang cukup besar",
+            "Perdana menteri mengepalai kabinet yang bertanggung jawab kepada parlemen",
+            "Parlemen dapat menjatuhkan perdana menteri melalui mosi tidak percaya"
+          ]
+        }
+      },
+      "sistem_indonesia": {
+        "judul": "Sistem Pemerintahan di Indonesia",
+        "jenis": "Presidensial",
+        "ciri": [
+          "Kedaulatan berada di tangan rakyat (UUD 1945 Pasal 1 Ayat 2)",
+          "Negara Indonesia adalah negara berdasarkan hukum (UUD 1945 Pasal 1 Ayat 3)",
+          "Anggota MPR, Presiden, DPRD, kepala daerah dipilih langsung oleh rakyat",
+          "Presiden tidak dapat membubarkan DPR (UUD 1945 Pasal 7C)",
+          "Menteri-menteri diangkat dan diberhentikan oleh presiden (UUD 1945 Pasal 17)",
+          "DPR memegang kekuasaan membentuk undang-undang (UUD 1945 Pasal 20)"
+        ]
+      },
+      "soal_contoh": [
+        "Sistem pemerintahan yang berlaku di Indonesia adalah...",
+        "Ciri sistem pemerintahan presidensial adalah...",
+        "Pasal UUD 1945 yang menyatakan kedaulatan berada di tangan rakyat adalah...",
+        "Perbedaan sistem pemerintahan presidensial dan parlementer adalah..."
+      ]
+    },
+    "perundang_undangan": {
+      "judul": "Perundang-undangan Nasional",
+      "deskripsi": "Urutan perundang-undangan nasional",
+      "urutan": [
+        "Undang-Undang Dasar 1945",
+        "Ketetapan MPR",
+        "Undang-Undang (UU)",
+        "Peraturan Pemerintah Pengganti Undang-Undang (Perppu)",
+        "Peraturan Pemerintah (PP)",
+        "Keputusan Presiden (Keppres)",
+        "Peraturan Daerah (Perda)"
+      ],
+      "fungsi": {
+        "judul": "Fungsi Peraturan Perundang-undangan",
+        "daftar": [
+          "Memberikan kepastian hukum",
+          "Melindungi dan mengayomi hak-hak warga negara",
+          "Memberikan rasa keadilan",
+          "Menciptakan ketertiban dan ketenteraman"
+        ]
+      },
+      "kedudukan": {
+        "judul": "Kedudukan Peraturan Perundang-undangan",
+        "daftar": [
+          "Sebagai hukum bagi warga negara",
+          "Menjamin hak-hak dan kewajiban warga negara"
+        ]
+      },
+      "asas_penyusunan": {
+        "judul": "Asas Penyusunan Peraturan Perundang-undangan",
+        "daftar": [
+          "Asas hierarki (tidak boleh bertentangan dengan peraturan lebih tinggi)",
+          "Undang-undang tidak dapat diganggu gugat",
+          "Undang-undang bersifat khusus mengesampingkan umum",
+          "Undang-undang tidak berlaku surut",
+          "Undang-undang baru mengesampingkan yang lama",
+          "Konsistensi"
+        ]
+      },
+      "soal_contoh": [
+        "Urutan perundang-undangan nasional yang paling tinggi adalah...",
+        "Fungsi peraturan perundang-undangan adalah...",
+        "Asas hierarki dalam penyusunan peraturan perundang-undangan berarti...",
+        "Perppu harus diajukan ke DPR dalam persidangan..."
+      ]
+    },
+    "hak_asasi_manusia": {
+      "judul": "Hak Asasi Manusia (HAM)",
+      "deskripsi": "Hak dasar yang dimiliki manusia sejak lahir sebagai anugerah Tuhan",
+      "pengertian": {
+        "umum": "Hak dasar yang dimiliki manusia sejak lahir sebagai anugerah Tuhan",
+        "uu_39_1999": "Seperangkat hak yang melekat pada manusia sebagai makhluk Tuhan Yang Maha Esa dan merupakan anugerah yang wajib dihormati, dijunjung tinggi, serta dilindungi oleh negara, hukum, dan pemerintah"
+      },
+      "ruang_lingkup": {
+        "judul": "Ruang Lingkup HAM",
+        "hak_dasar": ["Hak hidup", "Hak kebebasan/kemerdekaan", "Hak memiliki sesuatu"],
+        "hak_asasi": {
+          "pribadi": "Hak memeluk agama, hak mengemukakan pendapat, hak berorganisasi",
+          "ekonomi": "Hak memiliki sesuatu, hak membeli dan menjual, hak mengadakan perjanjian",
+          "politik": "Hak diakui sebagai warga negara sederajat, hak memilih dan dipilih",
+          "perlakuan": "Hak perlakuan yang sama di muka hukum dan pemerintahan",
+          "sosial_budaya": "Hak mendapatkan pendidikan, hak mengembangkan kebudayaan"
+        }
+      },
+      "latar_belakang": {
+        "judul": "Latar Belakang HAM",
+        "daftar": [
+          "Manusia sebagai makhluk Tuhan yang paling mulia",
+          "Masih banyak pelanggaran HAM dalam kehidupan keluarga, masyarakat, dan negara",
+          "Desakan masyarakat untuk mengembangkan kehidupan demokratis"
+        ]
+      },
+      "instrumen": {
+        "judul": "Instrumen HAM",
+        "internasional": "Piagam PBB (Universal Declaration of Human Rights) tanggal 10 Desember 1948",
+        "nasional": "Undang-Undang No. 39 Tahun 1999 tentang HAM"
+      },
+      "piagam": {
+        "judul": "Piagam Perlindungan HAM",
+        "internasional": [
+          {"negara": "Inggris", "piagam": "Magna Charta (1215)", "piagam_lain": ["Petition of Rights (1628)", "Habeas Corpus Act (1679)", "Bill of Rights (1689)"]},
+          {"negara": "Amerika Serikat", "piagam": "Declaration of Independence (1776)"},
+          {"negara": "Prancis", "piagam": "Declaration des droits de l'homme (1789)"},
+          {"negara": "Indonesia", "piagam": "Undang-Undang Dasar 1945 (1945)"}
+        ]
+      },
+      "soal_contoh": [
+        "Hak asasi manusia menurut UU No. 39 Tahun 1999 adalah...",
+        "Ruang lingkup hak asasi pribadi meliputi...",
+        "Piagam internasional HAM yang disahkan pada 10 Desember 1948 adalah...",
+        "Magna Charta adalah piagam HAM dari negara..."
+      ]
+    },
+    "otonomi_daerah": {
+      "judul": "Otonomi Daerah",
+      "deskripsi": "Kewenangan daerah untuk mengatur dan mengurus urusan pemerintahan",
+      "pengertian": {
+        "artikata": "Auto (sendiri), nomos (aturan)",
+        "definisi": "Kewenangan daerah untuk mengatur dan mengurus urusan pemerintahan sendiri"
+      },
+      "nilai_dasar": {
+        "judul": "Nilai Dasar Otonomi Daerah",
+        "daftar": [
+          "Kebebasan (masyarakat dan pemerintah daerah dalam mengambil tindakan)",
+          "Partisipasi (masyarakat berperan aktif dalam proses perencanaan, pelaksanaan, pengawasan)",
+          "Efektivitas dan efisiensi (tepat sasaran dan tidak menghamburkan anggaran)"
+        ]
+      },
+      "tujuan": {
+        "judul": "Tujuan Otonomi Daerah",
+        "daftar": [
+          "Peningkatan pelayanan dan kesejahteraan masyarakat",
+          "Pengembangan kehidupan demokrasi",
+          "Keadilan",
+          "Pemerataan",
+          "Pemeliharaan hubungan serasi antara pusat dan daerah",
+          "Mendorong pemberdayaan masyarakat",
+          "Menumbuhkan prakarsa dan kreativitas"
+        ]
+      },
+      "asas_prinsip": {
+        "judul": "Asas dan Prinsip Pemerintahan Daerah",
+        "daftar": [
+          "Asas desentralisasi (dilaksanakan di kabupaten dan kota)",
+          "Asas dekonsentrasi",
+          "Asas tugas pembantuan (dapat dilaksanakan di provinsi, kabupaten, kota, dan desa)"
+        ]
+      },
+      "kewenangan": {
+        "judul": "Kewenangan Daerah",
+        "daftar": [
+          "Perencanaan dan pengendalian pembangunan",
+          "Perencanaan, pemanfaatan, pengawasan tata ruang",
+          "Penyelenggaraan ketertiban umum dan ketenteraman masyarakat",
+          "Penyediaan sarana dan prasarana umum",
+          "Penanganan bidang kesehatan",
+          "Penyelenggaraan pendidikan",
+          "Fasilitas pengembangan koperasi, usaha kecil, menengah",
+          "Pengendalian lingkungan hidup",
+          "Pelayanan administrasi umum dan pemerintahan"
+        ]
+      },
+      "bentuk_susunan": {
+        "judul": "Bentuk dan Susunan Pemerintah Daerah",
+        "dprd": {
+          "judul": "DPRD sebagai Badan Legislatif Daerah",
+          "tugas_wewenang": [
+            "Membentuk Peraturan Daerah (Perda)",
+            "Membahas dan menyetujui rancangan Perda APBD",
+            "Melaksanakan pengawasan Perda, APBD, kerja sama internasional",
+            "Mengusulkan pengangkatan dan pemberhentikan kepala daerah",
+            "Menerima laporan pertanggungjawaban kepala daerah"
+          ],
+          "hak_anggota": [
+            "Hak interpelasi",
+            "Hak angket",
+            "Hak menyatakan pendapat",
+            "Hak mengajukan rancangan Perda",
+            "Hak memilih dan dipilih",
+            "Hak imunitas"
+          ]
+        },
+        "kepala_daerah": {
+          "judul": "Kepala Daerah sebagai Badan Eksekutif Daerah",
+          "daerah": [
+            "Provinsi dipimpin oleh gubernur",
+            "Kabupaten/kota dipimpin oleh bupati/walikota"
+          ],
+          "tugas_wewenang": [
+            "Memimpin penyelenggaraan pemerintahan daerah",
+            "Mengajukan rancangan Perda",
+            "Menetapkan Perda yang telah mendapat persetujuan DPRD",
+            "Mengupayakan terlaksananya kewajiban daerah",
+            "Mewakili daerah di dalam dan di luar pengadilan",
+            "Melaksanakan tugas dan wewenang lain sesuai peraturan"
+          ]
+        }
+      },
+      "soal_contoh": [
+        "Arti kata otonomi adalah...",
+        "Nilai dasar otonomi daerah meliputi...",
+        "Asas desentralisasi dilaksanakan di tingkat...",
+        "Kewenangan daerah dalam pelaksanaan otonomi daerah meliputi..."
+      ]
+    },
+    "partisipasi_masyarakat": {
+      "judul": "Partisipasi Masyarakat dalam Perumusan Kebijakan Publik",
+      "deskripsi": "Peran masyarakat dalam proses pembuatan kebijakan publik",
+      "bentuk_partisipasi": {
+        "judul": "Bentuk-bentuk Partisipasi",
+        "deskripsi": "Berbagai cara masyarakat berpartisipasi",
+        "partisipasi_politik": ["Memilih dalam pemilihan umum", "Bergabung dengan partai politik", "Ikut serta dalam kampanye"],
+        "partisipasi_sosial": ["Memberikan masukan dalam musyawarah", "Ikut dalam kegiatan gotong royong", "Aktif dalam organisasi kemasyarakatan"]
+      },
+      "peran_partisipasi": {
+        "judul": "Peran Partisipasi Masyarakat",
+        "deskripsi": "Manfaat partisipasi masyarakat",
+        "peran": ["Meningkatkan kualitas kebijakan", "Mencegah keputusan yang merugikan", "Membangun demokrasi yang sehat"]
+      },
+      "bentuk": {
+        "judul": "Bentuk Partisipasi Masyarakat",
+        "daftar": [
+          "Musyawarah perencanaan pembangunan",
+          "Forum konsultasi publik",
+          "Petisi dan demo",
+          "Partisipasi dalam pemilihan umum",
+          "Partisipasi dalam organisasi masyarakat"
+        ]
+      },
+      "soal_contoh": [
+        "Tujuan partisipasi masyarakat dalam perumusan kebijakan publik adalah...",
+        "Komponen yang terlibat dalam perumusan kebijakan publik meliputi...",
+        "Bentuk partisipasi masyarakat adalah...",
+        "Musyawarah perencanaan pembangunan adalah bentuk partisipasi..."
+      ]
+    },
+    "bela_negara": {
+      "judul": "Bela Negara",
+      "deskripsi": "Sikap dan perilaku yang menunjukkan cinta tanah air dan siap membela negara",
+      "pengertian": {
+        "judul": "Pengertian Bela Negara",
+        "deskripsi": "Segala upaya dan tindakan yang dilakukan warga negara untuk mempertahankan kedaulatan, keutuhan, dan kehormatan bangsa",
+        "unsur": ["Cinta tanah air", "Kesediaan berkorban untuk bangsa", "Pengakuan terhadap sistem negara", "Kemampuan mempertahankan negara"]
+      },
+      "tujuan": {
+        "judul": "Tujuan Bela Negara",
+        "deskripsi": "Tujuan utama bela negara",
+        "tujuan": [
+          "Mewujudkan sikap dan perilaku yang mendukung sistem ketatanegaraan",
+          "Mempertahankan kedaulatan negara",
+          "Menjaga keutuhan wilayah NKRI",
+          "Melindungi segenap bangsa dan seluruh tumpah darah Indonesia"
+        ]
+      },
+      "bentuk_bela_negara": {
+        "judul": "Bentuk-bentuk Bela Negara",
+        "deskripsi": "Cara-cara melaksanakan bela negara",
+        "bentuk": [
+          "Ikut serta dalam pertahanan dan keamanan negara",
+          "Menghormati lambang-lambang negara",
+          "Menghargai jasa pahlawan",
+          "Melestarikan budaya bangsa",
+          "Mengembangkan sikap cinta tanah air",
+          "Menjaga persatuan dan kesatuan"
+        ]
+      },
+      "contoh_penerapan": {
+        "judul": "Contoh Penerapan Bela Negara",
+        "deskripsi": "Contoh nyata bela negara dalam kehidupan sehari-hari",
+        "contoh": [
+          "Mengibarkan bendera merah putih pada hari-hari besar",
+          "Menyanyikan lagu Indonesia Raya dengan penuh penghormatan",
+          "Ikut serta dalam kegiatan kebangsaan",
+          "Menghormati para pahlawan dengan mengunjungi tugu pahlawan"
+        ]
+      },
+      "soal_contoh": [
+        "Tujuan utama bela negara adalah...",
+        "Bentuk-bentuk bela negara yang dapat dilakukan warga negara adalah...",
+        "Contoh penerapan bela negara dalam kehidupan sehari-hari adalah...",
+        "Unsur-unsur bela negara adalah..."
+      ]
+    },
+    "uud_1945": {
+      "judul": "Undang-Undang Dasar 1945",
+      "deskripsi": "Konstitusi negara Indonesia",
+      "sejarah": {
+        "judul": "Sejarah Perumusan UUD 1945",
+        "tokoh": [
+          {
+            "nama": "Muh. Yamin",
+            "usulan": ["Peri kebangsaan", "Peri keadilan", "Peri ketuhanan", "Peri kerakyatan", "Kesejahteraan rakyat"]
+          },
+          {
+            "nama": "Soepomo",
+            "usulan": ["Persatuan", "Kekeluargaan", "Keseimbangan lahir batin", "Musyawarah", "Keadilan rakyat"]
+          },
+          {
+            "nama": "Ir. Soekarno",
+            "usulan": ["Kebangsaan Indonesia", "Internationalisme/perikemanusiaan", "Mufakat/demokrasi", "Kesejahteraan sosial", "Ketuhanan Yang Maha Esa"]
+          }
+        ],
+        "piagam_jakarta": {
+          "deskripsi": "Rumusan Pancasila dalam Piagam Jakarta oleh Panitia Sembilan",
+          "sila_pertama": "Ketuhanan, dengan kewajiban menjalankan syariat Islam bagi pemeluk-pemeluknya",
+          "perubahan": "Diubah menjadi 'Ketuhanan Yang Maha Esa' sebelum pengesahan UUD 1945"
+        }
+      },
+      "pembukaan": {
+        "judul": "Pembukaan UUD 1945",
+        "alinea_pertama": "Bahwa kemerdekaan itu ialah hak segala bangsa dan oleh sebab itu, maka penjajahan di atas dunia harus dihapuskan karena tidak sesuai dengan perikemanusiaan dan keadilan",
+        "alinea_kedua": "Dan perjuangan pergerakan kemerdekaan Indonesia telah sampailah kepada saat yang berbahagia dengan selamat sentausa mengantarkan rakyat Indonesia ke depan pintu gerbang kemerdekaan negara Indonesia, yang merdeka, bersatu, berdaulat, adil dan makmur",
+        "alinea_ketiga": "Atas berkat rahmat Allah Yang Maha Kuasa dan dengan didorongkan oleh keinginan luhur, supaya berkehidupan kebangsaan yang bebas, maka rakyat Indonesia menyatakan kemerdekaannya",
+        "alinea_keempat": "Kemudian dari itu untuk membentuk suatu Pemerintah Negara Indonesia yang melindungi segenap bangsa Indonesia dan seluruh tumpah darah Indonesia dan untuk memajukan kesejahteraan umum, mencerdaskan kehidupan bangsa, dan ikut melaksanakan ketertiban dunia yang berdasarkan kemerdekaan, perdamaian abadi dan keadilan sosial",
+        "soal_contoh": [
+          "Alinea pertama pembukaan UUD 1945 berisi tentang...",
+          "Alinea kedua pembukaan UUD 1945 menyebutkan...",
+          "Alinea keempat pembukaan UUD 1945 berisi tujuan negara..."
+        ]
+      },
+      "batang_uud": {
+        "judul": "Batang Tubuh UUD 1945",
+        "deskripsi": "Pasal-pasal dalam UUD 1945",
+        "sistematika": {
+          "judul": "Sistematika UUD 1945",
+          "pembukaan": "4 alinea",
+          "batang_tubuh": "16 bab, 37 pasal, 4 ayat aturan peralihan, 2 ayat aturan tambahan",
+          "penjelasan": "Penjelasan umum dan penjelasan khusus (pasal demi pasal)"
+        },
+        "pasal_penting": {
+          "pasal_1": {
+            "isi": "Negara Indonesia ialah negara kesatuan yang berbentuk republik",
+            "penjelasan": "Indonesia adalah negara kesatuan yang tidak dapat dibagi-bagi"
+          },
+          "pasal_27": {
+            "isi": "Segala warga negara bersamaan kedudukannya dalam hukum dan pemerintahan",
+            "penjelasan": "Persamaan kedudukan warga negara tanpa diskriminasi"
+          },
+          "pasal_28": {
+            "isi": "Kewajiban dan hak warga negara",
+            "penjelasan": "Hak dan kewajiban warga negara dalam kehidupan bernegara"
+          },
+          "pasal_29": {
+            "isi": "Presiden dan Wakil Presiden",
+            "penjelasan": "Lembaga kepala negara Indonesia"
+          },
+          "pasal_30": {
+            "isi": "Menteri-menteri",
+            "penjelasan": "Pembantu Presiden dalam menjalankan pemerintahan"
+          },
+          "soal_contoh": [
+            "Pasal 1 UUD 1945 menyatakan bahwa negara Indonesia adalah...",
+            "Persamaan kedudukan warga negara diatur dalam pasal...",
+            "Lembaga kepala negara Indonesia diatur dalam pasal..."
+          ]
+        }
+      },
+      "konstitusi_sebelumnya": {
+        "judul": "Konstitusi yang Pernah Berlaku di Indonesia",
+        "uud_ris_1949": {
+          "masa": "27 Desember 1949 - 17 Agustus 1950",
+          "bentuk_negara": "Serikat atau federasi",
+          "sistem_pemerintahan": "Parlementer",
+          "sistematika": "4 bab, 197 pasal"
+        },
+        "uuds_1950": {
+          "masa": "17 Agustus 1950 - 5 Juli 1959",
+          "bentuk_negara": "Kesatuan",
+          "sistem_pemerintahan": "Parlementer dengan demokrasi liberal semu",
+          "sistematika": "6 bab"
+        },
+        "uud_dekret_1959": {
+          "masa": "5 Juli 1959 - 2000",
+          "sebab": "Gagalnya Badan Konstituante dalam menetapkan UUD",
+          "penetapan": "Dekret Presiden Soekarno memberlakukan kembali UUD 1945"
+        },
+        "soal_contoh": [
+          "UUD RIS 1945 berlaku pada periode...",
+          "Sistem pemerintahan UUDS 1950 adalah...",
+          "UUD 1945 diberlakukan kembali melalui Dekret Presiden pada tahun..."
+        ]
+      },
+      "amandemen": {
+        "judul": "Amandemen UUD 1945",
+        "deskripsi": "Perubahan UUD 1945 sejak reformasi",
+        "amandemen_pertama": {
+          "tahun": "1999",
+          "perubahan": "Pembatasan masa jabatan presiden 2 periode"
+        },
+        "amandemen_kedua": {
+          "tahun": "2000",
+          "perubahan": "Pembentukan DPD, BPK, dan KY"
+        },
+        "amandemen_ketiga": {
+          "tahun": "2001",
+          "perubahan": "Pemilihan presiden langsung oleh rakyat"
+        },
+        "amandemen_keempat": {
+          "tahun": "2002",
+          "perubahan": "Pendidikan dasar minimal 12 tahun"
+        },
+        "perubahan_mendasar": {
+          "judul": "Perubahan Mendasar dalam Sistem Ketatanegaraan",
+          "daftar": [
+            "Kedudukan yang sejajar dan proporsional antara Presiden dan DPR",
+            "Masa jabatan presiden diatur dengan tegas (maksimal 2 periode)",
+            "Dilaksanakannya otonomi daerah",
+            "Penyelenggaraan pemilu oleh lembaga nonpemerintahan yang netral dan mandiri"
+          ]
+        },
+        "soal_contoh": [
+          "Amandemen pertama UUD 1945 dilakukan pada tahun...",
+          "Pemilihan presiden langsung diatur dalam amandemen ke...",
+          "DPD dibentuk pada amandemen UUD 1945 yang ke...",
+          "Perubahan mendasar dalam sistem ketatanegaraan Indonesia adalah..."
+        ]
+      }
+    }
+  },
+  "referensi": [
+    "Buku Pendidikan Pancasila dan Kewarganegaraan",
+    "Buku Sejarah Indonesia",
+    "Buku PPKn Kelas XII",
+    "UUD 1945 dan Amandemennya"
+  ],
+  "tags": ["TWK", "Pancasila", "Sejarah", "UUD 1945", "Nasionalisme", "CPNS"],
+  "created_at": "2026-05-20",
+  "version": "2.0"
+}
