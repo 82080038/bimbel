@@ -5,16 +5,16 @@ let myPosition = null;
 // Load leaderboard data
 async function loadLeaderboardData() {
     try {
-        const response = await fetch(`${AppConfig.apiUrl}/gamification.php?action=get_leaderboard`, {
+        const response = await fetch(AppConfig.apiUrl('gamification.php?action=get_leaderboard'), {
             headers: RBAC.getAuthHeaders()
         });
-        
+
         if (!response.ok) {
             throw new Error('Gagal memuat leaderboard');
         }
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             leaderboardData = data.data.leaderboard || [];
             myPosition = data.data.my_position || null;

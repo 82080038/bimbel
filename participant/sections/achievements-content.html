@@ -1,14 +1,14 @@
-<button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-    <i class="fas fa-moon" id="darkModeIcon"></i>
-</button>
+    <a href="dashboard.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Kembali
+    </a>
 
-<div class="container">
-    <div class="main-container">
-        <!-- Header -->
-        <div class="header-section">
-            <h1><i class="fas fa-medal"></i> Achievements</h1>
-            <p>Badge dan pencapaian Anda</p>
-        </div>
+    <div class="container">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header-section">
+                <h1><i class="fas fa-medal"></i> Pencapaian</h1>
+                <p>Lencana dan pencapaian Anda</p>
+            </div>
 
         <!-- Stats Overview -->
         <div class="stats-section">
@@ -17,7 +17,7 @@
                     <div class="stat-card">
                         <i class="fas fa-trophy fa-2x"></i>
                         <h3 id="totalBadges">0</h3>
-                        <p>Total Badge</p>
+                        <p>Total Lencana</p>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -38,7 +38,7 @@
                     <div class="stat-card">
                         <i class="fas fa-percentage fa-2x"></i>
                         <h3 id="completionPercentage">0%</h3>
-                        <p>Progress</p>
+                        <p>Perkembangan</p>
                     </div>
                 </div>
             </div>
@@ -51,7 +51,7 @@
                     <div class="category-tabs">
                         <button class="btn active" onclick="filterAchievements('all')">Semua</button>
                         <button class="btn" onclick="filterAchievements('exam')">Ujian</button>
-                        <button class="btn" onclick="filterAchievements('streak')">Streak</button>
+                        <button class="btn" onclick="filterAchievements('streak')">Berturut-turut</button>
                         <button class="btn" onclick="filterAchievements('learning')">Belajar</button>
                         <button class="btn" onclick="filterAchievements('special')">Spesial</button>
                     </div>
@@ -63,20 +63,20 @@
         <div class="achievements-grid" id="achievementsGrid">
             <div class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">Memuat...</span>
                 </div>
-                <p class="mt-2">Memuat achievements...</p>
+                <p class="mt-2">Memuat pencapaian...</p>
             </div>
         </div>
 
-        <!-- Recent Achievements -->
+        <!-- Pencapaian Terbaru -->
         <div class="recent-section">
             <h3><i class="fas fa-clock me-2"></i>Pencapaian Terbaru</h3>
             <div class="card">
                 <div class="card-body">
                     <div id="recentAchievements">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden">Memuat...</span>
                         </div>
                     </div>
                 </div>

@@ -712,34 +712,50 @@ function getLeaderboard() {
 
 function getAchievements() {
     global $conn;
-    
-    $user = requireAuth();
-    
-    // Get all achievements
-    $sql = "SELECT a.*, ua.unlocked, ua.completed_at as unlocked_at
-            FROM achievements a
-            LEFT JOIN user_achievements ua ON a.id = ua.achievement_id AND ua.user_id = ?
-            ORDER BY a.category, a.nama";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $user['id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $achievements = [];
-    while ($row = $result->fetch_assoc()) {
-        $achievements[] = [
-            'id' => $row['id'],
-            'name' => $row['nama'],
-            'description' => $row['deskripsi'],
-            'icon' => $row['icon'] ?? 'fas fa-medal',
-            'category' => $row['kategori'] ?? 'special',
-            'requirement' => $row['criteria_type'] . ': ' . ($row['criteria_value'] ?? 'TBD'),
-            'unlocked' => !is_null($row['unlocked']),
-            'unlocked_at' => $row['unlocked_at']
-        ];
+
+    try {
+        $user = requireAuth();
+
+        // Check if achievements table exists
+        $check_table = $conn->query("SHOW TABLES LIKE 'achievements'");
+        if ($check_table->num_rows == 0) {
+            echo json_encode(['success' => true, 'data' => ['achievements' => []]]);
+            return;
+        }
+
+        // Get all achievements
+        $sql = "SELECT a.*, ua.unlocked, ua.completed_at as unlocked_at
+                FROM achievements a
+                LEFT JOIN user_achievements ua ON a.id = ua.achievement_id AND ua.user_id = ?
+                ORDER BY a.category, a.nama";
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            echo json_encode(['success' => true, 'data' => ['achievements' => []]]);
+            return;
+        }
+        $stmt->bind_param('i', $user['id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $achievements = [];
+        while ($row = $result->fetch_assoc()) {
+            $achievements[] = [
+                'id' => $row['id'],
+                'name' => $row['nama'],
+                'description' => $row['deskripsi'],
+                'icon' => $row['icon'] ?? 'fas fa-medal',
+                'category' => $row['kategori'] ?? 'special',
+                'requirement' => $row['criteria_type'] . ': ' . ($row['criteria_value'] ?? 'TBD'),
+                'unlocked' => !is_null($row['unlocked']),
+                'unlocked_at' => $row['unlocked_at']
+            ];
+        }
+
+        echo json_encode(['success' => true, 'data' => ['achievements' => $achievements]]);
+    } catch (Exception $e) {
+        error_log("Error in getAchievements: " . $e->getMessage());
+        echo json_encode(['success' => true, 'data' => ['achievements' => []]]);
     }
-    
-    echo json_encode(['success' => true, 'data' => ['achievements' => $achievements]]);
 }
 
 function getAllUsersGamification() {

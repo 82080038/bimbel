@@ -5,16 +5,16 @@ let currentFilter = 'all';
 // Load achievements data
 async function loadAchievementsData() {
     try {
-        const response = await fetch(`${AppConfig.apiUrl}/gamification.php?action=get_achievements`, {
+        const response = await fetch(AppConfig.apiUrl('gamification.php?action=get_achievements'), {
             headers: RBAC.getAuthHeaders()
         });
-        
+
         if (!response.ok) {
             throw new Error('Gagal memuat achievements');
         }
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             achievementsData = data.data.achievements || [];
             updateStats();

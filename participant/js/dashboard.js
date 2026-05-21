@@ -93,12 +93,9 @@
             // Load accessibility preferences
             loadAccessibilityPreferences();
 
-            // Initialize Progress Chart with empty data
-            initProgressChart([]);
-            
             // Update UI with user data
             updateUserInfo();
-            
+
             // Load dashboard components (which will then load dashboard data)
             loadDashboardComponents();
         });
@@ -115,11 +112,11 @@
                         const user = data.user;
                         
                         // Set avatar initials
-                        const initials = (user.nama_lengkap || user.username || 'User').substring(0, 2).toUpperCase();
+                        const initials = (user.nama_lengkap || user.username || 'Pengguna').substring(0, 2).toUpperCase();
                         document.getElementById('userAvatar').textContent = initials;
                         
                         // Set welcome message
-                        document.getElementById('userName').textContent = `Selamat Datang, ${user.nama_lengkap || user.username || 'User'}!`;
+                        document.getElementById('userName').textContent = `Selamat Datang, ${user.nama_lengkap || user.username || 'Pengguna'}!`;
                         
                         // Set user detail
                         const detailParts = [];
@@ -129,7 +126,7 @@
                     }
                 } else {
                     // Fallback to localStorage if API fails
-                    const username = localStorage.getItem('username') || 'User';
+                    const username = localStorage.getItem('username') || 'Pengguna';
                     const initials = username.substring(0, 2).toUpperCase();
                     document.getElementById('userAvatar').textContent = initials;
                     document.getElementById('userName').textContent = `Selamat Datang, ${username}!`;
@@ -138,7 +135,7 @@
             } catch (error) {
                 console.error('Error loading user info:', error);
                 // Fallback to localStorage
-                const username = localStorage.getItem('username') || 'User';
+                const username = localStorage.getItem('username') || 'Pengguna';
                 const initials = username.substring(0, 2).toUpperCase();
                 document.getElementById('userAvatar').textContent = initials;
                 document.getElementById('userName').textContent = `Selamat Datang, ${username}!`;
@@ -226,27 +223,48 @@
         }
 
         function updateAIAssessment(weaknessData) {
+            const aiRecommendationEl = document.getElementById('aiRecommendation');
+            const aiConfidenceEl = document.getElementById('aiConfidence');
+            const aiConfidenceBarEl = document.getElementById('aiConfidenceBar');
+            const readinessScoreEl = document.getElementById('readinessScore');
+            const daysRemainingEl = document.getElementById('daysRemaining');
+
             if (!weaknessData || weaknessData.length === 0) {
-                document.getElementById('aiRecommendation').textContent = 'Belum cukup data untuk analisis AI. Ikuti ujian untuk mendapatkan rekomendasi.';
-                document.getElementById('aiConfidence').innerHTML = '<i class="fas fa-info-circle"></i> Data tidak cukup';
-                document.getElementById('aiConfidenceBar').style.width = '0%';
-                document.getElementById('readinessScore').textContent = '-';
-                document.getElementById('daysRemaining').textContent = '-';
+                if (aiRecommendationEl) aiRecommendationEl.textContent = 'Belum cukup data untuk analisis AI. Ikuti ujian untuk mendapatkan rekomendasi.';
+                if (aiConfidenceEl) aiConfidenceEl.innerHTML = '<i class="fas fa-info-circle"></i> Data tidak cukup';
+                if (aiConfidenceBarEl) aiConfidenceBarEl.style.width = '0%';
+                if (readinessScoreEl) readinessScoreEl.textContent = '-';
+                if (daysRemainingEl) daysRemainingEl.textContent = '-';
                 return;
             }
 
-            // Calculate average accuracy
-            const avgAccuracy = weaknessData.reduce((sum, w) => sum + (w.persen_benar || 0), 0) / weaknessData.length;
-            
+            // Calculate average accuracy with validation - convert to numbers properly
+            const validScores = weaknessData.map(w => {
+                const score = parseFloat(w.persen_benar);
+                return isNaN(score) ? 0 : score;
+            }).filter(s => !isNaN(s) && isFinite(s));
+            const avgAccuracy = validScores.length > 0 ? validScores.reduce((sum, s) => sum + s, 0) / validScores.length : 0;
+
             // Find weakest category
-            const weakest = weaknessData.reduce((min, w) => (w.persen_benar < min.persen_benar) ? w : min);
-            
-            // Calculate readiness score
-            const readinessScore = Math.min(100, Math.round(avgAccuracy + (weaknessData.length * 5)));
-            
+            const weakest = weaknessData.reduce((min, w) => {
+                const minScore = parseFloat(min.persen_benar) || 0;
+                const wScore = parseFloat(w.persen_benar) || 0;
+                return (wScore < minScore) ? w : min;
+            }, weaknessData[0]);
+
+            // Calculate readiness score with validation
+            let readinessScore = 0;
+            try {
+                readinessScore = isNaN(avgAccuracy) || !isFinite(avgAccuracy) ? 0 : Math.min(100, Math.round(avgAccuracy + (weaknessData.length * 5)));
+                readinessScore = isNaN(readinessScore) ? 0 : readinessScore;
+            } catch (e) {
+                console.error('Error calculating readiness score:', e);
+                readinessScore = 0;
+            }
+
             // Calculate days remaining (simplified - 30 days from first exam)
             const daysRemaining = Math.max(0, 30 - weaknessData.length);
-            
+
             // Generate recommendation
             let recommendation = '';
             if (avgAccuracy < 50) {
@@ -256,12 +274,16 @@
             } else {
                 recommendation = `Performa Anda sudah cukup baik. Pertahankan dan tingkatkan dengan soal yang lebih sulit.`;
             }
-            
-            document.getElementById('aiRecommendation').textContent = recommendation;
-            document.getElementById('aiConfidence').innerHTML = `<i class="fas fa-check-circle"></i> Confidence: ${Math.round(avgAccuracy)}%`;
-            document.getElementById('aiConfidenceBar').style.width = `${avgAccuracy}%`;
-            document.getElementById('readinessScore').textContent = `${readinessScore}%`;
-            document.getElementById('daysRemaining').textContent = daysRemaining;
+
+            if (aiRecommendationEl) aiRecommendationEl.textContent = recommendation;
+            const finalAvgAccuracy = isNaN(avgAccuracy) || !isFinite(avgAccuracy) ? 0 : avgAccuracy;
+            if (aiConfidenceEl) aiConfidenceEl.innerHTML = `<i class="fas fa-check-circle"></i> Tingkat Kepercayaan: ${Math.round(finalAvgAccuracy)}%`;
+            if (aiConfidenceBarEl) aiConfidenceBarEl.style.width = `${finalAvgAccuracy}%`;
+            if (readinessScoreEl) {
+                const finalScore = isNaN(readinessScore) || !isFinite(readinessScore) ? 0 : readinessScore;
+                readinessScoreEl.textContent = `${finalScore}%`;
+            }
+            if (daysRemainingEl) daysRemainingEl.textContent = daysRemaining;
         }
 
         async function loadDashboardData() {
@@ -293,62 +315,88 @@
                 }
 
                 // Fetch weakness analysis
-                const weaknessResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_my_weakness'), {
-                    headers: RBAC.getAuthHeaders()
-                });
-                
-                if (weaknessResponse.ok) {
-                    const weaknessData = await weaknessResponse.json();
-                    if (weaknessData.success && weaknessData.data) {
-                        updateWeaknessAnalysis(weaknessData.data);
-                        updateAIAssessment(weaknessData.data);
+                try {
+                    const weaknessResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_my_weakness'), {
+                        headers: RBAC.getAuthHeaders()
+                    });
+
+                    if (weaknessResponse.ok) {
+                        const weaknessData = await weaknessResponse.json();
+                        if (weaknessData.success && weaknessData.data) {
+                            updateWeaknessAnalysis(weaknessData.data);
+                            updateAIAssessment(weaknessData.data);
+                        } else {
+                            updateWeaknessAnalysis([]);
+                            updateAIAssessment([]);
+                        }
                     } else {
                         updateWeaknessAnalysis([]);
+                        updateAIAssessment([]);
                     }
+                } catch (error) {
+                    console.error('Error loading weakness analysis:', error);
+                    updateWeaknessAnalysis([]);
+                    updateAIAssessment([]);
                 }
 
                 // Fetch learning materials
-                const materialsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_all_bahan_pelajaran'), {
-                    headers: RBAC.getAuthHeaders()
-                });
-                
-                if (materialsResponse.ok) {
-                    const materialsData = await materialsResponse.json();
-                    if (materialsData.success && materialsData.data) {
-                        updateLearningMaterials(materialsData.data);
-                    } else {
-                        updateLearningMaterials([]);
+                try {
+                    const materialsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_all_bahan_pelajaran'), {
+                        headers: RBAC.getAuthHeaders()
+                    });
+
+                    if (materialsResponse.ok) {
+                        const materialsData = await materialsResponse.json();
+                        if (materialsData.success && materialsData.data) {
+                            updateLearningMaterials(materialsData.data);
+                        } else {
+                            updateLearningMaterials([]);
+                        }
                     }
+                } catch (error) {
+                    console.error('Error loading learning materials:', error);
+                    updateLearningMaterials([]);
                 }
 
                 // Fetch activity timeline
-                const activityResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian&limit=5'), {
-                    headers: RBAC.getAuthHeaders()
-                });
-                
-                if (activityResponse.ok) {
-                    const activityData = await activityResponse.json();
-                    if (activityData.success && activityData.data) {
-                        updateActivityTimeline(activityData.data);
-                        updateProgressChart(activityData.data);
-                    } else {
-                        updateActivityTimeline([]);
-                        updateProgressChart([]);
+                try {
+                    const activityResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian&limit=5'), {
+                        headers: RBAC.getAuthHeaders()
+                    });
+
+                    if (activityResponse.ok) {
+                        const activityData = await activityResponse.json();
+                        if (activityData.success && activityData.data) {
+                            updateActivityTimeline(activityData.data);
+                            updateProgressChart(activityData.data);
+                        } else {
+                            updateActivityTimeline([]);
+                            updateProgressChart([]);
+                        }
                     }
+                } catch (error) {
+                    console.error('Error loading activity timeline:', error);
+                    updateActivityTimeline([]);
+                    updateProgressChart([]);
                 }
 
                 // Fetch learning path
-                const learningPathResponse = await fetch(AppConfig.apiUrl('courses.php?action=get_user_learning_path'), {
-                    headers: RBAC.getAuthHeaders()
-                });
-                
-                if (learningPathResponse.ok) {
-                    const learningPathData = await learningPathResponse.json();
-                    if (learningPathData.success && learningPathData.data) {
-                        updateLearningPath(learningPathData.data);
-                    } else {
-                        updateLearningPath(null);
+                try {
+                    const learningPathResponse = await fetch(AppConfig.apiUrl('courses.php?action=get_user_learning_path'), {
+                        headers: RBAC.getAuthHeaders()
+                    });
+
+                    if (learningPathResponse.ok) {
+                        const learningPathData = await learningPathResponse.json();
+                        if (learningPathData.success && learningPathData.data) {
+                            updateLearningPath(learningPathData.data);
+                        } else {
+                            updateLearningPath(null);
+                        }
                     }
+                } catch (error) {
+                    console.error('Error loading learning path:', error);
+                    updateLearningPath(null);
                 }
 
                 // Fetch gamification data
@@ -401,12 +449,24 @@
             try {
                 const contentResponse = await fetch('sections/dashboard-content.html');
                 const contentHTML = await contentResponse.text();
-                document.getElementById('dashboardContent').innerHTML = contentHTML;
+                const dashboardContent = document.getElementById('dashboardContent');
+                if (dashboardContent) {
+                    dashboardContent.innerHTML = contentHTML;
+                }
 
                 const modalsResponse = await fetch('components/modals.html');
                 const modalsHTML = await modalsResponse.text();
-                document.getElementById('modalsContainer').innerHTML = modalsHTML;
-                
+                const modalsContainer = document.getElementById('modalsContainer');
+                if (modalsContainer) {
+                    modalsContainer.innerHTML = modalsHTML;
+                }
+
+                // Initialize AI Assessment with default values after components are loaded
+                updateAIAssessment([]);
+
+                // Initialize Progress Chart after components are loaded
+                initProgressChart([]);
+
                 // Load dashboard data after components are loaded
                 loadDashboardData();
             } catch (error) {
@@ -416,9 +476,14 @@
 
         function updateStats(statsData) {
             // Accepts format from get_statistik: {total_exams, average_scores, pass_rate}
+            const totalExamsElement = document.getElementById('totalExams');
+            const averageScoreElement = document.getElementById('averageScore');
+            const totalExamsChangeElement = document.getElementById('totalExamsChange');
+            const averageScoreChangeElement = document.getElementById('averageScoreChange');
+
             if (!statsData || (!statsData.total_exams && !Array.isArray(statsData))) {
-                document.getElementById('totalExams').textContent = formatCount(0);
-                document.getElementById('averageScore').textContent = formatNumber(0, 1);
+                if (totalExamsElement) totalExamsElement.textContent = formatCount(0);
+                if (averageScoreElement) averageScoreElement.textContent = formatNumber(0, 1);
                 return;
             }
 
@@ -426,11 +491,11 @@
             const avgTotal = safeParseFloat(statsData.average_scores ? (statsData.average_scores.total || 0) : 0, 0);
             const passRate = safeParseFloat(statsData.pass_rate, 0);
 
-            document.getElementById('totalExams').textContent = formatCount(totalExams);
-            document.getElementById('averageScore').textContent = formatNumber(avgTotal, 1);
+            if (totalExamsElement) totalExamsElement.textContent = formatCount(totalExams);
+            if (averageScoreElement) averageScoreElement.textContent = formatNumber(avgTotal, 1);
 
-            document.getElementById('totalExamsChange').innerHTML = `<i class="fas fa-check"></i> Data aktual`;
-            document.getElementById('averageScoreChange').innerHTML = `<i class="fas fa-check"></i> Lulus: ${formatPercentage(passRate / 100, 1)}`;
+            if (totalExamsChangeElement) totalExamsChangeElement.innerHTML = `<i class="fas fa-check"></i> Data aktual`;
+            if (averageScoreChangeElement) averageScoreChangeElement.innerHTML = `<i class="fas fa-check"></i> Lulus: ${formatPercentage(passRate / 100, 1)}`;
         }
 
         function updateGamificationStats(gamificationData) {
@@ -533,12 +598,14 @@
                     method: 'POST',
                     headers: RBAC.getAuthHeaders()
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     if (data.success) {
-                        document.getElementById('userStreak').textContent = data.current_streak;
-                        document.getElementById('userStreakChange').innerHTML = `<i class="fas fa-fire"></i> Streak hari ini`;
+                        const userStreakElement = document.getElementById('userStreak');
+                        const userStreakChangeElement = document.getElementById('userStreakChange');
+                        if (userStreakElement) userStreakElement.textContent = data.current_streak;
+                        if (userStreakChangeElement) userStreakChangeElement.innerHTML = `<i class="fas fa-fire"></i> Streak hari ini`;
                     }
                 }
             } catch (error) {
@@ -599,38 +666,67 @@
 
         function loadNotificationPreferences(prefs) {
             if (!prefs) return;
-            
-            document.getElementById('emailExamReminder').checked = prefs.email_exam_reminder === 1;
-            document.getElementById('emailExamResult').checked = prefs.email_exam_result === 1;
-            document.getElementById('emailCertificate').checked = prefs.email_certificate === 1;
-            document.getElementById('emailAchievement').checked = prefs.email_achievement === 1;
-            document.getElementById('inAppExamReminder').checked = prefs.in_app_exam_reminder === 1;
-            document.getElementById('inAppExamResult').checked = prefs.in_app_exam_result === 1;
-            document.getElementById('inAppAchievement').checked = prefs.in_app_achievement === 1;
-            document.getElementById('pushExamReminder').checked = prefs.push_exam_reminder === 1;
-            document.getElementById('pushExamResult').checked = prefs.push_exam_result === 1;
-            document.getElementById('reminderHoursBefore').value = prefs.reminder_hours_before || 24;
+
+            const emailExamReminder = document.getElementById('emailExamReminder');
+            const emailExamResult = document.getElementById('emailExamResult');
+            const emailCertificate = document.getElementById('emailCertificate');
+            const emailAchievement = document.getElementById('emailAchievement');
+            const inAppExamReminder = document.getElementById('inAppExamReminder');
+            const inAppExamResult = document.getElementById('inAppExamResult');
+            const inAppAchievement = document.getElementById('inAppAchievement');
+            const pushExamReminder = document.getElementById('pushExamReminder');
+            const pushExamResult = document.getElementById('pushExamResult');
+            const reminderHoursBefore = document.getElementById('reminderHoursBefore');
+
+            if (emailExamReminder) emailExamReminder.checked = prefs.email_exam_reminder === 1;
+            if (emailExamResult) emailExamResult.checked = prefs.email_exam_result === 1;
+            if (emailCertificate) emailCertificate.checked = prefs.email_certificate === 1;
+            if (emailAchievement) emailAchievement.checked = prefs.email_achievement === 1;
+            if (inAppExamReminder) inAppExamReminder.checked = prefs.in_app_exam_reminder === 1;
+            if (inAppExamResult) inAppExamResult.checked = prefs.in_app_exam_result === 1;
+            if (inAppAchievement) inAppAchievement.checked = prefs.in_app_achievement === 1;
+            if (pushExamReminder) pushExamReminder.checked = prefs.push_exam_reminder === 1;
+            if (pushExamResult) pushExamResult.checked = prefs.push_exam_result === 1;
+            if (reminderHoursBefore) reminderHoursBefore.value = prefs.reminder_hours_before || 24;
         }
 
         async function saveNotificationPreferences() {
             try {
+                const emailExamReminder = document.getElementById('emailExamReminder');
+                const emailExamResult = document.getElementById('emailExamResult');
+                const emailCertificate = document.getElementById('emailCertificate');
+                const emailAchievement = document.getElementById('emailAchievement');
+                const inAppExamReminder = document.getElementById('inAppExamReminder');
+                const inAppExamResult = document.getElementById('inAppExamResult');
+                const inAppAchievement = document.getElementById('inAppAchievement');
+                const pushExamReminder = document.getElementById('pushExamReminder');
+                const pushExamResult = document.getElementById('pushExamResult');
+                const reminderHoursBefore = document.getElementById('reminderHoursBefore');
+
+                if (!emailExamReminder || !emailExamResult || !emailCertificate || !emailAchievement ||
+                    !inAppExamReminder || !inAppExamResult || !inAppAchievement ||
+                    !pushExamReminder || !pushExamResult || !reminderHoursBefore) {
+                    alert('Form elements not found');
+                    return;
+                }
+
                 const response = await fetch(AppConfig.apiUrl('notifications.php?action=update_preferences'), {
                     method: 'POST',
                     headers: RBAC.getAuthHeaders(),
                     body: JSON.stringify({
-                        email_exam_reminder: document.getElementById('emailExamReminder').checked ? 1 : 0,
-                        email_exam_result: document.getElementById('emailExamResult').checked ? 1 : 0,
-                        email_certificate: document.getElementById('emailCertificate').checked ? 1 : 0,
-                        email_achievement: document.getElementById('emailAchievement').checked ? 1 : 0,
-                        in_app_exam_reminder: document.getElementById('inAppExamReminder').checked ? 1 : 0,
-                        in_app_exam_result: document.getElementById('inAppExamResult').checked ? 1 : 0,
-                        in_app_achievement: document.getElementById('inAppAchievement').checked ? 1 : 0,
-                        push_exam_reminder: document.getElementById('pushExamReminder').checked ? 1 : 0,
-                        push_exam_result: document.getElementById('pushExamResult').checked ? 1 : 0,
-                        reminder_hours_before: parseInt(document.getElementById('reminderHoursBefore').value)
+                        email_exam_reminder: emailExamReminder.checked ? 1 : 0,
+                        email_exam_result: emailExamResult.checked ? 1 : 0,
+                        email_certificate: emailCertificate.checked ? 1 : 0,
+                        email_achievement: emailAchievement.checked ? 1 : 0,
+                        in_app_exam_reminder: inAppExamReminder.checked ? 1 : 0,
+                        in_app_exam_result: inAppExamResult.checked ? 1 : 0,
+                        in_app_achievement: inAppAchievement.checked ? 1 : 0,
+                        push_exam_reminder: pushExamReminder.checked ? 1 : 0,
+                        push_exam_result: pushExamResult.checked ? 1 : 0,
+                        reminder_hours_before: parseInt(reminderHoursBefore.value)
                     })
                 });
-                
+
                 const data = await response.json();
                 if (data.success) {
                     alert('Notification preferences saved successfully!');
@@ -977,8 +1073,8 @@
             const modalMessage = document.getElementById('confirmModalMessage');
             const okButton = document.getElementById('confirmModalOK');
 
-            modalTitle.textContent = 'Konfirmasi';
-            modalMessage.innerHTML = `<i class="fas fa-exclamation-triangle text-warning me-2"></i> ${message}`;
+            if (modalTitle) modalTitle.textContent = 'Konfirmasi';
+            if (modalMessage) modalMessage.innerHTML = `<i class="fas fa-exclamation-triangle text-warning me-2"></i> ${message}`;
 
             confirmCallback = onConfirm;
 

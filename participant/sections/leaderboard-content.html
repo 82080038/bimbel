@@ -1,14 +1,14 @@
-<button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-    <i class="fas fa-moon" id="darkModeIcon"></i>
-</button>
+    <a href="dashboard.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Kembali
+    </a>
 
-<div class="container">
-    <div class="main-container">
-        <!-- Header -->
-        <div class="header-section">
-            <h1><i class="fas fa-trophy"></i> Leaderboard</h1>
-            <p>Peringkat peserta berdasarkan performa ujian</p>
-        </div>
+    <div class="container">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header-section">
+                <h1><i class="fas fa-trophy"></i> Papan Peringkat</h1>
+                <p>Peringkat peserta berdasarkan performa ujian</p>
+            </div>
 
         <!-- Filter Controls -->
         <div class="filter-section">
@@ -34,9 +34,9 @@
                 <div class="col-md-4">
                     <label class="form-label">Urutkan Berdasarkan:</label>
                     <select class="form-select" id="sortBy">
-                        <option value="xp">Total XP</option>
+                        <option value="xp">Total Poin</option>
                         <option value="score">Rata-rata Skor</option>
-                        <option value="streak">Streak</option>
+                        <option value="streak">Hari Berturut-turut</option>
                     </select>
                 </div>
             </div>
@@ -46,9 +46,9 @@
         <div class="podium-section" id="podiumSection">
             <div class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">Memuat...</span>
                 </div>
-                <p class="mt-2">Memuat leaderboard...</p>
+                <p class="mt-2">Memuat peringkat...</p>
             </div>
         </div>
 
@@ -62,18 +62,18 @@
                                 <tr>
                                     <th>Peringkat</th>
                                     <th>Peserta</th>
-                                    <th>Total XP</th>
+                                    <th>Total Poin</th>
                                     <th>Level</th>
                                     <th>Rata-rata Skor</th>
-                                    <th>Streak</th>
-                                    <th>Badges</th>
+                                    <th>Hari Berturut-turut</th>
+                                    <th>Lencana</th>
                                 </tr>
                             </thead>
                             <tbody id="leaderboardTableBody">
                                 <tr>
                                     <td colspan="7" class="text-center">
                                         <div class="spinner-border text-primary" role="status">
-                                            <span class="visually-hidden">Loading...</span>
+                                            <span class="visually-hidden">Memuat...</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -91,7 +91,7 @@
                     <h5 class="card-title"><i class="fas fa-user me-2"></i>Posisi Anda</h5>
                     <div id="myPositionContent">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden">Memuat...</span>
                         </div>
                     </div>
                 </div>

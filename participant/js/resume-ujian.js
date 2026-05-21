@@ -243,7 +243,7 @@ function displayExamResult(result) {
 // Load question analysis
 async function loadQuestionAnalysis(resultId) {
     try {
-        const response = await fetch(`${AppConfig.apiUrl}/soal.php?action=get_question_analysis&result_id=${resultId}`, {
+        const response = await fetch(AppConfig.apiUrl(`soal.php?action=get_question_analysis&result_id=${resultId}`), {
             headers: RBAC.getAuthHeaders()
         });
 

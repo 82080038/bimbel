@@ -59,37 +59,38 @@
                 
                 const data = await response.json();
                 const select = document.getElementById('examTypeSelection');
-                
+
                 if (data.success && data.data.length > 0) {
-                    select.innerHTML = '<option value="">Pilih jenis ujian...</option>';
-                    
+                    if (select) select.innerHTML = '<option value="">Pilih jenis ujian...</option>';
+
                     data.data.forEach(type => {
                         const option = document.createElement('option');
                         option.value = type.code;
                         option.textContent = type.name;
                         option.dataset.durasi = type.durasi_menit;
                         option.dataset.jumlah = type.jumlah_soal;
-                        select.appendChild(option);
+                        if (select) select.appendChild(option);
                     });
-                    
+
                     // Enable paket selection after exam type chosen
                     select.addEventListener('change', function() {
                         const paketSelect = document.getElementById('paketSelection');
                         if (this.value) {
-                            paketSelect.disabled = false;
-                            paketSelect.innerHTML = '<option value="">Pilih paket...</option>';
+                            if (paketSelect) paketSelect.disabled = false;
+                            if (paketSelect) paketSelect.innerHTML = '<option value="">Pilih paket...</option>';
                             // TODO: Load paket based on exam type
                         } else {
-                            paketSelect.disabled = true;
-                            paketSelect.innerHTML = '<option value="">Pilih jenis ujian terlebih dahulu</option>';
+                            if (paketSelect) paketSelect.disabled = true;
+                            if (paketSelect) paketSelect.innerHTML = '<option value="">Pilih jenis ujian terlebih dahulu</option>';
                         }
                     });
                 } else {
-                    select.innerHTML = '<option value="skd">SKD (Default)</option>';
+                    if (select) select.innerHTML = '<option value="skd">SKD (Default)</option>';
                 }
             } catch (error) {
                 console.error('Error loading exam types:', error);
-                document.getElementById('examTypeSelection').innerHTML = 
+                const examTypeSelection = document.getElementById('examTypeSelection');
+                if (examTypeSelection) examTypeSelection.innerHTML =
                     '<option value="skd">SKD (Seleksi Kompetensi Dasar)</option>';
             }
         }
@@ -101,12 +102,12 @@
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
                 });
                 const data = await response.json();
-                
+
                 const select = document.getElementById('filterKategori');
-                if (data.success && data.data.length > 0) {
+                if (select && data.success && data.data.length > 0) {
                     // Keep "Semua Kategori" option
                     select.innerHTML = '<option value="semua">Semua Kategori</option>';
-                    
+
                     data.data.forEach(kat => {
                         const option = document.createElement('option');
                         option.value = kat.nama;
@@ -162,10 +163,12 @@
         // Display current question
         function displayQuestion() {
             if (!currentQuestions[currentQuestionIndex]) return;
-            
+
             const question = currentQuestions[currentQuestionIndex];
             const questionContainer = document.querySelector('.question-card');
-            
+
+            if (!questionContainer) return;
+
             questionContainer.innerHTML = `
                 <div class="question-number">Soal ${currentQuestionIndex + 1}/${currentQuestions.length}</div>
                 <span class="category-badge category-${question.kategori_id}">${getCategoryName(question.kategori_id)}</span>
@@ -188,11 +191,11 @@
                     </label>
                 </div>
             `;
-            
+
             updateFlagButtons();
             updateBookmarkButton();
             updateQuestionNav();
-            
+
             // Add auto-next feature after selecting answer
             setTimeout(() => {
                 document.querySelectorAll('input[name="answer"]').forEach(radio => {
@@ -479,6 +482,8 @@
         // Display tips
         function displayTips(tipsData) {
             const tipsContainer = document.getElementById('tipsContainer');
+            if (!tipsContainer) return;
+
             tipsContainer.innerHTML = tipsData.map(tip => `
                 <div class="tip-item">
                     <div class="tip-header">
@@ -494,6 +499,8 @@
         // Display history
         function displayHistory(historyData) {
             const historyContainer = document.getElementById('historyContainer');
+            if (!historyContainer) return;
+
             historyContainer.innerHTML = historyData.map(exam => `
                 <div class="history-item">
                     <div class="history-header">
@@ -905,6 +912,8 @@
         // Display pembahasan
         function displayPembahasan(questions) {
             const pembahasanContainer = document.getElementById('pembahasanContainer');
+            if (!pembahasanContainer) return;
+
             pembahasanContainer.innerHTML = questions.map((question, index) => `
                 <div class="pembahasan-item">
                     <div class="pembahasan-header">
@@ -958,13 +967,14 @@
         // Display learning recommendations
         function displayRekomendasi(weaknessData, materialsData) {
             const recommendationsContainer = document.getElementById('learningRecommendations');
-            
+            if (!recommendationsContainer) return;
+
             // Filter materials based on weak categories
             const weakCategories = weaknessData.filter(w => w.persen_benar < 70).map(w => w.nama_kategori);
-            const relevantMaterials = materialsData.filter(m => 
+            const relevantMaterials = materialsData.filter(m =>
                 weakCategories.includes(m.kategori) || !m.kategori
             );
-            
+
             if (relevantMaterials.length === 0) {
                 recommendationsContainer.innerHTML = `
                     <div class="text-center text-muted py-4">
@@ -975,7 +985,7 @@
                 `;
                 return;
             }
-            
+
             recommendationsContainer.innerHTML = relevantMaterials.map(material => {
                 // Construct file path based on the uploads folder structure
                 const filePath = material.file_path || `../uploads/bahan_pelajaran/text/${material.file_name}`;
@@ -1208,23 +1218,29 @@
             const modalMessage = document.getElementById('confirmModalMessage');
             const okButton = document.getElementById('confirmModalOK');
 
-            modalTitle.textContent = 'Konfirmasi';
-            modalMessage.innerHTML = `<i class="fas fa-exclamation-triangle text-warning me-2"></i> ${message}`;
+            if (modalTitle) modalTitle.textContent = 'Konfirmasi';
+            if (modalMessage) modalMessage.innerHTML = `<i class="fas fa-exclamation-triangle text-warning me-2"></i> ${message}`;
 
             confirmCallback = onConfirm;
 
-            okButton.onclick = () => {
-                if (confirmCallback) confirmCallback();
-                bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
-            };
+            if (okButton) {
+                okButton.onclick = () => {
+                    if (confirmCallback) confirmCallback();
+                    const confirmModal = document.getElementById('confirmModal');
+                    if (confirmModal) bootstrap.Modal.getInstance(confirmModal).hide();
+                };
+            }
 
-            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
-            modal.show();
+            const confirmModal = document.getElementById('confirmModal');
+            if (confirmModal) {
+                const modal = new bootstrap.Modal(confirmModal);
+                modal.show();
 
-            modal._element.addEventListener('hidden.bs.modal', function handler() {
-                if (onCancel) onCancel();
-                modal._element.removeEventListener('hidden.bs.modal', handler);
-            }, { once: true });
+                modal._element.addEventListener('hidden.bs.modal', function handler() {
+                    if (onCancel) onCancel();
+                    modal._element.removeEventListener('hidden.bs.modal', handler);
+                }, { once: true });
+            }
         }
 
         // Loading Modal Helper

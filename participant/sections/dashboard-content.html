@@ -1,27 +1,34 @@
-</head>
-<body>
     <div class="dashboard-container" role="main" aria-label="Dashboard Peserta">
         <!-- Header -->
         <div class="dashboard-header" role="banner">
             <div class="user-welcome">
                 <div class="user-avatar" id="userAvatar" aria-label="Avatar pengguna">-</div>
                 <div class="user-info">
-                    <h3 id="userName" aria-live="polite">Loading...</h3>
-                    <p id="userDetail" aria-live="polite">Loading...</p>
+                    <h3 id="userName" aria-live="polite">Memuat...</h3>
+                    <p id="userDetail" aria-live="polite">Memuat...</p>
                 </div>
             </div>
             <div class="quick-actions">
                 <button class="btn-quick btn-primary-custom" onclick="startNewExam()" aria-label="Mulai ujian baru">
-                    <i class="fas fa-play-circle" aria-hidden="true"></i> Mulai Ujian Baru
+                    <i class="fas fa-play-circle" aria-hidden="true"></i> Mulai Ujian
                 </button>
                 <button class="btn-quick btn-secondary-custom" onclick="viewHistory()" aria-label="Lihat riwayat ujian">
                     <i class="fas fa-history" aria-hidden="true"></i> Riwayat
                 </button>
+                <button class="btn-quick btn-info-custom" onclick="window.location.href='leaderboard.html'" aria-label="Lihat peringkat">
+                    <i class="fas fa-trophy" aria-hidden="true"></i> Peringkat
+                </button>
+                <button class="btn-quick btn-success-custom" onclick="window.location.href='achievements.html'" aria-label="Lihat pencapaian">
+                    <i class="fas fa-medal" aria-hidden="true"></i> Pencapaian
+                </button>
+                <button class="btn-quick btn-warning-custom" onclick="window.location.href='profile.html'" aria-label="Lihat profil">
+                    <i class="fas fa-user" aria-hidden="true"></i> Profil
+                </button>
                 <button class="btn-quick btn-accessibility" onclick="toggleAccessibilityMenu()" aria-label="Menu aksesibilitas">
                     <i class="fas fa-universal-access" aria-hidden="true"></i>
                 </button>
-                <button class="btn-quick btn-danger-custom" onclick="logout()" aria-label="Logout">
-                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
+                <button class="btn-quick btn-danger-custom" onclick="logout()" aria-label="Keluar">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Keluar
                 </button>
             </div>
         </div>
@@ -49,7 +56,7 @@
                 <div class="accessibility-option">
                     <label>
                         <input type="checkbox" id="textToSpeech" onchange="toggleTextToSpeech(this.checked)" aria-label="Aktifkan text-to-speech">
-                        Text-to-Speech
+                        Baca Teks (Text-to-Speech)
                     </label>
                 </div>
                 <button class="btn btn-sm btn-secondary mt-2" onclick="toggleAccessibilityMenu()">Tutup</button>
@@ -69,7 +76,7 @@
                     </div>
                 </div>
                 <div class="stat-change" id="totalExamsChange">
-                    <i class="fas fa-arrow-up" aria-hidden="true"></i> Loading...
+                    <i class="fas fa-arrow-up" aria-hidden="true"></i> Memuat...
                 </div>
             </div>
 
@@ -84,7 +91,7 @@
                     </div>
                 </div>
                 <div class="stat-change" id="averageScoreChange">
-                    <i class="fas fa-arrow-up" aria-hidden="true"></i> Loading...
+                    <i class="fas fa-arrow-up" aria-hidden="true"></i> Memuat...
                 </div>
             </div>
 
@@ -92,7 +99,7 @@
                 <div class="stat-header">
                     <div>
                         <div class="stat-value" id="userXP" aria-live="polite">-</div>
-                        <div class="stat-label">Total XP</div>
+                        <div class="stat-label">Total Poin</div>
                     </div>
                     <div class="stat-icon warning" aria-hidden="true">
                         <i class="fas fa-star"></i>
@@ -107,14 +114,14 @@
                 <div class="stat-header">
                     <div>
                         <div class="stat-value" id="userStreak" aria-live="polite">-</div>
-                        <div class="stat-label">Streak Hari</div>
+                        <div class="stat-label">Hari Berturut-turut</div>
                     </div>
                     <div class="stat-icon info" aria-hidden="true">
                         <i class="fas fa-fire"></i>
                     </div>
                 </div>
                 <div class="stat-change" id="userStreakChange">
-                    <i class="fas fa-fire" aria-hidden="true"></i> Loading...
+                    <i class="fas fa-fire" aria-hidden="true"></i> Memuat...
                 </div>
             </div>
         </div>
@@ -169,14 +176,14 @@
                         <div class="ai-icon">
                             <i class="fas fa-robot"></i>
                         </div>
-                        <h5 class="ai-title">Penilaian AI</h5>
+                        <h5 class="ai-title">Analisis Cerdas</h5>
                     </div>
                     <div class="ai-recommendation">
                         <div class="ai-recommendation-text" id="aiRecommendation">
-                            Loading...
+                            Memuat...
                         </div>
                         <div class="ai-confidence" id="aiConfidence">
-                            <i class="fas fa-check-circle"></i> Loading...
+                            <i class="fas fa-check-circle"></i> Memuat...
                         </div>
                         <div class="progress-bar-custom">
                             <div class="progress-fill" id="aiConfidenceBar" style="width: 0%;"></div>
@@ -214,13 +221,32 @@
                     <div class="card-header">
                         <h5 class="card-title">
                             <i class="fas fa-road" style="color: var(--primary-color);"></i>
-                            Learning Path
+                            Jalur Belajar
                         </h5>
                         <a href="#" onclick="showLearningPathModal()" style="font-size: 0.9rem;">Lihat Detail</a>
                     </div>
                     <div id="learningPathList">
                         <!-- Learning path will be loaded dynamically -->
-                        <div class="text-center text-muted py-3">Memuat learning path...</div>
+                        <div class="text-center text-muted py-3">Memuat jalur belajar...</div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-trophy" style="color: var(--warning-color);"></i>
+                            Papan Peringkat
+                        </h5>
+                        <a href="leaderboard.html" style="font-size: 0.9rem;">Lihat Semua</a>
+                    </div>
+                    <div id="leaderboardPreview">
+                        <!-- Leaderboard preview will be loaded dynamically -->
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-trophy fa-2x mb-2 text-muted"></i>
+                            <p>Lihat peringkat Anda di antara peserta lain</p>
+                            <a href="leaderboard.html" class="btn btn-sm btn-primary">Lihat Peringkat</a>
+                        </div>
                     </div>
                 </div>
 
@@ -229,13 +255,13 @@
                     <div class="card-header">
                         <h5 class="card-title">
                             <i class="fas fa-medal" style="color: var(--warning-color);"></i>
-                            Badges & Achievements
+                            Lencana & Pencapaian
                         </h5>
-                        <a href="#" onclick="showBadgesModal()" style="font-size: 0.9rem;">Lihat Semua</a>
+                        <a href="achievements.html" style="font-size: 0.9rem;">Lihat Semua</a>
                     </div>
                     <div id="badgesList">
                         <!-- Badges will be loaded dynamically -->
-                        <div class="text-center text-muted py-3">Memuat badges...</div>
+                        <div class="text-center text-muted py-3">Memuat lencana...</div>
                     </div>
                 </div>
 
@@ -244,13 +270,13 @@
                     <div class="card-header">
                         <h5 class="card-title">
                             <i class="fas fa-tasks" style="color: var(--success-color);"></i>
-                            Daily Challenges
+                            Tantangan Harian
                         </h5>
                         <a href="#" onclick="showChallengesModal()" style="font-size: 0.9rem;">Lihat Semua</a>
                     </div>
                     <div id="dailyChallengesList">
                         <!-- Daily challenges will be loaded dynamically -->
-                        <div class="text-center text-muted py-3">Memuat challenges...</div>
+                        <div class="text-center text-muted py-3">Memuat tantangan...</div>
                     </div>
                 </div>
 
@@ -259,13 +285,13 @@
                     <div class="card-header">
                         <h5 class="card-title">
                             <i class="fas fa-bell" style="color: var(--primary-color);"></i>
-                            Notifications
+                            Notifikasi
                         </h5>
                         <a href="#" onclick="showNotificationsModal()" style="font-size: 0.9rem;">Lihat Semua</a>
                     </div>
                     <div id="notificationsList">
                         <!-- Notifications will be loaded dynamically -->
-                        <div class="text-center text-muted py-3">Memuat notifikasi...</div>
+                        <div class="text-center text-muted py-3">Memuat pemberitahuan...</div>
                     </div>
                 </div>
 
@@ -274,58 +300,58 @@
                     <div class="card-header">
                         <h5 class="card-title">
                             <i class="fas fa-cog" style="color: var(--secondary-color);"></i>
-                            Notification Preferences
+                            Pengaturan Notifikasi
                         </h5>
-                        <button class="btn btn-sm btn-primary" onclick="saveNotificationPreferences()">Save</button>
+                        <button class="btn btn-sm btn-primary" onclick="saveNotificationPreferences()">Simpan</button>
                     </div>
                     <div id="notificationPreferencesForm">
                         <div class="mb-2">
-                            <label class="form-label small">Email Notifications</label>
+                            <label class="form-label small">Notifikasi Email</label>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="emailExamReminder" checked>
-                                <label class="form-check-label small" for="emailExamReminder">Exam Reminders</label>
+                                <label class="form-check-label small" for="emailExamReminder">Pengingat Ujian</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="emailExamResult" checked>
-                                <label class="form-check-label small" for="emailExamResult">Exam Results</label>
+                                <label class="form-check-label small" for="emailExamResult">Hasil Ujian</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="emailCertificate" checked>
-                                <label class="form-check-label small" for="emailCertificate">Certificates</label>
+                                <label class="form-check-label small" for="emailCertificate">Sertifikat</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="emailAchievement" checked>
-                                <label class="form-check-label small" for="emailAchievement">Achievements</label>
+                                <label class="form-check-label small" for="emailAchievement">Pencapaian</label>
                             </div>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label small">In-App Notifications</label>
+                            <label class="form-label small">Notifikasi Dalam Aplikasi</label>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="inAppExamReminder" checked>
-                                <label class="form-check-label small" for="inAppExamReminder">Exam Reminders</label>
+                                <label class="form-check-label small" for="inAppExamReminder">Pengingat Ujian</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="inAppExamResult" checked>
-                                <label class="form-check-label small" for="inAppExamResult">Exam Results</label>
+                                <label class="form-check-label small" for="inAppExamResult">Hasil Ujian</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="inAppAchievement" checked>
-                                <label class="form-check-label small" for="inAppAchievement">Achievements</label>
+                                <label class="form-check-label small" for="inAppAchievement">Pencapaian</label>
                             </div>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label small">Push Notifications</label>
+                            <label class="form-label small">Notifikasi Push</label>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="pushExamReminder" checked>
-                                <label class="form-check-label small" for="pushExamReminder">Exam Reminders</label>
+                                <label class="form-check-label small" for="pushExamReminder">Pengingat Ujian</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="pushExamResult" checked>
-                                <label class="form-check-label small" for="pushExamResult">Exam Results</label>
+                                <label class="form-check-label small" for="pushExamResult">Hasil Ujian</label>
                             </div>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label small">Reminder Before Exam (hours)</label>
+                            <label class="form-label small">Pengingat Sebelum Ujian (jam)</label>
                             <input type="number" class="form-control form-control-sm" id="reminderHoursBefore" value="24" min="1" max="168">
                         </div>
                     </div>
@@ -353,19 +379,23 @@
 
         <!-- Mobile Bottom Navigation -->
         <div class="mobile-bottom-nav d-md-none">
-            <a href="#" class="nav-item active" onclick="showMobileSection('dashboard')">
+            <a href="dashboard.html" class="nav-item active">
                 <i class="fas fa-home"></i>
-                <span>Home</span>
+                <span>Beranda</span>
             </a>
-            <a href="#" class="nav-item" onclick="window.location.href='ujian.html'">
+            <a href="ujian.html" class="nav-item">
                 <i class="fas fa-clipboard-list"></i>
                 <span>Ujian</span>
             </a>
-            <a href="#" class="nav-item" onclick="window.location.href='materi.html'">
+            <a href="materi.html" class="nav-item">
                 <i class="fas fa-book"></i>
                 <span>Materi</span>
             </a>
-            <a href="#" class="nav-item" onclick="showMobileSection('profile')">
+            <a href="leaderboard.html" class="nav-item">
+                <i class="fas fa-trophy"></i>
+                <span>Peringkat</span>
+            </a>
+            <a href="profile.html" class="nav-item">
                 <i class="fas fa-user"></i>
                 <span>Profil</span>
             </a>

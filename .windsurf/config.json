@@ -5,7 +5,7 @@
     "version": "2.0",
     "status": "Production Ready",
     "branch": "kantor",
-    "last_updated": "20 Mei 2026 (Internet Materials Enhancement - Added comprehensive learning materials from internet research for all categories: TWK, TIU, TKP, TPA, PSIKOLOGIS, and added 29 new questions to database)",
+    "last_updated": "21 Mei 2026 (Repository sync from GitHub branch kantor - XAMPP activated, configuration updated, database ready for import)",
     "repository": "https://github.com/82080038/bimbel",
     "tech_stack": {
       "frontend": ["HTML5", "Bootstrap 5", "jQuery", "JavaScript", "PWA", "Chart.js", "Font Awesome"],
@@ -17,8 +17,8 @@
     }
   },
   "workspace": {
-    "root": "/opt/lampp/htdocs/ujian",
-    "environment": "Linux with XAMPP",
+    "root": "/opt/lampp/htdocs/bimbel",
+    "environment": "Linux with XAMPP 8.2.12-0",
     "exclude_patterns": [
       "uploads/",
       "vendor/",
@@ -32,15 +32,15 @@
   },
   "code_structure": {
     "directories": {
-      "api": "API endpoints (15 files: auth, soal, analytics, courses, expert, gamification, notifications, rate_limiter, validator, export_database_web, add_internet_materials_v2)",
-      "admin": "Admin panel interface (admin.html)",
-      "participant": "Participant interface (dashboard, ujian, register, expert_assistant)",
-      "config": "Configuration files (database, environment)",
-      "database": "SQL scripts & migrations (7 schema files)",
-      "docs": "Technical documentation",
-      "scripts": "Business logic & AI features (11 files)",
-      "tests": "Test suite (28 test files)",
-      "data": "Data files (JSON mappings)",
+      "api": "API endpoints (16 files: auth, soal, analytics, courses, expert, gamification, notifications, rate_limiter, validator, export_database_web, add_internet_materials_v2, add_internet_materials_questions, pembahasan, batch_generate, csrf, middleware)",
+      "admin": "Admin panel interface (25 files including admin.html)",
+      "participant": "Participant interface (38 files including dashboard, ujian, register, expert_assistant)",
+      "config": "Configuration files (config.php)",
+      "database": "SQL scripts & migrations (13 files including export_2026-05-19_23-10-12.sql)",
+      "docs": "Technical documentation (23 files)",
+      "scripts": "Business logic & AI features (23 files)",
+      "tests": "Test suite (13 files)",
+      "data": "Data files (7 folders)",
       "cache": "Cache directory",
       "logs": "Application logs"
     },
@@ -75,10 +75,13 @@
       "course_management.sql",
       "create_notifications_table.sql",
       "create_test_user.sql",
+      "exam_types.sql",
       "expert_system_schema.sql",
+      "export_2026-05-19_23-10-12.sql",
       "gamification.sql",
+      "learning_progress_tables.sql",
       "notifications.sql",
-      "ujian_sekolah_kedinasan.sql"
+      "performance_indexes.sql"
     ],
     "core_tables": [
       "users",

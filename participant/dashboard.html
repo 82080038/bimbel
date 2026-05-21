@@ -29,30 +29,5 @@
     <script src="../js/number-formatter.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="expert_assistant.js"></script>
-    <script>
-        // Load dashboard content and modals
-        async function loadDashboardComponents() {
-            try {
-                const contentResponse = await fetch('sections/dashboard-content.html');
-                const contentHTML = await contentResponse.text();
-                document.getElementById('dashboardContent').innerHTML = contentHTML;
-
-                const modalsResponse = await fetch('components/modals.html');
-                const modalsHTML = await modalsResponse.text();
-                document.getElementById('modalsContainer').innerHTML = modalsHTML;
-                
-                // Load dashboard data after components are loaded
-                if (typeof loadDashboardData === 'function') {
-                    loadDashboardData();
-                }
-            } catch (error) {
-                console.error('Error loading dashboard components:', error);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDashboardComponents();
-        });
-    </script>
 </body>
 </html>
