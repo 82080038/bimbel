@@ -142,7 +142,7 @@
             </div>
             <div class="mb-4">
                 <label class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" required placeholder="Masukkan password">
+                <input type="password" class="form-control" id="password" required placeholder="Masukkan password" autocomplete="current-password">
             </div>
             <button type="submit" class="btn btn-login">
                 <i class="fas fa-sign-in-alt"></i> Masuk
@@ -182,9 +182,7 @@
         // Check if already logged in
         const currentRole = localStorage.getItem('userRole');
         const authToken = localStorage.getItem('authToken');
-
         if (authToken && currentRole) {
-            // Already logged in, redirect based on role
             if (currentRole === 'admin') {
                 window.location.href = 'admin/admin.html';
             } else {
@@ -223,12 +221,15 @@
                     const roleDisplay = data.user.role === 'admin' ? 'Administrator' : 'Peserta';
                     showAlert(`Login berhasil! Selamat datang ${roleDisplay}...`, 'success');
                     
-                    // Redirect based on role
+                    // Clear any stale exam session data
+                    sessionStorage.removeItem('examAnswers');
+                    sessionStorage.clear();
+
+                    // Always redirect to dashboard after login
                     setTimeout(() => {
                         if (data.user.role === 'admin') {
                             window.location.href = 'admin/admin.html';
                         } else {
-                            // Peserta goes to dashboard
                             window.location.href = 'participant/dashboard.html';
                         }
                     }, 1500);

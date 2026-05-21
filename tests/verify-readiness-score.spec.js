@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 test.describe('Verify Readiness Score and Page Content', () => {
     test('Dashboard readiness score should not be NaN', async ({ page }) => {
         // Navigate to login page
-        await page.goto('http://localhost/bimbel/login.html');
+        await page.goto('http://localhost/ujian/login.html');
         await page.waitForLoadState('networkidle');
 
         // Click quick login button for user
@@ -39,7 +39,7 @@ test.describe('Verify Readiness Score and Page Content', () => {
 
     test('All dashboard elements should display correctly', async ({ page }) => {
         // Navigate to dashboard
-        await page.goto('http://localhost/bimbel/login.html');
+        await page.goto('http://localhost/ujian/login.html');
         await page.waitForLoadState('networkidle');
 
         // Login
@@ -81,35 +81,39 @@ test.describe('Verify Readiness Score and Page Content', () => {
     });
 
     test('Ujian page should display correctly', async ({ page }) => {
-        await page.goto('http://localhost/bimbel/login.html');
+        await page.goto('http://localhost/ujian/login.html');
         await page.waitForLoadState('networkidle');
 
         await page.click('button[onclick*="quickLogin"]');
         await page.waitForTimeout(2000);
 
         // Navigate to ujian page
-        await page.goto('http://localhost/bimbel/participant/ujian.html');
+        await page.goto('http://localhost/ujian/participant/ujian.html');
         await page.waitForLoadState('networkidle');
+
+        // Wait for dynamic content to load
+        await page.waitForSelector('#examContent', { timeout: 10000 });
+        await page.waitForSelector('#welcomeScreen', { timeout: 10000 });
         await page.waitForTimeout(2000);
 
         // Check key elements
         await expect(page.locator('#welcomeScreen')).toBeVisible();
         await expect(page.locator('#examTypeSelection')).toBeVisible();
         await expect(page.locator('#paketSelection')).toBeVisible();
-        await expect(page.locator('#namaPeserta')).toBeVisible();
+        await expect(page.locator('#namaPesertaDisplay')).toBeVisible();
 
         await page.screenshot({ path: 'test-screenshots/ujian-page.png', fullPage: true });
     });
 
     test('Profile page should display correctly', async ({ page }) => {
-        await page.goto('http://localhost/bimbel/login.html');
+        await page.goto('http://localhost/ujian/login.html');
         await page.waitForLoadState('networkidle');
 
         await page.click('button[onclick*="quickLogin"]');
         await page.waitForTimeout(2000);
 
         // Navigate to profile page
-        await page.goto('http://localhost/bimbel/participant/profile.html');
+        await page.goto('http://localhost/ujian/participant/profile.html');
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(3000); // Wait longer for profile data to load
 
@@ -153,15 +157,19 @@ test.describe('Verify Readiness Score and Page Content', () => {
     });
 
     test('Materi page should display correctly', async ({ page }) => {
-        await page.goto('http://localhost/bimbel/login.html');
+        await page.goto('http://localhost/ujian/login.html');
         await page.waitForLoadState('networkidle');
 
         await page.click('button[onclick*="quickLogin"]');
         await page.waitForTimeout(2000);
 
         // Navigate to materi page
-        await page.goto('http://localhost/bimbel/participant/materi.html');
+        await page.goto('http://localhost/ujian/participant/materi.html');
         await page.waitForLoadState('networkidle');
+
+        // Wait for dynamic content to load
+        await page.waitForSelector('#materiContent', { timeout: 10000 });
+        await page.waitForSelector('#materialsGrid', { timeout: 10000 });
         await page.waitForTimeout(2000);
 
         // Check key elements
@@ -172,14 +180,14 @@ test.describe('Verify Readiness Score and Page Content', () => {
     });
 
     test('Leaderboard page should display correctly', async ({ page }) => {
-        await page.goto('http://localhost/bimbel/login.html');
+        await page.goto('http://localhost/ujian/login.html');
         await page.waitForLoadState('networkidle');
 
         await page.click('button[onclick*="quickLogin"]');
         await page.waitForTimeout(2000);
 
         // Navigate to leaderboard page
-        await page.goto('http://localhost/bimbel/participant/leaderboard.html');
+        await page.goto('http://localhost/ujian/participant/leaderboard.html');
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(2000);
 
@@ -191,14 +199,14 @@ test.describe('Verify Readiness Score and Page Content', () => {
     });
 
     test('Achievements page should display correctly', async ({ page }) => {
-        await page.goto('http://localhost/bimbel/login.html');
+        await page.goto('http://localhost/ujian/login.html');
         await page.waitForLoadState('networkidle');
 
         await page.click('button[onclick*="quickLogin"]');
         await page.waitForTimeout(2000);
 
         // Navigate to achievements page
-        await page.goto('http://localhost/bimbel/participant/achievements.html');
+        await page.goto('http://localhost/ujian/participant/achievements.html');
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(2000);
 

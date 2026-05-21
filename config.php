@@ -7,14 +7,16 @@
 // ============================================================================
 
 if (!defined('DB_HOST')) {
-    define('DB_HOST', '127.0.0.1');
+    define('DB_HOST', 'localhost');
 }
 if (!defined('DB_USER')) {
     define('DB_USER', 'root');
 }
 if (!defined('DB_PASS')) {
-    // MySQL password - updated to root
-    define('DB_PASS', 'root');
+    // MySQL password - auto-detect platform
+    // Linux: root, Windows: 8208
+    $is_windows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    define('DB_PASS', $is_windows ? '8208' : 'root');
 }
 if (!defined('DB_NAME')) {
     define('DB_NAME', 'ujian_sekolah_kedinasan');

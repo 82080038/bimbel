@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 test.describe('Admin Comprehensive Test', () => {
     test('Admin login and dashboard navigation', async ({ page }) => {
         // Navigate to login page
-        await page.goto('http://localhost/bimbel/login.html');
+        await page.goto('http://localhost/ujian/login.html');
 
         // Wait for page to load
         await page.waitForLoadState('networkidle');

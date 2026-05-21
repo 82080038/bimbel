@@ -6,6 +6,7 @@
     <title>Aplikasi Ujian Sekolah Kedinasan</title>
     <meta name="description" content="Sistem Seleksi Kompetensi Dasar (SKD) untuk sekolah kedinasan">
     <meta name="theme-color" content="#1e40af">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Ujian Kedinasan">
@@ -42,6 +43,19 @@
                 const modalsResponse = await fetch('components/modals-shared.html');
                 const modalsHTML = await modalsResponse.text();
                 document.getElementById('modalsContainer').innerHTML = modalsHTML;
+
+                // Init UI that depends on injected DOM elements
+                if (typeof initUIAfterLoad === 'function') {
+                    initUIAfterLoad();
+                }
+                
+                // Handle URL parameter after content is loaded
+                const urlParams = new URLSearchParams(window.location.search);
+                const action = urlParams.get('action');
+                
+                if (action === 'history' && typeof showHistoryScreenWithRetry === 'function') {
+                    showHistoryScreenWithRetry();
+                }
             } catch (error) {
                 console.error('Error loading exam components:', error);
             }

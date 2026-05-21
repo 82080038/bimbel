@@ -4,6 +4,49 @@ description: Development workflow for the exam application (Version 2.0 - Kantor
 
 # Development Workflow
 
+## Pre-Development Verification
+
+**CRITICAL: Always run this before making changes or reporting issues**
+
+1. **Verify All Referenced Files Exist**
+   ```bash
+   # Check all API files referenced in JavaScript
+   grep -r "fetch.*\.php" participant/js admin/js --include="*.js" | grep -o "api/[a-z_]*\.php" | sort -u
+   
+   # Verify each file exists
+   ls -la api/
+   ```
+
+2. **Verify All HTML/CSS/JS References**
+   ```bash
+   # Check all HTML file references
+   grep -r "href.*\.html" participant admin --include="*.html" --include="*.js"
+   
+   # Check all CSS references
+   grep -r "href.*\.css" participant admin --include="*.html"
+   
+   # Check all JS references
+   grep -r "src.*\.js" participant admin --include="*.html"
+   
+   # Verify each file exists
+   find participant admin -name "*.html" -o -name "*.css" -o -name "*.js"
+   ```
+
+3. **Verify All API Actions Are Implemented**
+   ```bash
+   # Extract all action= parameters from fetch calls
+   grep -r "action=" participant/js admin/js --include="*.js" | grep -o "action=[a-z_]*" | sort -u
+   
+   # Verify each action exists in corresponding PHP file
+   grep -r "case '" api/*.php
+   ```
+
+4. **Cross-Check Documentation vs Implementation**
+   ```bash
+   # Check if documented APIs exist
+   grep -r "\.php" README.md DEVELOPER_GUIDE.md docs/ | grep -o "api/[a-z_]*\.php" | sort -u
+   ```
+
 ## Setup Development Environment
 
 1. **Start XAMPP Services**

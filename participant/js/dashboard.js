@@ -93,9 +93,6 @@
             // Load accessibility preferences
             loadAccessibilityPreferences();
 
-            // Update UI with user data
-            updateUserInfo();
-
             // Load dashboard components (which will then load dashboard data)
             loadDashboardComponents();
         });
@@ -112,34 +109,49 @@
                         const user = data.user;
                         
                         // Set avatar initials
-                        const initials = (user.nama_lengkap || user.username || 'Pengguna').substring(0, 2).toUpperCase();
-                        document.getElementById('userAvatar').textContent = initials;
+                        const userAvatarEl = document.getElementById('userAvatar');
+                        if (userAvatarEl) {
+                            const initials = (user.nama_lengkap || user.username || 'Pengguna').substring(0, 2).toUpperCase();
+                            userAvatarEl.textContent = initials;
+                        }
                         
                         // Set welcome message
-                        document.getElementById('userName').textContent = `Selamat Datang, ${user.nama_lengkap || user.username || 'Pengguna'}!`;
+                        const userNameEl = document.getElementById('userName');
+                        if (userNameEl) {
+                            userNameEl.textContent = `Selamat Datang, ${user.nama_lengkap || user.username || 'Pengguna'}!`;
+                        }
                         
                         // Set user detail
                         const detailParts = [];
                         if (user.asal_sekolah) detailParts.push(user.asal_sekolah);
                         if (user.tahun_tamat) detailParts.push(`Lulusan ${user.tahun_tamat}`);
-                        document.getElementById('userDetail').textContent = detailParts.length > 0 ? detailParts.join(' • ') : 'Peserta Ujian';
+                        const userDetailEl = document.getElementById('userDetail');
+                        if (userDetailEl) {
+                            userDetailEl.textContent = detailParts.length > 0 ? detailParts.join(' • ') : 'Peserta Ujian';
+                        }
                     }
                 } else {
                     // Fallback to localStorage if API fails
                     const username = localStorage.getItem('username') || 'Pengguna';
                     const initials = username.substring(0, 2).toUpperCase();
-                    document.getElementById('userAvatar').textContent = initials;
-                    document.getElementById('userName').textContent = `Selamat Datang, ${username}!`;
-                    document.getElementById('userDetail').textContent = 'Peserta Ujian';
+                    const userAvatarEl = document.getElementById('userAvatar');
+                    if (userAvatarEl) userAvatarEl.textContent = initials;
+                    const userNameEl = document.getElementById('userName');
+                    if (userNameEl) userNameEl.textContent = `Selamat Datang, ${username}!`;
+                    const userDetailEl = document.getElementById('userDetail');
+                    if (userDetailEl) userDetailEl.textContent = 'Peserta Ujian';
                 }
             } catch (error) {
                 console.error('Error loading user info:', error);
                 // Fallback to localStorage
                 const username = localStorage.getItem('username') || 'Pengguna';
                 const initials = username.substring(0, 2).toUpperCase();
-                document.getElementById('userAvatar').textContent = initials;
-                document.getElementById('userName').textContent = `Selamat Datang, ${username}!`;
-                document.getElementById('userDetail').textContent = 'Peserta Ujian';
+                const userAvatarEl = document.getElementById('userAvatar');
+                if (userAvatarEl) userAvatarEl.textContent = initials;
+                const userNameEl = document.getElementById('userName');
+                if (userNameEl) userNameEl.textContent = `Selamat Datang, ${username}!`;
+                const userDetailEl = document.getElementById('userDetail');
+                if (userDetailEl) userDetailEl.textContent = 'Peserta Ujian';
             }
         }
 
@@ -460,6 +472,9 @@
                 if (modalsContainer) {
                     modalsContainer.innerHTML = modalsHTML;
                 }
+
+                // Update UI with user data after components are loaded
+                updateUserInfo();
 
                 // Initialize AI Assessment with default values after components are loaded
                 updateAIAssessment([]);
@@ -789,6 +804,8 @@
                             <span class="detail-label">TKP:</span>
                             <span class="detail-value">${formatScore(safeParseFloat(examData.nilai_tkp, 0))}</span>
                         </div>
+                        ${safeParseFloat(examData.nilai_tpa, 0) > 0 ? '<div class="detail-item"><span class="detail-label">TPA:</span><span class="detail-value">' + formatScore(safeParseFloat(examData.nilai_tpa, 0)) + '</span></div>' : ''}
+                        ${safeParseFloat(examData.nilai_psikologis, 0) > 0 ? '<div class="detail-item"><span class="detail-label">PSIKOLOGIS:</span><span class="detail-value">' + formatScore(safeParseFloat(examData.nilai_psikologis, 0)) + '</span></div>' : ''}
                     </div>
                     <div class="exam-status">
                         <i class="fas ${statusIcon} text-${statusClass}"></i>
@@ -1003,7 +1020,7 @@
         }
 
         function startNewExam() {
-            window.location.href = 'ujian.html?action=start_exam';
+            window.location.href = 'ujian.html';
         }
 
         function viewHistory() {
@@ -1012,19 +1029,35 @@
 
         // Modal functions for detailed views
         function showLearningPathModal() {
-            alert('Learning Path detail - Fitur akan segera tersedia');
+            window.location.href = 'materi.html';
         }
 
         function showBadgesModal() {
-            alert('Badges detail - Fitur akan segera tersedia');
+            window.location.href = 'achievements.html';
         }
 
         function showChallengesModal() {
-            alert('Daily Challenges detail - Fitur akan segera tersedia');
+            window.location.href = 'achievements.html#challenges';
         }
 
         function showNotificationsModal() {
-            alert('Notifications detail - Fitur akan segera tersedia');
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            fetch(AppConfig.apiUrl('notifications.php?action=get_notifications&limit=10'), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    const count = (d.data || []).length;
+                    if (count === 0) {
+                        showToast('Tidak ada notifikasi baru.', 'info');
+                    } else {
+                        showToast(`${count} notifikasi tersedia. Lihat di profil.`, 'info', 4000);
+                    }
+                }
+            })
+            .catch(() => showToast('Gagal memuat notifikasi.', 'error'));
         }
 
         // Toast Notification Helper

@@ -5,7 +5,7 @@
 
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'http://localhost/bimbel';
+const BASE_URL = 'http://localhost/ujian';
 const USER = { username: 'fresh_user_11778919457', password: 'simulasi123' };
 
 test.describe('Jawab Random Button Test', () => {
@@ -35,8 +35,9 @@ test.describe('Jawab Random Button Test', () => {
 
     // 3. Fill exam form
     console.log('\n📝 Step 3: Fill exam form');
-    await page.fill('#namaPeserta', 'Test User - Jawab Random');
-    console.log('✅ Participant name filled');
+    // namaPeserta is a hidden input, we don't need to fill it
+    // The name is automatically loaded from user profile
+    console.log('✅ Participant name auto-loaded from profile');
     
     await page.screenshot({ path: 'test-screenshots/jawab-random/03-form-filled.png' });
 

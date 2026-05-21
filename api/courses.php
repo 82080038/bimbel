@@ -5,93 +5,95 @@ require_once '../config.php';
 require_once '../scripts/logger.php';
 require_once '../api/middleware.php';
 
-header('Content-Type: application/json');
+if (basename($_SERVER['SCRIPT_FILENAME']) === basename(__FILE__)) {
+    header('Content-Type: application/json');
 
-$action = $_GET['action'] ?? '';
+    $action = $_GET['action'] ?? '';
 
-switch ($action) {
-    case 'list_courses':
-        listCourses();
-        break;
-    case 'get_course':
-        getCourse();
-        break;
-    case 'create_course':
-        requireAdmin();
-        createCourse();
-        break;
-    case 'update_course':
-        requireAdmin();
-        updateCourse();
-        break;
-    case 'delete_course':
-        requireAdmin();
-        deleteCourse();
-        break;
-    case 'list_modules':
-        listModules();
-        break;
-    case 'create_module':
-        requireAdmin();
-        createModule();
-        break;
-    case 'update_module':
-        requireAdmin();
-        updateModule();
-        break;
-    case 'delete_module':
-        requireAdmin();
-        deleteModule();
-        break;
-    case 'list_materials':
-        listMaterials();
-        break;
-    case 'create_material':
-        requireAdmin();
-        createMaterial();
-        break;
-    case 'update_material':
-        requireAdmin();
-        updateMaterial();
-        break;
-    case 'delete_material':
-        requireAdmin();
-        deleteMaterial();
-        break;
-    case 'get_user_progress':
-        getUserProgress();
-        break;
-    case 'update_material_progress':
-        updateMaterialProgress();
-        break;
-    case 'list_learning_paths':
-        listLearningPaths();
-        break;
-    case 'get_user_learning_path':
-        getUserLearningPath();
-        break;
-    case 'assign_learning_path':
-        requireAdmin();
-        assignLearningPath();
-        break;
-    case 'check_prerequisites':
-        checkPrerequisites();
-        break;
-    case 'get_courses':
-        listCourses();
-        break;
-    case 'user_course_progress':
-        getUserCourseProgress();
-        break;
-    case 'user_module_progress':
-        getUserModuleProgress();
-        break;
-    case 'get_statistics':
-        getCourseStatistics();
-        break;
-    default:
-        echo json_encode(['success' => false, 'error' => 'Invalid action']);
-        break;
+    switch ($action) {
+        case 'list_courses':
+            listCourses();
+            break;
+        case 'get_course':
+            getCourse();
+            break;
+        case 'create_course':
+            requireAdmin();
+            createCourse();
+            break;
+        case 'update_course':
+            requireAdmin();
+            updateCourse();
+            break;
+        case 'delete_course':
+            requireAdmin();
+            deleteCourse();
+            break;
+        case 'list_modules':
+            listModules();
+            break;
+        case 'create_module':
+            requireAdmin();
+            createModule();
+            break;
+        case 'update_module':
+            requireAdmin();
+            updateModule();
+            break;
+        case 'delete_module':
+            requireAdmin();
+            deleteModule();
+            break;
+        case 'list_materials':
+            listMaterials();
+            break;
+        case 'create_material':
+            requireAdmin();
+            createMaterial();
+            break;
+        case 'update_material':
+            requireAdmin();
+            updateMaterial();
+            break;
+        case 'delete_material':
+            requireAdmin();
+            deleteMaterial();
+            break;
+        case 'get_user_progress':
+            getUserProgress();
+            break;
+        case 'update_material_progress':
+            updateMaterialProgress();
+            break;
+        case 'list_learning_paths':
+            listLearningPaths();
+            break;
+        case 'get_user_learning_path':
+            getUserLearningPath();
+            break;
+        case 'assign_learning_path':
+            requireAdmin();
+            assignLearningPath();
+            break;
+        case 'check_prerequisites':
+            checkPrerequisites();
+            break;
+        case 'get_courses':
+            listCourses();
+            break;
+        case 'user_course_progress':
+            getUserCourseProgress();
+            break;
+        case 'user_module_progress':
+            getUserModuleProgress();
+            break;
+        case 'get_statistics':
+            getCourseStatistics();
+            break;
+        default:
+            echo json_encode(['success' => false, 'error' => 'Invalid action']);
+            break;
+    }
 }
 
 function listCourses() {

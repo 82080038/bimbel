@@ -47,11 +47,14 @@
         let isPracticeMode = false;
         let timerInterval = null;
         let timeRemaining = 0;
+        let selectedExamTypeId = null;
+        let selectedPaketId = null;
+        let selectedExamTypeDurasi = 60; // Default 60 minutes
 
         // Load exam types from database
         async function loadExamTypes() {
             try {
-                const response = await fetch('../api/soal.php?action=get_exam_types', {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_exam_types'), {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -72,16 +75,17 @@
                         if (select) select.appendChild(option);
                     });
 
-                    // Enable paket selection after exam type chosen
+                    // Load paket when exam type is selected
                     select.addEventListener('change', function() {
                         const paketSelect = document.getElementById('paketSelection');
+                        if (!paketSelect) return;
                         if (this.value) {
-                            if (paketSelect) paketSelect.disabled = false;
-                            if (paketSelect) paketSelect.innerHTML = '<option value="">Pilih paket...</option>';
-                            // TODO: Load paket based on exam type
+                            paketSelect.disabled = true;
+                            paketSelect.innerHTML = '<option value="">Memuat paket...</option>';
+                            loadPaketByExamType(this.value, paketSelect);
                         } else {
-                            if (paketSelect) paketSelect.disabled = true;
-                            if (paketSelect) paketSelect.innerHTML = '<option value="">Pilih jenis ujian terlebih dahulu</option>';
+                            paketSelect.disabled = true;
+                            paketSelect.innerHTML = '<option value="">Pilih jenis ujian terlebih dahulu</option>';
                         }
                     });
                 } else {
@@ -98,7 +102,7 @@
         // Load categories for filter dropdown
         async function loadKategoriFilter() {
             try {
-                const response = await fetch('../api/soal.php?action=get_kategori', {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_kategori'), {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
                 });
                 const data = await response.json();
@@ -120,45 +124,6 @@
             }
         }
 
-        // DOMContentLoaded handler
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load exam types from database
-            loadExamTypes();
-            // Load categories for filter
-            loadKategoriFilter();
-
-            // Auto-fill participant name from logged-in user
-            const namaPesertaInput = document.getElementById('namaPeserta');
-            const username = localStorage.getItem('username');
-            const userData = localStorage.getItem('userData');
-
-            if (namaPesertaInput && username) {
-                // Try to get full name from userData if available
-                let displayName = username;
-                if (userData) {
-                    try {
-                        const user = JSON.parse(userData);
-                        displayName = user.nama_lengkap || user.nama || user.full_name || username;
-                    } catch (e) {
-                        displayName = username;
-                    }
-                }
-                namaPesertaInput.value = displayName;
-                console.log('Auto-filled participant name:', displayName);
-            }
-
-            // Check URL parameters to determine which screen to show
-            const urlParams = new URLSearchParams(window.location.search);
-            const action = urlParams.get('action');
-
-            if (action === 'start_exam') {
-                mulaiUjian();
-            } else if (action === 'history') {
-                lihatRiwayat();
-            } else {
-                // Show welcome screen by default
-            }
-        });
 
         // Display current question
         function displayQuestion() {
@@ -242,7 +207,8 @@
 
         // Start timer
         function startTimer() {
-            timeRemaining = 60 * 60; // 60 minutes in seconds
+            // Use duration from selected exam type, default to 60 minutes
+            timeRemaining = (selectedExamTypeDurasi || 60) * 60; // Convert minutes to seconds
             updateTimerDisplay();
             
             timerInterval = setInterval(() => {
@@ -297,14 +263,15 @@
         }
 
         // Show unanswered question dialog
-        async function showUnansweredDialog(unanswered) {
-            const questionNumbers = unanswered.map(u => u.index + 1).join(', ');
-            const userChoice = confirm(
-                `Anda masih memiliki ${unanswered.length} soal yang belum dijawab (Soal: ${questionNumbers}).\n\n` +
-                `Klik "OK" untuk menjawab soal yang belum dijawab.\n` +
-                `Klik "Cancel" untuk tetap menyelesaikan ujian.`
-            );
-            return userChoice; // true = answer unanswered, false = finish anyway
+        function showUnansweredDialog(unanswered) {
+            return new Promise(resolve => {
+                const questionNumbers = unanswered.map(u => u.index + 1).join(', ');
+                showConfirm(
+                    `Anda masih memiliki ${unanswered.length} soal yang belum dijawab (Soal: ${questionNumbers}).<br><small>Klik <b>OK</b> untuk kembali menjawab, atau <b>Batal</b> untuk tetap menyelesaikan ujian.</small>`,
+                    () => resolve(true),
+                    () => resolve(false)
+                );
+            });
         }
 
         // Show specific unanswered question
@@ -380,7 +347,7 @@
         async function submitExamData() {
             try {
                 const answers = collectAnswers();
-                const response = await fetch('../api/soal.php?action=submit_ujian', {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=submit_ujian'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -388,7 +355,9 @@
                     },
                     body: JSON.stringify({
                         answers: answers,
-                        is_practice: isPracticeMode
+                        is_practice: isPracticeMode,
+                        exam_type_id: selectedExamTypeId,
+                        paket_id: selectedPaketId
                     })
                 });
                 const data = await response.json();
@@ -396,12 +365,12 @@
                     showResultScreen(data.data);
                     return data.data; // Return result for further processing
                 } else {
-                    alert('Gagal menyelesaikan ujian');
+                    showToast('Gagal menyelesaikan ujian', 'error');
                     return null;
                 }
             } catch (error) {
                 console.error('Error submitting exam:', error);
-                alert('Terjadi kesalahan saat menyelesaikan ujian');
+                showToast('Terjadi kesalahan saat menyelesaikan ujian', 'error');
                 return null;
             }
         }
@@ -466,6 +435,8 @@
             const twkScoreEl = document.getElementById('twkScore');
             const tiuScoreEl = document.getElementById('tiuScore');
             const tkpScoreEl = document.getElementById('tkpScore');
+            const tpaScoreEl = document.getElementById('tpaScore');
+            const psikologisScoreEl = document.getElementById('psikologisScore');
             const resultNamaEl = document.getElementById('resultNama');
             
             if (totalScoreEl) totalScoreEl.textContent = formatScore(safeParseFloat(resultData.nilai_total, 0));
@@ -476,6 +447,8 @@
             if (twkScoreEl) twkScoreEl.textContent = formatScore(safeParseFloat(resultData.nilai_twk, 0));
             if (tiuScoreEl) tiuScoreEl.textContent = formatScore(safeParseFloat(resultData.nilai_tiu, 0));
             if (tkpScoreEl) tkpScoreEl.textContent = formatScore(safeParseFloat(resultData.nilai_tkp, 0));
+            if (tpaScoreEl) tpaScoreEl.textContent = formatScore(safeParseFloat(resultData.nilai_tpa, 0));
+            if (psikologisScoreEl) psikologisScoreEl.textContent = formatScore(safeParseFloat(resultData.nilai_psikologis, 0));
             if (resultNamaEl) resultNamaEl.textContent = localStorage.getItem('username') || 'Peserta';
         }
 
@@ -591,21 +564,84 @@
             }
         }
 
-        // Role-based UI updates on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        // Load participant name from API profile, fallback to localStorage
+        async function loadParticipantName(authToken) {
+            const display = document.getElementById('namaPesertaDisplay');
+            const hidden  = document.getElementById('namaPeserta');
+
+            // Coba ambil dari localStorage dulu (cepat, tidak perlu fetch)
+            let displayName = null;
+            const cached = localStorage.getItem('namaLengkap') || localStorage.getItem('username');
+            if (cached) displayName = cached;
+
+            // Fetch dari API untuk data terbaru
+            if (authToken) {
+                try {
+                    const res = await fetch(AppConfig.apiUrl('auth.php?action=get_profile'), {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.success && data.user) {
+                            displayName = data.user.nama_lengkap || data.user.username || displayName;
+                            // Update cache
+                            localStorage.setItem('namaLengkap', displayName);
+                        }
+                    }
+                } catch (e) { /* gunakan cache */ }
+            }
+
+            if (display) display.textContent = displayName || 'Pengguna';
+            if (hidden)  hidden.value = displayName || '';
+        }
+
+        // Called by ujian.html after loadExamComponents() finishes injecting the DOM
+        function initUIAfterLoad() {
             const userRole = localStorage.getItem('userRole') || 'guest';
             const authToken = localStorage.getItem('authToken');
-            
-            // Handle URL parameter to show exam screen
+
+            // Load exam types and categories (DOM elements now exist)
+            loadExamTypes();
+            loadKategoriFilter();
+
+            // Load participant name from API profile
+            loadParticipantName(authToken);
+
+            // Handle URL parameter to show correct screen
             const urlParams = new URLSearchParams(window.location.search);
             const action = urlParams.get('action');
-            
-            if (action === 'start_exam') {
-                showExamScreen();
-            } else if (action === 'history') {
-                showHistoryScreen();
-            }
-            
+
+            // Wait for content to load before handling URL parameters
+            const checkContentLoaded = setInterval(() => {
+                const historyScreen = document.getElementById('historyScreen');
+                const welcomeScreen = document.getElementById('welcomeScreen');
+                
+                if (historyScreen && welcomeScreen) {
+                    clearInterval(checkContentLoaded);
+                    
+                    if (action === 'start_exam') {
+                        if (!authToken) {
+                            window.location.href = '../login.html';
+                            return;
+                        }
+                        // Clean the action= param from URL so back/forward won't re-trigger
+                        history.replaceState(null, '', 'ujian.html');
+                        mulaiUjian();
+                    } else if (action === 'history') {
+                        // Show history screen regardless of auth status for testing
+                        showHistoryScreen();
+                        
+                        if (!authToken) {
+                            window.location.href = '../login.html';
+                            return;
+                        }
+                        // Clean URL
+                        history.replaceState(null, '', 'ujian.html?action=history');
+                        lihatRiwayat();
+                    }
+                }
+            }, 100);
+
             // Update welcome message based on role
             const welcomeTitle = document.querySelector('.header-section h1');
             if (welcomeTitle) {
@@ -615,13 +651,13 @@
                     welcomeTitle.innerHTML = '<i class="fas fa-user-graduate"></i> Selamat Datang, Peserta Ujian!';
                 }
             }
-            
+
             // Show/hide admin button based on role
             const adminBtn = document.getElementById('adminPanelBtn');
             if (adminBtn) {
                 adminBtn.style.display = userRole === 'admin' ? 'inline-block' : 'none';
             }
-            
+
             // Update login/logout button
             const loginBtn = document.getElementById('loginBtn');
             if (loginBtn) {
@@ -639,7 +675,7 @@
                     };
                 }
             }
-        });
+        }
 
         // Show exam screen
         function showExamScreen() {
@@ -661,9 +697,53 @@
 
         // Show history screen
         function showHistoryScreen() {
-            document.getElementById('welcomeScreen').classList.add('hidden');
-            document.getElementById('examScreen').classList.add('hidden');
-            document.getElementById('historyScreen').classList.remove('hidden');
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const examScreen = document.getElementById('examScreen');
+            const resultScreen = document.getElementById('resultScreen');
+            const discussionScreen = document.getElementById('discussionScreen');
+            const historyScreen = document.getElementById('historyScreen');
+            
+            if (welcomeScreen) welcomeScreen.classList.add('hidden');
+            if (examScreen) examScreen.classList.add('hidden');
+            if (resultScreen) resultScreen.classList.add('hidden');
+            if (discussionScreen) discussionScreen.classList.add('hidden');
+            if (historyScreen) {
+                historyScreen.classList.remove('hidden');
+                historyScreen.classList.add('visible');
+                historyScreen.style.display = 'block';
+                historyScreen.style.visibility = 'visible';
+                
+                // Ensure the button is visible
+                const historyBtn = document.querySelector('#historyScreen .btn-primary-custom');
+                if (historyBtn) {
+                    historyBtn.classList.remove('hidden');
+                    historyBtn.classList.add('visible');
+                    historyBtn.style.display = 'inline-block';
+                    historyBtn.style.visibility = 'visible';
+                    historyBtn.style.opacity = '1';
+                }
+            }
+        }
+        
+        // Show history screen with retry for dynamic content
+        function showHistoryScreenWithRetry(maxRetries = 5, delay = 100) {
+            let retries = 0;
+            
+            function tryShow() {
+                const historyScreen = document.getElementById('historyScreen');
+                if (historyScreen) {
+                    showHistoryScreen();
+                    return true;
+                }
+                
+                if (retries < maxRetries) {
+                    retries++;
+                    setTimeout(tryShow, delay);
+                }
+                return false;
+            }
+            
+            return tryShow();
         }
 
         // Go back to welcome screen
@@ -686,36 +766,101 @@
             }
         }
 
+        // Mapping exam type code → kategori names yang relevan
+        const EXAM_TYPE_KATEGORI_MAP = {
+            'SKD':    ['TWK', 'TIU', 'TKP', 'SKD'],
+            'SKB':    ['SKB', 'TKB'],
+            'UTBK':   ['TPA', 'UTBK', 'SAINTEK', 'SOSHUM'],
+            'TRYOUT': [], // kosong = tampilkan semua
+        };
+
+        // Load paket list filtered by exam type code
+        async function loadPaketByExamType(examTypeCode, paketSelect) {
+            try {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_paket'));
+                const data = await response.json();
+                if (data.success && data.data.length > 0) {
+                    const allowedKategori = EXAM_TYPE_KATEGORI_MAP[examTypeCode.toUpperCase()] || [];
+                    const filtered = allowedKategori.length === 0
+                        ? data.data  // TRYOUT atau unknown → tampilkan semua
+                        : data.data.filter(p => {
+                            if (!p.nama_kategori) return true; // paket campuran/full selalu tampil
+                            return allowedKategori.includes(p.nama_kategori.toUpperCase());
+                        });
+                    const list = filtered.length > 0 ? filtered : data.data;
+                    paketSelect.innerHTML = '<option value="">-- Acak (semua paket) --</option>';
+                    list.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = p.nama_paket + (p.deskripsi ? ' — ' + p.deskripsi : '');
+                        paketSelect.appendChild(opt);
+                    });
+                    paketSelect.disabled = false;
+                } else {
+                    paketSelect.innerHTML = '<option value="">Tidak ada paket tersedia</option>';
+                    paketSelect.disabled = true;
+                }
+            } catch (e) {
+                console.error('Error loading paket:', e);
+                paketSelect.innerHTML = '<option value="">Gagal memuat paket</option>';
+                paketSelect.disabled = true;
+            }
+        }
+
         // Start exam
         async function mulaiUjian() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            const examTypeSelect = document.getElementById('examTypeSelection');
+            selectedExamTypeId = (examTypeSelect && examTypeSelect.value) ? parseInt(examTypeSelect.value) : null;
+
+            const paketSelect = document.getElementById('paketSelection');
+            const paketId = paketSelect && paketSelect.value ? paketSelect.value : null;
+            selectedPaketId = paketId ? parseInt(paketId) : null;
+
+            const url = paketId
+                ? AppConfig.apiUrl(`soal.php?action=get_soal_by_paket&paket_id=${paketId}`)
+                : AppConfig.apiUrl('soal.php?action=get_soal_acak');
+
             try {
-                const response = await fetch('../api/soal.php?action=get_soal_acak&limit=20', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                    }
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userRole');
+                    window.location.href = '../login.html';
+                    return;
+                }
                 const data = await response.json();
-                if (data.success) {
+                if (data.success && data.data && data.data.length > 0) {
                     currentQuestions = data.data;
                     currentQuestionIndex = 0;
                     showExamScreen();
                     displayQuestion();
                     startTimer();
-                    // Show Jawab Random button during development
-                    document.getElementById('jawabRandomBtn').style.display = 'inline-block';
+                    // Hide Jawab Random button in production (only show in practice mode)
+                    if (!isPracticeMode) {
+                        const jawabRandomBtn = document.getElementById('jawabRandomBtn');
+                        if (jawabRandomBtn) jawabRandomBtn.style.display = 'none';
+                    }
                 } else {
-                    alert('Gagal memuat soal');
+                    showToast(data.error || 'Tidak ada soal tersedia untuk paket ini', 'error');
                 }
             } catch (error) {
                 console.error('Error loading questions:', error);
-                alert('Terjadi kesalahan saat memuat soal');
+                showToast('Terjadi kesalahan saat memuat soal', 'error');
             }
         }
 
         // Start practice mode
         async function mulaiLatihan() {
             try {
-                const response = await fetch('../api/soal.php?action=get_soal_acak&limit=10', {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_soal_acak&limit=10'), {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -730,24 +875,25 @@
                     // Show Jawab Random button during development
                     document.getElementById('jawabRandomBtn').style.display = 'inline-block';
                 } else {
-                    alert('Gagal memuat soal latihan');
+                    showToast('Gagal memuat soal latihan', 'error');
                 }
             } catch (error) {
                 console.error('Error loading practice questions:', error);
-                alert('Terjadi kesalahan saat memuat soal latihan');
+                showToast('Terjadi kesalahan saat memuat soal latihan', 'error');
             }
         }
 
         // Jawab Random - Development/testing feature
         async function jawabRandom() {
             if (!currentQuestions || currentQuestions.length === 0) {
-                alert('Tidak ada soal untuk dijawab');
+                showToast('Tidak ada soal untuk dijawab', 'warning');
                 return;
             }
 
-            if (!confirm('Anda yakin ingin menjawab semua soal secara random? Ini akan menyelesaikan ujian secara otomatis.')) {
-                return;
-            }
+            const confirmed = await new Promise(resolve => {
+                showConfirm('Anda yakin ingin menjawab semua soal secara random? Ini akan menyelesaikan ujian secara otomatis.', () => resolve(true), () => resolve(false));
+            });
+            if (!confirmed) return;
 
             // Randomly answer all questions
             const options = ['A', 'B', 'C', 'D', 'E'];
@@ -769,18 +915,18 @@
 
             // Auto-submit the exam with fallback
             try {
-                alert('Semua soal telah dijawab secara random. Ujian akan disubmit otomatis.');
+                showToast('Semua soal telah dijawab secara random. Mensubmit ujian...', 'info');
                 await finalizeExam();
             } catch (error) {
                 console.error('Error in finalizeExam:', error);
-                alert('Terjadi kesalahan saat submit otomatis. Silakan selesaikan ujian secara manual dengan tombol "Selesai Ujian".');
+                showToast('Terjadi kesalahan saat submit otomatis. Selesaikan ujian secara manual.', 'error');
             }
         }
 
         // View tips
         async function lihatTips() {
             try {
-                const response = await fetch('../api/soal.php?action=get_tips_tricks', {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_tips_tricks'), {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -792,32 +938,43 @@
                     document.getElementById('tipsScreen').classList.remove('hidden');
                     displayTips(data.data);
                 } else {
-                    alert('Gagal memuat tips');
+                    showToast('Gagal memuat tips', 'error');
                 }
             } catch (error) {
                 console.error('Error loading tips:', error);
-                alert('Terjadi kesalahan saat memuat tips');
+                showToast('Terjadi kesalahan saat memuat tips', 'error');
             }
         }
 
         // View history
         async function lihatRiwayat() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = '../login.html';
+                return;
+            }
             try {
-                const response = await fetch('../api/soal.php?action=get_riwayat_ujian', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                    }
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userRole');
+                    window.location.href = '../login.html';
+                    return;
+                }
                 const data = await response.json();
+                // Show history screen regardless of data success
+                showHistoryScreen();
                 if (data.success) {
-                    showHistoryScreen();
                     displayHistory(data.data);
                 } else {
-                    alert('Gagal memuat riwayat ujian');
+                    console.error('Gagal memuat riwayat ujian:', data.error);
                 }
             } catch (error) {
                 console.error('Error loading history:', error);
-                alert('Terjadi kesalahan saat memuat riwayat');
+                // Still show history screen even on error with retry
+                showHistoryScreenWithRetry();
             }
         }
 
@@ -891,8 +1048,12 @@
                 // If user clicks Cancel, continue to finish anyway
             }
             
-            // Final confirmation
-            showConfirm('Apakah Anda yakin ingin menyelesaikan ujian?', async () => {
+            // Final confirmation with warning if there are still unanswered questions
+            const confirmationMessage = unansweredQuestionsList.length > 0
+                ? `Anda masih memiliki ${unansweredQuestionsList.length} soal yang belum dijawab. Apakah Anda yakin ingin menyelesaikan ujian?`
+                : 'Apakah Anda yakin ingin menyelesaikan ujian?';
+            
+            showConfirm(confirmationMessage, async () => {
                 // Finalize exam - this will submit and show expert system ONLY after truly finished
                 await finalizeExam();
             });
@@ -901,7 +1062,7 @@
         // View explanation
         function lihatPembahasan() {
             if (!currentQuestions || currentQuestions.length === 0) {
-                alert('Tidak ada soal untuk ditampilkan pembahasannya');
+                showToast('Tidak ada soal untuk ditampilkan pembahasannya', 'warning');
                 return;
             }
             document.getElementById('resultScreen').classList.add('hidden');
@@ -936,7 +1097,7 @@
         async function lihatRekomendasiBelajar() {
             try {
                 // Fetch weakness data
-                const response = await fetch('../api/soal.php?action=get_my_weakness', {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_my_weakness'), {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -944,7 +1105,7 @@
                 const weaknessData = await response.json();
                 
                 // Fetch all learning materials (without soal_id filter)
-                const materialsResponse = await fetch('../api/soal.php?action=get_all_bahan_pelajaran', {
+                const materialsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_all_bahan_pelajaran'), {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -956,11 +1117,11 @@
                     document.getElementById('learningScreen').classList.remove('hidden');
                     displayRekomendasi(weaknessData.data, materialsData.data);
                 } else {
-                    alert('Gagal memuat rekomendasi belajar');
+                    showToast('Gagal memuat rekomendasi belajar', 'error');
                 }
             } catch (error) {
                 console.error('Error loading recommendations:', error);
-                alert('Terjadi kesalahan saat memuat rekomendasi');
+                showToast('Terjadi kesalahan saat memuat rekomendasi', 'error');
             }
         }
 
@@ -1015,7 +1176,7 @@
         // Export PDF
         async function exportPDF() {
             try {
-                const response = await fetch('../api/soal.php?action=get_riwayat_ujian&limit=1', {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian&limit=1'), {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -1043,6 +1204,8 @@
                         TWK: ${examData.nilai_twk || 0}
                         TIU: ${examData.nilai_tiu || 0}
                         TKP: ${examData.nilai_tkp || 0}
+                        TPA: ${examData.nilai_tpa || 0}
+                        PSIKOLOGIS: ${examData.nilai_psikologis || 0}
                         
                         Keterangan:
                         - Lulus jika nilai TWK >= 65, TIU >= 80, TKP >= 166
@@ -1060,20 +1223,20 @@
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
                     
-                    alert('Hasil ujian berhasil diexport!');
+                    showToast('Hasil ujian berhasil diexport!', 'success');
                 } else {
-                    alert('Tidak ada data ujian untuk diexport');
+                    showToast('Tidak ada data ujian untuk diexport', 'warning');
                 }
             } catch (error) {
                 console.error('Error exporting PDF:', error);
-                alert('Terjadi kesalahan saat export PDF');
+                showToast('Terjadi kesalahan saat export PDF', 'error');
             }
         }
 
         // Download certificate
         async function downloadCertificate() {
             try {
-                const response = await fetch('../api/soal.php?action=get_riwayat_ujian&limit=1', {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_riwayat_ujian&limit=1'), {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -1084,12 +1247,12 @@
                     const examData = data.data[0];
                     
                     if (examData.status_lulus !== 'Lulus') {
-                        alert('Sertifikat hanya tersedia untuk peserta yang lulus ujian');
+                        showToast('Sertifikat hanya tersedia untuk peserta yang lulus ujian', 'warning');
                         return;
                     }
                     
                     // Check if certificate already exists
-                    const certResponse = await fetch(`../api/soal.php?action=get_sertifikat&hasil_id=${examData.id}`, {
+                    const certResponse = await fetch(AppConfig.apiUrl(`soal.php?action=get_sertifikat&hasil_id=${examData.id}`), {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                         }
@@ -1134,10 +1297,10 @@
                         window.URL.revokeObjectURL(url);
                         document.body.removeChild(a);
                         
-                        alert('Sertifikat berhasil didownload!');
+                        showToast('Sertifikat berhasil didownload!', 'success');
                     } else {
                         // Generate new certificate
-                        const generateResponse = await fetch('../api/soal.php?action=generate_sertifikat', {
+                        const generateResponse = await fetch(AppConfig.apiUrl('soal.php?action=generate_sertifikat'), {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1151,17 +1314,17 @@
                         const generateData = await generateResponse.json();
                         
                         if (generateData.success) {
-                            alert('Sertifikat berhasil dibuat! Silakan download kembali.');
+                            showToast('Sertifikat berhasil dibuat! Silakan download kembali.', 'success');
                         } else {
-                            alert('Gagal membuat sertifikat');
+                            showToast('Gagal membuat sertifikat', 'error');
                         }
                     }
                 } else {
-                    alert('Tidak ada data ujian untuk sertifikat');
+                    showToast('Tidak ada data ujian untuk sertifikat', 'warning');
                 }
             } catch (error) {
                 console.error('Error downloading certificate:', error);
-                alert('Terjadi kesalahan saat download sertifikat');
+                showToast('Terjadi kesalahan saat download sertifikat', 'error');
             }
         }
 
@@ -1260,5 +1423,12 @@
             if (loadingModalInstance) {
                 loadingModalInstance.hide();
                 loadingModalInstance = null;
+            }
+        }
+            if (loadingModalInstance) {
+                loadingModalInstance.hide();
+                loadingModalInstance = null;
+            }
+        }
             }
         }

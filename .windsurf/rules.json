@@ -5,7 +5,7 @@
     "stack": ["php", "mysql", "javascript", "html", "bootstrap"],
     "framework": "vanilla-php",
     "version": "2.0",
-    "lastUpdated": "2026-05-18"
+    "lastUpdated": "2026-05-21"
   },
   "structure": {
     "api": {
@@ -86,7 +86,8 @@
   },
   "database": {
     "name": "ujian_sekolah_kedinasan",
-    "tables": 59,
+    "password": "auto-detect (Linux: root, Windows: 8208)",
+    "tables": 62,
     "views": 4,
     "tableList": [
       "users",

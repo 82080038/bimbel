@@ -186,26 +186,39 @@ class AIQuestionGenerator {
      * Create a tryout session
      */
     public function createTryoutSession($user_id, $topic_id, $session_name = '', $total_questions = 10, $duration_minutes = 30) {
-        $session_name = $this->conn->real_escape_string($session_name ?: "Tryout " . date('Y-m-d H:i:s'));
-        
-        $sql = "INSERT INTO tryout_sessions 
-                (user_id, topic_id, session_name, total_questions, duration_minutes, status)
-                VALUES ($user_id, $topic_id, '$session_name', $total_questions, $duration_minutes, 'created')";
-        
-        if ($this->conn->query($sql)) {
+        // Simpan sesi ke sesi_ujian (tryout_sessions sudah dihapus)
+        $nama = $session_name ?: ('Tryout ' . date('Y-m-d H:i:s'));
+
+        $sql = "INSERT INTO sesi_ujian (user_id, durasi_menit, soal_teracak, status)
+                VALUES (?, ?, ?, 'berjalan')";
+        $stmt = $this->conn->prepare($sql);
+        $soal_placeholder = json_encode([]);
+        $stmt->bind_param("iis", $user_id, $duration_minutes, $soal_placeholder);
+
+        if ($stmt->execute()) {
             $session_id = $this->conn->insert_id;
-            
+            $stmt->close();
+
             // Generate questions for this session
             $questions = $this->generateQuestions($user_id, $topic_id, $total_questions);
-            
-            // Save questions to database
+
+            // Save questions and record soal_ids
+            $soal_ids = [];
             foreach ($questions as $q) {
-                $this->saveGeneratedQuestion($session_id, $q);
+                $qid = $this->saveGeneratedQuestion($session_id, $q);
+                if ($qid) $soal_ids[] = $qid;
             }
-            
+
+            // Update soal_teracak with actual question IDs
+            $soal_json = json_encode($soal_ids);
+            $stmt2 = $this->conn->prepare("UPDATE sesi_ujian SET soal_teracak = ? WHERE id = ?");
+            $stmt2->bind_param('si', $soal_json, $session_id);
+            $stmt2->execute();
+            $stmt2->close();
+
             return $session_id;
         }
-        
+
         return false;
     }
     
@@ -213,143 +226,149 @@ class AIQuestionGenerator {
      * Save a generated question to database
      */
     private function saveGeneratedQuestion($session_id, $question) {
-        $topic_id = $question['topic_id'];
-        $kategori_id = $question['kategori_id'] ?? 1;
-        $pertanyaan = $this->conn->real_escape_string($question['pertanyaan']);
-        $opsi_a = $this->conn->real_escape_string($question['opsi_a'] ?? '');
-        $opsi_b = $this->conn->real_escape_string($question['opsi_b'] ?? '');
-        $opsi_c = $this->conn->real_escape_string($question['opsi_c'] ?? '');
-        $opsi_d = $this->conn->real_escape_string($question['opsi_d'] ?? '');
-        $opsi_e = $this->conn->real_escape_string($question['opsi_e'] ?? '');
-        $jawaban_benar = $this->conn->real_escape_string($question['jawaban_benar'] ?? 'A');
-        $pembahasan = $this->conn->real_escape_string($question['pembahasan'] ?? '');
-        $expert_tips = isset($question['expert_tips']) ? json_encode($question['expert_tips']) : NULL;
-        $difficulty = $this->conn->real_escape_string($question['difficulty'] ?? 'sedang');
-        
-        $sql = "INSERT INTO ai_generated_questions 
-                (tryout_session_id, topic_id, kategori_id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, pembahasan, expert_tips, difficulty)
-                VALUES ($session_id, $topic_id, $kategori_id, '$pertanyaan', '$opsi_a', '$opsi_b', '$opsi_c', '$opsi_d', '$opsi_e', '$jawaban_benar', '$pembahasan', " . ($expert_tips ? "'$expert_tips'" : "NULL") . ", '$difficulty')";
-        
-        return $this->conn->query($sql);
+        $topic_id    = intval($question['topic_id'] ?? 0);
+        $kategori_id = intval($question['kategori_id'] ?? 1);
+        $expert_tips = isset($question['expert_tips']) ? json_encode($question['expert_tips']) : null;
+        $difficulty  = $question['difficulty'] ?? 'sedang';
+
+        $sql = "INSERT INTO ai_generated_questions
+                (sesi_id, topic_id, kategori_id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, pembahasan, expert_tips, difficulty)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $pertanyaan   = $question['pertanyaan'] ?? '';
+        $opsi_a       = $question['opsi_a'] ?? '';
+        $opsi_b       = $question['opsi_b'] ?? '';
+        $opsi_c       = $question['opsi_c'] ?? '';
+        $opsi_d       = $question['opsi_d'] ?? '';
+        $opsi_e       = $question['opsi_e'] ?? '';
+        $jawaban_benar = $question['jawaban_benar'] ?? 'A';
+        $pembahasan   = $question['pembahasan'] ?? '';
+        $stmt->bind_param('iiisssssssss',
+            $session_id, $topic_id, $kategori_id,
+            $pertanyaan, $opsi_a, $opsi_b, $opsi_c, $opsi_d, $opsi_e,
+            $jawaban_benar, $pembahasan, $expert_tips, $difficulty
+        );
+        $stmt->execute();
+        $id = $this->conn->insert_id;
+        $stmt->close();
+        return $id ?: false;
     }
     
     /**
      * Start a tryout session
      */
     public function startTryoutSession($session_id) {
-        $sql = "UPDATE tryout_sessions 
-                SET status = 'in_progress', started_at = NOW() 
-                WHERE id = $session_id";
-        
-        return $this->conn->query($sql);
+        $sql = "UPDATE sesi_ujian SET status = 'berjalan', waktu_mulai = NOW() WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $session_id);
+        $result = $stmt->execute();
+        $stmt->close();
+        return $result;
     }
     
     /**
      * Complete a tryout session
      */
     public function completeTryoutSession($session_id, $score) {
-        $sql = "UPDATE tryout_sessions 
-                SET status = 'completed', completed_at = NOW(), score = $score 
-                WHERE id = $session_id";
-        
-        return $this->conn->query($sql);
+        $sql = "UPDATE sesi_ujian SET status = 'selesai', waktu_selesai = NOW() WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $session_id);
+        $result = $stmt->execute();
+        $stmt->close();
+        return $result;
     }
     
     /**
      * Get questions for a tryout session
      */
     public function getTryoutQuestions($session_id) {
-        $sql = "SELECT * FROM ai_generated_questions 
-                WHERE tryout_session_id = $session_id 
-                ORDER BY id";
+        $sql = "SELECT * FROM ai_generated_questions WHERE sesi_id = ? ORDER BY id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $session_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         
-        $result = $this->conn->query($sql);
         $questions = [];
-        
         while ($row = $result->fetch_assoc()) {
             $questions[] = $row;
         }
-        
+        $stmt->close();
         return $questions;
     }
-    
+
     /**
-     * Submit answer for a tryout question
+     * Submit answer — simpan ke jawaban_sementara (JSON) di sesi_ujian
      */
     public function submitAnswer($session_id, $question_id, $user_answer, $time_taken = 0) {
-        // Get correct answer
-        $sql = "SELECT jawaban_benar FROM ai_generated_questions WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $question_id);
+        // Ambil jawaban_sementara yang ada
+        $stmt = $this->conn->prepare("SELECT jawaban_sementara FROM sesi_ujian WHERE id = ?");
+        $stmt->bind_param('i', $session_id);
         $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
+        $row = $stmt->get_result()->fetch_assoc();
         $stmt->close();
-        
-        if ($row) {
-            $is_correct = ($user_answer === $row['jawaban_benar']);
-            
-            $sql = "INSERT INTO tryout_answers 
-                    (tryout_session_id, question_id, user_answer, is_correct, time_taken_seconds)
-                    VALUES (?, ?, ?, ?, ?)";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param("iisii", $session_id, $question_id, $user_answer, $is_correct ? 1 : 0, $time_taken);
-            $result = $stmt->execute();
-            $stmt->close();
-            
-            return $result;
-        }
-        
-        return false;
+
+        if (!$row) return false;
+
+        $current = json_decode($row['jawaban_sementara'] ?? '{}', true) ?: [];
+        $current[(string)$question_id] = $user_answer;
+        $json = json_encode($current);
+
+        $stmt2 = $this->conn->prepare("UPDATE sesi_ujian SET jawaban_sementara = ? WHERE id = ?");
+        $stmt2->bind_param('si', $json, $session_id);
+        $result = $stmt2->execute();
+        $stmt2->close();
+        return $result;
     }
-    
+
     /**
-     * Calculate tryout score
+     * Calculate tryout score dari jawaban_sementara vs ai_generated_questions
      */
     public function calculateScore($session_id) {
-        $sql = "SELECT COUNT(*) as total, 
-                       SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct
-                FROM tryout_answers 
-                WHERE tryout_session_id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $session_id);
+        $stmt = $this->conn->prepare("SELECT jawaban_sementara FROM sesi_ujian WHERE id = ?");
+        $stmt->bind_param('i', $session_id);
         $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
+        $row = $stmt->get_result()->fetch_assoc();
         $stmt->close();
-        
-        if ($row['total'] > 0) {
-            $score = ($row['correct'] / $row['total']) * 100;
-            return round($score, 2);
+
+        if (!$row) return 0;
+        $jawaban = json_decode($row['jawaban_sementara'] ?? '{}', true) ?: [];
+        if (empty($jawaban)) return 0;
+
+        $questions = $this->getTryoutQuestions($session_id);
+        $total = count($questions);
+        if ($total === 0) return 0;
+
+        $correct = 0;
+        foreach ($questions as $q) {
+            $user_ans = $jawaban[(string)$q['id']] ?? '';
+            if ($user_ans === $q['jawaban_benar']) $correct++;
         }
-        
-        return 0;
+
+        return round(($correct / $total) * 100, 2);
     }
     
     /**
      * Get tryout session info
      */
     public function getTryoutSession($session_id) {
-        $sql = "SELECT ts.*, t.topic_name, t.kategori, t.description
-                FROM tryout_sessions ts
-                JOIN learning_topics t ON ts.topic_id = t.id
-                WHERE ts.id = $session_id";
-        
-        $result = $this->conn->query($sql);
-        return $result->fetch_assoc();
+        $sql = "SELECT * FROM sesi_ujian WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $session_id);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $row;
     }
     
     /**
      * Get user's tryout history
      */
     public function getUserTryoutHistory($user_id) {
-        $sql = "SELECT ts.*, t.topic_name, t.kategori
-                FROM tryout_sessions ts
-                JOIN learning_topics t ON ts.topic_id = t.id
-                WHERE ts.user_id = $user_id
-                ORDER BY ts.created_at DESC";
-        
-        $result = $this->conn->query($sql);
+        $sql = "SELECT * FROM sesi_ujian WHERE user_id = ? ORDER BY waktu_mulai DESC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $history = [];
         
         while ($row = $result->fetch_assoc()) {
@@ -453,25 +472,31 @@ class AIQuestionGenerator {
      * Save question to main soal table
      */
     private function saveQuestionToSoalTable($question) {
-        $kategori_id = $question['kategori_id'];
-        $pertanyaan = $this->conn->real_escape_string($question['pertanyaan']);
-        $opsi_a = $this->conn->real_escape_string($question['opsi_a']);
-        $opsi_b = $this->conn->real_escape_string($question['opsi_b']);
-        $opsi_c = $this->conn->real_escape_string($question['opsi_c']);
-        $opsi_d = $this->conn->real_escape_string($question['opsi_d']);
-        $opsi_e = $this->conn->real_escape_string($question['opsi_e']);
-        $jawaban_benar = $this->conn->real_escape_string($question['jawaban_benar']);
-        $pembahasan = $this->conn->real_escape_string($question['pembahasan']);
-        $created_by = $question['created_by'] ?? null;
-        
-        $sql = "INSERT INTO soal 
-                (kategori_id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, pembahasan, created_by) 
-                VALUES ($kategori_id, '$pertanyaan', '$opsi_a', '$opsi_b', '$opsi_c', '$opsi_d', '$opsi_e', '$jawaban_benar', '$pembahasan', " . ($created_by ? $created_by : "NULL") . ")";
-        
-        if ($this->conn->query($sql)) {
-            return $this->conn->insert_id;
+        $kategori_id = intval($question['kategori_id']);
+        $pertanyaan  = $question['pertanyaan'] ?? '';
+        $opsi_a      = $question['opsi_a'] ?? '';
+        $opsi_b      = $question['opsi_b'] ?? '';
+        $opsi_c      = $question['opsi_c'] ?? '';
+        $opsi_d      = $question['opsi_d'] ?? '';
+        $opsi_e      = $question['opsi_e'] ?? '';
+        $jawaban_benar = $question['jawaban_benar'] ?? '';
+        $pembahasan  = $question['pembahasan'] ?? '';
+        $created_by  = isset($question['created_by']) ? intval($question['created_by']) : null;
+
+        $sql = "INSERT INTO soal
+                (kategori_id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, pembahasan, created_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("issssssssi", $kategori_id, $pertanyaan, $opsi_a, $opsi_b, $opsi_c, $opsi_d, $opsi_e, $jawaban_benar, $pembahasan, $created_by);
+
+        if ($stmt->execute()) {
+            $id = $this->conn->insert_id;
+            $stmt->close();
+            return $id;
         }
-        
+
+        $stmt->close();
         return false;
     }
     

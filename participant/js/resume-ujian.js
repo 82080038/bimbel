@@ -108,17 +108,31 @@ function displayExamResult(result) {
                                 </div>
                                 <div class="col-md-3">
                                     <div class="text-center p-3">
-                                        <h2 class="text-secondary mb-0">${result.durasi_menit || 0}</h2>
-                                        <p class="text-muted">Durasi (menit)</p>
+                                        <h2 class="text-danger mb-0">${result.nilai_tpa || 0}</h2>
+                                        <p class="text-muted">TPA</p>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="text-center p-3">
-                                        <h2 class="text-dark mb-0">${result.nama_peserta || '-'}</h2>
-                                        <p class="text-muted">Nama Peserta</p>
+                                        <h2 class="text-purple mb-0" style="color:#6f42c1">${result.nilai_psikologis || 0}</h2>
+                                        <p class="text-muted">PSIKOLOGIS</p>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
+                                    <div class="text-center p-3">
+                                        <h2 class="text-secondary mb-0">${result.durasi_menit || 0}</h2>
+                                        <p class="text-muted">Durasi (menit)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="text-center p-3">
+                                        <h2 class="text-dark mb-0">${result.nama_lengkap || '-'}</h2>
+                                        <p class="text-muted">Nama Peserta</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
                                     <div class="text-center p-3">
                                         <h2 class="text-muted mb-0">${formatDate(result.tanggal_ujian)}</h2>
                                         <p class="text-muted">Tanggal Ujian</p>

@@ -5,7 +5,7 @@
 
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'http://localhost/bimbel';
+const BASE_URL = 'http://localhost/ujian';
 const USER = { username: 'fresh_user_11778919457', password: 'simulasi123' };
 
 test.describe('Exam Simulation for testuser', () => {
@@ -63,9 +63,8 @@ test.describe('Exam Simulation for testuser', () => {
     if (hasForm > 0) {
       console.log('✅ Exam form found');
       
-      // Fill participant name
-      await page.fill('#namaPeserta', 'Test User Playwright');
-      console.log('✅ Participant name filled');
+      // namaPeserta is a hidden input, name is auto-loaded from profile
+      console.log('✅ Participant name auto-loaded from profile');
 
       // Check for exam type selector
       const hasSelector = await page.locator('select, #examType, [name="exam_type"]').count();

@@ -330,7 +330,7 @@ class ExpertAssistant {
         contentEl.innerHTML = '<p class="loading">Memuat pengetahuan pakar...</p>';
         
         try {
-            const response = await fetch(`/bimbel/api/expert.php?action=get_expert_help&soal_id=${this.currentQuestionId}&kategori_id=${this.currentCategoryId}`, {
+            const response = await fetch(AppConfig.apiUrl(`expert.php?action=get_expert_help&soal_id=${this.currentQuestionId}&kategori_id=${this.currentCategoryId}`), {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 }
@@ -455,7 +455,7 @@ class ExpertAssistant {
         contentEl.innerHTML = '<p class="loading">Memuat tips umum...</p>';
         
         try {
-            const response = await fetch('/bimbel/api/expert.php?action=get_expert_knowledge', {
+            const response = await fetch(AppConfig.apiUrl('expert.php?action=get_expert_knowledge'), {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 }
@@ -539,7 +539,7 @@ class ExpertAssistant {
             
             // Try to get expert tips for this category
             try {
-                const response = await fetch(`/bimbel/api/expert.php?action=get_expert_help&soal_id=${question.id}&kategori_id=${question.kategori_id}`, {
+                const response = await fetch(AppConfig.apiUrl(`expert.php?action=get_expert_help&soal_id=${question.id}&kategori_id=${question.kategori_id}`), {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                     }
@@ -588,14 +588,14 @@ class ExpertAssistant {
     // Rate assistance as helpful or not
     async rateHelpful(helpful) {
         if (!this.currentQuestionId || !this.expertData || this.expertData.length === 0) {
-            alert('Tidak ada data untuk dinilai');
+            console.warn('Expert: tidak ada data untuk dinilai');
             return;
         }
         
         const expertKnowledgeId = this.expertData[0].id;
         
         try {
-            const response = await fetch('/bimbel/api/expert.php?action=log_assistance', {
+            const response = await fetch(AppConfig.apiUrl('expert.php?action=log_assistance'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -5,36 +5,38 @@ require_once '../config.php';
 require_once '../scripts/logger.php';
 require_once '../api/middleware.php';
 
-header('Content-Type: application/json');
+if (basename($_SERVER['SCRIPT_FILENAME']) === basename(__FILE__)) {
+    header('Content-Type: application/json');
 
-$action = $_GET['action'] ?? '';
+    $action = $_GET['action'] ?? '';
 
-switch ($action) {
-    case 'get_question_analytics':
-        getQuestionAnalytics();
-        break;
-    case 'get_user_analytics':
-        getUserAnalytics();
-        break;
-    case 'get_exam_analytics':
-        getExamAnalytics();
-        break;
-    case 'get_answer_heatmap':
-        getAnswerHeatmap();
-        break;
-    case 'get_funnel_analytics':
-        getFunnelAnalytics();
-        break;
-    case 'track_funnel_event':
-        trackFunnelEvent();
-        break;
-    case 'export_analytics':
-        requireAdmin();
-        exportAnalytics();
-        break;
-    default:
-        echo json_encode(['success' => false, 'error' => 'Invalid action']);
-        break;
+    switch ($action) {
+        case 'get_question_analytics':
+            getQuestionAnalytics();
+            break;
+        case 'get_user_analytics':
+            getUserAnalytics();
+            break;
+        case 'get_exam_analytics':
+            getExamAnalytics();
+            break;
+        case 'get_answer_heatmap':
+            getAnswerHeatmap();
+            break;
+        case 'get_funnel_analytics':
+            getFunnelAnalytics();
+            break;
+        case 'track_funnel_event':
+            trackFunnelEvent();
+            break;
+        case 'export_analytics':
+            requireAdmin();
+            exportAnalytics();
+            break;
+        default:
+            echo json_encode(['success' => false, 'error' => 'Invalid action']);
+            break;
+    }
 }
 
 function getQuestionAnalytics() {
@@ -66,22 +68,28 @@ function getQuestionAnalytics() {
 
 function getUserAnalytics() {
     global $conn;
-    
+
     $user = requireAuth();
-    
-    $sql = "SELECT * FROM user_analytics WHERE user_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $user['id']);
+    $uid = $user['id'];
+
+    $stmt = $conn->prepare("
+        SELECT
+            COUNT(*) as total_exams,
+            COALESCE(AVG(nilai_total), 0) as avg_score,
+            COALESCE(MAX(nilai_total), 0) as best_score,
+            SUM(durasi_menit) as total_study_time,
+            SUM(CASE WHEN status_lulus = 'LULUS' THEN 1 ELSE 0 END) as total_lulus,
+            COALESCE(AVG(nilai_twk), 0) as avg_twk,
+            COALESCE(AVG(nilai_tiu), 0) as avg_tiu,
+            COALESCE(AVG(nilai_tkp), 0) as avg_tkp,
+            COALESCE(AVG(nilai_tpa), 0) as avg_tpa,
+            COALESCE(AVG(nilai_psikologis), 0) as avg_psikologis
+        FROM hasil_ujian WHERE user_id = ?");
+    $stmt->bind_param('i', $uid);
     $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $analytics = $result->fetch_assoc();
-    
-    if (!$analytics) {
-        echo json_encode(['success' => true, 'data' => null]);
-    } else {
-        echo json_encode(['success' => true, 'data' => $analytics]);
-    }
+    $analytics = $stmt->get_result()->fetch_assoc();
+
+    echo json_encode(['success' => true, 'data' => $analytics]);
 }
 
 function getExamAnalytics() {
@@ -190,7 +198,17 @@ function exportAnalytics() {
     
     switch ($type) {
         case 'user':
-            $sql = "SELECT ua.*, u.nama_lengkap FROM user_analytics ua JOIN users u ON ua.user_id = u.id";
+            $sql = "
+                SELECT u.id as user_id, u.nama_lengkap, u.username,
+                    COUNT(h.id) as total_exams,
+                    COALESCE(AVG(h.nilai_total),0) as avg_score,
+                    COALESCE(MAX(h.nilai_total),0) as best_score,
+                    SUM(CASE WHEN h.status_lulus='LULUS' THEN 1 ELSE 0 END) as total_lulus
+                FROM users u
+                LEFT JOIN hasil_ujian h ON h.user_id = u.id
+                WHERE u.role != 'admin'
+                GROUP BY u.id, u.nama_lengkap, u.username
+                ORDER BY avg_score DESC";
             $result = $conn->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $data[] = $row;

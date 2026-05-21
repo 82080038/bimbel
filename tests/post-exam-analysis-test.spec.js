@@ -5,7 +5,7 @@
 
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'http://localhost/bimbel';
+const BASE_URL = 'http://localhost/ujian';
 const USER = { username: 'fresh_user_11778919457', password: 'simulasi123' };
 
 test.describe('Post-Exam Analysis Flow Test', () => {

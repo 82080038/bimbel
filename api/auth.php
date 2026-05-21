@@ -60,7 +60,7 @@ function login() {
     $password = $data['password'] ?? '';
     
     // Use proper password hashing with password_verify
-    $sql = "SELECT id, username, password, role, api_key FROM users WHERE username = ?";
+    $sql = "SELECT id, username, password, role, api_key, nama_lengkap FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -89,6 +89,7 @@ function login() {
                 'user' => [
                     'id' => $user['id'],
                     'username' => $user['username'],
+                    'nama_lengkap' => $user['nama_lengkap'] ?: $user['username'],
                     'role' => $user['role'],
                     'api_key' => $user['api_key']
                 ]

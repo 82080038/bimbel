@@ -1,4 +1,3 @@
-const API_BASE = '../api';
 let authToken = '';
 let allMaterials = [];
 
@@ -15,7 +14,7 @@ function loadAuthToken() {
 // Load materials
 async function loadMaterials() {
     try {
-        const response = await fetch(`${API_BASE}/soal.php?action=get_all_bahan_pelajaran`, {
+        const response = await fetch(AppConfig.apiUrl('soal.php?action=get_all_bahan_pelajaran'), {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
         const data = await response.json();
@@ -132,7 +131,7 @@ function filterMaterials() {
 // Load categories for filter
 async function loadKategori() {
     try {
-        const response = await fetch('../api/soal.php?action=get_kategori', {
+        const response = await fetch(AppConfig.apiUrl('soal.php?action=get_kategori'), {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
         });
         const data = await response.json();
@@ -153,13 +152,13 @@ async function loadKategori() {
     }
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
+// Called by materi.html after components are injected into DOM
+function initAfterLoad() {
     if (loadAuthToken()) {
         loadKategori();
         loadMaterials();
     }
-});
+}
 
 // Toast Notification Helper
 function showToast(message, type = 'success', duration = 3000) {

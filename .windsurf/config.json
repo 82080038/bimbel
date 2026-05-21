@@ -5,7 +5,7 @@
     "version": "2.0",
     "status": "Production Ready",
     "branch": "kantor",
-    "last_updated": "21 Mei 2026 (Repository sync from GitHub branch kantor - XAMPP activated, configuration updated, database ready for import)",
+    "last_updated": "21 Mei 2026 (Repository sync from GitHub branch kantor - XAMPP activated, MySQL password reset to 'root', multi-platform database password configuration implemented, database analyzed: 62 tables + 4 views, comprehensive testing in progress)",
     "repository": "https://github.com/82080038/bimbel",
     "tech_stack": {
       "frontend": ["HTML5", "Bootstrap 5", "jQuery", "JavaScript", "PWA", "Chart.js", "Font Awesome"],
@@ -56,11 +56,11 @@
   },
   "database": {
     "name": "ujian_sekolah_kedinasan",
-    "host": "127.0.0.1",
+    "host": "localhost",
     "user": "root",
-    "password": "root",
+    "password": "auto-detect (Linux: root, Windows: 8208)",
     "charset": "utf8mb4",
-    "tables": 59,
+    "tables": 62,
     "views": 4,
     "migration_scripts": [
       "migrate_course_management.php",

@@ -542,35 +542,41 @@ function rateAssistance() {
     }
 }
 
-// Get learning recommendations based on expert system
+// Get learning recommendations based on weak categories from analisis_kelemahan
 function getLearningRecommendations() {
     global $conn;
-    
+
     $auth_user = requireAuth();
     $user_id = $auth_user['id'] ?? null;
-    
+
     if (!$user_id) {
         echo json_encode(['success' => false, 'message' => 'User not authenticated']);
         return;
     }
-    
-    $sql = "SELECT elr.*, ek.judul, ek.konten, ek.sub_kategori 
-            FROM expert_learning_recommendation elr
-            JOIN expert_knowledge ek ON elr.expert_knowledge_id = ek.id
-            WHERE elr.user_id = ? AND elr.status = 'pending'
-            ORDER BY elr.prioritas DESC, elr.created_at DESC
+
+    // Ambil kategori terlemah dari analisis_kelemahan terbaru per kategori
+    $sql = "SELECT ak.kategori_id, k.nama_kategori,
+                ak.persen_benar,
+                ek.id as ek_id, ek.judul, ek.konten, ek.sub_kategori, ek.jenis_pengetahuan, ek.prioritas
+            FROM analisis_kelemahan ak
+            JOIN kategori_soal k ON ak.kategori_id = k.id
+            LEFT JOIN expert_knowledge ek ON ek.sub_kategori COLLATE utf8mb4_unicode_ci = k.nama_kategori COLLATE utf8mb4_unicode_ci AND ek.is_active = 1
+            WHERE ak.user_id = ?
+              AND ak.id IN (SELECT MAX(id) FROM analisis_kelemahan WHERE user_id = ? GROUP BY kategori_id)
+              AND ak.persen_benar < 70
+            ORDER BY ak.persen_benar ASC, ek.prioritas DESC
             LIMIT 10";
-    
+
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id);
+    $stmt->bind_param('ii', $user_id, $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     $recommendations = [];
     while ($row = $result->fetch_assoc()) {
         $recommendations[] = $row;
     }
-    
+
     echo json_encode(['success' => true, 'data' => $recommendations]);
 }
 

@@ -68,10 +68,14 @@ if (!defined('DB_HOST')) {
         define('DB_USER', 'production_user');
         define('DB_PASS', 'your_secure_password');
     } else {
+        // Auto-detect platform for database password
+        // Linux: root, Windows: 8208
+        $is_windows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+        
         define('DB_HOST', 'localhost');
         define('DB_NAME', 'ujian_sekolah_kedinasan');
         define('DB_USER', 'root');
-        define('DB_PASS', 'root'); // Updated to match config.php
+        define('DB_PASS', $is_windows ? '8208' : 'root');
     }
 }
 

@@ -76,7 +76,9 @@ class LearningRecommendationSystem {
         $sql = "SELECT 
                     SUM(CASE WHEN nilai_twk > 0 THEN nilai_twk ELSE 0 END) / COUNT(*) * 100 as twk_avg,
                     SUM(CASE WHEN nilai_tiu > 0 THEN nilai_tiu ELSE 0 END) / COUNT(*) * 100 as tiu_avg,
-                    SUM(CASE WHEN nilai_tkp > 0 THEN nilai_tkp ELSE 0 END) / COUNT(*) * 100 as tkp_avg
+                    SUM(CASE WHEN nilai_tkp > 0 THEN nilai_tkp ELSE 0 END) / COUNT(*) * 100 as tkp_avg,
+                    SUM(CASE WHEN nilai_tpa > 0 THEN nilai_tpa ELSE 0 END) / COUNT(*) * 100 as tpa_avg,
+                    SUM(CASE WHEN nilai_psikologis > 0 THEN nilai_psikologis ELSE 0 END) / COUNT(*) * 100 as psikologis_avg
                 FROM hasil_ujian 
                 WHERE user_id = ?";
         $stmt = $this->conn->prepare($sql);
@@ -94,6 +96,12 @@ class LearningRecommendationSystem {
             }
             if ($row['tkp_avg'] > 0) {
                 $performance['TKP'] = round($row['tkp_avg'], 2);
+            }
+            if ($row['tpa_avg'] > 0) {
+                $performance['TPA'] = round($row['tpa_avg'], 2);
+            }
+            if ($row['psikologis_avg'] > 0) {
+                $performance['PSIKOLOGIS'] = round($row['psikologis_avg'], 2);
             }
         }
         
@@ -224,29 +232,23 @@ class LearningRecommendationSystem {
      * Save recommendations to database
      */
     public function saveRecommendations($user_id, $recommendations) {
-        // Clear old recommendations
-        $sql = "DELETE FROM learning_recommendations WHERE user_id = ?";
+        // Rekomendasi disimpan ke rekomendasi_belajar (learning_recommendations sudah dihapus)
+        // Hanya simpan jika ada soal_id yang diketahui; skip jika tidak ada
+        if (empty($recommendations)) return true;
+
+        $sql = "INSERT IGNORE INTO rekomendasi_belajar (user_id, soal_id, alasan)
+                VALUES (?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $stmt->close();
-        
-        // Insert new recommendations
-        $sql = "INSERT INTO learning_recommendations 
-                (user_id, topic_id, recommendation_type, reason, priority)
-                VALUES (?, ?, ?, ?, ?)";
-        $stmt = $this->conn->prepare($sql);
-        
+
         foreach ($recommendations as $rec) {
-            $topic_id = $rec['topic_id'];
-            $type = $rec['type'];
-            $reason = $rec['reason'];
-            $priority = $rec['priority'];
-            
-            $stmt->bind_param("iisis", $user_id, $topic_id, $type, $reason, $priority);
+            $soal_id = $rec['soal_id'] ?? null;
+            if (!$soal_id) continue;
+            $alasan = $rec['alasan'] ?? ($rec['reason'] ?? 'review');
+            if (!in_array($alasan, ['salah','ragu','review'])) $alasan = 'review';
+            $stmt->bind_param("iis", $user_id, $soal_id, $alasan);
             $stmt->execute();
         }
-        
+
         $stmt->close();
         return true;
     }
@@ -255,21 +257,23 @@ class LearningRecommendationSystem {
      * Get saved recommendations for a user
      */
     public function getSavedRecommendations($user_id) {
-        $sql = "SELECT lr.*, t.topic_name, t.kategori, t.description
-                FROM learning_recommendations lr
-                JOIN learning_topics t ON lr.topic_id = t.id
-                WHERE lr.user_id = ?
-                ORDER BY lr.priority ASC, lr.created_at DESC";
+        $sql = "SELECT rb.*, s.pertanyaan, k.nama_kategori
+                FROM rekomendasi_belajar rb
+                JOIN soal s ON rb.soal_id = s.id
+                JOIN kategori_soal k ON s.kategori_id = k.id
+                WHERE rb.user_id = ?
+                ORDER BY rb.created_at DESC
+                LIMIT 20";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $recommendations = [];
-        
+
         while ($row = $result->fetch_assoc()) {
             $recommendations[] = $row;
         }
-        
+
         $stmt->close();
         return $recommendations;
     }

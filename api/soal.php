@@ -23,7 +23,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Apply rate limiting (100 requests per minute for public endpoints, 1000 for authenticated)
 $action = $_GET['action'] ?? '';
-$public_actions = ['get_soal_by_kategori', 'get_soal_acak', 'get_soal_by_id', 'get_learning_topics', 'get_paket', 'get_soal_by_paket'];
+$public_actions = ['get_soal_by_kategori', 'get_soal_acak', 'get_soal_by_id', 'get_learning_topics', 'get_paket', 'get_soal_by_paket', 'get_exam_types', 'get_kategori'];
 
 if (!in_array($action, $public_actions)) {
     // Authenticated endpoints: higher limit
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $action = $_GET['action'] ?? '';
 
 // Public endpoints (no auth required)
-$public_actions = ['get_soal_by_kategori', 'get_soal_acak', 'get_soal_by_id', 'get_learning_topics', 'get_paket', 'get_soal_by_paket'];
+$public_actions = ['get_soal_by_kategori', 'get_soal_acak', 'get_soal_by_id', 'get_learning_topics', 'get_paket', 'get_soal_by_paket', 'get_exam_types', 'get_kategori'];
 
 // Protected endpoints (auth required)
 if (!in_array($action, $public_actions)) {
@@ -431,46 +431,37 @@ function getSoalById() {
 
 function simpanSesi() {
     global $conn;
-    
+
+    $user = requireAuth();
+    $user_id = $user['id'];
     $data = json_decode(file_get_contents('php://input'), true);
-    
-    // Validate required fields
-    if (empty($data['nama_peserta']) || !is_numeric($data['durasi_menit'])) {
+
+    if (!is_numeric($data['durasi_menit'] ?? '')) {
         echo json_encode(['success' => false, 'error' => 'Invalid input data']);
         return;
     }
-    
-    // Validate and sanitize input
-    $nama = trim($data['nama_peserta']);
-    if (strlen($nama) < 2 || strlen($nama) > 100) {
-        echo json_encode(['success' => false, 'error' => 'Nama peserta harus 2-100 karakter']);
-        return;
-    }
-    
+
     $durasi = intval($data['durasi_menit']);
     if ($durasi < 1 || $durasi > 300) {
         echo json_encode(['success' => false, 'error' => 'Durasi tidak valid (1-300 menit)']);
         return;
     }
-    
-    // Validate soal_teracak is array
+
     if (!is_array($data['soal_teracak'])) {
         echo json_encode(['success' => false, 'error' => 'Format soal tidak valid']);
         return;
     }
-    
+
     $soal_teracak = json_encode($data['soal_teracak']);
-    if (strlen($soal_teracak) > 100000) { // Max 100KB
+    if (strlen($soal_teracak) > 100000) {
         echo json_encode(['success' => false, 'error' => 'Data soal terlalu besar']);
         return;
     }
-    
-    $sql = "INSERT INTO sesi_ujian (nama_peserta, durasi_menit, soal_teracak) 
-            VALUES (?, ?, ?)";
-    
+
+    $sql = "INSERT INTO sesi_ujian (user_id, durasi_menit, soal_teracak) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sis", $nama, $durasi, $soal_teracak);
-    
+    $stmt->bind_param("iis", $user_id, $durasi, $soal_teracak);
+
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'sesi_id' => $conn->insert_id]);
     } else {
@@ -480,18 +471,21 @@ function simpanSesi() {
 
 function getSesi() {
     global $conn;
-    
+
+    $user = requireAuth();
     $sesi_id = intval($_GET['sesi_id']);
-    
-    $sql = "SELECT * FROM sesi_ujian WHERE id = ?";
-    
+
+    $sql = "SELECT * FROM sesi_ujian WHERE id = ? AND user_id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $sesi_id);
+    $stmt->bind_param("ii", $sesi_id, $user['id']);
     $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $sesi = $result->fetch_assoc();
-    
+    $sesi = $stmt->get_result()->fetch_assoc();
+
+    if (!$sesi) {
+        echo json_encode(['success' => false, 'error' => 'Session not found']);
+        return;
+    }
+
     echo json_encode(['success' => true, 'data' => $sesi]);
 }
 
@@ -505,17 +499,12 @@ function selesaiUjian() {
     $user_id = $user['id'];
     
     // Validate required fields
-    if (empty($data['nama_peserta']) || !is_array($data['jawaban'])) {
+    if (!is_array($data['jawaban'])) {
         echo json_encode(['success' => false, 'error' => 'Invalid input data']);
         return;
     }
-    
-    // Validate and sanitize input
-    $nama = trim($data['nama_peserta']);
-    if (strlen($nama) < 2 || strlen($nama) > 100) {
-        echo json_encode(['success' => false, 'error' => 'Nama peserta tidak valid']);
-        return;
-    }
+
+    $nama = $user['username'] ?? 'Peserta';
     
     $sesi_id = isset($data['sesi_id']) ? intval($data['sesi_id']) : 0;
     
@@ -571,11 +560,12 @@ function selesaiUjian() {
                      $nilai_tkp >= PASSING_GRADE_TKP) ? 'LULUS' : 'TIDAK LULUS';
     
     // Save result
-    $sql = "INSERT INTO hasil_ujian (user_id, nama_peserta, durasi_menit, nilai_twk, nilai_tiu, nilai_tkp, nilai_tpa, nilai_psikologis, nilai_total, status_lulus, jawaban_peserta) 
+    $sql = "INSERT INTO hasil_ujian (user_id, nama_peserta, durasi_menit, nilai_twk, nilai_tiu, nilai_tkp, nilai_tpa, nilai_psikologis, nilai_total, status_lulus, jawaban_peserta)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
+
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isiiiiisss", $user_id, $nama, DURASI_UJIAN_MENIT, $nilai_twk, $nilai_tiu, $nilai_tkp, $nilai_tpa, $nilai_psikologis, $nilai_total, $status_lulus, $jawaban);
+    $durasi_ujian = DURASI_UJIAN_MENIT;
+    $stmt->bind_param("isiiiiiiiss", $user_id, $nama, $durasi_ujian, $nilai_twk, $nilai_tiu, $nilai_tkp, $nilai_tpa, $nilai_psikologis, $nilai_total, $status_lulus, $jawaban);
     
     if ($stmt->execute()) {
         // Get the inserted ID
@@ -656,15 +646,57 @@ function submitUjian() {
     }
     
     $nilai_total = $nilai_twk + $nilai_tiu + $nilai_tkp + $nilai_tpa + $nilai_psikologis;
-    $status_lulus = ($nilai_twk >= PASSING_GRADE_TWK && $nilai_tiu >= PASSING_GRADE_TIU && $nilai_tkp >= PASSING_GRADE_TKP) ? 'LULUS' : 'TIDAK LULUS';
+
+    $user_id_ins = $user['id'];
     $nama = $user['username'] ?? 'Peserta';
     $jawaban_json = json_encode($answers);
-    
+
+    // Get exam_type_id and paket_id from request
+    $exam_type_id = isset($data['exam_type_id']) ? intval($data['exam_type_id']) : null;
+    $paket_id     = isset($data['paket_id'])     ? intval($data['paket_id'])     : null;
+
+    // Fetch exam_type config (durasi + passing grades) from DB
+    $exam_type_row = null;
+    if ($exam_type_id) {
+        $stmt_et = $conn->prepare("SELECT * FROM exam_types WHERE id = ? AND is_active = 1");
+        $stmt_et->bind_param('i', $exam_type_id);
+        $stmt_et->execute();
+        $exam_type_row = $stmt_et->get_result()->fetch_assoc();
+    }
+
+    // Durasi: from exam_type > paket > constant fallback
     $durasi = intval(DURASI_UJIAN_MENIT);
-    $user_id_ins = $user['id'];
-    $sql = "INSERT INTO hasil_ujian (nama_peserta, user_id, durasi_menit, nilai_twk, nilai_tiu, nilai_tkp, nilai_total, status_lulus, jawaban_peserta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    if ($exam_type_row) {
+        $durasi = intval($exam_type_row['durasi_menit']);
+    } elseif ($paket_id) {
+        $stmt_pk = $conn->prepare("SELECT durasi FROM paket_tryout WHERE id = ?");
+        $stmt_pk->bind_param('i', $paket_id);
+        $stmt_pk->execute();
+        $pk_row = $stmt_pk->get_result()->fetch_assoc();
+        if ($pk_row) $durasi = intval($pk_row['durasi']);
+    }
+
+    // Passing grades: from exam_type > PHP constants fallback
+    $pg_twk        = $exam_type_row ? intval($exam_type_row['passing_grade_twk'])        : PASSING_GRADE_TWK;
+    $pg_tiu        = $exam_type_row ? intval($exam_type_row['passing_grade_tiu'])        : PASSING_GRADE_TIU;
+    $pg_tkp        = $exam_type_row ? intval($exam_type_row['passing_grade_tkp'])        : PASSING_GRADE_TKP;
+    $pg_tpa        = $exam_type_row ? intval($exam_type_row['passing_grade_tpa'])        : PASSING_GRADE_TPA;
+    $pg_psikologis = $exam_type_row ? intval($exam_type_row['passing_grade_psikologis']) : PASSING_GRADE_PSIKOLOGIS;
+    $pg_total      = $exam_type_row ? intval($exam_type_row['passing_grade_total'])      : PASSING_GRADE_TOTAL;
+
+    // Determine lulus/tidak based on which categories are required (pg > 0)
+    $lulus = true;
+    if ($pg_twk > 0 && $nilai_twk < $pg_twk)               $lulus = false;
+    if ($pg_tiu > 0 && $nilai_tiu < $pg_tiu)               $lulus = false;
+    if ($pg_tkp > 0 && $nilai_tkp < $pg_tkp)               $lulus = false;
+    if ($pg_tpa > 0 && $nilai_tpa < $pg_tpa)               $lulus = false;
+    if ($pg_psikologis > 0 && $nilai_psikologis < $pg_psikologis) $lulus = false;
+    if ($pg_total > 0 && $nilai_total < $pg_total)         $lulus = false;
+    $status_lulus = $lulus ? 'LULUS' : 'TIDAK LULUS';
+
+    $sql = "INSERT INTO hasil_ujian (nama_peserta, user_id, exam_type_id, paket_id, durasi_menit, nilai_twk, nilai_tiu, nilai_tkp, nilai_tpa, nilai_psikologis, nilai_total, status_lulus, jawaban_peserta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("siiiiisss", $nama, $user_id_ins, $durasi, $nilai_twk, $nilai_tiu, $nilai_tkp, $nilai_total, $status_lulus, $jawaban_json);
+    $stmt->bind_param("siiiiiiiiiiss", $nama, $user_id_ins, $exam_type_id, $paket_id, $durasi, $nilai_twk, $nilai_tiu, $nilai_tkp, $nilai_tpa, $nilai_psikologis, $nilai_total, $status_lulus, $jawaban_json);
     
     if ($stmt->execute()) {
         $hasil_id = $conn->insert_id;
@@ -772,20 +804,26 @@ function generateSertifikatInternal($hasil_id, $user_id, $nama_peserta, $nilai_t
 
 function getKategori() {
     global $conn;
-    
-    $sql = "SELECT id, nama_kategori, deskripsi FROM kategori_soal ORDER BY id";
+
+    $sql = "SELECT k.id, k.nama_kategori, k.deskripsi,
+                COUNT(s.id) as jumlah_soal
+            FROM kategori_soal k
+            LEFT JOIN soal s ON s.kategori_id = k.id
+            GROUP BY k.id, k.nama_kategori, k.deskripsi
+            ORDER BY k.id";
     $result = $conn->query($sql);
-    
+
     $kategori = [];
     while ($row = $result->fetch_assoc()) {
         $kategori[] = [
-            'id' => $row['id'],
-            'nama' => $row['nama_kategori'],
-            'deskripsi' => $row['deskripsi'],
-            'code' => $row['nama_kategori'] // For backwards compatibility
+            'id'          => $row['id'],
+            'nama'        => $row['nama_kategori'],
+            'deskripsi'   => $row['deskripsi'],
+            'code'        => $row['nama_kategori'],
+            'jumlah_soal' => intval($row['jumlah_soal'])
         ];
     }
-    
+
     echo json_encode([
         'success' => true,
         'data' => $kategori
@@ -874,17 +912,18 @@ function getExamTypes() {
 
 function getSertifikat() {
     global $conn;
-    
+
+    $user = requireAuth();
     $hasil_id = intval($_GET['hasil_id'] ?? 0);
-    
+
     if ($hasil_id === 0) {
         echo json_encode(['success' => false, 'error' => 'Invalid hasil ID']);
         return;
     }
-    
-    $sql = "SELECT s.*, hu.nilai_total, hu.status_lulus FROM sertifikat s JOIN hasil_ujian hu ON s.hasil_id = hu.id WHERE s.hasil_id = ?";
+
+    $sql = "SELECT s.*, hu.nilai_total, hu.status_lulus FROM sertifikat s JOIN hasil_ujian hu ON s.hasil_id = hu.id WHERE s.hasil_id = ? AND hu.user_id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $hasil_id);
+    $stmt->bind_param("ii", $hasil_id, $user['id']);
     $stmt->execute();
     $cert = $stmt->get_result()->fetch_assoc();
     
@@ -906,15 +945,27 @@ function getRiwayatUjian() {
     $page = intval($_GET['page'] ?? 1);
     $offset = ($page - 1) * $limit;
     
+    $search = trim($_GET['search'] ?? '');
+
     if ($is_admin) {
-        // Admin sees all users' records
-        $stmt_count = $conn->prepare("SELECT COUNT(*) as total FROM hasil_ujian");
-        $stmt_count->execute();
-        $total = $stmt_count->get_result()->fetch_assoc()['total'];
-        
-        $sql = "SELECT h.*, u.nama_lengkap FROM hasil_ujian h LEFT JOIN users u ON h.user_id = u.id ORDER BY h.tanggal_ujian DESC LIMIT ? OFFSET ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ii", $limit, $offset);
+        // Admin sees all users' records with optional search
+        if ($search) {
+            $like = "%$search%";
+            $stmt_count = $conn->prepare("SELECT COUNT(*) as total FROM hasil_ujian h LEFT JOIN users u ON h.user_id = u.id WHERE u.nama_lengkap LIKE ? OR u.username LIKE ?");
+            $stmt_count->bind_param("ss", $like, $like);
+            $stmt_count->execute();
+            $total = $stmt_count->get_result()->fetch_assoc()['total'];
+            $sql = "SELECT h.*, u.nama_lengkap, u.username FROM hasil_ujian h LEFT JOIN users u ON h.user_id = u.id WHERE u.nama_lengkap LIKE ? OR u.username LIKE ? ORDER BY h.tanggal_ujian DESC LIMIT ? OFFSET ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ssii", $like, $like, $limit, $offset);
+        } else {
+            $stmt_count = $conn->prepare("SELECT COUNT(*) as total FROM hasil_ujian");
+            $stmt_count->execute();
+            $total = $stmt_count->get_result()->fetch_assoc()['total'];
+            $sql = "SELECT h.*, u.nama_lengkap, u.username FROM hasil_ujian h LEFT JOIN users u ON h.user_id = u.id ORDER BY h.tanggal_ujian DESC LIMIT ? OFFSET ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ii", $limit, $offset);
+        }
     } else {
         // Regular user sees only their own records
         $stmt_count = $conn->prepare("SELECT COUNT(*) as total FROM hasil_ujian WHERE user_id = ?");
@@ -922,7 +973,7 @@ function getRiwayatUjian() {
         $stmt_count->execute();
         $total = $stmt_count->get_result()->fetch_assoc()['total'];
         
-        $sql = "SELECT * FROM hasil_ujian WHERE user_id = ? ORDER BY tanggal_ujian DESC LIMIT ? OFFSET ?";
+        $sql = "SELECT h.*, u.nama_lengkap, u.username FROM hasil_ujian h LEFT JOIN users u ON h.user_id = u.id WHERE h.user_id = ? ORDER BY h.tanggal_ujian DESC LIMIT ? OFFSET ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("iii", $user_id, $limit, $offset);
     }
@@ -1029,27 +1080,34 @@ function getStatistik() {
 
 function getExamResult() {
     global $conn;
-    
+
     $user = requireAuth();
     $result_id = intval($_GET['id'] ?? 0);
-    
+
     if ($result_id === 0) {
         echo json_encode(['success' => false, 'error' => 'Invalid result ID']);
         return;
     }
-    
-    // Get exam result
-    $sql = "SELECT * FROM hasil_ujian WHERE id = ? AND user_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $result_id, $user['id']);
+
+    // Admin can view any result; regular user only their own
+    if ($user['role'] === 'admin') {
+        $sql = "SELECT h.*, u.nama_lengkap, u.username FROM hasil_ujian h LEFT JOIN users u ON h.user_id = u.id WHERE h.id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $result_id);
+    } else {
+        $sql = "SELECT h.*, u.nama_lengkap, u.username FROM hasil_ujian h LEFT JOIN users u ON h.user_id = u.id WHERE h.id = ? AND h.user_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $result_id, $user['id']);
+    }
+
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
-    
+
     if (!$result) {
         echo json_encode(['success' => false, 'error' => 'Result not found']);
         return;
     }
-    
+
     echo json_encode(['success' => true, 'data' => $result]);
 }
 
@@ -1852,18 +1910,27 @@ function getRekomendasiBelajar() {
     $offset = ($page - 1) * $limit;
 
     if ($sesi_id > 0) {
+        // Validate sesi belongs to this user
+        $stmt_chk = $conn->prepare("SELECT id FROM sesi_ujian WHERE id = ? AND user_id = ?");
+        $stmt_chk->bind_param('ii', $sesi_id, $user_id);
+        $stmt_chk->execute();
+        if ($stmt_chk->get_result()->num_rows === 0) {
+            echo json_encode(['success' => false, 'error' => 'Session not found']);
+            return;
+        }
+
         // Get total count
-        $count_sql = "SELECT COUNT(*) as total FROM v_rekomendasi_belajar WHERE sesi_id = ?";
+        $count_sql = "SELECT COUNT(*) as total FROM v_rekomendasi_belajar WHERE sesi_id = ? AND user_id = ?";
         $stmt = $conn->prepare($count_sql);
-        $stmt->bind_param('i', $sesi_id);
+        $stmt->bind_param('ii', $sesi_id, $user_id);
         $stmt->execute();
         $count_result = $stmt->get_result();
         $total = $count_result->fetch_assoc()['total'];
         $stmt->close();
 
-        $sql = "SELECT * FROM v_rekomendasi_belajar WHERE sesi_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        $sql = "SELECT * FROM v_rekomendasi_belajar WHERE sesi_id = ? AND user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param('iii', $sesi_id, $limit, $offset);
+        $stmt->bind_param('iiii', $sesi_id, $user_id, $limit, $offset);
     } else {
         // Get total count
         $count_sql = "SELECT COUNT(*) as total FROM v_rekomendasi_belajar WHERE user_id = ?";
@@ -1915,16 +1982,19 @@ function generateRekomendasi() {
         return;
     }
     
-    // Get session info
-    $sql_sesi = "SELECT * FROM sesi_ujian WHERE id = $sesi_id";
-    $result_sesi = $conn->query($sql_sesi);
-    $sesi = $result_sesi->fetch_assoc();
-    
+    // Get session info — validate ownership
+    $user_gen2 = requireAuth();
+    $sql_sesi = "SELECT * FROM sesi_ujian WHERE id = ? AND user_id = ?";
+    $stmt_sesi2 = $conn->prepare($sql_sesi);
+    $stmt_sesi2->bind_param('ii', $sesi_id, $user_gen2['id']);
+    $stmt_sesi2->execute();
+    $sesi = $stmt_sesi2->get_result()->fetch_assoc();
+
     if (!$sesi) {
-        echo json_encode(['success' => false, 'error' => 'Session not found']);
+        echo json_encode(['success' => false, 'error' => 'Session not found or access denied']);
         return;
     }
-    
+
     $user_id = $sesi['user_id'];
     $generated = 0;
     
@@ -2129,20 +2199,21 @@ function getRanking() {
     elseif ($kategori === 'TIU' || $kategori === '2') $order_field = 'nilai_tiu';
     elseif ($kategori === 'TKP' || $kategori === '3') $order_field = 'nilai_tkp';
     
-    // Get total count
+    // Get total count (exclude opted-out users by user_id)
     $sql_count = "SELECT COUNT(*) as total 
                   FROM hasil_ujian h
-                  LEFT JOIN leaderboard_optout lo ON h.nama_peserta = lo.nama_peserta
-                  WHERE lo.nama_peserta IS NULL";
+                  LEFT JOIN leaderboard_optout lo ON h.user_id = lo.user_id
+                  WHERE lo.user_id IS NULL AND h.user_id IS NOT NULL";
     $result_count = $conn->query($sql_count);
     $total = $result_count->fetch_assoc()['total'];
     
-    // Exclude opted-out users
-    $sql = "SELECT h.* 
+    // Exclude opted-out users, JOIN users for display name
+    $sql = "SELECT h.*, u.nama_lengkap, u.username
             FROM hasil_ujian h
-            LEFT JOIN leaderboard_optout lo ON h.nama_peserta = lo.nama_peserta
-            WHERE lo.nama_peserta IS NULL
-            ORDER BY $order_field DESC, tanggal_ujian ASC
+            LEFT JOIN users u ON h.user_id = u.id
+            LEFT JOIN leaderboard_optout lo ON h.user_id = lo.user_id
+            WHERE lo.user_id IS NULL AND h.user_id IS NOT NULL
+            ORDER BY $order_field DESC, h.tanggal_ujian ASC
             LIMIT $limit OFFSET $offset";
     $result = $conn->query($sql);
     $ranking = [];
@@ -2376,24 +2447,28 @@ function generateCertificate() {
         return;
     }
     
-    // Get hasil info
-    $sql = "SELECT * FROM hasil_ujian WHERE id = ?";
-    $stmt = $conn->prepare($sql);
+    // Get hasil info — verify ownership (admin may bypass)
+    $user_gen = requireAuth();
+    $ownership_check = ($user_gen['role'] === 'admin')
+        ? "SELECT * FROM hasil_ujian WHERE id = ?"
+        : "SELECT * FROM hasil_ujian WHERE id = ? AND user_id = {$user_gen['id']}";
+    $stmt = $conn->prepare($ownership_check);
     $stmt->bind_param("i", $hasil_id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $hasil = $result->fetch_assoc();
+    $hasil = $stmt->get_result()->fetch_assoc();
     $stmt->close();
-    
+
     if (!$hasil) {
-        echo json_encode(['success' => false, 'error' => 'Hasil not found']);
+        echo json_encode(['success' => false, 'error' => 'Hasil not found or access denied']);
         return;
     }
     
     // Check if certificate already exists
-    $sql_check = "SELECT * FROM sertifikat WHERE hasil_id = $hasil_id";
-    $result_check = $conn->query($sql_check);
-    
+    $stmt_check = $conn->prepare("SELECT * FROM sertifikat WHERE hasil_id = ?");
+    $stmt_check->bind_param('i', $hasil_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+
     if ($result_check->num_rows > 0) {
         $cert = $result_check->fetch_assoc();
         echo json_encode(['success' => true, 'data' => $cert]);
@@ -2401,7 +2476,7 @@ function generateCertificate() {
     }
     
     // Generate new certificate
-    $verification_code = md5($hasil_id . $hasil['nama_peserta'] . time());
+    $verification_code = md5($hasil_id . ($hasil['user_id'] ?? 0) . time());
     $qr_code = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($verification_code);
     $user_id_cert = intval($hasil['user_id'] ?? 0);
 
@@ -2424,25 +2499,21 @@ function generateCertificate() {
 
 function leaderboardOptout() {
     global $conn;
-    
+
+    $user = requireAuth();
+    $user_id = $user['id'];
     $data = json_decode(file_get_contents('php://input'), true);
-    $nama_peserta = $conn->real_escape_string($data['nama_peserta'] ?? '');
     $optout = $data['optout'] ?? true;
-    
-    if (empty($nama_peserta)) {
-        echo json_encode(['success' => false, 'error' => 'Invalid nama peserta']);
-        return;
-    }
-    
+
     if ($optout) {
-        $sql = "INSERT INTO leaderboard_optout (nama_peserta) VALUES ('$nama_peserta')";
+        $stmt = $conn->prepare("INSERT IGNORE INTO leaderboard_optout (user_id) VALUES (?)");
+        $stmt->bind_param('i', $user_id);
     } else {
-        $sql = "DELETE FROM leaderboard_optout WHERE nama_peserta = '$nama_peserta'";
+        $stmt = $conn->prepare("DELETE FROM leaderboard_optout WHERE user_id = ?");
+        $stmt->bind_param('i', $user_id);
     }
-    
-    $result = $conn->query($sql);
-    
-    if ($result) {
+
+    if ($stmt->execute()) {
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['success' => false, 'error' => $conn->error]);
@@ -2451,18 +2522,15 @@ function leaderboardOptout() {
 
 function getLeaderboardOptOutStatus() {
     global $conn;
-    
-    $nama_peserta = $_GET['nama_peserta'] ?? '';
-    
-    if (empty($nama_peserta)) {
-        echo json_encode(['success' => false, 'error' => 'Invalid nama peserta']);
-        return;
-    }
-    
-    $sql = "SELECT * FROM leaderboard_optout WHERE nama_peserta = '$nama_peserta'";
-    $result = $conn->query($sql);
-    
-    if ($result->num_rows > 0) {
+
+    $user = requireAuth();
+    $user_id = $user['id'];
+
+    $stmt = $conn->prepare("SELECT id FROM leaderboard_optout WHERE user_id = ?");
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+
+    if ($stmt->get_result()->num_rows > 0) {
         echo json_encode(['success' => true, 'opted_out' => true]);
     } else {
         echo json_encode(['success' => true, 'opted_out' => false]);
@@ -2817,25 +2885,24 @@ function getParticipants() {
     $search = $_GET['search'] ?? '';
     
     try {
-        // Get distinct participants from sesi_ujian
-        $sql = "SELECT DISTINCT su.id, su.nama_peserta, su.user_id, su.waktu_mulai, su.waktu_selesai, su.durasi_menit, su.status, su.ability_estimate, u.nama_lengkap as user_nama
-                FROM sesi_ujian su 
-                LEFT JOIN users u ON su.user_id = u.id 
+        // Get distinct participants from sesi_ujian (nama_peserta sudah di-drop)
+        $sql = "SELECT DISTINCT su.id, su.user_id, su.waktu_mulai, su.waktu_selesai, su.durasi_menit, su.status, su.ability_estimate, u.nama_lengkap as user_nama
+                FROM sesi_ujian su
+                LEFT JOIN users u ON su.user_id = u.id
                 WHERE 1=1";
         $params = [];
         $types = "";
-        
+
         if ($status) {
             $sql .= " AND su.status = ?";
             $params[] = $status;
             $types .= "s";
         }
-        
+
         if ($search) {
-            $sql .= " AND (su.nama_peserta LIKE ? OR u.nama_lengkap LIKE ?)";
+            $sql .= " AND u.nama_lengkap LIKE ?";
             $params[] = "%$search%";
-            $params[] = "%$search%";
-            $types .= "ss";
+            $types .= "s";
         }
         
         $sql .= " ORDER BY su.waktu_mulai DESC";

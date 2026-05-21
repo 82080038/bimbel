@@ -177,13 +177,11 @@ function formatDate(dateString) {
     });
 }
 
-// Initialize on load
-document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication
+// Called by achievements.html after components are injected into DOM
+function initAfterLoad() {
     if (!RBAC.isAuthenticated()) {
         window.location.href = '../login.html';
         return;
     }
-    
     loadAchievementsData();
-});
+}

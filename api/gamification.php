@@ -5,64 +5,67 @@ require_once '../config.php';
 require_once '../api/middleware.php';
 require_once '../scripts/logger.php';
 
-header('Content-Type: application/json');
+// Only run as entry point (not when included from another file)
+if (basename($_SERVER['SCRIPT_FILENAME']) === basename(__FILE__)) {
+    header('Content-Type: application/json');
 
-$action = $_GET['action'] ?? '';
+    $action = $_GET['action'] ?? '';
 
-switch ($action) {
-    case 'get_user_gamification':
-        getUserGamification();
-        break;
-    case 'get_user_xp':
-        getUserXP();
-        break;
-    case 'add_xp':
-        addXP();
-        break;
-    case 'get_user_streak':
-        getUserStreak();
-        break;
-    case 'update_streak':
-        updateStreak();
-        break;
-    case 'get_user_badges':
-        getUserBadges();
-        break;
-    case 'get_user_achievements':
-        getUserAchievements();
-        break;
-    case 'get_daily_challenges':
-        getDailyChallenges();
-        break;
-    case 'complete_daily_challenge':
-        completeDailyChallenge();
-        break;
-    case 'claim_daily_challenge':
-        claimDailyChallenge();
-        break;
-    case 'check_achievements':
-        checkAchievements();
-        break;
-    case 'get_leaderboard':
-        getLeaderboard();
-        break;
-    case 'get_achievements':
-        getAchievements();
-        break;
-    case 'get_leaderboard_gamification':
-        getLeaderboardGamification();
-        break;
-    case 'get_all_users_gamification':
-        requireAdmin();
-        getAllUsersGamification();
-        break;
-    case 'get_user_gamification_details':
-        requireAdmin();
-        getUserGamificationDetails();
-        break;
-    default:
-        echo json_encode(['success' => false, 'error' => 'Invalid action']);
-        break;
+    switch ($action) {
+        case 'get_user_gamification':
+            getUserGamification();
+            break;
+        case 'get_user_xp':
+            getUserXP();
+            break;
+        case 'add_xp':
+            addXP();
+            break;
+        case 'get_user_streak':
+            getUserStreak();
+            break;
+        case 'update_streak':
+            updateStreak();
+            break;
+        case 'get_user_badges':
+            getUserBadges();
+            break;
+        case 'get_user_achievements':
+            getUserAchievements();
+            break;
+        case 'get_daily_challenges':
+            getDailyChallenges();
+            break;
+        case 'complete_daily_challenge':
+            completeDailyChallenge();
+            break;
+        case 'claim_daily_challenge':
+            claimDailyChallenge();
+            break;
+        case 'check_achievements':
+            checkAchievements();
+            break;
+        case 'get_leaderboard':
+            getLeaderboard();
+            break;
+        case 'get_achievements':
+            getAchievements();
+            break;
+        case 'get_leaderboard_gamification':
+            getLeaderboardGamification();
+            break;
+        case 'get_all_users_gamification':
+            requireAdmin();
+            getAllUsersGamification();
+            break;
+        case 'get_user_gamification_details':
+            requireAdmin();
+            getUserGamificationDetails();
+            break;
+        default:
+            echo json_encode(['success' => false, 'error' => 'Invalid action']);
+            break;
+    }
 }
 
 function getUserGamification() {

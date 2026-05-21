@@ -4,7 +4,7 @@ Sistem ujian online modern dengan RBAC (Role-Based Access Control), dashboard ko
 
 **Versi:** 2.0  
 **Status:** Production Ready ✅  
-**Last Updated:** 14 Mei 2026
+**Last Updated:** 21 Mei 2026
 
 ## 📚 Table of Contents
 - [Fitur Utama](#-fitur-utama)
@@ -1114,6 +1114,65 @@ Realtime:
 - multiplayer quiz
 - live class
 - video pembelajaran
+
+---
+
+# 22. CHANGELOG
+
+## [21 Mei 2026] - Schema Refactor & TPA/PSIKOLOGIS Display
+
+### Database Changes
+- **Dropped `nama_peserta` column** from `sesi_ujian` table (redundant with user_id)
+- **Dropped `nama_peserta` column** from `hasil_ujian` table (use users.nama_lengkap instead)
+- **Added `nilai_tpa` and `nilai_psikologis` columns** to `hasil_ujian` table (already existed but not used in frontend)
+- Created migration file: `database/migrate_drop_nama_peserta_add_tpa_psikologis.sql`
+- Created updated schema file: `database/schema_updated_sesi_hasil.sql`
+
+### API Changes
+- **Fixed `api/soal.php`:**
+  - `getParticipants()`: Removed `nama_peserta` from SELECT, search filter now uses `u.nama_lengkap`
+  - `generate_sertifikat`: Changed verification_code generation from `$hasil['nama_peserta']` to `$hasil['user_id']`
+  - `simpanSesi()`: Removed `nama_peserta` validation and INSERT
+  - `selesaiUjian()`: Removed `nama_peserta` input validation
+
+### Frontend Changes - Participant
+- **Fixed `participant/js/dashboard.js`:**
+  - Added TPA and PSIKOLOGIS to exam-details widget (conditional display if nilai > 0)
+  - Replaced placeholder alerts with real redirects/fetch for Learning Path, Badges, Challenges, Notifications
+- **Fixed `participant/js/ujian.js`:**
+  - Added `tpaScore` and `psikologisScore` population in `showResultScreen()`
+  - Added TPA and PSIKOLOGIS to export TXT format
+- **Fixed `participant/js/resume-ujian.js`:**
+  - Added TPA and PSIKOLOGIS to result display cards
+  - Reorganized layout to accommodate 5 score categories
+
+### Frontend Changes - Admin
+- **Fixed `admin/js/admin.js`:**
+  - `loadResults()`: Added TPA/PSIKOLOGIS columns to results table (conditional display)
+  - `exportExcel()`: Added TPA/PSIKOLOGIS to Excel export columns
+  - `viewSessionDetails()`: Added TPA/PSIKOLOGIS to toast notification
+  - `viewParticipantDetails()`: Added TPA/PSIKOLOGIS to toast notification
+  - `displayParticipants()`: Added TPA/PSIKOLOGIS to participants table values
+- **Fixed `admin/admin.html`:**
+  - Added "Nilai TPA" and "Nilai PSI" columns to results table header
+
+### Backend Scripts
+- **Fixed `scripts/learning_recommendation_system.php`:**
+  - Added `nilai_tpa` and `nilai_psikologis` to `getUserCategoryPerformance()` SQL query
+  - Added TPA and PSIKOLOGIS to performance array for learning recommendations
+
+### Testing
+- **Playwright Comprehensive Test:** 44/44 PASS (headed mode)
+  - All 5 exam categories (TWK, TIU, TKP, TPA, PSIKOLOGIS) verified
+  - All API endpoints tested and passing
+  - Security (auth, RBAC) verified
+  - Admin and participant flows verified
+
+### Notes
+- Database migration already applied successfully
+- All frontend displays now show 5 categories instead of 3
+- Conditional display for TPA/PSIKOLOGIS (only shown if nilai > 0) maintains backward compatibility
+- Export data formats updated to include all 5 categories
 
 ---
 

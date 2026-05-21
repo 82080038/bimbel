@@ -5,39 +5,41 @@ require_once '../config.php';
 require_once '../scripts/logger.php';
 require_once '../api/middleware.php';
 
-header('Content-Type: application/json');
+if (basename($_SERVER['SCRIPT_FILENAME']) === basename(__FILE__)) {
+    header('Content-Type: application/json');
 
-$action = $_GET['action'] ?? '';
+    $action = $_GET['action'] ?? '';
 
-switch ($action) {
-    case 'get_notifications':
-        getNotifications();
-        break;
-    case 'mark_read':
-        markAsRead();
-        break;
-    case 'get_preferences':
-        getPreferences();
-        break;
-    case 'update_preferences':
-        updatePreferences();
-        break;
-    case 'get_history':
-        getHistory();
-        break;
-    case 'send_notification':
-        requireAdmin();
-        sendNotification();
-        break;
-    case 'schedule_exam_reminder':
-        scheduleExamReminder();
-        break;
-    case 'check_pending_reminders':
-        checkPendingReminders();
-        break;
-    default:
-        echo json_encode(['success' => false, 'error' => 'Invalid action']);
-        break;
+    switch ($action) {
+        case 'get_notifications':
+            getNotifications();
+            break;
+        case 'mark_read':
+            markAsRead();
+            break;
+        case 'get_preferences':
+            getPreferences();
+            break;
+        case 'update_preferences':
+            updatePreferences();
+            break;
+        case 'get_history':
+            getHistory();
+            break;
+        case 'send_notification':
+            requireAdmin();
+            sendNotification();
+            break;
+        case 'schedule_exam_reminder':
+            scheduleExamReminder();
+            break;
+        case 'check_pending_reminders':
+            checkPendingReminders();
+            break;
+        default:
+            echo json_encode(['success' => false, 'error' => 'Invalid action']);
+            break;
+    }
 }
 
 function getNotifications() {

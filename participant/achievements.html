@@ -32,6 +32,8 @@
                 const modalsResponse = await fetch('components/modals-shared.html');
                 const modalsHTML = await modalsResponse.text();
                 document.getElementById('modalsContainer').innerHTML = modalsHTML;
+
+                if (typeof initAfterLoad === 'function') initAfterLoad();
             } catch (error) {
                 console.error('Error loading achievements components:', error);
             }

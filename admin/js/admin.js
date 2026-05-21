@@ -316,7 +316,13 @@ const perPage = 10;
                 console.error('Error loading dashboard:', error);
             }
 
-            document.getElementById('totalSoal').textContent = formatCount(16534);
+            // Fetch total soal real dari API
+            fetch(`${API_BASE}/soal.php?action=get_kategori`, { headers: { 'Authorization': `Bearer ${authToken}` } })
+                .then(r => r.json())
+                .then(d => {
+                    const total = (d.data || []).reduce((s, c) => s + (c.jumlah_soal || 0), 0);
+                    document.getElementById('totalSoal').textContent = formatCount(total);
+                }).catch(() => {});
         }
 
         // Load category analytics
@@ -475,7 +481,7 @@ const perPage = 10;
                     document.getElementById('recentExamsTable').innerHTML = data.data.map(row => `
                         <tr>
                             <td>${formatDate(row.tanggal_ujian, 'short')}</td>
-                            <td>${row.nama_peserta}</td>
+                            <td>${row.nama_lengkap || row.nama_peserta || '-'}</td>
                             <td>${formatScore(safeParseFloat(row.nilai_total, 0))}</td>
                             <td><span class="badge ${row.status_lulus === 'LULUS' ? 'bg-success' : 'bg-danger'}">${row.status_lulus}</span></td>
                         </tr>
@@ -567,33 +573,38 @@ const perPage = 10;
         // Load categories
         async function loadCategories() {
             const searchQuery = document.getElementById('searchCategory').value;
-            
-            const categories = [
-                { id: 1, nama: 'TWK', deskripsi: 'Tes Wawasan Kebangsaan', passing_grade: 65, jumlah_soal: 5068 },
-                { id: 2, nama: 'TIU', deskripsi: 'Tes Intelegensi Umum', passing_grade: 80, jumlah_soal: 5755 },
-                { id: 3, nama: 'TKP', deskripsi: 'Tes Karakteristik Pribadi', passing_grade: 166, jumlah_soal: 5556 },
-                { id: 4, nama: 'TPA', deskripsi: 'Tes Potensi Akademik', passing_grade: 70, jumlah_soal: 84 },
-                { id: 5, nama: 'PSIKOLOGIS', deskripsi: 'Tes Psikologis', passing_grade: 166, jumlah_soal: 71 }
-            ];
-            
-            const filtered = searchQuery 
-                ? categories.filter(c => c.nama.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                     c.deskripsi.toLowerCase().includes(searchQuery.toLowerCase()))
-                : categories;
-            
-            document.getElementById('categoriesTable').innerHTML = filtered.map(cat => `
-                <tr>
-                    <td>${cat.id}</td>
-                    <td>${cat.nama}</td>
-                    <td>${cat.deskripsi}</td>
-                    <td>${cat.passing_grade}</td>
-                    <td>${cat.jumlah_soal}</td>
-                    <td>
-                        <button class="btn btn-sm btn-secondary" onclick="editCategory(${cat.id})">Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteCategory(${cat.id})">Delete</button>
-                    </td>
-                </tr>
-            `).join('');
+            const token = localStorage.getItem('api_key') || localStorage.getItem('token') || '';
+
+            try {
+                const res = await fetch(`${API_BASE}/soal.php?action=get_kategori`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const json = await res.json();
+                let categories = json.data || [];
+
+                if (searchQuery) {
+                    categories = categories.filter(c =>
+                        (c.nama || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (c.deskripsi || '').toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+                }
+
+                document.getElementById('categoriesTable').innerHTML = categories.map(cat => `
+                    <tr>
+                        <td>${cat.id}</td>
+                        <td>${cat.nama}</td>
+                        <td>${cat.deskripsi}</td>
+                        <td>${cat.jumlah_soal ?? '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="editCategory(${cat.id})">Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCategory(${cat.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                document.getElementById('categoriesTable').innerHTML =
+                    `<tr><td colspan="5" class="text-danger">Gagal memuat kategori</td></tr>`;
+            }
         }
 
         function searchCategories() {
@@ -601,17 +612,15 @@ const perPage = 10;
         }
 
         function showCategoryModal() {
-            alert('Add category modal - to be implemented');
+            showToast('Kategori soal (TWK/TIU/TKP/TPA/PSIKOLOGIS) adalah data tetap sistem dan tidak dapat ditambah.', 'info');
         }
 
         function editCategory(categoryId) {
-            alert('Edit category - to be implemented');
+            showToast('Kategori soal adalah data tetap sistem. Edit nama/deskripsi tidak diizinkan.', 'info');
         }
 
         function deleteCategory(categoryId) {
-            if (confirm('Are you sure you want to delete this category?')) {
-                alert('Delete category - to be implemented');
-            }
+            showToast('Kategori soal tidak dapat dihapus karena merupakan fondasi struktur soal.', 'warning');
         }
 
         // Load results
@@ -626,17 +635,19 @@ const perPage = 10;
                     document.getElementById('resultsTable').innerHTML = data.data.map(row => `
                         <tr>
                             <td>${row.id}</td>
-                            <td>${row.nama_peserta}</td>
+                            <td>${row.nama_lengkap || '-'}</td>
                             <td>${row.tanggal_ujian}</td>
                             <td>${formatScore(safeParseFloat(row.nilai_twk, 0))}</td>
                             <td>${formatScore(safeParseFloat(row.nilai_tiu, 0))}</td>
                             <td>${formatScore(safeParseFloat(row.nilai_tkp, 0))}</td>
+                            <td>${safeParseFloat(row.nilai_tpa,0) > 0 ? formatScore(safeParseFloat(row.nilai_tpa,0)) : '-'}</td>
+                            <td>${safeParseFloat(row.nilai_psikologis,0) > 0 ? formatScore(safeParseFloat(row.nilai_psikologis,0)) : '-'}</td>
                             <td>${formatScore(safeParseFloat(row.nilai_total, 0))}</td>
                             <td><span class="badge ${row.status_lulus === 'LULUS' ? 'bg-success' : 'bg-danger'}">${row.status_lulus}</span></td>
                         </tr>
                     `).join('');
                 } else {
-                    document.getElementById('resultsTable').innerHTML = '<tr><td colspan="8" class="text-center">Belum ada data ujian</td></tr>';
+                    document.getElementById('resultsTable').innerHTML = '<tr><td colspan="10" class="text-center">Belum ada data ujian</td></tr>';
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -697,25 +708,62 @@ const perPage = 10;
         }
 
         function showCreateCourseModal() {
-            // TODO: Implement create course modal
-            alert('Create course modal - to be implemented');
+            document.getElementById('courseForm') && document.getElementById('courseForm').reset();
+            document.getElementById('courseId') && (document.getElementById('courseId').value = '');
+            const modal = document.getElementById('courseModal');
+            if (modal) new bootstrap.Modal(modal).show();
+            else showToast('Modal course belum tersedia di HTML.', 'warning');
         }
 
-        function viewCourse(courseId) {
-            // TODO: Implement view course
-            alert('View course - to be implemented');
+        async function viewCourse(courseId) {
+            try {
+                const res = await fetch(`${API_BASE}/courses.php?action=get_course&id=${courseId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const d = await res.json();
+                if (d.success && d.data) {
+                    const c = d.data;
+                    showToast(`Course: ${c.judul} | Kategori: ${c.kategori || '-'} | Status: ${c.status}`, 'info', 5000);
+                }
+            } catch(e) { showToast('Gagal memuat course.', 'error'); }
         }
 
-        function editCourse(courseId) {
-            // TODO: Implement edit course
-            alert('Edit course - to be implemented');
+        async function editCourse(courseId) {
+            try {
+                const res = await fetch(`${API_BASE}/courses.php?action=get_course&id=${courseId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const d = await res.json();
+                if (d.success && d.data) {
+                    const c = d.data;
+                    if (document.getElementById('courseId')) {
+                        document.getElementById('courseId').value = c.id;
+                        document.getElementById('courseJudul') && (document.getElementById('courseJudul').value = c.judul);
+                        document.getElementById('courseDeskripsi') && (document.getElementById('courseDeskripsi').value = c.deskripsi || '');
+                        document.getElementById('courseKategori') && (document.getElementById('courseKategori').value = c.kategori || '');
+                        document.getElementById('courseStatus') && (document.getElementById('courseStatus').value = c.status || 'draft');
+                        const modal = document.getElementById('courseModal');
+                        if (modal) new bootstrap.Modal(modal).show();
+                    } else {
+                        showToast(`Edit Course: ${c.judul} | Gunakan form modal course.`, 'info');
+                    }
+                }
+            } catch(e) { showToast('Gagal memuat data course.', 'error'); }
         }
 
-        function deleteCourse(courseId) {
-            if (confirm('Are you sure you want to delete this course?')) {
-                // TODO: Implement delete course
-                alert('Delete course - to be implemented');
-            }
+        async function deleteCourse(courseId) {
+            showConfirm('Yakin ingin menghapus course ini?', async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/courses.php?action=delete_course`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                        body: JSON.stringify({ id: courseId })
+                    });
+                    const d = await res.json();
+                    if (d.success) { showToast('Course berhasil dihapus!', 'success'); loadCourses(); }
+                    else showToast('Gagal menghapus course: ' + (d.error || ''), 'error');
+                } catch(e) { showToast('Gagal menghapus course.', 'error'); }
+            });
         }
 
         // Load gamification tracking
@@ -763,19 +811,30 @@ const perPage = 10;
             loadGamificationTracking();
         }
 
-        function viewGamificationDetails(userId) {
-            alert('View gamification details - to be implemented');
+        async function viewGamificationDetails(userId) {
+            try {
+                const res = await fetch(`${API_BASE}/gamification.php?action=get_user_gamification_details&user_id=${userId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const d = await res.json();
+                if (d.success && d.data) {
+                    const g = d.data;
+                    showToast(`XP: ${g.total_xp || 0} | Level: ${g.level || 1} | Streak: ${g.current_streak || 0} hari | Badges: ${g.badge_count || 0}`, 'info', 6000);
+                } else {
+                    showToast(d.error || 'Data tidak tersedia', 'warning');
+                }
+            } catch(e) { showToast('Gagal memuat detail gamifikasi.', 'error'); }
         }
 
         function viewUserGamification(userId) {
-            // TODO: Implement view user gamification details
-            alert('View user gamification details - to be implemented');
+            viewGamificationDetails(userId);
         }
 
-        // Load notifications
+        // Load notifications (admin: gunakan get_history untuk semua, lalu load users ke dropdown)
         async function loadNotifications() {
+            loadNotificationUsers();
             try {
-                const response = await fetch(`${API_BASE}/notifications.php?action=get_notifications`, {
+                const response = await fetch(`${API_BASE}/notifications.php?action=get_history&limit=50`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 const data = await response.json();
@@ -811,6 +870,24 @@ const perPage = 10;
 
         function refreshNotifications() {
             loadNotifications();
+        }
+
+        async function loadNotificationUsers() {
+            try {
+                const res = await fetch(`${API_BASE}/auth.php?action=get_users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const d = await res.json();
+                const select = document.getElementById('notificationUser');
+                if (select && d.success && d.data) {
+                    const cur = select.value;
+                    select.innerHTML = '<option value="">-- Pilih User --</option>';
+                    d.data.forEach(u => {
+                        select.innerHTML += `<option value="${u.id}">${u.nama_lengkap || u.username}</option>`;
+                    });
+                    if (cur) select.value = cur;
+                }
+            } catch(e) { console.error('loadNotificationUsers:', e); }
         }
 
         async function sendNotification() {
@@ -1764,11 +1841,13 @@ const perPage = 10;
                     // Convert data to Excel format
                     const excelData = data.data.map(row => ({
                         ID: row.id,
-                        'Nama Peserta': row.nama_peserta,
+                        'Nama Peserta': row.nama_lengkap || row.nama_peserta || '-',
                         'Tanggal Ujian': row.tanggal_ujian,
                         'Nilai TWK': row.nilai_twk || 0,
                         'Nilai TIU': row.nilai_tiu || 0,
                         'Nilai TKP': row.nilai_tkp || 0,
+                        'Nilai TPA': row.nilai_tpa || 0,
+                        'Nilai Psikologis': row.nilai_psikologis || 0,
                         'Nilai Total': row.nilai_total || 0,
                         'Status': row.status_lulus
                     }));
@@ -2070,7 +2149,6 @@ const perPage = 10;
 
         async function toggleLeaderboardOptOut() {
             const optOut = document.getElementById('optOutLeaderboard').checked;
-            const namaPeserta = localStorage.getItem('currentNama') || 'user';
 
             try {
                 const response = await fetch(`${API_BASE}/soal.php?action=leaderboard_optout`, {
@@ -2079,10 +2157,7 @@ const perPage = 10;
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`
                     },
-                    body: JSON.stringify({
-                        nama_peserta: namaPeserta,
-                        optout: optOut
-                    })
+                    body: JSON.stringify({ optout: optOut })
                 });
                 const data = await response.json();
 
@@ -2840,50 +2915,50 @@ const perPage = 10;
             try {
                 const statusFilter = document.getElementById('filterSessionStatus').value;
                 const searchQuery = document.getElementById('searchExamSession').value;
-                
-                let url = `${API_BASE}/soal.php?action=get_sesi_ujian`;
-                const params = new URLSearchParams();
-                if (statusFilter) params.append('status', statusFilter);
-                if (searchQuery) params.append('search', searchQuery);
-                if (params.toString()) url += `&${params.toString()}`;
-                
+
+                let url = `${API_BASE}/soal.php?action=get_riwayat_ujian&limit=50`;
+                if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+
                 const response = await fetch(url, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 const data = await response.json();
-                
+
                 if (data.success) {
-                    displayExamSessions(data.data);
+                    let sessions = data.data || [];
+                    if (statusFilter) {
+                        sessions = sessions.filter(s => s.status_lulus === statusFilter ||
+                            (statusFilter === 'LULUS' && s.status_lulus === 'LULUS') ||
+                            (statusFilter === 'TIDAK_LULUS' && s.status_lulus === 'TIDAK LULUS'));
+                    }
+                    displayExamSessions(sessions);
                 } else {
-                    document.getElementById('examSessionsTable').innerHTML = `
-                        <tr><td colspan="8" class="text-center text-muted">No sessions found</td></tr>
-                    `;
+                    document.getElementById('examSessionsTable').innerHTML =
+                        `<tr><td colspan="8" class="text-center text-muted">Belum ada sesi ujian</td></tr>`;
                 }
             } catch (error) {
                 console.error('Error loading exam sessions:', error);
-                document.getElementById('examSessionsTable').innerHTML = `
-                    <tr><td colspan="8" class="text-center text-muted">Failed to load sessions</td></tr>
-                `;
+                document.getElementById('examSessionsTable').innerHTML =
+                    `<tr><td colspan="8" class="text-center text-muted">Gagal memuat sesi</td></tr>`;
             }
         }
 
         function displayExamSessions(sessions) {
             const tbody = document.getElementById('examSessionsTable');
+            if (!sessions || sessions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Belum ada data sesi ujian</td></tr>`;
+                return;
+            }
             tbody.innerHTML = sessions.map(session => `
                 <tr>
                     <td>${session.id}</td>
-                    <td>${session.user_nama || '-'}</td>
-                    <td>${session.paket_nama || '-'}</td>
-                    <td>${new Date(session.waktu_mulai).toLocaleString('id-ID')}</td>
-                    <td>${session.waktu_selesai ? new Date(session.waktu_selesai).toLocaleString('id-ID') : '-'}</td>
-                    <td><span class="badge ${getStatusBadgeClass(session.status)}">${session.status}</span></td>
+                    <td>${session.nama_lengkap || session.nama_peserta || '-'}</td>
+                    <td>${session.exam_type_id ? 'Paket #'+session.exam_type_id : '-'}</td>
+                    <td>${formatDate(session.tanggal_ujian, 'short')}</td>
+                    <td>${session.durasi_menit || '-'} menit</td>
+                    <td><span class="badge ${session.status_lulus === 'LULUS' ? 'bg-success' : 'bg-danger'}">${session.status_lulus || '-'}</span></td>
                     <td>${session.nilai_total || '-'}</td>
                     <td>
-                        ${session.status === 'in_progress' ? `
-                            <button class="btn btn-sm btn-warning" onclick="terminateSession(${session.id})">
-                                <i class="fas fa-stop"></i>
-                            </button>
-                        ` : ''}
                         <button class="btn btn-sm btn-info" onclick="viewSessionDetails(${session.id})">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -2928,7 +3003,16 @@ const perPage = 10;
         }
 
         async function viewSessionDetails(id) {
-            alert('View session details - to be implemented');
+            try {
+                const res = await fetch(`${API_BASE}/soal.php?action=get_exam_result&id=${id}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const d = await res.json();
+                if (d.success && d.data) {
+                    const r = d.data;
+                    showToast(`ID #${r.id} | ${r.nama_lengkap || '-'} | TWK:${r.nilai_twk} TIU:${r.nilai_tiu} TKP:${r.nilai_tkp}${r.nilai_tpa>0?' TPA:'+r.nilai_tpa:''}${r.nilai_psikologis>0?' PSI:'+r.nilai_psikologis:''} | Total:${r.nilai_total} | ${r.status_lulus}`, 'info', 8000);
+                } else showToast('Data sesi tidak ditemukan.', 'warning');
+            } catch(e) { showToast('Gagal memuat detail sesi.', 'error'); }
         }
 
         function searchExamSessions() {
@@ -2940,51 +3024,48 @@ const perPage = 10;
             try {
                 const statusFilter = document.getElementById('filterParticipantStatus').value;
                 const searchQuery = document.getElementById('searchParticipant').value;
-                
-                let url = `${API_BASE}/soal.php?action=get_participants`;
-                const params = new URLSearchParams();
-                if (statusFilter) params.append('status', statusFilter);
-                if (searchQuery) params.append('search', searchQuery);
-                if (params.toString()) url += `&${params.toString()}`;
-                
+
+                let url = `${API_BASE}/soal.php?action=get_riwayat_ujian&limit=100`;
+                if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+
                 const response = await fetch(url, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 const data = await response.json();
-                
+
                 if (data.success) {
-                    displayParticipants(data.data);
+                    let participants = data.data || [];
+                    if (statusFilter === 'LULUS') participants = participants.filter(p => p.status_lulus === 'LULUS');
+                    else if (statusFilter === 'TIDAK_LULUS') participants = participants.filter(p => p.status_lulus === 'TIDAK LULUS');
+                    displayParticipants(participants);
                 } else {
-                    document.getElementById('participantsTable').innerHTML = `
-                        <tr><td colspan="9" class="text-center text-muted">No participants found</td></tr>
-                    `;
+                    document.getElementById('participantsTable').innerHTML =
+                        `<tr><td colspan="9" class="text-center text-muted">Belum ada data peserta</td></tr>`;
                 }
             } catch (error) {
                 console.error('Error loading participants:', error);
-                document.getElementById('participantsTable').innerHTML = `
-                    <tr><td colspan="9" class="text-center text-muted">Failed to load participants</td></tr>
-                `;
+                document.getElementById('participantsTable').innerHTML =
+                    `<tr><td colspan="9" class="text-center text-muted">Gagal memuat peserta</td></tr>`;
             }
         }
 
         function displayParticipants(participants) {
             const tbody = document.getElementById('participantsTable');
+            if (!participants || participants.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">Belum ada data peserta ujian</td></tr>`;
+                return;
+            }
             tbody.innerHTML = participants.map(p => `
                 <tr>
                     <td>${p.id}</td>
-                    <td>${p.nama_peserta || '-'}</td>
-                    <td>${p.user_nama || '-'}</td>
-                    <td>${new Date(p.waktu_mulai).toLocaleString('id-ID')}</td>
-                    <td>${p.waktu_selesai ? new Date(p.waktu_selesai).toLocaleString('id-ID') : '-'}</td>
-                    <td>${p.durasi_menit || '-'} min</td>
-                    <td><span class="badge ${getParticipantStatusBadgeClass(p.status)}">${p.status}</span></td>
-                    <td>${p.ability_estimate || '-'}</td>
+                    <td>${p.nama_lengkap || p.nama_peserta || '-'}</td>
+                    <td>${p.username || '-'}</td>
+                    <td>${formatDate(p.tanggal_ujian, 'short')}</td>
+                    <td>${p.durasi_menit || '-'} menit</td>
+                    <td>${p.nilai_twk||0} / ${p.nilai_tiu||0} / ${p.nilai_tkp||0}${(p.nilai_tpa||0)>0?' / TPA:'+p.nilai_tpa:''}${(p.nilai_psikologis||0)>0?' / PSI:'+p.nilai_psikologis:''}</td>
+                    <td>${p.nilai_total || 0}</td>
+                    <td><span class="badge ${p.status_lulus === 'LULUS' ? 'bg-success' : 'bg-danger'}">${p.status_lulus || '-'}</span></td>
                     <td>
-                        ${p.status === 'berjalan' ? `
-                            <button class="btn btn-sm btn-warning" onclick="terminateSession(${p.id})">
-                                <i class="fas fa-stop"></i>
-                            </button>
-                        ` : ''}
                         <button class="btn btn-sm btn-info" onclick="viewParticipantDetails(${p.id})">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -3007,7 +3088,16 @@ const perPage = 10;
         }
 
         async function viewParticipantDetails(id) {
-            alert('View participant details - to be implemented');
+            try {
+                const res = await fetch(`${API_BASE}/soal.php?action=get_exam_result&id=${id}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const d = await res.json();
+                if (d.success && d.data) {
+                    const r = d.data;
+                    showToast(`Peserta: ${r.nama_lengkap || '-'} | TWK:${r.nilai_twk} TIU:${r.nilai_tiu} TKP:${r.nilai_tkp}${r.nilai_tpa>0?' TPA:'+r.nilai_tpa:''}${r.nilai_psikologis>0?' PSI:'+r.nilai_psikologis:''} | Total:${r.nilai_total} | ${r.status_lulus}`, 'info', 8000);
+                } else showToast('Data peserta tidak ditemukan.', 'warning');
+            } catch(e) { showToast('Gagal memuat detail peserta.', 'error'); }
         }
 
         function searchParticipants() {

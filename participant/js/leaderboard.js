@@ -195,18 +195,17 @@ function formatNumber(num, decimals = 0) {
     return num.toFixed(decimals);
 }
 
-// Filter change handlers
-document.getElementById('periodFilter')?.addEventListener('change', loadLeaderboardData);
-document.getElementById('categoryFilter')?.addEventListener('change', loadLeaderboardData);
-document.getElementById('sortBy')?.addEventListener('change', loadLeaderboardData);
-
-// Initialize on load
-document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication
+// Called by leaderboard.html after components are injected into DOM
+function initAfterLoad() {
     if (!RBAC.isAuthenticated()) {
         window.location.href = '../login.html';
         return;
     }
-    
+
+    // Register filter change handlers now that DOM elements exist
+    document.getElementById('periodFilter')?.addEventListener('change', loadLeaderboardData);
+    document.getElementById('categoryFilter')?.addEventListener('change', loadLeaderboardData);
+    document.getElementById('sortBy')?.addEventListener('change', loadLeaderboardData);
+
     loadLeaderboardData();
-});
+}

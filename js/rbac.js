@@ -207,6 +207,14 @@ const RBAC = {
         if (userData.apiKey) {
             localStorage.setItem('apiKey', userData.apiKey);
         }
+        if (userData.username) {
+            localStorage.setItem('username', userData.username);
+        }
+        if (userData.nama_lengkap) {
+            localStorage.setItem('namaLengkap', userData.nama_lengkap);
+        }
+        // Store full user data for pages that need more detail
+        localStorage.setItem('userData', JSON.stringify(userData));
     },
 
     /**
