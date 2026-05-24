@@ -180,5 +180,120 @@ Berdasarkan penelitian internet tentang best practices untuk Exam Management Sys
 
 ---
 
-**Last Updated**: 14 Mei 2026  
-**Version**: 1.0
+## 🚀 Rencana Selanjutnya — Hasil Analisis Gap Lapangan (24 Mei 2026)
+
+> Berdasarkan analisis mendalam kode sumber vs praktik nyata bimbel kedinasan di lapangan.
+
+---
+
+### ⚡ Prioritas 1 — Effort Rendah, Impact Tinggi (Target: 1–3 hari per item)
+
+#### A. Anti-Cheat Dasar saat Ujian
+- [ ] Deteksi pindah tab / minimize browser (`visibilitychange` event) → peringatan + catat log
+- [ ] Paksa mode fullscreen saat ujian berjalan (`requestFullscreen`)
+- [ ] Disable klik kanan (`contextmenu`) dan copy-paste (`copy`, `paste` event) selama ujian
+- [ ] Hitung jumlah pelanggaran → auto-submit jika melebihi batas
+- [ ] Tampilkan peringatan kepada peserta sebelum ujian dimulai
+- **File target**: `participant/js/ujian.js`, `participant/sections/ujian-content.html`
+
+#### B. Mode Latihan Berbeda dari Ujian Resmi
+- [ ] Fungsi `mulaiLatihan()` saat ini identik dengan ujian — pisahkan logikanya
+- [ ] Mode latihan: pembahasan muncul langsung setelah jawab tiap soal
+- [ ] Mode latihan: tanpa timer, bisa ulangi soal
+- [ ] Mode latihan: tidak tercatat di `hasil_ujian` (rekam di tabel terpisah atau flag `is_latihan`)
+- **File target**: `participant/js/ujian.js`
+
+#### C. Hubungkan Rate Limiter ke Login
+- [ ] `api/rate_limiter.php` sudah ada tapi tidak dipakai di `api/auth.php`
+- [ ] Tambahkan `require_once 'rate_limiter.php'` dan panggil check di action `login`
+- [ ] Blokir sementara IP setelah 5x gagal login
+- **File target**: `api/auth.php`
+
+#### D. Bookmark / Favorit Soal
+- [ ] Tambah kolom `is_bookmarked TINYINT(1) DEFAULT 0` di tabel `jawaban_user`
+- [ ] Tombol bookmark di tiap soal saat ujian / latihan
+- [ ] Halaman "Soal Favorit" di dashboard peserta
+- **File target**: `participant/js/ujian.js`, `api/soal.php`, `participant/sections/dashboard-content.html`
+
+---
+
+### 🗓️ Prioritas 2 — Effort Sedang (Target: 3–7 hari per item)
+
+#### E. Countdown Jadwal Ujian Resmi
+- [ ] Tabel `jadwal_ujian` (nama, tanggal, link pendaftaran, instansi)
+- [ ] Widget countdown di dashboard peserta menuju ujian terdekat (CPNS, IPDN, UTBK, dll.)
+- [ ] Admin bisa tambah/edit jadwal ujian dari panel
+- **File target**: `admin/sections/`, `participant/sections/dashboard-content.html`, `api/soal.php`
+
+#### F. Sertifikat Digital — Template Printable
+- [ ] Halaman HTML template sertifikat yang bisa di-print / export PDF (via `window.print()` atau `jsPDF`)
+- [ ] QR code mandiri (generate dari server, bukan api.qrserver.com eksternal)
+- [ ] Peserta bisa akses & unduh sertifikat sendiri dari dashboard
+- [ ] Halaman verifikasi publik: `verify.php?code=XXXX`
+- **File target**: `participant/sections/`, `api/soal.php`
+
+#### G. Verifikasi OTP Registrasi
+- [ ] Kirim OTP ke nomor HP via WhatsApp API (Fonnte/WA Gateway) atau SMS
+- [ ] Tambah kolom `is_verified`, `otp_code`, `otp_expired_at` di tabel `users`
+- [ ] Flow: register → kirim OTP → input OTP → aktif
+- **File target**: `api/auth.php`, `participant/js/register.js`
+
+#### H. Import Soal dari Excel/CSV
+- [ ] Install `PHPSpreadsheet` via Composer atau include manual
+- [ ] Script `api/import_soal.php` untuk parse file `.xlsx` / `.csv`
+- [ ] Upload field di admin panel section `soal`
+- [ ] Template Excel contoh untuk admin
+- **File target**: `admin/sections/soal.html`, `api/` (file baru)
+
+---
+
+### 🏗️ Prioritas 3 — Effort Tinggi (Target: 1–3 minggu)
+
+#### I. Forum Diskusi / Tanya Jawab
+- [ ] Tabel `forum_thread` (judul, topik, user, tanggal), `forum_reply` (thread_id, user, isi, upvote)
+- [ ] Halaman forum di dashboard peserta (per kategori soal / materi)
+- [ ] Peserta bisa tanya, jawab, dan upvote
+- [ ] Admin/mentor bisa tandai jawaban sebagai "terbaik"
+- **File target**: `participant/` (halaman baru), `api/` (file baru)
+
+#### J. Sistem Pembayaran / Paket Premium
+- [ ] Tambah kolom `harga`, `is_premium` di tabel `paket_tryout`
+- [ ] Integrasi Midtrans atau Xendit untuk payment
+- [ ] Tabel `transaksi` (user, paket, nominal, status, tanggal)
+- [ ] Halaman checkout & riwayat transaksi peserta
+- [ ] Admin bisa set paket gratis / berbayar
+- **File target**: `api/` (file baru), `participant/`, `admin/sections/`
+
+#### K. Adaptive Testing (CAT) Aktif di Frontend
+- [ ] Backend IRT sudah ada (`calculateIRT`, `enableCAT` di `api/soal.php`)
+- [ ] Tambah toggle "Mode CAT" di admin per paket (`paket_tryout.is_cat = 1`)
+- [ ] `ujian.js` deteksi mode CAT → fetch soal satu per satu adaptif via `get_cat_question`
+- [ ] Tampilkan estimasi kemampuan (`theta`) di hasil ujian CAT
+- **File target**: `participant/js/ujian.js`, `admin/sections/exam-packages.html`
+
+---
+
+### 📊 Ringkasan Status (Update 24 Mei 2026)
+
+| Kategori | Status |
+|----------|--------|
+| Core exam system (ujian, timer, auto-save) | ✅ Selesai |
+| Gamification (XP, badges, streak) | ✅ Selesai |
+| Notifikasi in-app | ✅ Selesai |
+| RBAC & autentikasi dasar | ✅ Selesai |
+| IRT / CAT backend | ✅ Selesai (belum terhubung ke frontend) |
+| Anti-cheat ujian | ❌ Belum |
+| Mode latihan terpisah | ❌ Belum |
+| OTP verifikasi registrasi | ❌ Belum |
+| Import Excel soal | ❌ Belum (tercantum di README tapi tidak ada file) |
+| Sertifikat printable | ⚠️ Parsial (data ada, template belum) |
+| Forum diskusi | ❌ Belum |
+| Pembayaran / paket premium | ❌ Belum |
+| Countdown jadwal ujian | ❌ Belum |
+| Bookmark soal | ❌ Belum |
+| Rate limiter aktif di login | ❌ Belum (file ada, tidak dipakai) |
+
+---
+
+**Last Updated**: 24 Mei 2026  
+**Version**: 1.1
