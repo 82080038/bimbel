@@ -184,6 +184,18 @@
             transform: scale(1.2);
         }
 
+        .option-letter {
+            display: inline-block;
+            font-weight: 700;
+            color: var(--primary-color, #1e40af);
+            min-width: 1.4rem;
+            margin-right: 0.3rem;
+        }
+
+        .option-label.selected .option-letter {
+            color: var(--primary-color, #1e40af);
+        }
+
         .navigation-buttons {
             display: flex;
             justify-content: space-between;

@@ -134,26 +134,25 @@
 
             if (!questionContainer) return;
 
+            const savedAns = getSavedAnswer(question.id);
+            const opts = [
+                { val: 'A', text: question.opsi_a },
+                { val: 'B', text: question.opsi_b },
+                { val: 'C', text: question.opsi_c },
+                { val: 'D', text: question.opsi_d },
+                { val: 'E', text: question.opsi_e },
+            ];
+            const optionsHTML = opts.map(o => `
+                    <label class="option-label${savedAns === o.val ? ' selected' : ''}">
+                        <input type="radio" name="answer" value="${o.val}"${savedAns === o.val ? ' checked' : ''}>
+                        <span class="option-letter">${o.val}.</span> ${o.text}
+                    </label>`).join('');
+
             questionContainer.innerHTML = `
                 <div class="question-number">Soal ${currentQuestionIndex + 1}/${currentQuestions.length}</div>
                 <span class="category-badge category-${question.kategori_id}">${getCategoryName(question.kategori_id)}</span>
                 <div class="question-text">${question.pertanyaan}</div>
-                <div class="options-container">
-                    <label class="option-label">
-                        <input type="radio" name="answer" value="A"> ${question.opsi_a}
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="answer" value="B"> ${question.opsi_b}
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="answer" value="C"> ${question.opsi_c}
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="answer" value="D"> ${question.opsi_d}
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="answer" value="E"> ${question.opsi_e}
-                    </label>
+                <div class="options-container">${optionsHTML}
                 </div>
             `;
 
@@ -161,11 +160,14 @@
             updateBookmarkButton();
             updateQuestionNav();
 
-            // Add auto-next feature after selecting answer
+            // Add selected class highlight + auto-save + auto-next
             setTimeout(() => {
                 document.querySelectorAll('input[name="answer"]').forEach(radio => {
                     radio.addEventListener('change', () => {
-                        // Save answer to localStorage/session
+                        // Highlight selected label
+                        document.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
+                        radio.closest('.option-label').classList.add('selected');
+                        // Save answer
                         saveAnswer(currentQuestionIndex, radio.value);
                         // Auto next after 0.5s delay
                         setTimeout(() => {
@@ -234,18 +236,16 @@
 
         // Collect answers (from current form + saved session)
         function collectAnswers() {
+            // Save current question answer first before collecting all
+            const currentRadio = document.querySelector('input[name="answer"]:checked');
+            if (currentRadio && currentQuestions[currentQuestionIndex]) {
+                saveAnswer(currentQuestionIndex, currentRadio.value);
+            }
+
             const answers = {};
             const savedAnswers = JSON.parse(sessionStorage.getItem('examAnswers') || '{}');
-            
-            currentQuestions.forEach((question, index) => {
-                // Try to get from current form first
-                const selectedAnswer = document.querySelector(`input[name="answer"]:checked`);
-                if (selectedAnswer) {
-                    answers[question.id] = selectedAnswer.value;
-                } else {
-                    // Fallback to saved session
-                    answers[question.id] = savedAnswers[question.id] || null;
-                }
+            currentQuestions.forEach((question) => {
+                answers[question.id] = savedAnswers[question.id] || null;
             });
             return answers;
         }
