@@ -597,6 +597,12 @@
 
         // Called by ujian.html after loadExamComponents() finishes injecting the DOM
         function initUIAfterLoad() {
+            // Require authentication
+            if (!RBAC.isAuthenticated()) {
+                window.location.href = '../login.html';
+                return;
+            }
+
             const userRole = localStorage.getItem('userRole') || 'guest';
             const authToken = localStorage.getItem('authToken');
 

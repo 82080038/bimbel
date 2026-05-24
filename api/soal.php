@@ -1726,7 +1726,32 @@ function getAllBahanPelajaran() {
     $result = $stmt->get_result();
     $bahan = [];
 
+    $base_path = dirname(dirname(__FILE__)) . '/';
+
     while ($row = $result->fetch_assoc()) {
+        // Normalize file_path: strip Windows absolute paths
+        if (!empty($row['file_path'])) {
+            $fp = $row['file_path'];
+            // Remove Windows drive paths (e.g. c:/xampp/htdocs/bimbel/)
+            $fp = preg_replace('/^[A-Za-z]:[\/\\\\].*?bimbel[\/\\\\]/i', '', $fp);
+            // Normalize backslashes
+            $fp = str_replace('\\', '/', $fp);
+            // Check if file exists on disk
+            if (strpos($fp, 'http') !== 0 && !file_exists($base_path . $fp)) {
+                $fp = null;
+            }
+            $row['file_path'] = $fp;
+        }
+        // Normalize url field similarly
+        if (!empty($row['url'])) {
+            $u = $row['url'];
+            $u = preg_replace('/^[A-Za-z]:[\/\\\\].*?bimbel[\/\\\\]/i', '', $u);
+            $u = str_replace('\\', '/', $u);
+            if (strpos($u, 'http') !== 0 && !file_exists($base_path . $u)) {
+                $u = null;
+            }
+            $row['url'] = $u;
+        }
         $bahan[] = $row;
     }
 

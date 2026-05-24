@@ -911,6 +911,10 @@
             
             materialsList.innerHTML = materials.slice(0, 5).map(material => {
                 const iconClass = material.jenis_file === 'pdf' ? 'pdf' : 'text';
+                const filePath = material.file_path && material.file_path !== 'null' ? material.file_path : null;
+                const linkHtml = filePath
+                    ? `<a href="${filePath}" target="_blank" class="material-link"><i class="fas fa-external-link-alt"></i></a>`
+                    : `<a href="materi.html" class="material-link" title="Buka di halaman materi"><i class="fas fa-arrow-right"></i></a>`;
                 return `
                     <div class="material-item">
                         <div class="material-icon ${iconClass}">
@@ -924,9 +928,7 @@
                                 <span>${formatDate(material.created_at, 'short')}</span>
                             </div>
                         </div>
-                        <a href="${material.file_path}" target="_blank" class="material-link">
-                            <i class="fas fa-external-link-alt"></i>
-                        </a>
+                        ${linkHtml}
                     </div>
                 `;
             }).join('');

@@ -65,9 +65,12 @@ function displayMaterials(materials) {
                     </div>
                     <div class="d-flex justify-content-between mt-2">
                         <small class="text-muted">${progress}% selesai</small>
-                        <a href="${material.file_path || material.url || '#'}" target="_blank" class="btn btn-sm btn-primary">
-                            <i class="fas fa-external-link-alt"></i> Buka
-                        </a>
+                        ${(material.file_path || material.url)
+                            ? `<a href="${material.file_path || material.url}" target="_blank" class="btn btn-sm btn-primary"><i class="fas fa-external-link-alt"></i> Buka</a>`
+                            : (material.konten
+                                ? `<button class="btn btn-sm btn-secondary" onclick="showMateriKonten(${material.id})"><i class="fas fa-eye"></i> Lihat</button>`
+                                : `<span class="btn btn-sm btn-outline-secondary disabled">Tidak tersedia</span>`)
+                        }
                     </div>
                 </div>
             </div>
@@ -158,6 +161,33 @@ function initAfterLoad() {
         loadKategori();
         loadMaterials();
     }
+}
+
+// Show inline konten in modal
+function showMateriKonten(materialId) {
+    const material = allMaterials.find(m => m.id == materialId);
+    if (!material || !material.konten) return;
+
+    let modal = document.getElementById('materiKontenModal');
+    if (!modal) {
+        document.body.insertAdjacentHTML('beforeend', `
+            <div class="modal fade" id="materiKontenModal" tabindex="-1">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="materiKontenTitle"></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body" id="materiKontenBody"></div>
+                    </div>
+                </div>
+            </div>
+        `);
+        modal = document.getElementById('materiKontenModal');
+    }
+    document.getElementById('materiKontenTitle').textContent = material.judul || 'Materi';
+    document.getElementById('materiKontenBody').innerHTML = material.konten;
+    new bootstrap.Modal(modal).show();
 }
 
 // Toast Notification Helper
