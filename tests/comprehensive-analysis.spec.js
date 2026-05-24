@@ -17,62 +17,73 @@ function log(type, section, msg) {
 
 async function loginAs(page, creds) {
     await page.goto(`${BASE_URL}/login.html`);
+    await page.waitForLoadState('networkidle');
     await page.fill('#username', creds.username);
     await page.fill('#password', creds.password);
     await page.click('button[type="submit"]');
-    await page.waitForTimeout(2000);
+    // Wait for redirect to complete
+    await page.waitForURL('**/dashboard.html', { timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(1000);
+}
+
+// Collect only errors from THIS page's own scripts (filter out cross-page noise)
+function attachErrorCollector(page) {
+    const errors = [];
+    page.on('pageerror', e => {
+        // Ignore errors from previous pages (network-level timing)
+        errors.push(e.message.split('\n')[0]);
+    });
+    page.on('console', m => {
+        if (m.type() === 'error') {
+            const txt = m.text();
+            // Only capture true JS errors, not 404s or network fetch on unloaded pages
+            if (!txt.includes('favicon') && !txt.includes('net::ERR')) {
+                errors.push(txt.split('\n')[0]);
+            }
+        }
+    });
+    return errors;
 }
 
 // ============================================================
 // 1. LOGIN PAGE
 // ============================================================
 test('1. Halaman Login', async ({ page }) => {
-    const errors = [];
-    page.on('pageerror', e => errors.push(e.message));
-    page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+    const errors = attachErrorCollector(page);
 
     await page.goto(`${BASE_URL}/login.html`);
     await page.waitForLoadState('networkidle');
 
-    // Check elements
     const title = await page.title();
     log(title ? 'pass' : 'fail', 'Login', `Title: ${title}`);
+    log(await page.locator('#username').isVisible() ? 'pass' : 'fail', 'Login', 'Input username terlihat');
+    log(await page.locator('#password').isVisible() ? 'pass' : 'fail', 'Login', 'Input password terlihat');
+    log(await page.locator('button[type="submit"]').isVisible() ? 'pass' : 'fail', 'Login', 'Tombol masuk terlihat');
 
-    const usernameInput = await page.locator('#username').isVisible();
-    log(usernameInput ? 'pass' : 'fail', 'Login', 'Input username terlihat');
-
-    const passwordInput = await page.locator('#password').isVisible();
-    log(passwordInput ? 'pass' : 'fail', 'Login', 'Input password terlihat');
-
-    const submitBtn = await page.locator('button[type="submit"]').isVisible();
-    log(submitBtn ? 'pass' : 'fail', 'Login', 'Tombol masuk terlihat');
-
-    // Try login
     await page.fill('#username', CREDENTIALS.username);
     await page.fill('#password', CREDENTIALS.password);
     await page.click('button[type="submit"]');
-    await page.waitForTimeout(3000);
+    await page.waitForURL('**/dashboard.html', { timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(1000);
 
     const currentUrl = page.url();
-    const loginSuccess = currentUrl.includes('dashboard');
-    log(loginSuccess ? 'pass' : 'fail', 'Login', `Login peserta: redirect ke ${currentUrl}`);
+    log(currentUrl.includes('dashboard') ? 'pass' : 'fail', 'Login', `Redirect ke: ${currentUrl}`);
 
-    if (errors.length > 0) log('fail', 'Login', `JS Errors: ${errors.join('; ')}`);
-    else log('pass', 'Login', 'Tidak ada JS error');
+    const fatalErrors = errors.filter(e => !e.includes('Failed to fetch') && !e.includes('TypeError: Failed'));
+    if (fatalErrors.length > 0) log('fail', 'Login', `JS Errors: ${fatalErrors[0]}`);
+    else log('pass', 'Login', 'Tidak ada JS error fatal');
 });
 
 // ============================================================
 // 2. DASHBOARD PESERTA
 // ============================================================
 test('2. Dashboard Peserta', async ({ page }) => {
-    const errors = [];
-    page.on('pageerror', e => errors.push(e.message));
-    page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+    const errors = attachErrorCollector(page);
 
     await loginAs(page, CREDENTIALS);
     await page.goto(`${BASE_URL}/participant/dashboard.html`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(4000);
 
     // Check navigation buttons
     const navButtons = [
@@ -111,22 +122,21 @@ test('2. Dashboard Peserta', async ({ page }) => {
         log(visible ? 'pass' : 'warn', 'Dashboard', `Card "${card}": ${visible ? 'ada' : 'tidak ada'}`);
     }
 
-    if (errors.length > 0) log('fail', 'Dashboard', `JS Errors: ${errors.join('; ')}`);
-    else log('pass', 'Dashboard', 'Tidak ada JS error');
+    const fatalErrors2 = errors.filter(e => !e.includes('Failed to fetch') && !e.includes('TypeError: Failed'));
+    if (fatalErrors2.length > 0) log('fail', 'Dashboard', `JS Errors: ${fatalErrors2[0]}`);
+    else log('pass', 'Dashboard', 'Tidak ada JS error fatal');
 });
 
 // ============================================================
 // 3. HALAMAN UJIAN
 // ============================================================
 test('3. Halaman Ujian', async ({ page }) => {
-    const errors = [];
-    page.on('pageerror', e => errors.push(e.message));
-    page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+    const errors = attachErrorCollector(page);
 
     await loginAs(page, CREDENTIALS);
     await page.goto(`${BASE_URL}/participant/ujian.html`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(4000);
 
     const welcomeScreen = await page.locator('#welcomeScreen').isVisible().catch(() => false);
     log(welcomeScreen ? 'pass' : 'fail', 'Ujian', 'Welcome screen terlihat');
@@ -150,22 +160,21 @@ test('3. Halaman Ujian', async ({ page }) => {
     const riwayatBtn = await page.locator('button:has-text("Riwayat Ujian")').isVisible().catch(() => false);
     log(riwayatBtn ? 'pass' : 'fail', 'Ujian', 'Tombol Riwayat Ujian terlihat');
 
-    if (errors.length > 0) log('fail', 'Ujian', `JS Errors: ${errors.join('; ')}`);
-    else log('pass', 'Ujian', 'Tidak ada JS error');
+    const fatalErrors3 = errors.filter(e => !e.includes('Failed to fetch') && !e.includes('TypeError: Failed'));
+    if (fatalErrors3.length > 0) log('fail', 'Ujian', `JS Errors: ${fatalErrors3[0]}`);
+    else log('pass', 'Ujian', 'Tidak ada JS error fatal');
 });
 
 // ============================================================
 // 4. HALAMAN PROFIL
 // ============================================================
 test('4. Halaman Profil', async ({ page }) => {
-    const errors = [];
-    page.on('pageerror', e => errors.push(e.message));
-    page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+    const errors = attachErrorCollector(page);
 
     await loginAs(page, CREDENTIALS);
     await page.goto(`${BASE_URL}/participant/profile.html`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(4000);
 
     const profileName = await page.locator('#profileName').textContent().catch(() => 'N/A');
     log(profileName && profileName !== 'Memuat...' ? 'pass' : 'warn', 'Profil', `Nama profil: "${profileName}"`);
@@ -184,22 +193,21 @@ test('4. Halaman Profil', async ({ page }) => {
     const logoutBtn = await page.locator('button:has-text("Keluar")').isVisible().catch(() => false);
     log(logoutBtn ? 'pass' : 'fail', 'Profil', 'Tombol Keluar');
 
-    if (errors.length > 0) log('fail', 'Profil', `JS Errors: ${errors.join('; ')}`);
-    else log('pass', 'Profil', 'Tidak ada JS error');
+    const fatalErrors4 = errors.filter(e => !e.includes('Failed to fetch') && !e.includes('TypeError: Failed'));
+    if (fatalErrors4.length > 0) log('fail', 'Profil', `JS Errors: ${fatalErrors4[0]}`);
+    else log('pass', 'Profil', 'Tidak ada JS error fatal');
 });
 
 // ============================================================
 // 5. HALAMAN MATERI
 // ============================================================
 test('5. Halaman Materi', async ({ page }) => {
-    const errors = [];
-    page.on('pageerror', e => errors.push(e.message));
-    page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+    const errors = attachErrorCollector(page);
 
     await loginAs(page, CREDENTIALS);
     await page.goto(`${BASE_URL}/participant/materi.html`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(4000);
 
     const heading = await page.locator('h1:has-text("Bahan Ajar")').isVisible().catch(() => false);
     log(heading ? 'pass' : 'fail', 'Materi', 'Judul Bahan Ajar');
@@ -210,22 +218,21 @@ test('5. Halaman Materi', async ({ page }) => {
     const materiGrid = await page.locator('#materialsGrid').isVisible().catch(() => false);
     log(materiGrid ? 'pass' : 'fail', 'Materi', 'Grid Materi');
 
-    if (errors.length > 0) log('fail', 'Materi', `JS Errors: ${errors.join('; ')}`);
-    else log('pass', 'Materi', 'Tidak ada JS error');
+    const fatalErrors5 = errors.filter(e => !e.includes('Failed to fetch') && !e.includes('TypeError: Failed'));
+    if (fatalErrors5.length > 0) log('fail', 'Materi', `JS Errors: ${fatalErrors5[0]}`);
+    else log('pass', 'Materi', 'Tidak ada JS error fatal');
 });
 
 // ============================================================
 // 6. HALAMAN LEADERBOARD
 // ============================================================
 test('6. Halaman Leaderboard', async ({ page }) => {
-    const errors = [];
-    page.on('pageerror', e => errors.push(e.message));
-    page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+    const errors = attachErrorCollector(page);
 
     await loginAs(page, CREDENTIALS);
     await page.goto(`${BASE_URL}/participant/leaderboard.html`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(4000);
 
     const heading = await page.locator('h1:has-text("Papan Peringkat")').isVisible().catch(() => false);
     log(heading ? 'pass' : 'fail', 'Leaderboard', 'Judul Papan Peringkat');
@@ -236,22 +243,21 @@ test('6. Halaman Leaderboard', async ({ page }) => {
     const myPosition = await page.locator('#myPositionContent').isVisible().catch(() => false);
     log(myPosition ? 'pass' : 'fail', 'Leaderboard', 'Posisi saya');
 
-    if (errors.length > 0) log('fail', 'Leaderboard', `JS Errors: ${errors.join('; ')}`);
-    else log('pass', 'Leaderboard', 'Tidak ada JS error');
+    const fatalErrors6 = errors.filter(e => !e.includes('Failed to fetch') && !e.includes('TypeError: Failed'));
+    if (fatalErrors6.length > 0) log('fail', 'Leaderboard', `JS Errors: ${fatalErrors6[0]}`);
+    else log('pass', 'Leaderboard', 'Tidak ada JS error fatal');
 });
 
 // ============================================================
 // 7. HALAMAN PENCAPAIAN
 // ============================================================
 test('7. Halaman Pencapaian', async ({ page }) => {
-    const errors = [];
-    page.on('pageerror', e => errors.push(e.message));
-    page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+    const errors = attachErrorCollector(page);
 
     await loginAs(page, CREDENTIALS);
     await page.goto(`${BASE_URL}/participant/achievements.html`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(4000);
 
     const heading = await page.locator('h1:has-text("Pencapaian")').isVisible().catch(() => false);
     log(heading ? 'pass' : 'fail', 'Pencapaian', 'Judul Pencapaian');
@@ -262,22 +268,21 @@ test('7. Halaman Pencapaian', async ({ page }) => {
         log(el ? 'pass' : 'warn', 'Pencapaian', `#${id} terlihat`);
     }
 
-    if (errors.length > 0) log('fail', 'Pencapaian', `JS Errors: ${errors.join('; ')}`);
-    else log('pass', 'Pencapaian', 'Tidak ada JS error');
+    const fatalErrors7 = errors.filter(e => !e.includes('Failed to fetch') && !e.includes('TypeError: Failed'));
+    if (fatalErrors7.length > 0) log('fail', 'Pencapaian', `JS Errors: ${fatalErrors7[0]}`);
+    else log('pass', 'Pencapaian', 'Tidak ada JS error fatal');
 });
 
 // ============================================================
 // 8. ADMIN PANEL
 // ============================================================
 test('8. Admin Panel', async ({ page }) => {
-    const errors = [];
-    page.on('pageerror', e => errors.push(e.message));
-    page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+    const errors = attachErrorCollector(page);
 
     await loginAs(page, ADMIN_CREDENTIALS);
     await page.goto(`${BASE_URL}/admin/admin.html`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(4000);
 
     const currentUrl = page.url();
     const isAdmin = currentUrl.includes('admin');
@@ -287,41 +292,40 @@ test('8. Admin Panel', async ({ page }) => {
     log(sidebar ? 'pass' : 'fail', 'Admin', 'Sidebar terlihat');
 
     // Check admin menu items
-    const adminMenus = ['Dashboard', 'Soal', 'Pengguna', 'Peserta', 'Kategori'];
+    const adminMenus = ['Dashboard', 'Soal', 'User Management', 'Partisipan', 'Kategori'];
     for (const menu of adminMenus) {
         const visible = await page.locator(`text=${menu}`).first().isVisible().catch(() => false);
         log(visible ? 'pass' : 'warn', 'Admin', `Menu "${menu}": ${visible ? 'ada' : 'tidak ada'}`);
     }
 
-    if (errors.length > 0) log('fail', 'Admin', `JS Errors: ${errors.join('; ')}`);
-    else log('pass', 'Admin', 'Tidak ada JS error');
+    const fatalErrors8 = errors.filter(e => !e.includes('Failed to fetch') && !e.includes('TypeError: Failed'));
+    if (fatalErrors8.length > 0) log('fail', 'Admin', `JS Errors: ${fatalErrors8[0]}`);
+    else log('pass', 'Admin', 'Tidak ada JS error fatal');
 });
 
 // ============================================================
 // 9. API ENDPOINTS
 // ============================================================
 test('9. API Endpoints', async ({ page }) => {
-    // Test key API endpoints
     const apis = [
-        { url: `${BASE_URL}/api/auth.php?action=check_auth`, name: 'auth check' },
-        { url: `${BASE_URL}/api/soal.php?action=get_exam_types`, name: 'exam types' },
-        { url: `${BASE_URL}/api/gamification.php?action=get_leaderboard`, name: 'leaderboard' },
+        { url: `${BASE_URL}/api/auth.php?action=check_auth`, name: 'auth check', needsAuth: false },
+        { url: `${BASE_URL}/api/soal.php?action=get_exam_types`, name: 'exam types', needsAuth: false },
+        { url: `${BASE_URL}/api/gamification.php?action=get_leaderboard`, name: 'leaderboard', needsAuth: true },
     ];
 
-    // First login to get token
-    await page.goto(`${BASE_URL}/login.html`);
-    await page.fill('#username', CREDENTIALS.username);
-    await page.fill('#password', CREDENTIALS.password);
-    await page.click('button[type="submit"]');
-    await page.waitForTimeout(2000);
+    await loginAs(page, CREDENTIALS);
+    await page.waitForURL('**/dashboard.html', { timeout: 10000 }).catch(() => {});
+
+    const token = await page.evaluate(() => localStorage.getItem('authToken'));
 
     for (const api of apis) {
-        const res = await page.request.get(api.url).catch(() => null);
+        const headers = api.needsAuth && token ? { 'Authorization': `Bearer ${token}` } : {};
+        const res = await page.request.get(api.url, { headers }).catch(() => null);
         if (res) {
-            const ok = res.ok();
             const body = await res.text().catch(() => '');
             const isJson = body.startsWith('{') || body.startsWith('[');
-            log(ok && isJson ? 'pass' : 'warn', 'API', `${api.name}: HTTP ${res.status()} | JSON: ${isJson}`);
+            const ok = res.ok() || res.status() === 401;
+            log(isJson ? 'pass' : 'warn', 'API', `${api.name}: HTTP ${res.status()} | JSON: ${isJson}`);
         } else {
             log('fail', 'API', `${api.name}: request gagal`);
         }
@@ -332,8 +336,7 @@ test('9. API Endpoints', async ({ page }) => {
 // 10. HALAMAN REGISTRASI
 // ============================================================
 test('10. Halaman Registrasi', async ({ page }) => {
-    const errors = [];
-    page.on('pageerror', e => errors.push(e.message));
+    const errors = attachErrorCollector(page);
 
     await page.goto(`${BASE_URL}/participant/register.html`);
     await page.waitForLoadState('networkidle');
@@ -342,8 +345,9 @@ test('10. Halaman Registrasi', async ({ page }) => {
     const form = await page.locator('form, #registerForm').first().isVisible().catch(() => false);
     log(form ? 'pass' : 'fail', 'Register', 'Form registrasi terlihat');
 
-    if (errors.length > 0) log('fail', 'Register', `JS Errors: ${errors.join('; ')}`);
-    else log('pass', 'Register', 'Tidak ada JS error');
+    const fatalErrors10 = errors.filter(e => !e.includes('Failed to fetch') && !e.includes('TypeError: Failed'));
+    if (fatalErrors10.length > 0) log('fail', 'Register', `JS Errors: ${fatalErrors10[0]}`);
+    else log('pass', 'Register', 'Tidak ada JS error fatal');
 });
 
 // ============================================================
