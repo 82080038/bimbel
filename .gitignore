@@ -20,8 +20,7 @@ logs/
 cache/
 uploads/
 
-# Database exports (keep only latest in database/)
-database/export_*.sql
+# Database exports
 database/*backup*.sql
 database/*_backup_*.sql
 database/ujian_sekolah_kedinasan.sql
