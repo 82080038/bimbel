@@ -81,10 +81,13 @@ description: Development workflow for the exam application (Version 2.1 - Kantor
 
 ## Setup di Komputer Baru
 
-1. **Clone repository**
+1. **Clone repository (branch kantor)**
    ```bash
-   git clone https://github.com/82080038/bimbel.git /opt/lampp/htdocs/bimbel
-   # atau Windows: C:\xampp\htdocs\bimbel
+   # Linux
+   git clone -b kantor https://github.com/82080038/bimbel.git /opt/lampp/htdocs/bimbel
+
+   # Windows
+   git clone -b kantor https://github.com/82080038/bimbel.git C:\xampp\htdocs\bimbel
    ```
 
 2. **Start XAMPP**
