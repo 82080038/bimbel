@@ -381,6 +381,10 @@
 
         // Finalize exam - called ONLY when exam is truly finished
         async function finalizeExam() {
+            // Deactivate beforeunload — exam ended normally
+            examIsActive = false;
+            window.onbeforeunload = null;
+
             // Clear session storage
             sessionStorage.removeItem('examAnswers');
             
@@ -684,6 +688,9 @@
         }
 
         // Show exam screen
+        // Track whether exam is actively running (for beforeunload)
+        let examIsActive = false;
+
         function showExamScreen() {
             document.getElementById('welcomeScreen').classList.add('hidden');
             document.getElementById('historyScreen').classList.add('hidden');
@@ -699,6 +706,52 @@
                              localStorage.getItem('username') || 'Peserta';
                 displayNama.textContent = nama;
             }
+
+            // Activate beforeunload warning
+            examIsActive = true;
+            window.onbeforeunload = function(e) {
+                if (!examIsActive) return undefined;
+                const msg = 'Ujian sedang berlangsung! Jika Anda meninggalkan halaman ini, progress ujian akan hilang.';
+                e.preventDefault();
+                e.returnValue = msg;
+                return msg;
+            };
+        }
+
+        // Batalkan ujian yang sedang berlangsung
+        function batalkanUjian() {
+            if (!examIsActive) return;
+
+            const soalDijawab = Object.keys(JSON.parse(sessionStorage.getItem('examAnswers') || '{}')).length;
+            const totalSoal = currentQuestions.length;
+
+            showConfirm(
+                `<strong>Batalkan Ujian?</strong><br><br>` +
+                `Anda sudah menjawab <strong>${soalDijawab} dari ${totalSoal} soal</strong>.<br>` +
+                `<span class="text-danger">Semua jawaban akan hilang dan tidak dinilai.</span><br><br>` +
+                `Apakah Anda yakin ingin membatalkan ujian ini?`,
+                function() {
+                    // Confirmed — clear exam state
+                    examIsActive = false;
+                    window.onbeforeunload = null;
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    sessionStorage.removeItem('examAnswers');
+                    currentQuestions = [];
+                    currentQuestionIndex = 0;
+                    isPracticeMode = false;
+
+                    // Return to welcome screen — hide all other screens
+                    ['examScreen','historyScreen','resultScreen','discussionScreen'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.classList.add('hidden');
+                    });
+                    document.getElementById('welcomeScreen').classList.remove('hidden');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    showToast('Ujian dibatalkan. Anda kembali ke menu utama.', 'warning', 4000);
+                },
+                null // Cancel button does nothing — stay in exam
+            );
         }
 
         // Show history screen

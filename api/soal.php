@@ -90,6 +90,9 @@ switch ($action) {
     case 'submit_ujian':
         submitUjian();
         break;
+    case 'cancel_exam':
+        cancelExam();
+        break;
     case 'get_riwayat_ujian':
         getRiwayatUjian();
         break;
@@ -931,6 +934,47 @@ function getSertifikat() {
         echo json_encode(['success' => true, 'data' => $cert]);
     } else {
         echo json_encode(['success' => false, 'error' => 'Certificate not found']);
+    }
+}
+
+function cancelExam() {
+    global $conn;
+
+    $user = requireAuth();
+    $data = json_decode(file_get_contents('php://input'), true);
+    $sesi_id = intval($data['sesi_id'] ?? 0);
+
+    if ($sesi_id === 0) {
+        echo json_encode(['success' => false, 'error' => 'sesi_id diperlukan']);
+        return;
+    }
+
+    // Validate ownership — only the session owner can cancel
+    $stmt = $conn->prepare("SELECT id, status FROM sesi_ujian WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $sesi_id, $user['id']);
+    $stmt->execute();
+    $sesi = $stmt->get_result()->fetch_assoc();
+
+    if (!$sesi) {
+        echo json_encode(['success' => false, 'error' => 'Sesi tidak ditemukan']);
+        return;
+    }
+
+    if ($sesi['status'] !== 'berjalan') {
+        echo json_encode(['success' => false, 'error' => 'Ujian sudah selesai atau sudah dibatalkan']);
+        return;
+    }
+
+    // Add 'dibatalkan' to enum if not already present
+    $conn->query("ALTER TABLE sesi_ujian MODIFY COLUMN status ENUM('berjalan','selesai','timeout','dibatalkan') DEFAULT 'berjalan'");
+
+    // Mark session as cancelled
+    $stmt2 = $conn->prepare("UPDATE sesi_ujian SET status = 'dibatalkan', waktu_selesai = NOW() WHERE id = ?");
+    $stmt2->bind_param("i", $sesi_id);
+    if ($stmt2->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Ujian berhasil dibatalkan']);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Gagal membatalkan ujian: ' . $conn->error]);
     }
 }
 
