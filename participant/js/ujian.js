@@ -1425,10 +1425,3 @@
                 loadingModalInstance = null;
             }
         }
-            if (loadingModalInstance) {
-                loadingModalInstance.hide();
-                loadingModalInstance = null;
-            }
-        }
-            }
-        }

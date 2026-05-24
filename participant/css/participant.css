@@ -96,6 +96,56 @@
             color: white;
         }
 
+        .btn-secondary-custom {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+        }
+
+        .btn-success-custom {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success-custom:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning-custom {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning-custom:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .btn-info-custom {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        .btn-info-custom:hover {
+            background: #0284c7;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger-custom {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger-custom:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
         /* Stats Cards */
         .stats-grid {
             display: grid;

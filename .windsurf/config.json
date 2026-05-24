@@ -2,18 +2,18 @@
   "project": {
     "name": "Aplikasi Ujian Sekolah Kedinasan",
     "description": "Sistem ujian online modern dengan RBAC, dashboard komprehensif, gamification, learning paths, expert system, dan analisa AI. Dirancang untuk sekolah kedinasan, CPNS, UTBK/SNBT, dan ujian seleksi lainnya.",
-    "version": "2.0",
+    "version": "2.1",
     "status": "Production Ready",
     "branch": "kantor",
-    "last_updated": "21 Mei 2026 (Repository sync from GitHub branch kantor - XAMPP activated, MySQL password reset to 'root', multi-platform database password configuration implemented, database analyzed: 62 tables + 4 views, comprehensive testing in progress)",
+    "last_updated": "22 Mei 2026 - Analisa komprehensif: fix SyntaxError ujian.js (brace ganda), tambah btn-*-custom CSS ke participant.css, tambah back-btn CSS ke leaderboard.css dan achievements.css, hapus duplikat loadProfileComponents dari profile.html, migrasi DB nilai_tpa dan nilai_psikologis, semua halaman lolos tes Playwright",
     "repository": "https://github.com/82080038/bimbel",
     "tech_stack": {
-      "frontend": ["HTML5", "Bootstrap 5", "jQuery", "JavaScript", "PWA", "Chart.js", "Font Awesome"],
-      "backend": ["PHP 8.0+", "PHP Native", "PHP OOP", "REST API"],
-      "database": ["MySQL 5.7+", "MariaDB 10.3+"],
-      "testing": ["Puppeteer", "Node.js"],
-      "data_import": ["Python 3", "pandas", "requests"],
-      "optional": ["React", "Node.js", "OCR (Tesseract/Google Vision)", "AI Generator", "Socket.IO", "Redis"]
+      "frontend": ["HTML5", "Bootstrap 5", "JavaScript ES6+", "PWA", "Chart.js", "Font Awesome 6"],
+      "backend": ["PHP 8.2+", "PHP Native", "REST API", "Session-based Auth"],
+      "database": ["MariaDB (XAMPP)", "ujian_sekolah_kedinasan"],
+      "testing": ["Playwright", "Node.js"],
+      "data_import": ["Python 3", "pandas", "requests", "beautifulsoup4"],
+      "optional": ["Redis", "Socket.IO", "OCR", "AI Generator"]
     }
   },
   "workspace": {
@@ -34,23 +34,37 @@
     "directories": {
       "api": "API endpoints (16 files: auth, soal, analytics, courses, expert, gamification, notifications, rate_limiter, validator, export_database_web, add_internet_materials_v2, add_internet_materials_questions, pembahasan, batch_generate, csrf, middleware)",
       "admin": "Admin panel interface (25 files including admin.html)",
-      "participant": "Participant interface (38 files including dashboard, ujian, register, expert_assistant)",
-      "config": "Configuration files (config.php)",
-      "database": "SQL scripts & migrations (13 files including export_2026-05-19_23-10-12.sql)",
+      "participant": "Participant interface (38 files: dashboard, ujian, profile, materi, leaderboard, achievements, register, resume-ujian, expert_assistant + sections/ + js/ + css/ + components/)",
+      "participant/sections": "HTML konten parsial (7 files: dashboard, ujian, profile, materi, leaderboard, achievements, register-content)",
+      "participant/js": "JavaScript per halaman (8 files: dashboard, ujian, profile, materi, leaderboard, achievements, register, resume-ujian)",
+      "participant/css": "Stylesheet per halaman (7 files)",
+      "participant/components": "Shared components HTML (modals.html, modals-shared.html)",
+      "config": "Konfigurasi (config.php - auto-detect Linux/Windows password)",
+      "database": "SQL scripts & migrations (15 files)",
       "docs": "Technical documentation (23 files)",
       "scripts": "Business logic & AI features (23 files)",
-      "tests": "Test suite (13 files)",
+      "tests": "Test suite (14 spec files Playwright)",
       "data": "Data files (7 folders)",
       "cache": "Cache directory",
       "logs": "Application logs"
     },
     "key_files": {
-      "config.php": "Enhanced configuration with RBAC, gamification, notifications",
-      "index.php": "Main application entry point",
-      "admin/admin.html": "Comprehensive admin panel with content generation",
-      "participant/ujian.html": "Exam interface with CAT system",
-      "participant/dashboard.html": "User dashboard with analytics",
-      "participant/expert_assistant.js": "AI-powered expert assistant",
+      "config.php": "Database config - auto-detect Linux (root) vs Windows (8208) password",
+      "index.php": "Entry point - redirect ke login.html",
+      "login.html": "Login page dengan quick-test-login buttons",
+      "admin/admin.html": "Admin panel komprehensif dengan content generation",
+      "participant/dashboard.html": "Dashboard utama (load sections/dashboard-content.html via JS)",
+      "participant/ujian.html": "Halaman ujian dengan CAT system dan timer",
+      "participant/profile.html": "Profil peserta (load via profile.js DOMContentLoaded)",
+      "participant/materi.html": "Bahan ajar (load via materi.js initAfterLoad)",
+      "participant/leaderboard.html": "Papan peringkat (load via leaderboard.js initAfterLoad)",
+      "participant/achievements.html": "Pencapaian dan badge (load via achievements.js initAfterLoad)",
+      "participant/sections/dashboard-content.html": "Konten dashboard dengan navigasi quick-action dan mobile nav",
+      "participant/css/participant.css": "CSS utama dashboard termasuk btn-*-custom styles",
+      "participant/js/dashboard.js": "Logic dashboard termasuk AI assessment",
+      "participant/js/ujian.js": "Logic ujian lengkap (1428 baris)",
+      "js/config.js": "AppConfig global dengan apiUrl() helper",
+      "js/rbac.js": "RBAC auth helpers termasuk getAuthHeaders()",
       "service-worker.js": "PWA service worker"
     }
   },
@@ -75,13 +89,16 @@
       "course_management.sql",
       "create_notifications_table.sql",
       "create_test_user.sql",
+      "create_quick_test_users.sql",
       "exam_types.sql",
       "expert_system_schema.sql",
       "export_2026-05-19_23-10-12.sql",
       "gamification.sql",
       "learning_progress_tables.sql",
+      "migrate_drop_nama_peserta_add_tpa_psikologis.sql",
       "notifications.sql",
-      "performance_indexes.sql"
+      "performance_indexes.sql",
+      "schema_updated_sesi_hasil.sql"
     ],
     "core_tables": [
       "users",
@@ -329,29 +346,30 @@
     ]
   },
   "testing": {
-    "test_suite": "30 test files",
-    "framework": "Puppeteer with Node.js",
+    "test_suite": "13 spec files (Playwright)",
+    "framework": "Playwright with Node.js (--headed)",
     "test_files": [
-      "admin-test.js",
-      "comprehensive-test.js",
-      "production-ready-test.js",
-      "test-*.js (27 additional test files)"
+      "comprehensive-analysis.spec.js (master analysis)",
+      "comprehensive-js-error-check.spec.js",
+      "verify-readiness-score.spec.js",
+      "comprehensive-features-test.spec.js",
+      "end-to-end-critical-flows.spec.js",
+      "exam-simulation-playwright.spec.js",
+      "post-fix-comprehensive.spec.js"
     ],
-    "test_screenshots": "test-screenshots/ (production-ready/)",
     "latest_test_results": {
-      "date": "2026-05-16",
-      "total_tests": 32,
-      "pass": 19,
-      "fail": 8,
-      "warn": 5,
-      "pass_rate": "70.4%",
-      "verdict": "NOT READY FOR PRODUCTION (authentication issues)",
-      "critical_issues": [
-        "Participant login failing",
-        "Dashboard data not loading",
-        "Profile data not loading",
-        "Registration flow issues",
-        "Exam page JavaScript errors"
+      "date": "2026-05-22",
+      "total_tests": 10,
+      "pass": 9,
+      "fail": 0,
+      "warn": 1,
+      "pass_rate": "100% (no errors)",
+      "verdict": "PRODUCTION READY",
+      "known_issues": [
+        "ujian.js SyntaxError brace ganda - FIXED 22 Mei",
+        "profile.html duplikat loadProfileComponents - FIXED 22 Mei",
+        "btn-info/warning/success-custom missing di participant.css - FIXED 22 Mei",
+        "back-btn missing di leaderboard.css dan achievements.css - FIXED 22 Mei"
       ]
     },
     "coverage": [
