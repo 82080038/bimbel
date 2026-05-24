@@ -1,5 +1,5 @@
 ---
-description: Development workflow for the exam application (Version 2.0 - Kantor Branch)
+description: Development workflow for the exam application (Version 2.1 - Kantor Branch)
 ---
 
 # Development Workflow
@@ -55,14 +55,20 @@ description: Development workflow for the exam application (Version 2.0 - Kantor
    ```
 
 2. **Verify Database Connection**
-   - Check config.php for database credentials
+   - Check `config.php` — password auto-detect: **Linux = `root`**, Windows = `8208`
    - Ensure MySQL is running on port 3306
-   - Test connection: `mysql -u root -p8208 ujian_sekolah_kedinasan`
+   - Test: `mysql -u root -proot -h 127.0.0.1 ujian_sekolah_kedinasan` (Linux)
+   - Test: `mysql -u root -p8208 -h 127.0.0.1 ujian_sekolah_kedinasan` (Windows)
 
-3. **Import Database (if needed)**
+3. **Import Database (jika fresh install)**
    ```bash
-   mysql -u root -p8208 ujian_sekolah_kedinasan < database/ujian_sekolah_kedinasan.sql
+   # Linux (XAMPP)
+   mysql -u root -proot -h 127.0.0.1 < database/export_2026-05-24_14-24-03.sql
+
+   # Windows (XAMPP)
+   mysql -u root -p8208 -h 127.0.0.1 < database/export_2026-05-24_14-24-03.sql
    ```
+   > File export sudah include `CREATE DATABASE` — tidak perlu buat database manual.
 
 4. **Run Migrations (if needed)**
    ```bash
@@ -72,6 +78,42 @@ description: Development workflow for the exam application (Version 2.0 - Kantor
    php migrate_notifications.php
    php migrate_analytics.php
    ```
+
+## Setup di Komputer Baru
+
+1. **Clone repository**
+   ```bash
+   git clone https://github.com/82080038/bimbel.git /opt/lampp/htdocs/bimbel
+   # atau Windows: C:\xampp\htdocs\bimbel
+   ```
+
+2. **Start XAMPP**
+   ```bash
+   sudo /opt/lampp/lampp start   # Linux
+   # atau buka XAMPP Control Panel di Windows
+   ```
+
+3. **Import database**
+   ```bash
+   # Linux
+   mysql -u root -proot -h 127.0.0.1 < database/export_2026-05-24_14-24-03.sql
+   # Windows
+   mysql -u root -p8208 -h 127.0.0.1 < database/export_2026-05-24_14-24-03.sql
+   ```
+
+4. **Buka browser**
+   ```
+   http://localhost/bimbel/
+   ```
+   Login default: admin / admin123 atau lihat `database/create_quick_test_users.sql`
+
+5. **Install Playwright (untuk testing)**
+   ```bash
+   npm install
+   npx playwright install chromium
+   ```
+
+---
 
 ## Development Tasks
 
@@ -106,11 +148,19 @@ description: Development workflow for the exam application (Version 2.0 - Kantor
 
 ### Database Modifications
 
-1. Edit SQL files in `/database` folder (7 schema files)
+1. Edit SQL files in `/database` folder
 2. Test changes on development database first
-3. Backup before production changes:
+3. Export setelah perubahan:
    ```bash
-   mysqldump -u root -p8208 ujian_sekolah_kedinasan > backup.sql
+   # Linux
+   mysqldump -u root -proot -h 127.0.0.1 --column-statistics=0 \
+     --databases ujian_sekolah_kedinasan --triggers --single-transaction \
+     --add-drop-database > database/export_$(date +%Y-%m-%d_%H-%M-%S).sql
+
+   # Windows
+   mysqldump -u root -p8208 -h 127.0.0.1 --column-statistics=0 \
+     --databases ujian_sekolah_kedinasan --triggers --single-transaction \
+     --add-drop-database > database/export_%date:~-4%-%date:~3,2%-%date:~0,2%.sql
    ```
 
 ### Frontend Development
@@ -182,13 +232,32 @@ description: Development workflow for the exam application (Version 2.0 - Kantor
 - [ ] Update README.md with version changes
 - [ ] Verify RBAC permissions
 
+## Gap Analisis — Fitur Belum Diimplementasikan (24 Mei 2026)
+
+Lihat detail lengkap di `IMPROVEMENT_ROADMAP.md` seksi "Rencana Selanjutnya".
+
+| Fitur | Status | File Target |
+|-------|--------|-------------|
+| Anti-cheat (visibilitychange, fullscreen) | ❌ Belum | `participant/js/ujian.js` |
+| Mode latihan terpisah dari ujian resmi | ❌ Belum | `participant/js/ujian.js` |
+| Rate limiter aktif di login | ❌ Belum | `api/auth.php` |
+| Bookmark soal | ❌ Belum | `api/soal.php`, `ujian.js` |
+| OTP verifikasi HP saat registrasi | ❌ Belum | `api/auth.php` |
+| Sertifikat printable / downloadable | ⚠️ Parsial | `participant/sections/` |
+| Import soal Excel/CSV | ❌ Belum | `api/import_soal.php` (baru) |
+| Forum diskusi | ❌ Belum | File baru |
+| Pembayaran paket premium | ❌ Belum | File baru |
+| Countdown jadwal ujian resmi | ❌ Belum | `participant/sections/dashboard-content.html` |
+
+---
+
 ## Troubleshooting
 
 ### Database Connection Issues
 - Check XAMPP MySQL status
-- Verify credentials in config.php
-- Check firewall settings
-- Ensure database has 57 tables
+- Verify credentials in config.php (Linux: `root`, Windows: `8208`)
+- Gunakan `-h 127.0.0.1` bukan `localhost` jika socket error
+- Ensure database has 62+ tables
 
 ### API Not Responding
 - Check PHP error logs in `/opt/lampp/logs/php_error_log`

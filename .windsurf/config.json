@@ -5,7 +5,7 @@
     "version": "2.1",
     "status": "Production Ready",
     "branch": "kantor",
-    "last_updated": "22 Mei 2026 - Analisa komprehensif: fix SyntaxError ujian.js (brace ganda), tambah btn-*-custom CSS ke participant.css, tambah back-btn CSS ke leaderboard.css dan achievements.css, hapus duplikat loadProfileComponents dari profile.html, migrasi DB nilai_tpa dan nilai_psikologis, semua halaman lolos tes Playwright",
+    "last_updated": "24 Mei 2026 - Analisis gap lapangan: export database ke database/export_2026-05-24_14-24-03.sql, update .gitignore agar export_*.sql ter-track, tambah rencana selanjutnya di IMPROVEMENT_ROADMAP.md (anti-cheat, mode latihan, rate limiter, bookmark soal, OTP, sertifikat printable, forum, payment)",
     "repository": "https://github.com/82080038/bimbel",
     "tech_stack": {
       "frontend": ["HTML5", "Bootstrap 5", "JavaScript ES6+", "PWA", "Chart.js", "Font Awesome 6"],
@@ -93,6 +93,7 @@
       "exam_types.sql",
       "expert_system_schema.sql",
       "export_2026-05-19_23-10-12.sql",
+      "export_2026-05-24_14-24-03.sql",
       "gamification.sql",
       "learning_progress_tables.sql",
       "migrate_drop_nama_peserta_add_tpa_psikologis.sql",
@@ -195,7 +196,7 @@
       "Auto-save jawaban",
       "Ranking & history tryout",
       "Sertifikat digital dengan QR code",
-      "Anti-cheat system"
+      "Anti-cheat system (PARTIAL - token ujian ada, visibilitychange/fullscreen BELUM)"
     ],
     "gamification": [
       "XP system dengan level rewards",
@@ -233,7 +234,7 @@
     ],
     "admin": [
       "CRUD soal dengan gambar/audio/PDF",
-      "Import soal dari Excel/CSV",
+      "Import soal dari Excel/CSV (TERCANTUM DI README TAPI FILE BELUM ADA)",
       "AI content generation (soal, bahan pelajaran, tips)",
       "System maintenance tools",
       "Backup & cleanup utilities",
@@ -277,7 +278,7 @@
         "Auto-save jawaban",
         "Ranking & history tryout",
         "Sertifikat digital dengan QR code",
-        "Anti-cheat system",
+        "Anti-cheat system (PARTIAL - token ujian ada, visibilitychange/fullscreen BELUM)",
         "Gamification (XP, badges, achievements, daily challenges, streak)",
         "Course management & learning paths",
         "Notification system",
@@ -308,19 +309,22 @@
       ]
     },
     "next_priorities": {
-      "high": [
-        "Social learning features - discussion forum per topik/materi",
-        "Advanced proctoring - AI-powered proctoring dengan deteksi wajah",
-        "PWA enhancement - offline caching untuk materi dan soal"
+      "priority_1_low_effort_high_impact": [
+        "Anti-cheat dasar: visibilitychange, fullscreen, disable copy-paste → participant/js/ujian.js",
+        "Mode latihan: pisah dari ujian resmi, pembahasan langsung per soal → participant/js/ujian.js",
+        "Rate limiter login: hubungkan api/rate_limiter.php ke api/auth.php → 1 baris",
+        "Bookmark soal: kolom is_bookmarked di jawaban_user → ujian.js + soal.php"
       ],
-      "medium": [
-        "Certification tracking - sertifikat digital dengan QR code verification",
-        "Integration capabilities - LMS lain via LTI, payment gateway",
-        "Performance optimization - code splitting, CDN, Redis caching"
+      "priority_2_medium_effort": [
+        "Countdown jadwal ujian resmi (CPNS, IPDN, UTBK) di dashboard peserta",
+        "Sertifikat printable: template HTML/PDF, QR mandiri, halaman verify publik",
+        "OTP verifikasi HP saat registrasi via WhatsApp/SMS → api/auth.php",
+        "Import soal Excel/CSV: PHPSpreadsheet + api/import_soal.php"
       ],
-      "low": [
-        "Advanced question types - drag and drop, fill in the blanks",
-        "Internationalization - multi-language support, RTL"
+      "priority_3_high_effort": [
+        "Forum diskusi / tanya jawab per topik materi",
+        "Sistem pembayaran / paket premium (Midtrans/Xendit)",
+        "CAT adaptive testing aktif di frontend (backend IRT sudah ada)"
       ]
     }
   },

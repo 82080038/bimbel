@@ -4,8 +4,8 @@
     "type": "web-application",
     "stack": ["php", "mysql", "javascript", "html", "bootstrap"],
     "framework": "vanilla-php",
-    "version": "2.0",
-    "lastUpdated": "2026-05-21"
+    "version": "2.1",
+    "lastUpdated": "2026-05-24"
   },
   "structure": {
     "api": {
@@ -154,14 +154,24 @@
     ],
     "indexes": "optimized",
     "backupScript": "scripts/backup.php",
-    "latestExport": "database.sql"
+    "latestExport": "database/export_2026-05-24_14-24-03.sql",
+    "importCommand": "mysql -u root -proot -h 127.0.0.1 < database/export_2026-05-24_14-24-03.sql"
   },
   "features": {
     "core": {
       "examSystem": "implemented",
       "rbac": "implemented",
       "dashboard": "implemented",
-      "antiCheat": "implemented"
+      "antiCheat": "partial - token ujian ada, visibilitychange/fullscreen/disable-copy BELUM di ujian.js",
+      "modeLatihanTerpisah": "not-implemented - mulaiLatihan() identik dengan ujian resmi",
+      "rateLimiterLogin": "not-implemented - api/rate_limiter.php ada tapi tidak dipakai di auth.php",
+      "bookmarkSoal": "not-implemented",
+      "otpVerifikasi": "not-implemented",
+      "sertifikatPrintable": "partial - data DB ada, template HTML/PDF BELUM",
+      "importExcel": "not-implemented - file api/import_soal.php BELUM ADA",
+      "forumDiskusi": "not-implemented",
+      "pembayaranPremium": "not-implemented",
+      "countdownJadwalUjian": "not-implemented"
     },
     "ai": {
       "questionGenerator": "implemented",
@@ -179,6 +189,27 @@
       "bahanPelajaran": "implemented",
       "pembahasan": "implemented"
     }
+  },
+  "gap_analysis": {
+    "tanggal": "2026-05-24",
+    "sumber": "Analisis kode sumber vs praktik bimbel kedinasan di lapangan",
+    "prioritas_1": [
+      "Anti-cheat: visibilitychange + fullscreen + disable copy-paste di ujian.js",
+      "Mode latihan terpisah: pembahasan langsung, tanpa timer, tidak tercatat di hasil_ujian",
+      "Rate limiter: require_once rate_limiter.php di api/auth.php action=login",
+      "Bookmark soal: kolom is_bookmarked di jawaban_user"
+    ],
+    "prioritas_2": [
+      "Countdown jadwal ujian resmi di dashboard peserta",
+      "Sertifikat printable: template HTML + jsPDF + QR mandiri",
+      "OTP verifikasi HP registrasi via Fonnte/WA Gateway",
+      "Import Excel: PHPSpreadsheet + api/import_soal.php baru"
+    ],
+    "prioritas_3": [
+      "Forum diskusi tanya jawab per topik",
+      "Pembayaran paket premium Midtrans/Xendit",
+      "CAT adaptive testing di frontend (backend IRT sudah ada)"
+    ]
   },
   "testing": {
     "simulation": {
