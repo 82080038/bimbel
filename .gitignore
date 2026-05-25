@@ -23,7 +23,7 @@ uploads/
 # Database exports
 database/*backup*.sql
 database/*_backup_*.sql
-database/ujian_sekolah_kedinasan.sql
+# database/ujian_sekolah_kedinasan.sql - Temporarily removed from gitignore for sync
 
 # IDE
 .vscode/
