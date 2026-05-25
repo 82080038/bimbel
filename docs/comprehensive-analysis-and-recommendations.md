@@ -118,11 +118,12 @@ The application is a modern online exam system for Indonesian civil service exam
 - batch_generate.php, csrf.php, middleware.php, rate_limiter.php
 - validator.php, analytics.php, courses.php, gamification.php, notifications.php
 
-#### 5.3 Scripts (11 files)
-- ai_question_generator.php, learning_recommendation_system.php
+#### 5.3 Scripts (10 files)
+- learning_recommendation_system.php
 - educational_content_generator.php, external_content_fetcher.php
 - batch_generate.php, backup.php, cleanup-unused-files.php
 - analyze_soal_topics.php, check_reminders.php, logger.php, minify_assets.php
+- update_test_password.php
 
 ---
 

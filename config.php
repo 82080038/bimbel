@@ -13,10 +13,8 @@ if (!defined('DB_USER')) {
     define('DB_USER', 'root');
 }
 if (!defined('DB_PASS')) {
-    // MySQL password - auto-detect platform
-    // Linux: root, Windows: 8208
-    $is_windows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-    define('DB_PASS', $is_windows ? '8208' : 'root');
+    // MySQL password - updated to 'root' on 16 Mei 2026
+    define('DB_PASS', 'root');
 }
 if (!defined('DB_NAME')) {
     define('DB_NAME', 'ujian_sekolah_kedinasan');

@@ -14,7 +14,6 @@ require_once 'middleware.php';
 require_once 'csrf.php';
 require_once 'rate_limiter.php';
 require_once '../scripts/learning_recommendation_system.php';
-require_once '../scripts/ai_question_generator.php';
 
 // Start session if not already active
 if (session_status() === PHP_SESSION_NONE) {
@@ -193,12 +192,6 @@ switch ($action) {
     case 'generate_sertifikat':
         generateCertificate();
         break;
-    case 'generate_question_admin':
-        generateQuestionForAdmin();
-        break;
-    case 'generate_practice_question':
-        generatePracticeQuestion();
-        break;
     case 'leaderboard_optout':
         leaderboardOptout();
         break;
@@ -272,6 +265,24 @@ switch ($action) {
     case 'get_kategori':
         getKategori();
         break;
+    case 'get_topics':
+        getTopics();
+        break;
+    case 'get_topic_by_id':
+        getTopicById();
+        break;
+    case 'add_topic':
+        addTopic();
+        break;
+    case 'update_topic':
+        updateTopic();
+        break;
+    case 'delete_topic':
+        deleteTopic();
+        break;
+    case 'reextract_topics':
+        reextractTopics();
+        break;
     case 'get_topics_by_kategori':
         getTopicsByKategori();
         break;
@@ -286,24 +297,6 @@ switch ($action) {
         break;
     case 'get_learning_progress':
         getLearningProgress();
-        break;
-    case 'create_tryout_session':
-        createTryoutSession();
-        break;
-    case 'get_tryout_questions':
-        getTryoutQuestions();
-        break;
-    case 'start_tryout':
-        startTryout();
-        break;
-    case 'submit_tryout_answer':
-        submitTryoutAnswer();
-        break;
-    case 'complete_tryout':
-        completeTryout();
-        break;
-    case 'get_tryout_history':
-        getTryoutHistory();
         break;
     default:
         echo json_encode(['error' => 'Invalid action']);
@@ -331,10 +324,13 @@ function getSoalByKategori() {
         $kategori_id = $kategori_map[$kategori] ?? 1;
     }
     
-    $sql = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar 
-            FROM soal 
-            WHERE kategori_id = ? 
-            ORDER BY RAND() 
+    $sql = "SELECT s.id, s.pertanyaan, s.opsi_a, s.opsi_b, s.opsi_c, s.opsi_d, s.opsi_e, s.jawaban_benar, 
+            s.passage_id, s.nomor_urutan_dalam_passage,
+            p.judul as passage_judul, p.isi_cerita as passage_isi
+            FROM soal s 
+            LEFT JOIN passages p ON s.passage_id = p.id
+            WHERE s.kategori_id = ? 
+            ORDER BY s.passage_id, s.nomor_urutan_dalam_passage, RAND() 
             LIMIT ?";
     
     $stmt = $conn->prepare($sql);
@@ -417,9 +413,11 @@ function getSoalById() {
     
     $id = intval($_GET['id']);
     
-    $sql = "SELECT s.*, k.nama_kategori, k.deskripsi 
+    $sql = "SELECT s.*, k.nama_kategori, k.deskripsi, 
+            p.id as passage_id, p.judul as passage_judul, p.isi_cerita as passage_isi
             FROM soal s 
             JOIN kategori_soal k ON s.kategori_id = k.id 
+            LEFT JOIN passages p ON s.passage_id = p.id
             WHERE s.id = ?";
     
     $stmt = $conn->prepare($sql);
@@ -439,29 +437,29 @@ function simpanSesi() {
     $user_id = $user['id'];
     $data = json_decode(file_get_contents('php://input'), true);
 
-    if (!is_numeric($data['durasi_menit'] ?? '')) {
-        echo json_encode(['success' => false, 'error' => 'Invalid input data']);
-        return;
-    }
-
-    $durasi = intval($data['durasi_menit']);
+    // durasi_menit is optional for CAT mode
+    $durasi = isset($data['durasi_menit']) ? intval($data['durasi_menit']) : 60; // Default 60 minutes
     if ($durasi < 1 || $durasi > 300) {
         echo json_encode(['success' => false, 'error' => 'Durasi tidak valid (1-300 menit)']);
         return;
     }
 
-    if (!is_array($data['soal_teracak'])) {
+    // soal_teracak can be array or JSON string
+    if (isset($data['soal_teracak']) && is_array($data['soal_teracak'])) {
+        $soal_teracak = json_encode($data['soal_teracak']);
+    } elseif (isset($data['soal_teracak']) && is_string($data['soal_teracak'])) {
+        $soal_teracak = $data['soal_teracak'];
+    } else {
         echo json_encode(['success' => false, 'error' => 'Format soal tidak valid']);
         return;
     }
 
-    $soal_teracak = json_encode($data['soal_teracak']);
     if (strlen($soal_teracak) > 100000) {
         echo json_encode(['success' => false, 'error' => 'Data soal terlalu besar']);
         return;
     }
 
-    $sql = "INSERT INTO sesi_ujian (user_id, durasi_menit, soal_teracak) VALUES (?, ?, ?)";
+    $sql = "INSERT INTO sesi_ujian (user_id, durasi_menit, soal_teracak, status) VALUES (?, ?, ?, 'berjalan')";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iis", $user_id, $durasi, $soal_teracak);
 
@@ -833,52 +831,153 @@ function getKategori() {
     ]);
 }
 
+function getTopics() {
+    global $conn;
+    
+    $user = requireAuth();
+    $kategori_id = $_GET['kategori_id'] ?? null;
+    $search = $_GET['search'] ?? null;
+    
+    $sql = "SELECT t.id, t.kategori_id, t.nama_topic, t.keyword, t.frequency, t.deskripsi, t.created_at,
+                k.nama_kategori,
+                COUNT(s.id) as jumlah_soal
+            FROM topics t
+            JOIN kategori_soal k ON t.kategori_id = k.id
+            LEFT JOIN soal s ON s.topic_id = t.id";
+    
+    $where = [];
+    $params = [];
+    
+    if ($kategori_id) {
+        $where[] = "t.kategori_id = ?";
+        $params[] = $kategori_id;
+    }
+    
+    if ($search) {
+        $where[] = "(t.nama_topic LIKE ? OR t.keyword LIKE ?)";
+        $searchTerm = "%$search%";
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+    }
+    
+    if (!empty($where)) {
+        $sql .= " WHERE " . implode(" AND ", $where);
+    }
+    
+    $sql .= " GROUP BY t.id, t.kategori_id, t.nama_topic, t.keyword, t.frequency, t.deskripsi, t.created_at, k.nama_kategori
+             ORDER BY k.nama_kategori, t.frequency DESC";
+    
+    $stmt = $conn->prepare($sql);
+    if (!empty($params)) {
+        $stmt->bind_param(str_repeat("s", count($params)), ...$params);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $topics = [];
+    $summary = [];
+    
+    while ($row = $result->fetch_assoc()) {
+        $topics[] = [
+            'id' => $row['id'],
+            'kategori_id' => $row['kategori_id'],
+            'nama_kategori' => $row['nama_kategori'],
+            'nama_topic' => $row['nama_topic'],
+            'keyword' => $row['keyword'],
+            'frequency' => $row['frequency'],
+            'deskripsi' => $row['deskripsi'],
+            'jumlah_soal' => intval($row['jumlah_soal']),
+            'created_at' => $row['created_at']
+        ];
+        
+        // Build summary
+        $category = $row['nama_kategori'];
+        if (!isset($summary[$category])) {
+            $summary[$category] = 0;
+        }
+        $summary[$category]++;
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'data' => $topics,
+        'summary' => $summary
+    ]);
+}
+
+function reextractTopics() {
+    global $conn;
+    
+    $user = requireAuth();
+    
+    // Only admin can re-extract topics
+    if ($user['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        return;
+    }
+    
+    // Run the Python extraction script
+    $script_path = __DIR__ . '/../scripts/extract_topics.py';
+    
+    if (!file_exists($script_path)) {
+        echo json_encode(['success' => false, 'error' => 'Extraction script not found']);
+        return;
+    }
+    
+    $output = shell_exec("python \"$script_path\" 2>&1");
+    
+    // Check if extraction was successful
+    if (strpos($output, 'EXTRACTION COMPLETE') !== false) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Topics re-extracted successfully',
+            'output' => $output
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Extraction failed',
+            'output' => $output
+        ]);
+    }
+}
+
 function getTopicsByKategori() {
     global $conn;
 
     header('Content-Type: application/json');
 
     try {
-        $kategori_nama = $_GET['kategori'] ?? '';
+        $kategori_id = $_GET['kategori'] ?? '';
 
-        // Get kategori_id from nama
-        $kategori_map = [
-            'TWK' => 1,
-            'TIU' => 2,
-            'TKP' => 3,
-            'TPA' => 4,
-            'PSIKOLOGIS' => 5
-        ];
-
-        $kategori_id = $kategori_map[$kategori_nama] ?? null;
-
-        if (!$kategori_id) {
+        // Accept numeric ID only
+        if (!$kategori_id || !is_numeric($kategori_id)) {
             echo json_encode([
                 'success' => false,
-                'error' => 'Invalid category'
+                'error' => 'Invalid category ID'
             ]);
             return;
         }
+
+        $kategori_id = intval($kategori_id);
 
         $sql = "SELECT id, nama_topik, deskripsi, urutan FROM topik_pelajaran WHERE kategori_id = ? ORDER BY urutan";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $kategori_id);
         $stmt->execute();
         $result = $stmt->get_result();
-
+        
         $topics = [];
         while ($row = $result->fetch_assoc()) {
-            $topics[] = [
-                'id' => $row['id'],
-                'nama' => $row['nama_topik'],
-                'deskripsi' => $row['deskripsi'],
-                'urutan' => $row['urutan']
-            ];
+            $topics[] = $row;
         }
-
+        
+        // Return empty array if no topics found (not an error)
         echo json_encode([
             'success' => true,
-            'data' => $topics
+            'data' => $topics,
+            'count' => count($topics)
         ]);
     } catch (Exception $e) {
         echo json_encode([
@@ -1050,8 +1149,8 @@ function getStatistik() {
     $user_id = $user['id'];
     $is_admin = ($user['role'] === 'admin');
     
-    // Fixed categories that exist in hasil_ujian table
-    $categories = ['TWK', 'TIU', 'TKP'];
+    // Fixed categories that exist in hasil_ujian table (all 5 categories)
+    $categories = ['TWK', 'TIU', 'TKP', 'TPA', 'PSIKOLOGIS'];
     
     if ($is_admin) {
         // Admin gets global statistics (all users)
@@ -1064,15 +1163,17 @@ function getStatistik() {
         $stmt_avg_total->execute();
         $avg_total = $stmt_avg_total->get_result()->fetch_assoc()['avg_total'] ?? 0;
         
-        // Calculate average for each category
-        $stmt_avg = $conn->prepare("SELECT AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp FROM hasil_ujian");
+        // Calculate average for each category (all 5 categories)
+        $stmt_avg = $conn->prepare("SELECT AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp, AVG(nilai_tpa) as avg_tpa, AVG(nilai_psikologis) as avg_psikologis FROM hasil_ujian");
         $stmt_avg->execute();
         $avg_scores = $stmt_avg->get_result()->fetch_assoc();
         
         $category_averages = [
             'twk' => round($avg_scores['avg_twk'] ?? 0, 2),
             'tiu' => round($avg_scores['avg_tiu'] ?? 0, 2),
-            'tkp' => round($avg_scores['avg_tkp'] ?? 0, 2)
+            'tkp' => round($avg_scores['avg_tkp'] ?? 0, 2),
+            'tpa' => round($avg_scores['avg_tpa'] ?? 0, 2),
+            'psikologis' => round($avg_scores['avg_psikologis'] ?? 0, 2)
         ];
         
         $stmt_pass = $conn->prepare("SELECT COUNT(*) as passed FROM hasil_ujian WHERE status_lulus = 'LULUS'");
@@ -1091,8 +1192,8 @@ function getStatistik() {
         $stmt_avg_total->execute();
         $avg_total = $stmt_avg_total->get_result()->fetch_assoc()['avg_total'] ?? 0;
         
-        // Calculate average for each category
-        $stmt_avg = $conn->prepare("SELECT AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp FROM hasil_ujian WHERE user_id = ?");
+        // Calculate average for each category (all 5 categories)
+        $stmt_avg = $conn->prepare("SELECT AVG(nilai_twk) as avg_twk, AVG(nilai_tiu) as avg_tiu, AVG(nilai_tkp) as avg_tkp, AVG(nilai_tpa) as avg_tpa, AVG(nilai_psikologis) as avg_psikologis FROM hasil_ujian WHERE user_id = ?");
         $stmt_avg->bind_param("i", $user_id);
         $stmt_avg->execute();
         $avg_scores = $stmt_avg->get_result()->fetch_assoc();
@@ -1100,7 +1201,9 @@ function getStatistik() {
         $category_averages = [
             'twk' => round($avg_scores['avg_twk'] ?? 0, 2),
             'tiu' => round($avg_scores['avg_tiu'] ?? 0, 2),
-            'tkp' => round($avg_scores['avg_tkp'] ?? 0, 2)
+            'tkp' => round($avg_scores['avg_tkp'] ?? 0, 2),
+            'tpa' => round($avg_scores['avg_tpa'] ?? 0, 2),
+            'psikologis' => round($avg_scores['avg_psikologis'] ?? 0, 2)
         ];
         
         $stmt_pass = $conn->prepare("SELECT COUNT(*) as passed FROM hasil_ujian WHERE user_id = ? AND status_lulus = 'LULUS'");
@@ -1325,38 +1428,25 @@ function createQuestion() {
         $opsi_e = $conn->real_escape_string($data['opsi_e'] ?? '');
         $jawaban_benar = $conn->real_escape_string($data['jawaban_benar'] ?? '');
         $pembahasan = $conn->real_escape_string($data['pembahasan'] ?? '');
-        $topic_nama = $data['topic'] ?? '';
+        $topic_id = intval($data['topic_id'] ?? 0);
+        
+        // Image fields
+        $gambar_pertanyaan = $conn->real_escape_string($data['gambarpertanyaan'] ?? '');
+        $gambar_opsi_a = $conn->real_escape_string($data['gambaropsi_a'] ?? '');
+        $gambar_opsi_b = $conn->real_escape_string($data['gambaropsi_b'] ?? '');
+        $gambar_opsi_c = $conn->real_escape_string($data['gambaropsi_c'] ?? '');
+        $gambar_opsi_d = $conn->real_escape_string($data['gambaropsi_d'] ?? '');
+        $gambar_opsi_e = $conn->real_escape_string($data['gambaropsi_e'] ?? '');
+        $gambar_pembahasan = $conn->real_escape_string($data['gambarpembahasan'] ?? '');
 
-        $sql = "INSERT INTO soal (kategori_id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, pembahasan)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO soal (kategori_id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, pembahasan, topic_id, gambar_pertanyaan, gambar_opsi_a, gambar_opsi_b, gambar_opsi_c, gambar_opsi_d, gambar_opsi_e, gambar_pembahasan)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("issssssss", $kategori_id, $pertanyaan, $opsi_a, $opsi_b, $opsi_c, $opsi_d, $opsi_e, $jawaban_benar, $pembahasan);
+        $stmt->bind_param("issssssssisssssss", $kategori_id, $pertanyaan, $opsi_a, $opsi_b, $opsi_c, $opsi_d, $opsi_e, $jawaban_benar, $pembahasan, $topic_id, $gambar_pertanyaan, $gambar_opsi_a, $gambar_opsi_b, $gambar_opsi_c, $gambar_opsi_d, $gambar_opsi_e, $gambar_pembahasan);
 
         if ($stmt->execute()) {
             $soal_id = $conn->insert_id;
-
-            // If topic is provided, save the relationship
-            if (!empty($topic_nama)) {
-                // Get topic_id from topic name
-                $topic_sql = "SELECT id FROM topik_pelajaran WHERE nama_topik = ? AND kategori_id = ?";
-                $topic_stmt = $conn->prepare($topic_sql);
-                $topic_stmt->bind_param("si", $topic_nama, $kategori_id);
-                $topic_stmt->execute();
-                $topic_result = $topic_stmt->get_result();
-                $topic_row = $topic_result->fetch_assoc();
-
-                if ($topic_row) {
-                    $topic_id = $topic_row['id'];
-
-                    // Save to soal_topik junction table
-                    $junction_sql = "INSERT INTO soal_topik (soal_id, topik_id) VALUES (?, ?)";
-                    $junction_stmt = $conn->prepare($junction_sql);
-                    $junction_stmt->bind_param("ii", $soal_id, $topic_id);
-                    $junction_stmt->execute();
-                }
-            }
-
             echo json_encode(['success' => true, 'id' => $soal_id]);
         } else {
             echo json_encode(['success' => false, 'error' => $conn->error]);
@@ -1397,12 +1487,22 @@ function updateQuestion() {
     $opsi_e = $conn->real_escape_string($data['opsi_e'] ?? '');
     $jawaban_benar = $conn->real_escape_string($data['jawaban_benar'] ?? '');
     $pembahasan = $conn->real_escape_string($data['pembahasan'] ?? '');
+    $topic_id = intval($data['topic_id'] ?? 0);
     
-    $sql = "UPDATE soal SET kategori_id=?, pertanyaan=?, opsi_a=?, opsi_b=?, opsi_c=?, opsi_d=?, opsi_e=?, jawaban_benar=?, pembahasan=? 
+    // Image fields
+    $gambar_pertanyaan = $conn->real_escape_string($data['gambarpertanyaan'] ?? '');
+    $gambar_opsi_a = $conn->real_escape_string($data['gambaropsi_a'] ?? '');
+    $gambar_opsi_b = $conn->real_escape_string($data['gambaropsi_b'] ?? '');
+    $gambar_opsi_c = $conn->real_escape_string($data['gambaropsi_c'] ?? '');
+    $gambar_opsi_d = $conn->real_escape_string($data['gambaropsi_d'] ?? '');
+    $gambar_opsi_e = $conn->real_escape_string($data['gambaropsi_e'] ?? '');
+    $gambar_pembahasan = $conn->real_escape_string($data['gambarpembahasan'] ?? '');
+    
+    $sql = "UPDATE soal SET kategori_id=?, pertanyaan=?, opsi_a=?, opsi_b=?, opsi_c=?, opsi_d=?, opsi_e=?, jawaban_benar=?, pembahasan=?, topic_id=?, gambar_pertanyaan=?, gambar_opsi_a=?, gambar_opsi_b=?, gambar_opsi_c=?, gambar_opsi_d=?, gambar_opsi_e=?, gambar_pembahasan=? 
             WHERE id=?";
     
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issssssssi", $kategori_id, $pertanyaan, $opsi_a, $opsi_b, $opsi_c, $opsi_d, $opsi_e, $jawaban_benar, $pembahasan, $id);
+    $stmt->bind_param("issssssssisssssssi", $kategori_id, $pertanyaan, $opsi_a, $opsi_b, $opsi_c, $opsi_d, $opsi_e, $jawaban_benar, $pembahasan, $topic_id, $gambar_pertanyaan, $gambar_opsi_a, $gambar_opsi_b, $gambar_opsi_c, $gambar_opsi_d, $gambar_opsi_e, $gambar_pembahasan, $id);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);
@@ -1437,31 +1537,15 @@ function listQuestions() {
     $limit = intval($_GET['limit'] ?? 10);
     $offset = ($page - 1) * $limit;
     
-    $kategori_map = [
-        'TWK' => 1,
-        'TIU' => 2,
-        'TKP' => 3,
-        'TPA' => 4,
-        'PSIKOLOGIS' => 5
-    ];
-
     $where = "WHERE 1=1";
     $params = [];
     $types = "";
 
-    // Handle both numeric ID (from dropdown) and string name (from old code)
-    if ($kategori) {
-        $kategori_id = null;
-        if (is_numeric($kategori)) {
-            $kategori_id = intval($kategori);
-        } elseif (isset($kategori_map[$kategori])) {
-            $kategori_id = $kategori_map[$kategori];
-        }
-        if ($kategori_id) {
-            $where .= " AND kategori_id = ?";
-            $params[] = $kategori_id;
-            $types .= "i";
-        }
+    // Accept numeric ID only
+    if ($kategori && is_numeric($kategori)) {
+        $where .= " AND kategori_id = ?";
+        $params[] = intval($kategori);
+        $types .= "i";
     }
     
     if ($search) {
@@ -1642,21 +1726,15 @@ function getSoalStatistics() {
     $limit = intval($_GET['limit'] ?? 50);
     
     $where = "";
-    if ($kategori) {
-        $kategori_map = [
-            'TWK' => 1,
-            'TIU' => 2,
-            'TKP' => 3,
-            'TPA' => 4,
-            'PSIKOLOGIS' => 5
-        ];
-        // Handle both numeric ID and string name
-        if (is_numeric($kategori)) {
-            $kategori_id = intval($kategori);
-            $where = "WHERE s.kategori_id = " . $kategori_id;
-        } elseif (isset($kategori_map[$kategori])) {
-            $where = "WHERE s.kategori_id = " . $kategori_map[$kategori];
-        }
+    $params = [];
+    $param_types = "";
+    
+    // Accept numeric ID only
+    if ($kategori && is_numeric($kategori)) {
+        $kategori_id = intval($kategori);
+        $where = "WHERE s.kategori_id = ?";
+        $params[] = $kategori_id;
+        $param_types .= "i";
     }
     
     $sql = "SELECT s.id, s.pertanyaan, k.nama_kategori, 
@@ -1675,16 +1753,43 @@ function getSoalStatistics() {
             ORDER BY muncul_count DESC, persen_benar ASC
             LIMIT $limit";
     
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare($sql);
+    if (!empty($params)) {
+        $stmt->bind_param($param_types, ...$params);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
     $statistics = [];
     
     while ($row = $result->fetch_assoc()) {
         $statistics[] = $row;
     }
     
+    // Get summary statistics
+    $summary_sql = "SELECT 
+        COUNT(DISTINCT s.id) as total_soal,
+        SUM(COALESCE(sf.muncul_count, 0)) as total_muncul,
+        SUM(COALESCE(sf.benar_count, 0)) as total_benar,
+        SUM(COALESCE(sf.salah_count, 0)) as total_salah,
+        ROUND(AVG(CASE WHEN COALESCE(sf.muncul_count, 0) > 0 
+            THEN (COALESCE(sf.benar_count, 0) / COALESCE(sf.muncul_count, 0)) * 100 
+            ELSE NULL END), 2) as avg_persen_benar
+        FROM soal s
+        LEFT JOIN soal_frequency sf ON s.id = sf.soal_id
+        $where";
+    
+    $summary_stmt = $conn->prepare($summary_sql);
+    if (!empty($params)) {
+        $summary_stmt->bind_param($param_types, ...$params);
+    }
+    $summary_stmt->execute();
+    $summary_result = $summary_stmt->get_result();
+    $summary = $summary_result->fetch_assoc();
+    
     echo json_encode([
         'success' => true,
-        'data' => $statistics
+        'data' => $statistics,
+        'summary' => $summary
     ]);
 }
 
@@ -1722,25 +1827,36 @@ function getAllBahanPelajaran() {
     $limit = intval($_GET['limit'] ?? 20);
     $offset = ($page - 1) * $limit;
     $kategori_id = intval($_GET['kategori_id'] ?? 0);
+    $topic_id = intval($_GET['topic_id'] ?? 0);
 
     // Debug logging
-    error_log("getAllBahanPelajaran - kategori_id: $kategori_id, page: $page, limit: $limit");
+    error_log("getAllBahanPelajaran - kategori_id: $kategori_id, topic_id: $topic_id, page: $page, limit: $limit");
 
     $where = "";
     $params = [];
     $types = "";
 
     if ($kategori_id > 0) {
-        $where = "WHERE kategori_id = ?";
+        $where = "WHERE b.kategori_id = ?";
         $params[] = $kategori_id;
         $types .= "i";
     }
 
+    if ($topic_id > 0) {
+        if ($where) {
+            $where .= " AND b.topic_id = ?";
+        } else {
+            $where = "WHERE b.topic_id = ?";
+        }
+        $params[] = $topic_id;
+        $types .= "i";
+    }
+
     // Get total count
-    $count_sql = "SELECT COUNT(*) as total FROM bahan_pelajaran $where";
-    if ($kategori_id > 0) {
+    $count_sql = "SELECT COUNT(*) as total FROM bahan_pelajaran b $where";
+    if (!empty($params)) {
         $stmt = $conn->prepare($count_sql);
-        $stmt->bind_param("i", $kategori_id);
+        $stmt->bind_param($types, ...$params);
         $stmt->execute();
         $count_result = $stmt->get_result();
     } else {
@@ -1748,7 +1864,7 @@ function getAllBahanPelajaran() {
     }
     $total = $count_result->fetch_assoc()['total'];
 
-    $sql = "SELECT * FROM bahan_pelajaran $where ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    $sql = "SELECT b.*, k.nama_kategori, t.nama_topik FROM bahan_pelajaran b LEFT JOIN kategori_soal k ON b.kategori_id = k.id LEFT JOIN topik_pelajaran t ON b.topic_id = t.id $where ORDER BY b.created_at DESC LIMIT ? OFFSET ?";
     $params[] = $limit;
     $params[] = $offset;
     $types .= "ii";
@@ -1863,6 +1979,7 @@ function saveBahanPelajaran() {
     $id = intval($_POST['id'] ?? 0);
     $soal_id = intval($_POST['soal_id'] ?? 0);
     $kategori_id = intval($_POST['kategori_id'] ?? 0);
+    $topic_id = intval($_POST['topic_id'] ?? 0);
     $judul = $conn->real_escape_string($_POST['judul'] ?? '');
     $konten = $conn->real_escape_string($_POST['konten'] ?? '');
     $tipe = $conn->real_escape_string($_POST['tipe'] ?? 'teks');
@@ -1947,15 +2064,15 @@ function saveBahanPelajaran() {
     // INSERT or UPDATE based on id
     if ($id > 0) {
         // UPDATE existing record
-        $sql = "UPDATE bahan_pelajaran SET soal_id=?, kategori_id=?, judul=?, konten=?, tipe=?, url=?, file_path=COALESCE(NULLIF(?, ''), file_path), urutan=? WHERE id=?";
+        $sql = "UPDATE bahan_pelajaran SET soal_id=?, kategori_id=?, topic_id=?, judul=?, konten=?, tipe=?, url=?, file_path=COALESCE(NULLIF(?, ''), file_path), urutan=? WHERE id=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("iisssssii", $soal_id, $kategori_id, $judul, $konten, $tipe, $url, $file_path, $urutan, $id);
+        $stmt->bind_param("iiisssssii", $soal_id, $kategori_id, $topic_id, $judul, $konten, $tipe, $url, $file_path, $urutan, $id);
     } else {
         // INSERT new record
-        $sql = "INSERT INTO bahan_pelajaran (soal_id, kategori_id, judul, konten, tipe, url, file_path, urutan)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO bahan_pelajaran (soal_id, kategori_id, topic_id, judul, konten, tipe, url, file_path, urutan)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("iisssssi", $soal_id, $kategori_id, $judul, $konten, $tipe, $url, $file_path, $urutan);
+        $stmt->bind_param("iiisssssi", $soal_id, $kategori_id, $topic_id, $judul, $konten, $tipe, $url, $file_path, $urutan);
     }
 
     $result = $stmt->execute();
@@ -2570,16 +2687,16 @@ function leaderboardOptout() {
     global $conn;
 
     $user = requireAuth();
-    $user_id = $user['id'];
+    $nama_peserta = $user['nama'] ?? '';
     $data = json_decode(file_get_contents('php://input'), true);
     $optout = $data['optout'] ?? true;
 
     if ($optout) {
-        $stmt = $conn->prepare("INSERT IGNORE INTO leaderboard_optout (user_id) VALUES (?)");
-        $stmt->bind_param('i', $user_id);
+        $stmt = $conn->prepare("INSERT IGNORE INTO leaderboard_optout (nama_peserta) VALUES (?)");
+        $stmt->bind_param('s', $nama_peserta);
     } else {
-        $stmt = $conn->prepare("DELETE FROM leaderboard_optout WHERE user_id = ?");
-        $stmt->bind_param('i', $user_id);
+        $stmt = $conn->prepare("DELETE FROM leaderboard_optout WHERE nama_peserta = ?");
+        $stmt->bind_param('s', $nama_peserta);
     }
 
     if ($stmt->execute()) {
@@ -2593,10 +2710,10 @@ function getLeaderboardOptOutStatus() {
     global $conn;
 
     $user = requireAuth();
-    $user_id = $user['id'];
+    $nama_peserta = $user['nama'] ?? '';
 
-    $stmt = $conn->prepare("SELECT id FROM leaderboard_optout WHERE user_id = ?");
-    $stmt->bind_param('i', $user_id);
+    $stmt = $conn->prepare("SELECT id FROM leaderboard_optout WHERE nama_peserta = ?");
+    $stmt->bind_param('s', $nama_peserta);
     $stmt->execute();
 
     if ($stmt->get_result()->num_rows > 0) {
@@ -2776,29 +2893,29 @@ function getPaketTryout() {
     $kategori_id = $_GET['kategori_id'] ?? '';
     $search = $_GET['search'] ?? '';
     
-    $sql = "SELECT * FROM paket_tryout WHERE 1=1";
+    $sql = "SELECT pt.*, k.nama_kategori FROM paket_tryout pt LEFT JOIN kategori_soal k ON pt.kategori_id = k.id WHERE 1=1";
     $params = [];
     $types = "";
     
     if ($id) {
-        $sql .= " AND id = ?";
+        $sql .= " AND pt.id = ?";
         $params[] = $id;
         $types .= "i";
     }
     
     if ($kategori_id) {
-        $sql .= " AND kategori_id = ?";
+        $sql .= " AND pt.kategori_id = ?";
         $params[] = $kategori_id;
         $types .= "i";
     }
     
     if ($search) {
-        $sql .= " AND nama_paket LIKE ?";
+        $sql .= " AND pt.nama_paket LIKE ?";
         $params[] = "%$search%";
         $types .= "s";
     }
     
-    $sql .= " ORDER BY nama_paket";
+    $sql .= " ORDER BY pt.nama_paket";
     
     if (!empty($params)) {
         $stmt = $conn->prepare($sql);
@@ -2814,7 +2931,12 @@ function getPaketTryout() {
         $pakets[] = $row;
     }
     
-    echo json_encode(['success' => true, 'data' => $pakets]);
+    // If single ID requested, return single object instead of array
+    if ($id) {
+        echo json_encode(['success' => true, 'data' => $pakets[0] ?? null]);
+    } else {
+        echo json_encode(['success' => true, 'data' => $pakets]);
+    }
 }
 
 function createPaketTryout() {
@@ -2867,7 +2989,13 @@ function updatePaketTryout() {
 function deletePaketTryout() {
     global $conn;
     
-    $id = $_GET['id'] ?? 0;
+    $data = json_decode(file_get_contents('php://input'), true);
+    $id = $data['id'] ?? 0;
+    
+    if ($id === 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid ID']);
+        return;
+    }
     
     $sql = "DELETE FROM paket_tryout WHERE id = ?";
     $stmt = $conn->prepare($sql);
@@ -2891,15 +3019,34 @@ function getSesiUjian() {
         return;
     }
     
+    // Check if paket_id column exists, add if missing
+    $check_paket_id = $conn->query("SHOW COLUMNS FROM sesi_ujian LIKE 'paket_id'");
+    $has_paket_id = $check_paket_id->num_rows > 0;
+    
+    if (!$has_paket_id) {
+        $conn->query("ALTER TABLE sesi_ujian ADD COLUMN paket_id INT(11) DEFAULT NULL AFTER user_id");
+        $conn->query("ALTER TABLE sesi_ujian ADD FOREIGN KEY (paket_id) REFERENCES paket_tryout(id) ON DELETE SET NULL");
+        $has_paket_id = true;
+    }
+    
+    // Check if nilai_total column exists, add if missing
+    $check_nilai_total = $conn->query("SHOW COLUMNS FROM sesi_ujian LIKE 'nilai_total'");
+    $has_nilai_total = $check_nilai_total->num_rows > 0;
+    
+    if (!$has_nilai_total) {
+        $conn->query("ALTER TABLE sesi_ujian ADD COLUMN nilai_total DECIMAL(10,2) DEFAULT NULL AFTER ability_estimate");
+        $has_nilai_total = true;
+    }
+    
     $status = $_GET['status'] ?? '';
-    $search = $_GET['search'] ?? '';
+    $user_id = $_GET['user_id'] ?? '';
     
     try {
-        $sql = "SELECT su.*, u.nama_lengkap as user_nama, pt.nama_paket as paket_nama 
-                FROM sesi_ujian su 
-                LEFT JOIN users u ON su.user_id = u.id 
-                LEFT JOIN paket_tryout pt ON su.paket_id = pt.id 
-                WHERE 1=1";
+        // Build SELECT clause based on available columns
+        $select_fields = "su.*, u.nama_lengkap as user_nama, pt.nama_paket as paket_nama, su.nilai_total";
+        
+        $sql = "SELECT $select_fields FROM sesi_ujian su LEFT JOIN users u ON su.user_id = u.id LEFT JOIN paket_tryout pt ON su.paket_id = pt.id WHERE 1=1";
+        
         $params = [];
         $types = "";
         
@@ -2909,11 +3056,10 @@ function getSesiUjian() {
             $types .= "s";
         }
         
-        if ($search) {
-            $sql .= " AND (u.nama_lengkap LIKE ? OR pt.nama_paket LIKE ?)";
-            $params[] = "%$search%";
-            $params[] = "%$search%";
-            $types .= "ss";
+        if ($user_id) {
+            $sql .= " AND su.user_id = ?";
+            $params[] = $user_id;
+            $types .= "i";
         }
         
         $sql .= " ORDER BY su.waktu_mulai DESC";
@@ -3087,6 +3233,9 @@ function getIRTAnalysis() {
     
     requireAdmin();
     
+    $kategori = $_GET['kategori'] ?? '';
+    $quality = $_GET['quality'] ?? '';
+    
     $sql = "SELECT s.id, s.pertanyaan, s.kategori_id, k.nama_kategori,
             s.irt_a, s.irt_b, s.irt_c, s.discrimination_index, s.item_quality,
             sf.muncul_count, sf.benar_count, sf.salah_count,
@@ -3094,9 +3243,35 @@ function getIRTAnalysis() {
             FROM soal s
             LEFT JOIN kategori_soal k ON s.kategori_id = k.id
             LEFT JOIN soal_frequency sf ON s.id = sf.soal_id
-            WHERE sf.muncul_count > 0
-            ORDER BY s.discrimination_index ASC";
-    $result = $conn->query($sql);
+            WHERE sf.muncul_count > 0";
+    
+    $params = [];
+    $types = "";
+    
+    // Accept numeric ID only
+    if ($kategori && is_numeric($kategori)) {
+        $sql .= " AND s.kategori_id = ?";
+        $params[] = intval($kategori);
+        $types .= "i";
+    }
+    
+    if ($quality) {
+        $sql .= " AND s.item_quality = ?";
+        $params[] = $quality;
+        $types .= "s";
+    }
+    
+    $sql .= " ORDER BY s.discrimination_index ASC";
+    
+    if (!empty($params)) {
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    } else {
+        $result = $conn->query($sql);
+    }
+    
     $analysis = [];
     
     while ($row = $result->fetch_assoc()) {
@@ -3236,7 +3411,7 @@ function updateAbilityEstimate() {
     $sql_update = "UPDATE sesi_ujian 
                   SET ability_estimate = $new_ability, confidence_level = $confidence
                   WHERE id = $sesi_id";
-    $result = $conn->query($sql);
+    $result = $conn->query($sql_update);
     
     if ($result) {
         echo json_encode([
@@ -3432,206 +3607,161 @@ function getLearningProgress() {
     echo json_encode(['success' => true, 'data' => $progress]);
 }
 
-function createTryoutSession() {
+function getTopicById() {
     global $conn;
     
-    $auth_user = requireAuth();
-    $user_id = $auth_user['id'] ?? 0;
-    if ($user_id === 0) {
-        echo json_encode(['success' => false, 'error' => 'User not logged in']);
-        return;
-    }
-    
-    $data = json_decode(file_get_contents('php://input'), true);
-    $topic_id = intval($data['topic_id'] ?? 0);
-    $session_name = $data['session_name'] ?? '';
-    $total_questions = intval($data['total_questions'] ?? 10);
-    $duration_minutes = intval($data['duration_minutes'] ?? 30);
+    $user = requireAuth();
+    $topic_id = intval($_GET['id'] ?? 0);
     
     if ($topic_id === 0) {
         echo json_encode(['success' => false, 'error' => 'Invalid topic ID']);
         return;
     }
     
-    $generator = new AIQuestionGenerator($conn);
-    $session_id = $generator->createTryoutSession($user_id, $topic_id, $session_name, $total_questions, $duration_minutes);
+    $sql = "SELECT t.*, k.nama_kategori 
+            FROM topics t 
+            LEFT JOIN kategori_soal k ON t.kategori_id = k.id 
+            WHERE t.id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $topic_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $topic = $result->fetch_assoc();
     
-    if ($session_id) {
-        echo json_encode(['success' => true, 'session_id' => $session_id]);
+    if ($topic) {
+        // Get jumlah soal
+        $soal_count_sql = "SELECT COUNT(*) as count FROM soal WHERE topic_id = ?";
+        $soal_stmt = $conn->prepare($soal_count_sql);
+        $soal_stmt->bind_param("i", $topic_id);
+        $soal_stmt->execute();
+        $soal_result = $soal_stmt->get_result()->fetch_assoc();
+        $topic['jumlah_soal'] = $soal_result['count'] ?? 0;
+        
+        echo json_encode(['success' => true, 'data' => $topic]);
     } else {
-        echo json_encode(['success' => false, 'error' => 'Failed to create tryout session']);
+        echo json_encode(['success' => false, 'error' => 'Topic not found']);
     }
 }
 
-function getTryoutQuestions() {
+function addTopic() {
     global $conn;
     
-    $session_id = intval($_GET['session_id'] ?? 0);
+    $user = requireAuth();
     
-    if ($session_id === 0) {
-        echo json_encode(['success' => false, 'error' => 'Invalid session ID']);
+    // Only admin can add topics
+    if ($user['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
         return;
     }
-    
-    $generator = new AIQuestionGenerator($conn);
-    $questions = $generator->getTryoutQuestions($session_id);
-    $session_info = $generator->getTryoutSession($session_id);
-    
-    echo json_encode(['success' => true, 'data' => [
-        'session' => $session_info,
-        'questions' => $questions
-    ]]);
-}
-
-function startTryout() {
-    global $conn;
     
     $data = json_decode(file_get_contents('php://input'), true);
-    $session_id = intval($data['session_id'] ?? 0);
     
-    if ($session_id === 0) {
-        echo json_encode(['success' => false, 'error' => 'Invalid session ID']);
+    $kategori_id = intval($data['kategori_id'] ?? 0);
+    $nama_topik = $data['nama_topik'] ?? '';
+    $keyword = $data['keyword'] ?? '';
+    $deskripsi = $data['deskripsi'] ?? '';
+    $urutan = intval($data['urutan'] ?? 0);
+    
+    if (empty($nama_topik) || $kategori_id === 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid input']);
         return;
     }
     
-    $generator = new AIQuestionGenerator($conn);
-    $result = $generator->startTryoutSession($session_id);
+    $sql = "INSERT INTO topics (kategori_id, nama_topic, keyword, deskripsi, frequency, urutan, created_at) 
+            VALUES (?, ?, ?, ?, 0, ?, NOW())";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("issi", $kategori_id, $nama_topik, $keyword, $urutan);
     
-    if ($result) {
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'id' => $conn->insert_id]);
+    } else {
+        echo json_encode(['success' => false, 'error' => $conn->error]);
+    }
+}
+
+function updateTopic() {
+    global $conn;
+    
+    $user = requireAuth();
+    
+    // Only admin can update topics
+    if ($user['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        return;
+    }
+    
+    $topic_id = intval($_GET['id'] ?? 0);
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if ($topic_id === 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid topic ID']);
+        return;
+    }
+    
+    $kategori_id = intval($data['kategori_id'] ?? 0);
+    $nama_topik = $data['nama_topik'] ?? '';
+    $keyword = $data['keyword'] ?? '';
+    $deskripsi = $data['deskripsi'] ?? '';
+    $urutan = intval($data['urutan'] ?? 0);
+    
+    if (empty($nama_topik) || $kategori_id === 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid input']);
+        return;
+    }
+    
+    $sql = "UPDATE topics SET kategori_id = ?, nama_topic = ?, keyword = ?, deskripsi = ?, urutan = ? 
+            WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("issii", $kategori_id, $nama_topik, $keyword, $deskripsi, $urutan, $topic_id);
+    
+    if ($stmt->execute()) {
         echo json_encode(['success' => true]);
     } else {
-        echo json_encode(['success' => false, 'error' => 'Failed to start tryout']);
+        echo json_encode(['success' => false, 'error' => $conn->error]);
     }
 }
 
-function submitTryoutAnswer() {
+function deleteTopic() {
     global $conn;
     
-    $data = json_decode(file_get_contents('php://input'), true);
-    $session_id = intval($data['session_id'] ?? 0);
-    $question_id = intval($data['question_id'] ?? 0);
-    $user_answer = $data['answer'] ?? '';
-    $time_taken = intval($data['time_taken'] ?? 0);
+    $user = requireAuth();
     
-    if ($session_id === 0 || $question_id === 0) {
-        echo json_encode(['success' => false, 'error' => 'Invalid parameters']);
+    // Only admin can delete topics
+    if ($user['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
         return;
     }
     
-    $generator = new AIQuestionGenerator($conn);
-    $result = $generator->submitAnswer($session_id, $question_id, $user_answer, $time_taken);
+    $topic_id = intval($_GET['id'] ?? 0);
     
-    if ($result) {
+    if ($topic_id === 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid topic ID']);
+        return;
+    }
+    
+    // Check if topic has associated questions
+    $check_sql = "SELECT COUNT(*) as count FROM soal WHERE topic_id = ?";
+    $check_stmt = $conn->prepare($check_sql);
+    $check_stmt->bind_param("i", $topic_id);
+    $check_stmt->execute();
+    $check_result = $check_stmt->get_result()->fetch_assoc();
+    
+    if ($check_result['count'] > 0) {
+        echo json_encode(['success' => false, 'error' => 'Cannot delete topic with associated questions']);
+        return;
+    }
+    
+    $sql = "DELETE FROM topics WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $topic_id);
+    
+    if ($stmt->execute()) {
         echo json_encode(['success' => true]);
     } else {
-        echo json_encode(['success' => false, 'error' => 'Failed to submit answer']);
-    }
-}
-
-function completeTryout() {
-    global $conn;
-    
-    $data = json_decode(file_get_contents('php://input'), true);
-    $session_id = intval($data['session_id'] ?? 0);
-    
-    if ($session_id === 0) {
-        echo json_encode(['success' => false, 'error' => 'Invalid session ID']);
-        return;
-    }
-    
-    $generator = new AIQuestionGenerator($conn);
-    $score = $generator->calculateScore($session_id);
-    $result = $generator->completeTryoutSession($session_id, $score);
-    
-    if ($result) {
-        // Award XP for completing exam
-        $xp_amount = 10 + floor($score / 10); // Base 10 XP + bonus based on score
-        $auth_user = requireAuth();
-        $user_id = $auth_user['id'] ?? null;
-        $auth_token = $auth_user['api_key'] ?? '';
-        
-        if ($user_id) {
-            // Award XP directly via DB (avoid internal curl with session token)
-            $xp_sql = "SELECT total_xp, level, xp_to_next_level FROM user_xp WHERE user_id = ?";
-            $xp_stmt = $conn->prepare($xp_sql);
-            $xp_stmt->bind_param('i', $user_id);
-            $xp_stmt->execute();
-            $xp_data = $xp_stmt->get_result()->fetch_assoc();
-            if ($xp_data) {
-                $new_total = $xp_data['total_xp'] + $xp_amount;
-                $new_level = floor(sqrt($new_total / 100)) + 1;
-                $new_next = ($new_level + 1) * ($new_level + 1) * 100;
-                $upd_stmt = $conn->prepare("UPDATE user_xp SET total_xp=?, level=?, xp_to_next_level=? WHERE user_id=?");
-                $upd_stmt->bind_param('iiii', $new_total, $new_level, $new_next, $user_id);
-                $upd_stmt->execute();
-            }
-            // Log XP transaction
-            $txn_sql = "INSERT INTO xp_transactions (user_id, xp_amount, reason, source, source_id) VALUES (?, ?, ?, 'exam', ?)";
-            $txn_stmt = $conn->prepare($txn_sql);
-            $reason = 'Completed tryout session: ' . $session_id;
-            $txn_stmt->bind_param('iisi', $user_id, $xp_amount, $reason, $session_id);
-            $txn_stmt->execute();
-            // Send in-app notification directly via DB
-            $notif_sql = "INSERT INTO notifications (user_id, type, title, message, category, status) VALUES (?, 'in_app', 'Hasil Ujian Tersedia', ?, 'exam_result', 'pending')";
-            $notif_stmt = $conn->prepare($notif_sql);
-            $notif_msg = 'Nilai ujian Anda: ' . $score;
-            $notif_stmt->bind_param('is', $user_id, $notif_msg);
-            $notif_stmt->execute();
-        }
-        
-        echo json_encode(['success' => true, 'score' => $score, 'xp_awarded' => $xp_amount]);
-    } else {
-        echo json_encode(['success' => false, 'error' => 'Failed to complete tryout']);
-    }
-}
-
-function getTryoutHistory() {
-    global $conn;
-    
-    $user_id = intval($_GET['user_id'] ?? 0);
-    
-    if ($user_id === 0) {
-        echo json_encode(['success' => false, 'error' => 'Invalid user ID']);
-        return;
-    }
-    
-    $generator = new AIQuestionGenerator($conn);
-    $history = $generator->getUserTryoutHistory($user_id);
-    
-    echo json_encode(['success' => true, 'data' => $history]);
-}
-
-function generateQuestionForAdmin() {
-    global $conn;
-    
-    requireAdmin();
-    
-    $data = json_decode(file_get_contents('php://input'), true);
-    $kategori_id = intval($data['kategori_id'] ?? 1);
-    $num_questions = intval($data['num_questions'] ?? 1);
-    $difficulty = $conn->real_escape_string($data['difficulty'] ?? 'sedang');
-    $auth_user = requireAuth();
-    $created_by = $auth_user['id'] ?? null;
-    
-    $generator = new AIQuestionGenerator($conn);
-    $generated_questions = $generator->generateQuestionForAdmin($kategori_id, $num_questions, $difficulty, $created_by);
-    
-    echo json_encode(['success' => true, 'data' => $generated_questions]);
-}
-
-function generatePracticeQuestion() {
-    global $conn;
-    
-    $kategori_id = intval($_GET['kategori_id'] ?? 1);
-    $difficulty = $_GET['difficulty'] ?? 'sedang';
-    
-    $generator = new AIQuestionGenerator($conn);
-    $practice_question = $generator->generatePracticeQuestion($kategori_id, $difficulty);
-    
-    if ($practice_question) {
-        echo json_encode(['success' => true, 'data' => $practice_question]);
-    } else {
-        echo json_encode(['success' => false, 'error' => 'Failed to generate practice question']);
+        echo json_encode(['success' => false, 'error' => $conn->error]);
     }
 }
 

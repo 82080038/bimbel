@@ -245,29 +245,66 @@
                         </select>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Kelompok Materi (Topik)</label>
+                        <select class="form-select" id="questionTopic">
+                            <option value="">Pilih Topik (Opsional)</option>
+                            <!-- Loaded dynamically based on selected kategori -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Pertanyaan</label>
                         <textarea class="form-control" id="questionPertanyaan" rows="3" required></textarea>
+                        <div class="mt-2">
+                            <label class="form-label small">Gambar Pertanyaan (Opsional)</label>
+                            <input type="file" class="form-control" id="questionGambarPertanyaan" accept="image/*">
+                            <div id="previewGambarPertanyaan" class="mt-2"></div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Opsi A</label>
                             <input type="text" class="form-control" id="questionOpsiA" required>
+                            <div class="mt-2">
+                                <label class="form-label small">Gambar Opsi A (Opsional)</label>
+                                <input type="file" class="form-control" id="questionGambarOpsiA" accept="image/*">
+                                <div id="previewGambarOpsiA" class="mt-2"></div>
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Opsi B</label>
                             <input type="text" class="form-control" id="questionOpsiB" required>
+                            <div class="mt-2">
+                                <label class="form-label small">Gambar Opsi B (Opsional)</label>
+                                <input type="file" class="form-control" id="questionGambarOpsiB" accept="image/*">
+                                <div id="previewGambarOpsiB" class="mt-2"></div>
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Opsi C</label>
                             <input type="text" class="form-control" id="questionOpsiC" required>
+                            <div class="mt-2">
+                                <label class="form-label small">Gambar Opsi C (Opsional)</label>
+                                <input type="file" class="form-control" id="questionGambarOpsiC" accept="image/*">
+                                <div id="previewGambarOpsiC" class="mt-2"></div>
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Opsi D</label>
                             <input type="text" class="form-control" id="questionOpsiD" required>
+                            <div class="mt-2">
+                                <label class="form-label small">Gambar Opsi D (Opsional)</label>
+                                <input type="file" class="form-control" id="questionGambarOpsiD" accept="image/*">
+                                <div id="previewGambarOpsiD" class="mt-2"></div>
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Opsi E</label>
                             <input type="text" class="form-control" id="questionOpsiE" required>
+                            <div class="mt-2">
+                                <label class="form-label small">Gambar Opsi E (Opsional)</label>
+                                <input type="file" class="form-control" id="questionGambarOpsiE" accept="image/*">
+                                <div id="previewGambarOpsiE" class="mt-2"></div>
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Jawaban Benar</label>
@@ -284,6 +321,11 @@
                     <div class="mb-3">
                         <label class="form-label">Pembahasan (Opsional)</label>
                         <textarea class="form-control" id="questionPembahasan" rows="3"></textarea>
+                        <div class="mt-2">
+                            <label class="form-label small">Gambar Pembahasan (Opsional)</label>
+                            <input type="file" class="form-control" id="questionGambarPembahasan" accept="image/*">
+                            <div id="previewGambarPembahasan" class="mt-2"></div>
+                        </div>
                     </div>
                 </form>
             </div>

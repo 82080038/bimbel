@@ -10,13 +10,13 @@
     <div class="card p-3 mb-3">
         <div class="row">
             <div class="col-md-4">
-                <input type="text" class="form-control" id="searchParticipant" placeholder="Search participants..." onkeyup="searchParticipants()">
+                <input type="text" class="form-control" id="searchParticipant" placeholder="Cari partisipan..." onkeyup="searchParticipants()">
             </div>
             <div class="col-md-3">
                 <select class="form-select" id="filterParticipantStatus" onchange="loadParticipants()">
-                    <option value="">All Status</option>
-                    <option value="berjalan">In Progress</option>
-                    <option value="selesai">Completed</option>
+                    <option value="">Semua Status</option>
+                    <option value="berjalan">Sedang Berjalan</option>
+                    <option value="selesai">Selesai</option>
                     <option value="timeout">Timeout</option>
                 </select>
             </div>
@@ -29,19 +29,18 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Participant Name</th>
                         <th>User</th>
-                        <th>Start Time</th>
-                        <th>End Time</th>
-                        <th>Duration</th>
+                        <th>Waktu Mulai</th>
+                        <th>Waktu Selesai</th>
+                        <th>Durasi</th>
                         <th>Status</th>
-                        <th>Ability Estimate</th>
-                        <th>Actions</th>
+                        <th>Estimasi Kemampuan</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="participantsTable">
                     <tr>
-                        <td colspan="9" class="text-center text-muted">Loading...</td>
+                        <td colspan="8" class="text-center text-muted">Memuat...</td>
                     </tr>
                 </tbody>
             </table>

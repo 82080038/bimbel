@@ -137,14 +137,36 @@ Berdasarkan penelitian internet tentang best practices untuk Exam Management Sys
 - [ ] Currency localization
 
 ### 15. Advanced Question Types
-- [ ] Drag and drop ordering
-- [ ] Fill in the blanks
-- [ ] Matching questions
-- [ ] Hotspot questions
-- [ ] File upload answers
-- [ ] Audio recording answers
-- [ ] Essay questions with AI grading
-- [ ] Case study questions
+- [x] Pilihan ganda (5 opsi A-E) - Sudah ada
+- [x] Soal bergambar (image-based) - Sudah ada
+- [x] Soal cerita (passage-based) - Sudah ada
+- [ ] Soal benar/salah (True/False) - Prioritas Tinggi
+- [ ] Soal isian singkat (Short Answer) - Prioritas Tinggi
+- [ ] Soal matching (Menjodohkan) - Prioritas Sedang
+- [ ] Soal fill in the blank (Isian kosong) - Prioritas Sedang
+- [ ] Soal audio (Listening) - Prioritas Sedang
+- [ ] Drag and drop ordering - Prioritas Rendah
+- [ ] Hotspot questions - Prioritas Rendah
+- [ ] File upload answers - Prioritas Rendah
+- [ ] Audio recording answers - Prioritas Rendah
+- [ ] Essay questions with AI grading - Prioritas Rendah
+- [ ] Case study questions - Prioritas Rendah
+- [ ] Soal video - Prioritas Rendah
+
+**Database Schema yang Diperlukan:**
+- Tabel `tipe_soal` untuk mengelola tipe soal
+- Update tabel `soal` dengan kolom `tipe_soal_id`
+- Tabel `soal_matching` untuk soal menjodohkan
+- Tabel `soal_fill_blank` untuk soal isian kosong
+- Kolom `file_audio` dan `file_video` di tabel `soal`
+
+**Rekomendasi Implementasi:**
+- Fase 1: Soal benar/salah dan isian singkat (mudah, cepat)
+- Fase 2: Soal matching dan fill in the blank (untuk variasi)
+- Fase 3: Soal audio (untuk listening comprehension)
+- Fase 4: Tipe soal kompleks (essay, video, drag-drop)
+
+**Lihat detail lengkap:** `QUESTION_TYPES_ANALYSIS.md`
 
 ---
 
@@ -295,5 +317,5 @@ Berdasarkan penelitian internet tentang best practices untuk Exam Management Sys
 
 ---
 
-**Last Updated**: 24 Mei 2026  
-**Version**: 1.1
+**Last Updated**: 25 Mei 2026  
+**Version**: 1.2

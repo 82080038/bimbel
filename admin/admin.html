@@ -214,6 +214,9 @@
                     <a class="nav-link" href="#" onclick="showSection('categories')">
                         <i class="fas fa-layer-group"></i> Kategori
                     </a>
+                    <a class="nav-link" href="#" onclick="showSection('topics')">
+                        <i class="fas fa-tags"></i> Topik Materi
+                    </a>
                     <a class="nav-link" href="#" onclick="showSection('statistics')">
                         <i class="fas fa-chart-bar"></i> Statistik Soal
                     </a>
@@ -446,13 +449,101 @@
                     </div>
                 </div>
 
+                <!-- Topics Section -->
+                <div id="topicsSection" class="hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="fas fa-tags"></i> Manajemen Topik Materi</h2>
+                        <div>
+                            <button class="btn btn-success me-2" onclick="addTopic()">
+                                <i class="fas fa-plus"></i> Tambah Topik
+                            </button>
+                            <button class="btn btn-primary" onclick="refreshTopics()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label class="form-label">Filter Kategori</label>
+                                    <select class="form-select" id="topicCategoryFilter" onchange="loadTopics()">
+                                        <option value="">Semua Kategori</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Cari Topik</label>
+                                    <input type="text" class="form-control" id="searchTopic" placeholder="Cari topik..." onkeyup="searchTopics()">
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button class="btn btn-success w-100" onclick="reextractTopics()">
+                                        <i class="fas fa-magic"></i> Re-Extract Topics
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Topics Summary -->
+                    <div class="row mb-4" id="topicsSummary">
+                        <!-- Summary cards will be loaded here -->
+                    </div>
+
+                    <!-- Topics Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Daftar Topik Materi</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Kategori</th>
+                                            <th>Nama Topik</th>
+                                            <th>Keyword</th>
+                                            <th>Frekuensi</th>
+                                            <th>Deskripsi</th>
+                                            <th>Jumlah Soal</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="topicsTable">
+                                        <!-- Topics will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Pagination -->
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    Menampilkan <span id="topicsShowing">0</span> dari <span id="topicsTotal">0</span> topik
+                                </div>
+                                <nav>
+                                    <ul class="pagination mb-0" id="topicsPagination">
+                                        <!-- Pagination will be loaded here -->
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Statistics Section -->
                 <div id="statisticsSection" class="hidden">
                     <h2 class="mb-4">Statistik Soal</h2>
                     
+                    <!-- Summary Cards -->
+                    <div class="row mb-4" id="statsSummary">
+                        <!-- Summary cards will be loaded here -->
+                    </div>
+                    
                     <div class="card p-3 mb-3">
                         <div class="row">
                             <div class="col-md-3">
+                                <label class="form-label">Filter Kategori</label>
                                 <select class="form-select" id="statsKategori" onchange="loadSoalStatistics()">
                                     <option value="">Semua Kategori</option>
                                     <!-- Loaded dynamically -->
@@ -479,6 +570,17 @@
                                     <!-- Statistics will be loaded here -->
                                 </tbody>
                             </table>
+                        </div>
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted">
+                                Menampilkan <span id="statsShowing">0</span> dari <span id="statsTotal">0</span> soal
+                            </div>
+                            <nav>
+                                <ul class="pagination mb-0" id="statsPagination">
+                                    <!-- Pagination will be loaded here -->
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
@@ -658,9 +760,15 @@
                     <div class="card p-3 mb-3">
                         <div class="row">
                             <div class="col-md-3">
-                                <select class="form-select" id="bahanKategoriFilter" onchange="loadBahanPelajaran(1)">
+                                <select class="form-select" id="bahanKategoriFilter" onchange="loadBahanTopics(); loadBahanPelajaran(1);">
                                     <option value="">Semua Kategori</option>
                                     <!-- Loaded dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="bahanTopicFilter" onchange="loadBahanPelajaran(1)">
+                                    <option value="">Semua Topik</option>
+                                    <!-- Loaded dynamically based on category -->
                                 </select>
                             </div>
                         </div>
@@ -672,6 +780,7 @@
                                 <thead>
                                     <tr>
                                         <th>Kategori</th>
+                                        <th>Topik</th>
                                         <th>Judul</th>
                                         <th>Soal ID</th>
                                         <th>Tipe</th>
@@ -1219,14 +1328,18 @@
                     <div class="card p-3 mb-3">
                         <div class="row">
                             <div class="col-md-4">
-                                <input type="text" class="form-control" id="searchExamSession" placeholder="Search sessions..." onkeyup="searchExamSessions()">
+                                <select class="form-select" id="filterSessionUser" onchange="loadExamSessions()">
+                                    <option value="">All Users</option>
+                                    <!-- Loaded dynamically from database -->
+                                </select>
                             </div>
                             <div class="col-md-3">
                                 <select class="form-select" id="filterSessionStatus" onchange="loadExamSessions()">
                                     <option value="">All Status</option>
-                                    <option value="in_progress">In Progress</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="abandoned">Abandoned</option>
+                                    <option value="berjalan">In Progress</option>
+                                    <option value="selesai">Completed</option>
+                                    <option value="timeout">Timeout</option>
+                                    <option value="dibatalkan">Abandoned</option>
                                 </select>
                             </div>
                         </div>
@@ -1288,7 +1401,6 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Participant Name</th>
                                         <th>User</th>
                                         <th>Start Time</th>
                                         <th>End Time</th>
@@ -1300,7 +1412,7 @@
                                 </thead>
                                 <tbody id="participantsTable">
                                     <tr>
-                                        <td colspan="9" class="text-center text-muted">Loading...</td>
+                                        <td colspan="8" class="text-center text-muted">Loading...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1327,6 +1439,16 @@
                             <select class="form-select" id="blueprintPaket" required>
                                 <option value="">Pilih Paket</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select class="form-select" id="blueprintKategori" required>
+                                <option value="">Pilih Kategori</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Target Count</label>
+                            <input type="number" class="form-control" id="blueprintTargetCount" min="1" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Min Difficulty</label>
@@ -1368,9 +1490,16 @@
                         <input type="hidden" id="bahanId">
                         <div class="mb-3">
                             <label class="form-label">Kategori</label>
-                            <select class="form-select" id="bahanKategoriId" required>
+                            <select class="form-select" id="bahanKategoriId" required onchange="loadBahanModalTopics()">
                                 <option value="">Pilih Kategori</option>
                                 <!-- Loaded dynamically from database -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Topik</label>
+                            <select class="form-select" id="bahanTopicId">
+                                <option value="">Pilih Topik (Opsional)</option>
+                                <!-- Loaded dynamically based on category -->
                             </select>
                         </div>
                         <div class="mb-3">
@@ -1552,35 +1681,72 @@
                         <input type="hidden" id="questionId">
                         <div class="mb-3">
                             <label class="form-label">Kategori</label>
-                            <select class="form-select" id="questionKategori" required>
+                            <select class="form-select" id="questionKategori" required onchange="loadTopicsByKategori(this.value, 'questionTopic')">
                                 <option value="">Pilih Kategori</option>
                                 <!-- Loaded dynamically from database -->
                             </select>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label">Kelompok Materi (Topik)</label>
+                            <select class="form-select" id="questionTopic">
+                                <option value="">Pilih Topik (Opsional)</option>
+                                <!-- Loaded dynamically based on selected kategori -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Pertanyaan</label>
                             <textarea class="form-control" id="questionPertanyaan" rows="3" required></textarea>
+                            <div class="mt-2">
+                                <label class="form-label small">Gambar Pertanyaan (Opsional)</label>
+                                <input type="file" class="form-control" id="questionGambarPertanyaan" accept="image/*">
+                                <div id="previewGambarPertanyaan" class="mt-2"></div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Opsi A</label>
                                 <input type="text" class="form-control" id="questionOpsiA" required>
+                                <div class="mt-2">
+                                    <label class="form-label small">Gambar Opsi A (Opsional)</label>
+                                    <input type="file" class="form-control" id="questionGambarOpsiA" accept="image/*">
+                                    <div id="previewGambarOpsiA" class="mt-2"></div>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Opsi B</label>
                                 <input type="text" class="form-control" id="questionOpsiB" required>
+                                <div class="mt-2">
+                                    <label class="form-label small">Gambar Opsi B (Opsional)</label>
+                                    <input type="file" class="form-control" id="questionGambarOpsiB" accept="image/*">
+                                    <div id="previewGambarOpsiB" class="mt-2"></div>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Opsi C</label>
                                 <input type="text" class="form-control" id="questionOpsiC" required>
+                                <div class="mt-2">
+                                    <label class="form-label small">Gambar Opsi C (Opsional)</label>
+                                    <input type="file" class="form-control" id="questionGambarOpsiC" accept="image/*">
+                                    <div id="previewGambarOpsiC" class="mt-2"></div>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Opsi D</label>
                                 <input type="text" class="form-control" id="questionOpsiD" required>
+                                <div class="mt-2">
+                                    <label class="form-label small">Gambar Opsi D (Opsional)</label>
+                                    <input type="file" class="form-control" id="questionGambarOpsiD" accept="image/*">
+                                    <div id="previewGambarOpsiD" class="mt-2"></div>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Opsi E</label>
                                 <input type="text" class="form-control" id="questionOpsiE" required>
+                                <div class="mt-2">
+                                    <label class="form-label small">Gambar Opsi E (Opsional)</label>
+                                    <input type="file" class="form-control" id="questionGambarOpsiE" accept="image/*">
+                                    <div id="previewGambarOpsiE" class="mt-2"></div>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Jawaban Benar</label>
@@ -1597,6 +1763,11 @@
                         <div class="mb-3">
                             <label class="form-label">Pembahasan (Opsional)</label>
                             <textarea class="form-control" id="questionPembahasan" rows="3"></textarea>
+                            <div class="mt-2">
+                                <label class="form-label small">Gambar Pembahasan (Opsional)</label>
+                                <input type="file" class="form-control" id="questionGambarPembahasan" accept="image/*">
+                                <div id="previewGambarPembahasan" class="mt-2"></div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -1751,6 +1922,70 @@
         </div>
     </div>
 
+    <!-- Topic Modal -->
+    <div class="modal fade" id="topicModal" tabindex="-1" aria-labelledby="topicModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="topicModalLabel">Kelola Topik</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="topicForm">
+                        <input type="hidden" id="topicId">
+                        <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select class="form-select" id="topicKategori" required>
+                                <option value="">Pilih Kategori</option>
+                                <!-- Loaded dynamically from database -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Topik</label>
+                            <input type="text" class="form-control" id="topicNama" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Keyword</label>
+                            <input type="text" class="form-control" id="topicKeyword">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Deskripsi</label>
+                            <textarea class="form-control" id="topicDeskripsi" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Urutan</label>
+                            <input type="number" class="form-control" id="topicUrutan" value="0">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveTopic()">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Topic Details Modal -->
+    <div class="modal fade" id="topicDetailsModal" tabindex="-1" aria-labelledby="topicDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="topicDetailsModalLabel">Detail Topik</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="topicDetailsContent">
+                        <!-- Topic details will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
         <!-- Toasts will be dynamically added here -->
@@ -1853,6 +2088,86 @@
             }
         }
 
+        // Hide all sections helper
+        function hideAllSections() {
+            document.querySelectorAll('[id$="Section"]').forEach(el => el.classList.add('hidden'));
+        }
+
+        // Show section
+        function showSection(section) {
+            hideAllSections();
+            
+            if (section === 'dashboard') {
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                loadDashboard();
+            } else if (section === 'userManagement') {
+                document.getElementById('userManagementSection').classList.remove('hidden');
+                loadUsers();
+            } else if (section === 'participants') {
+                document.getElementById('participantsSection').classList.remove('hidden');
+                loadParticipants();
+            } else if (section === 'questions') {
+                document.getElementById('questionsSection').classList.remove('hidden');
+                loadQuestions();
+            } else if (section === 'categories') {
+                document.getElementById('categoriesSection').classList.remove('hidden');
+                loadCategories();
+            } else if (section === 'topics') {
+                document.getElementById('topicsSection').classList.remove('hidden');
+                loadTopics();
+            } else if (section === 'statistics') {
+                document.getElementById('statisticsSection').classList.remove('hidden');
+                loadSoalStatistics();
+            } else if (section === 'leaderboardSettings') {
+                document.getElementById('leaderboardSettingsSection').classList.remove('hidden');
+                loadLeaderboardSettings();
+            } else if (section === 'blueprint') {
+                document.getElementById('blueprintSection').classList.remove('hidden');
+                loadBlueprints();
+            } else if (section === 'examPackages') {
+                document.getElementById('examPackagesSection').classList.remove('hidden');
+                loadExamPackages();
+            } else if (section === 'examSessions') {
+                document.getElementById('examSessionsSection').classList.remove('hidden');
+                loadSessionUsers();
+                loadExamSessions();
+            } else if (section === 'irt') {
+                document.getElementById('irtSection').classList.remove('hidden');
+                loadIRTAnalysis();
+            } else if (section === 'bahanPelajaran') {
+                document.getElementById('bahanPelajaranSection').classList.remove('hidden');
+                loadBahanPelajaran(1);
+            } else if (section === 'tips') {
+                document.getElementById('tipsSection').classList.remove('hidden');
+                loadTipsTricks();
+            } else if (section === 'results') {
+                document.getElementById('resultsSection').classList.remove('hidden');
+                loadResults();
+            } else if (section === 'contentGeneration') {
+                document.getElementById('contentGenerationSection').classList.remove('hidden');
+                loadContentGeneration();
+            } else if (section === 'systemMaintenance') {
+                document.getElementById('systemMaintenanceSection').classList.remove('hidden');
+                loadSystemMaintenance();
+            } else if (section === 'courseManagement') {
+                document.getElementById('courseManagementSection').classList.remove('hidden');
+                loadCourses();
+            } else if (section === 'gamificationTracking') {
+                document.getElementById('gamificationTrackingSection').classList.remove('hidden');
+                loadGamificationTracking();
+            } else if (section === 'notifications') {
+                document.getElementById('notificationsSection').classList.remove('hidden');
+                loadNotifications();
+            }
+
+            // Update nav active state and scroll to center
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            const activeLink = document.querySelector(`.nav-link[onclick*="${section}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
         // Simple RBAC Protection - Admin only
         document.addEventListener('DOMContentLoaded', function() {
             // Get auth data from localStorage
@@ -1919,7 +2234,8 @@
                         'bahanKategoriId',
                         'tipsKategori',
                         'examPackageCategory',
-                        'aiGeneratorModalKategori'
+                        'aiGeneratorModalKategori',
+                        'topicCategoryFilter'
                     ];
                     
                     dropdownIds.forEach(id => {
@@ -1931,10 +2247,10 @@
                             select.innerHTML = '';
                             select.appendChild(firstOption);
                             
-                            // Add categories
+                            // Add categories - use ID for consistency
                             data.data.forEach(kat => {
                                 const option = document.createElement('option');
-                                option.value = kat.nama; // Use nama for consistency
+                                option.value = kat.id; // Use ID for consistency
                                 option.textContent = `${kat.nama} - ${kat.deskripsi || ''}`;
                                 select.appendChild(option);
                             });
@@ -1963,79 +2279,6 @@
             localStorage.removeItem('authToken');
             localStorage.removeItem('userRole');
             window.location.href = '../login.html';
-        }
-
-        // Show section
-        function showSection(section) {
-            hideAllSections();
-            
-            if (section === 'dashboard') {
-                document.getElementById('dashboardSection').classList.remove('hidden');
-                loadDashboard();
-            } else if (section === 'userManagement') {
-                document.getElementById('userManagementSection').classList.remove('hidden');
-                loadUsers();
-            } else if (section === 'participants') {
-                document.getElementById('participantsSection').classList.remove('hidden');
-                loadParticipants();
-            } else if (section === 'questions') {
-                document.getElementById('questionsSection').classList.remove('hidden');
-                loadQuestions();
-            } else if (section === 'categories') {
-                document.getElementById('categoriesSection').classList.remove('hidden');
-                loadCategories();
-            } else if (section === 'statistics') {
-                document.getElementById('statisticsSection').classList.remove('hidden');
-                loadSoalStatistics();
-            } else if (section === 'leaderboardSettings') {
-                document.getElementById('leaderboardSettingsSection').classList.remove('hidden');
-                loadLeaderboardSettings();
-            } else if (section === 'blueprint') {
-                document.getElementById('blueprintSection').classList.remove('hidden');
-                loadBlueprints();
-            } else if (section === 'examPackages') {
-                document.getElementById('examPackagesSection').classList.remove('hidden');
-                loadExamPackages();
-            } else if (section === 'examSessions') {
-                document.getElementById('examSessionsSection').classList.remove('hidden');
-                loadExamSessions();
-            } else if (section === 'irt') {
-                document.getElementById('irtSection').classList.remove('hidden');
-                loadIRTAnalysis();
-            } else if (section === 'bahanPelajaran') {
-                document.getElementById('bahanPelajaranSection').classList.remove('hidden');
-                loadBahanPelajaran(1);
-            } else if (section === 'tips') {
-                document.getElementById('tipsSection').classList.remove('hidden');
-                loadTipsTricks();
-            } else if (section === 'results') {
-                document.getElementById('resultsSection').classList.remove('hidden');
-                loadResults();
-            } else if (section === 'contentGeneration') {
-                document.getElementById('contentGenerationSection').classList.remove('hidden');
-                loadContentGeneration();
-            } else if (section === 'systemMaintenance') {
-                document.getElementById('systemMaintenanceSection').classList.remove('hidden');
-                loadSystemMaintenance();
-            } else if (section === 'courseManagement') {
-                document.getElementById('courseManagementSection').classList.remove('hidden');
-                loadCourses();
-            } else if (section === 'gamificationTracking') {
-                document.getElementById('gamificationTrackingSection').classList.remove('hidden');
-                loadGamificationTracking();
-            } else if (section === 'notifications') {
-                document.getElementById('notificationsSection').classList.remove('hidden');
-                loadNotifications();
-            }
-
-            // Update nav active state and scroll to center
-            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-            const activeLink = document.querySelector(`.nav-link[onclick*="${section}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active');
-                // Scroll the active menu item into view and center it
-                activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
         }
 
         // Load dashboard stats
@@ -2366,6 +2609,327 @@
             if (confirm('Are you sure you want to delete this category?')) {
                 alert('Delete category - to be implemented');
             }
+        }
+
+        // Load topics
+        let topicsCurrentPage = 1;
+        const topicsPerPage = 20;
+        let allTopics = [];
+
+        async function loadTopics() {
+            try {
+                const categoryFilter = document.getElementById('topicCategoryFilter').value;
+                const searchQuery = document.getElementById('searchTopic').value;
+                
+                let url = `${API_BASE}/soal.php?action=get_topics`;
+                
+                // categoryFilter is now numeric ID from dropdown
+                if (categoryFilter) url += `&kategori_id=${categoryFilter}`;
+                if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+                
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    allTopics = data.data;
+                    topicsCurrentPage = 1;
+                    displayTopics(allTopics);
+                    displayTopicsSummary(data.summary);
+                } else {
+                    document.getElementById('topicsTable').innerHTML = '<tr><td colspan="8" class="text-danger">Gagal memuat topik</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading topics:', error);
+                document.getElementById('topicsTable').innerHTML = '<tr><td colspan="8" class="text-danger">Terjadi kesalahan</td></tr>';
+            }
+        }
+
+        function displayTopics(topics) {
+            if (!topics || topics.length === 0) {
+                document.getElementById('topicsTable').innerHTML = '<tr><td colspan="8" class="text-center">Tidak ada topik ditemukan</td></tr>';
+                document.getElementById('topicsShowing').textContent = '0';
+                document.getElementById('topicsTotal').textContent = '0';
+                document.getElementById('topicsPagination').innerHTML = '';
+                return;
+            }
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(topics.length / topicsPerPage);
+            const startIndex = (topicsCurrentPage - 1) * topicsPerPage;
+            const endIndex = startIndex + topicsPerPage;
+            const paginatedTopics = topics.slice(startIndex, endIndex);
+            
+            document.getElementById('topicsTable').innerHTML = paginatedTopics.map(topic => `
+                <tr>
+                    <td>${topic.id}</td>
+                    <td><span class="badge bg-secondary">${topic.nama_kategori}</span></td>
+                    <td>${topic.nama_topic}</td>
+                    <td><code>${topic.keyword}</code></td>
+                    <td>${topic.frequency}</td>
+                    <td>${topic.deskripsi || '-'}</td>
+                    <td>${topic.jumlah_soal || 0}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="viewTopicDetails(${topic.id})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning" onclick="editTopic(${topic.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTopic(${topic.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Update showing info
+            document.getElementById('topicsShowing').textContent = `${startIndex + 1}-${Math.min(endIndex, topics.length)}`;
+            document.getElementById('topicsTotal').textContent = topics.length;
+            
+            // Generate pagination
+            let paginationHTML = '';
+            if (totalPages > 1) {
+                paginationHTML += `
+                    <li class="page-item ${topicsCurrentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" onclick="changeTopicsPage(${topicsCurrentPage - 1}); return false;">&laquo;</a>
+                    </li>
+                `;
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= topicsCurrentPage - 1 && i <= topicsCurrentPage + 1)) {
+                        paginationHTML += `
+                            <li class="page-item ${i === topicsCurrentPage ? 'active' : ''}">
+                                <a class="page-link" href="#" onclick="changeTopicsPage(${i}); return false;">${i}</a>
+                            </li>
+                        `;
+                    } else if (i === topicsCurrentPage - 2 || i === topicsCurrentPage + 2) {
+                        paginationHTML += '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>';
+                    }
+                }
+                
+                paginationHTML += `
+                    <li class="page-item ${topicsCurrentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="#" onclick="changeTopicsPage(${topicsCurrentPage + 1}); return false;">&raquo;</a>
+                    </li>
+                `;
+            }
+            
+            document.getElementById('topicsPagination').innerHTML = paginationHTML;
+        }
+
+        function changeTopicsPage(page) {
+            topicsCurrentPage = page;
+            displayTopics(allTopics);
+        }
+
+        function displayTopicsSummary(summary) {
+            if (!summary) return;
+            
+            document.getElementById('topicsSummary').innerHTML = Object.entries(summary).map(([category, count]) => `
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h6>${category}</h6>
+                        <h3>${count}</h3>
+                        <p class="text-muted mb-0">Topik</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function refreshTopics() {
+            loadTopics();
+        }
+
+        function searchTopics() {
+            loadTopics();
+        }
+
+        async function reextractTopics() {
+            if (!confirm('Ini akan mengekstrak ulang topik dari semua soal. Lanjutkan?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=reextract_topics`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Topik berhasil diekstrak ulang! ${data.topics_updated || 0} topik diperbarui.`);
+                    loadTopics();
+                } else {
+                    alert('Gagal mengekstrak ulang topik: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengekstrak ulang topik');
+            }
+        }
+
+        function viewTopicDetails(topicId) {
+            fetch(`${API_BASE}/soal.php?action=get_topic_by_id&id=${topicId}`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    const topic = data.data;
+                    document.getElementById('topicDetailsContent').innerHTML = `
+                        <table class="table table-bordered">
+                            <tr><th>ID</th><td>${topic.id}</td></tr>
+                            <tr><th>Kategori</th><td>${topic.nama_kategori || '-'}</td></tr>
+                            <tr><th>Nama Topik</th><td>${topic.nama_topic || topic.nama_topik || '-'}</td></tr>
+                            <tr><th>Keyword</th><td><code>${topic.keyword || '-'}</code></td></tr>
+                            <tr><th>Frekuensi</th><td>${topic.frequency || 0}</td></tr>
+                            <tr><th>Deskripsi</th><td>${topic.deskripsi || '-'}</td></tr>
+                            <tr><th>Jumlah Soal</th><td>${topic.jumlah_soal || 0}</td></tr>
+                            <tr><th>Urutan</th><td>${topic.urutan || 0}</td></tr>
+                            <tr><th>Dibuat</th><td>${topic.created_at || '-'}</td></tr>
+                        </table>
+                    `;
+                    new bootstrap.Modal(document.getElementById('topicDetailsModal')).show();
+                } else {
+                    showToast('Gagal memuat detail topik', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading topic details:', error);
+                showToast('Terjadi kesalahan', 'error');
+            });
+        }
+
+        function editTopic(topicId) {
+            fetch(`${API_BASE}/soal.php?action=get_topic_by_id&id=${topicId}`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    const topic = data.data;
+                    document.getElementById('topicId').value = topic.id;
+                    document.getElementById('topicKategori').value = topic.kategori_id || '';
+                    document.getElementById('topicNama').value = topic.nama_topic || topic.nama_topik || '';
+                    document.getElementById('topicKeyword').value = topic.keyword || '';
+                    document.getElementById('topicDeskripsi').value = topic.deskripsi || '';
+                    document.getElementById('topicUrutan').value = topic.urutan || 0;
+                    document.getElementById('topicModalLabel').textContent = 'Edit Topik';
+                    
+                    // Load categories into dropdown
+                    loadTopicCategories();
+                    
+                    new bootstrap.Modal(document.getElementById('topicModal')).show();
+                } else {
+                    showToast('Gagal memuat topik', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading topic:', error);
+                showToast('Terjadi kesalahan', 'error');
+            });
+        }
+
+        function deleteTopic(topicId) {
+            if (confirm('Apakah Anda yakin ingin menghapus topik ini?')) {
+                fetch(`${API_BASE}/soal.php?action=delete_topic&id=${topicId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Topik berhasil dihapus', 'success');
+                        loadTopics();
+                    } else {
+                        showToast(data.error || 'Gagal menghapus topik', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting topic:', error);
+                    showToast('Terjadi kesalahan', 'error');
+                });
+            }
+        }
+
+        function addTopic() {
+            document.getElementById('topicId').value = '';
+            document.getElementById('topicKategori').value = '';
+            document.getElementById('topicNama').value = '';
+            document.getElementById('topicKeyword').value = '';
+            document.getElementById('topicDeskripsi').value = '';
+            document.getElementById('topicUrutan').value = 0;
+            document.getElementById('topicModalLabel').textContent = 'Tambah Topik';
+            
+            loadTopicCategories();
+            
+            new bootstrap.Modal(document.getElementById('topicModal')).show();
+        }
+
+        function loadTopicCategories() {
+            if (!window.categoriesData || window.categoriesData.length === 0) {
+                return;
+            }
+            
+            const select = document.getElementById('topicKategori');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Pilih Kategori</option>';
+            
+            window.categoriesData.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
+                select.appendChild(option);
+            });
+            
+            if (currentValue) {
+                select.value = currentValue;
+            }
+        }
+
+        function saveTopic() {
+            const topicId = document.getElementById('topicId').value;
+            const topicData = {
+                kategori_id: document.getElementById('topicKategori').value,
+                nama_topik: document.getElementById('topicNama').value,
+                keyword: document.getElementById('topicKeyword').value,
+                deskripsi: document.getElementById('topicDeskripsi').value,
+                urutan: document.getElementById('topicUrutan').value
+            };
+            
+            const action = topicId ? 'update_topic' : 'add_topic';
+            const method = topicId ? 'PUT' : 'POST';
+            const url = topicId ? 
+                `${API_BASE}/soal.php?action=update_topic&id=${topicId}` : 
+                `${API_BASE}/soal.php?action=add_topic`;
+            
+            fetch(url, {
+                method: method,
+                headers: { 
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(topicData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(topicId ? 'Topik berhasil diperbarui' : 'Topik berhasil ditambahkan', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('topicModal')).hide();
+                    loadTopics();
+                } else {
+                    showToast(data.error || 'Gagal menyimpan topik', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving topic:', error);
+                showToast('Terjadi kesalahan', 'error');
+            });
         }
 
         // Load results
@@ -2932,7 +3496,7 @@
                         
                         data.data.forEach(cat => {
                             const option = document.createElement('option');
-                            option.value = cat.nama;
+                            option.value = cat.id;
                             option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
                             select.appendChild(option);
                         });
@@ -2990,7 +3554,7 @@
                             
                             data.data.forEach(cat => {
                                 const option = document.createElement('option');
-                                option.value = cat.nama;
+                                option.value = cat.id; // Use ID for consistency
                                 option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
                                 select.appendChild(option);
                             });
@@ -3061,7 +3625,7 @@
                     
                     data.data.forEach(cat => {
                         const option = document.createElement('option');
-                        option.value = cat.nama;
+                        option.value = cat.id;
                         option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
                         select.appendChild(option);
                         console.log('Added option:', cat.nama);
@@ -3086,20 +3650,20 @@
         }
 
         // Load topics based on selected category
-        async function loadTopicsByKategori(kategoriNama) {
+        async function loadTopicsByKategori(kategoriId, targetElementId = 'aiGeneratorTopic') {
             try {
-                const select = document.getElementById('aiGeneratorTopic');
+                const select = document.getElementById(targetElementId);
                 if (!select) {
-                    console.error('aiGeneratorTopic element not found');
+                    console.error(`${targetElementId} element not found`);
                     return;
                 }
                 
-                if (!kategoriNama) {
+                if (!kategoriId) {
                     select.innerHTML = '<option value="">Pilih Topik (Opsional)</option>';
                     return;
                 }
                 
-                const response = await fetch(`${API_BASE}/soal.php?action=get_topics_by_kategori&kategori=${encodeURIComponent(kategoriNama)}`, {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_topics_by_kategori&kategori=${encodeURIComponent(kategoriId)}`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 const data = await response.json();
@@ -3111,8 +3675,8 @@
                     
                     data.data.forEach(topic => {
                         const option = document.createElement('option');
-                        option.value = topic.nama;
-                        option.textContent = `${topic.nama} - ${topic.deskripsi || ''}`;
+                        option.value = topic.id;
+                        option.textContent = `${topic.nama_topik} - ${topic.deskripsi || ''}`;
                         select.appendChild(option);
                     });
                     
@@ -3450,8 +4014,33 @@
 
                 if (data.success) {
                     const q = data.data;
+                    
+                    // Ensure categories are loaded
+                    if (!window.categoriesData || window.categoriesData.length === 0) {
+                        await loadKategoriDropdowns();
+                    }
+                    
+                    // Populate questionKategori dropdown BEFORE setting values
+                    const questionKategori = document.getElementById('questionKategori');
+                    if (questionKategori) {
+                        const firstOption = questionKategori.options[0];
+                        questionKategori.innerHTML = '';
+                        questionKategori.appendChild(firstOption);
+                        
+                        if (window.categoriesData && window.categoriesData.length > 0) {
+                            window.categoriesData.forEach(cat => {
+                                const option = document.createElement('option');
+                                option.value = cat.id;
+                                option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
+                                questionKategori.appendChild(option);
+                            });
+                            console.log('Populated questionKategori for edit with', window.categoriesData.length, 'categories');
+                        }
+                    }
+                    
+                    // Now set the form values
                     document.getElementById('questionId').value = q.id;
-                    document.getElementById('questionKategori').value = getCategoryNameById(q.kategori_id);
+                    document.getElementById('questionKategori').value = q.kategori_id;
                     document.getElementById('questionPertanyaan').value = q.pertanyaan;
                     document.getElementById('questionOpsiA').value = q.opsi_a;
                     document.getElementById('questionOpsiB').value = q.opsi_b;
@@ -3461,6 +4050,19 @@
                     document.getElementById('questionJawaban').value = q.jawaban_benar;
                     document.getElementById('questionPembahasan').value = q.pemabahasan || q.pembahasan || '';
                     document.getElementById('questionModalLabel').textContent = 'Edit Soal';
+                    
+                    // Load topics for the selected kategori
+                    console.log('Loading topics for kategori_id:', q.kategori_id);
+                    loadTopicsByKategori(q.kategori_id, 'questionTopic').then(() => {
+                        // Set topic value after topics are loaded
+                        if (q.topic_id) {
+                            document.getElementById('questionTopic').value = q.topic_id;
+                        }
+                    }).catch(err => {
+                        console.error('Failed to load topics:', err);
+                    });
+                    
+                    // Show modal AFTER everything is populated
                     new bootstrap.Modal(document.getElementById('questionModal')).show();
                 }
             } catch (error) {
@@ -3539,11 +4141,6 @@
             }
         }
 
-        // Hide all sections helper
-        function hideAllSections() {
-            document.querySelectorAll('[id$="Section"]').forEach(el => el.classList.add('hidden'));
-        }
-
         // Safe modal close helper to fix ARIA-hidden warning
         function safeModalHide(modalId) {
             const modalElement = document.getElementById(modalId);
@@ -3567,10 +4164,15 @@
         }
 
         // Load soal statistics
+        // Load statistics
+        let statsCurrentPage = 1;
+        const statsPerPage = 20;
+        let allStats = [];
+
         async function loadSoalStatistics() {
             const kategori = document.getElementById('statsKategori').value;
             
-            let url = `${API_BASE}/soal.php?action=get_soal_statistics&limit=50`;
+            let url = `${API_BASE}/soal.php?action=get_soal_statistics&limit=1000`;
             if (kategori) url += `&kategori=${kategori}`;
             
             try {
@@ -3580,7 +4182,10 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    displaySoalStatistics(data.data);
+                    allStats = data.data;
+                    statsCurrentPage = 1;
+                    displaySoalStatistics(allStats);
+                    displayStatsSummary(data.summary);
                 } else {
                     document.getElementById('soalStatisticsTable').innerHTML = `
                         <tr><td colspan="7" class="text-center text-danger">${data.error || 'Gagal memuat statistik'}</td></tr>
@@ -3595,8 +4200,22 @@
         }
 
         function displaySoalStatistics(statistics) {
+            if (!statistics || statistics.length === 0) {
+                document.getElementById('soalStatisticsTable').innerHTML = '<tr><td colspan="7" class="text-center">Tidak ada data statistik</td></tr>';
+                document.getElementById('statsShowing').textContent = '0';
+                document.getElementById('statsTotal').textContent = '0';
+                document.getElementById('statsPagination').innerHTML = '';
+                return;
+            }
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(statistics.length / statsPerPage);
+            const startIndex = (statsCurrentPage - 1) * statsPerPage;
+            const endIndex = startIndex + statsPerPage;
+            const paginatedStats = statistics.slice(startIndex, endIndex);
+            
             const tbody = document.getElementById('soalStatisticsTable');
-            tbody.innerHTML = statistics.map(s => {
+            tbody.innerHTML = paginatedStats.map(s => {
                 const priority = getPriorityLabel(s.persen_benar, s.muncul_count);
                 return `
                     <tr>
@@ -3610,6 +4229,80 @@
                     </tr>
                 `;
             }).join('');
+            
+            // Update showing info
+            document.getElementById('statsShowing').textContent = `${startIndex + 1}-${Math.min(endIndex, statistics.length)}`;
+            document.getElementById('statsTotal').textContent = statistics.length;
+            
+            // Generate pagination
+            let paginationHTML = '';
+            if (totalPages > 1) {
+                paginationHTML += `
+                    <li class="page-item ${statsCurrentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" onclick="changeStatsPage(${statsCurrentPage - 1}); return false;">&laquo;</a>
+                    </li>
+                `;
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= statsCurrentPage - 1 && i <= statsCurrentPage + 1)) {
+                        paginationHTML += `
+                            <li class="page-item ${i === statsCurrentPage ? 'active' : ''}">
+                                <a class="page-link" href="#" onclick="changeStatsPage(${i}); return false;">${i}</a>
+                            </li>
+                        `;
+                    } else if (i === statsCurrentPage - 2 || i === statsCurrentPage + 2) {
+                        paginationHTML += '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>';
+                    }
+                }
+                
+                paginationHTML += `
+                    <li class="page-item ${statsCurrentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="#" onclick="changeStatsPage(${statsCurrentPage + 1}); return false;">&raquo;</a>
+                    </li>
+                `;
+            }
+            
+            document.getElementById('statsPagination').innerHTML = paginationHTML;
+        }
+
+        function changeStatsPage(page) {
+            statsCurrentPage = page;
+            displaySoalStatistics(allStats);
+        }
+
+        function displayStatsSummary(summary) {
+            if (!summary) return;
+            
+            document.getElementById('statsSummary').innerHTML = `
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h6>Total Soal</h6>
+                        <h3>${summary.total_soal || 0}</h3>
+                        <p class="text-muted mb-0">Soal tersedia</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h6>Total Muncul</h6>
+                        <h3>${summary.total_muncul || 0}</h3>
+                        <p class="text-muted mb-0">Kali ditampilkan</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h6>Rata-rata Benar</h6>
+                        <h3>${summary.avg_persen_benar || 0}%</h3>
+                        <p class="text-muted mb-0">Akurasi jawaban</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h6>Total Salah</h6>
+                        <h3>${summary.total_salah || 0}</h3>
+                        <p class="text-muted mb-0">Jawaban salah</p>
+                    </div>
+                </div>
+            `;
         }
 
         function getPriorityLabel(persenBenar, munculCount) {
@@ -3936,6 +4629,7 @@
             document.getElementById('blueprintForm').reset();
             document.getElementById('blueprintId').value = '';
             loadPaketOptions();
+            loadCategoryOptions();
             new bootstrap.Modal(document.getElementById('blueprintModal')).show();
         }
 
@@ -3950,10 +4644,11 @@
                     document.getElementById('blueprintId').value = b.id;
                     document.getElementById('blueprintPaket').value = b.paket_id || '';
                     document.getElementById('blueprintKategori').value = b.kategori_id || '';
-                    document.getElementById('blueprintTarget').value = b.target_count || '';
+                    document.getElementById('blueprintTargetCount').value = b.target_count || '';
                     document.getElementById('blueprintMinDifficulty').value = b.min_difficulty || 'sedang';
                     document.getElementById('blueprintMaxDifficulty').value = b.max_difficulty || 'sedang';
                     loadPaketOptions();
+                    loadCategoryOptions();
                     new bootstrap.Modal(document.getElementById('blueprintModal')).show();
                 }
             } catch (error) {
@@ -3981,6 +4676,27 @@
                 }
             } catch (error) {
                 console.error('Error loading paket options:', error);
+            }
+        }
+
+        async function loadCategoryOptions() {
+            if (!window.categoriesData || window.categoriesData.length === 0) {
+                return;
+            }
+            
+            const select = document.getElementById('blueprintKategori');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Pilih Kategori</option>';
+            
+            window.categoriesData.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
+                select.appendChild(option);
+            });
+            
+            if (currentValue) {
+                select.value = currentValue;
             }
         }
 
@@ -4085,6 +4801,8 @@
             if (kategori) url += `&kategori=${kategori}`;
             if (quality) url += `&quality=${quality}`;
             
+            console.log('Loading IRT Analysis with URL:', url);
+            
             try {
                 const response = await fetch(url, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
@@ -4092,6 +4810,7 @@
                 const data = await response.json();
 
                 if (data.success) {
+                    console.log('IRT Analysis data count:', data.data.length);
                     displayIRTAnalysis(data.data);
                 } else {
                     document.getElementById('irtTable').innerHTML = `
@@ -4157,13 +4876,71 @@
         let bahanCurrentPage = 1;
         const bahanPerPage = 10;
 
+        // Load topics based on selected category
+        async function loadBahanTopics() {
+            try {
+                const kategoriId = document.getElementById('bahanKategoriFilter').value;
+                const topicSelect = document.getElementById('bahanTopicFilter');
+                
+                topicSelect.innerHTML = '<option value="">Semua Topik</option>';
+                
+                if (!kategoriId) return;
+                
+                const response = await fetch(`${API_BASE}/soal.php?action=get_topics_by_kategori&kategori=${kategoriId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    data.data.forEach(topic => {
+                        const option = document.createElement('option');
+                        option.value = topic.id;
+                        option.textContent = topic.nama_topik;
+                        topicSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading topics:', error);
+            }
+        }
+
+        // Load topics for modal based on selected category
+        async function loadBahanModalTopics() {
+            try {
+                const kategoriId = document.getElementById('bahanKategoriId').value;
+                const topicSelect = document.getElementById('bahanTopicId');
+                
+                topicSelect.innerHTML = '<option value="">Pilih Topik (Opsional)</option>';
+                
+                if (!kategoriId) return;
+                
+                const response = await fetch(`${API_BASE}/soal.php?action=get_topics_by_kategori&kategori=${kategoriId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    data.data.forEach(topic => {
+                        const option = document.createElement('option');
+                        option.value = topic.id;
+                        option.textContent = topic.nama_topik;
+                        topicSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading modal topics:', error);
+            }
+        }
+
         // Load bahan pelajaran
         async function loadBahanPelajaran(page = 1) {
             try {
                 const kategori = document.getElementById('bahanKategoriFilter').value;
+                const topic = document.getElementById('bahanTopicFilter').value;
 
                 let url = `${API_BASE}/soal.php?action=get_all_bahan_pelajaran&page=${page}&limit=${bahanPerPage}`;
                 if (kategori) url += `&kategori_id=${kategori}`;
+                if (topic) url += `&topic_id=${topic}`;
 
                 const response = await fetch(url, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
@@ -4177,7 +4954,7 @@
                     bahanCurrentPage = page;
                 } else {
                     document.getElementById('bahanPelajaranTable').innerHTML = `
-                        <tr><td colspan="6" class="text-center text-danger">Error: ${data.error || 'Gagal memuat bahan pelajaran'}</td></tr>
+                        <tr><td colspan="7" class="text-center text-danger">Error: ${data.error || 'Gagal memuat bahan pelajaran'}</td></tr>
                     `;
                 }
             } catch (error) {
@@ -4214,7 +4991,7 @@
         function displayBahanPelajaran(bahan) {
             const tbody = document.getElementById('bahanPelajaranTable');
             if (!bahan || bahan.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Tidak ada data bahan pelajaran</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Tidak ada data bahan pelajaran</td></tr>`;
                 return;
             }
 
@@ -4223,8 +5000,9 @@
 
             tbody.innerHTML = bahan.map((b, index) => {
                 const filePath = b.file_path ? `../${b.file_path}` : '';
+                const urlPath = b.url ? (b.url.startsWith('http') ? b.url : `../${b.url}`) : '';
                 const hasContent = filePath || b.url;
-                const contentUrl = filePath || b.url || '';
+                const contentUrl = filePath || urlPath || '';
                 const contentType = b.tipe || 'link';
 
                 let fileOrUrl = '-';
@@ -4232,10 +5010,12 @@
                     fileOrUrl = `<a href="#" onclick="previewBahanContent('${contentUrl}', '${contentType}', '${b.judul.replace(/'/g, "\\'")}'); return false;" class="text-primary">${b.tipe === 'teks' ? 'Baca' : b.tipe === 'video' ? 'Tonton' : 'Buka'}</a>`;
                 }
 
-                const kategoriName = getCategoryNameById(b.kategori_id) || '-';
+                const kategoriName = b.nama_kategori || getCategoryNameById(b.kategori_id) || '-';
+                const topicName = b.nama_topik || '-';
                 return `
                     <tr>
                         <td><span class="badge bg-info">${kategoriName}</span></td>
+                        <td><span class="badge bg-secondary">${topicName}</span></td>
                         <td>${b.judul}</td>
                         <td>${b.soal_id || '-'}</td>
                         <td><span class="badge bg-secondary">${b.tipe}</span></td>
@@ -4265,6 +5045,12 @@
                 // Edit mode - populate form
                 document.getElementById('bahanId').value = bahan.id;
                 document.getElementById('bahanKategoriId').value = bahan.kategori_id || '';
+                // Load topics for the selected category first
+                if (bahan.kategori_id) {
+                    loadBahanModalTopics().then(() => {
+                        document.getElementById('bahanTopicId').value = bahan.topic_id || '';
+                    });
+                }
                 document.getElementById('bahanSoalId').value = bahan.soal_id || '';
                 document.getElementById('bahanJudul').value = bahan.judul || '';
                 document.getElementById('bahanTipe').value = bahan.tipe || 'teks';
@@ -4275,6 +5061,7 @@
                 // Add mode - reset form
                 form.reset();
                 document.getElementById('bahanId').value = '';
+                document.getElementById('bahanTopicId').innerHTML = '<option value="">Pilih Topik (Opsional)</option>';
             }
             new bootstrap.Modal(document.getElementById('bahanPelajaranModal')).show();
         }
@@ -4464,11 +5251,13 @@
 
         function displayExamPackages(packages) {
             const tbody = document.getElementById('examPackagesTable');
-            tbody.innerHTML = packages.map(pkg => `
+            tbody.innerHTML = packages.map(pkg => {
+                const categoryName = pkg.nama_kategori || getCategoryNameById(pkg.kategori_id) || '-';
+                return `
                 <tr>
                     <td>${pkg.id}</td>
                     <td>${pkg.nama_paket}</td>
-                    <td>${pkg.kategori_id || '-'}</td>
+                    <td>${categoryName}</td>
                     <td>${pkg.durasi}</td>
                     <td>${pkg.total_soal}</td>
                     <td><span class="badge ${pkg.is_active ? 'bg-success' : 'bg-secondary'}">${pkg.is_active ? 'Active' : 'Inactive'}</span></td>
@@ -4482,13 +5271,39 @@
                         </button>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function showCreateExamPackageModal() {
             document.getElementById('examPackageForm').reset();
             document.getElementById('examPackageId').value = '';
+            loadExamPackageCategories();
             new bootstrap.Modal(document.getElementById('examPackageModal')).show();
+        }
+
+        function loadExamPackageCategories() {
+            if (!window.categoriesData || window.categoriesData.length === 0) {
+                return;
+            }
+            
+            const modalSelect = document.getElementById('examPackageCategory');
+            const filterSelect = document.getElementById('filterPackageCategory');
+            
+            modalSelect.innerHTML = '<option value="">All Categories</option>';
+            filterSelect.innerHTML = '<option value="">All Categories</option>';
+            
+            window.categoriesData.forEach(cat => {
+                const optionModal = document.createElement('option');
+                optionModal.value = cat.id;
+                optionModal.textContent = cat.nama;
+                modalSelect.appendChild(optionModal);
+                
+                const optionFilter = document.createElement('option');
+                optionFilter.value = cat.id;
+                optionFilter.textContent = cat.nama;
+                filterSelect.appendChild(optionFilter);
+            });
         }
 
         async function editExamPackage(id) {
@@ -4501,13 +5316,22 @@
 
                 if (data.success && data.data) {
                     const pkg = data.data;
+                    
+                    // Load categories first, then set values
+                    loadExamPackageCategories();
+                    
                     document.getElementById('examPackageId').value = pkg.id;
                     document.getElementById('examPackageName').value = pkg.nama_paket;
                     document.getElementById('examPackageDesc').value = pkg.deskripsi || '';
                     document.getElementById('examPackageDuration').value = pkg.durasi;
-                    document.getElementById('examPackageCategory').value = pkg.kategori_id || '';
                     document.getElementById('examPackageTotalQuestions').value = pkg.total_soal;
                     document.getElementById('examPackageActive').checked = pkg.is_active;
+                    
+                    // Set category after dropdown is populated
+                    setTimeout(() => {
+                        document.getElementById('examPackageCategory').value = pkg.kategori_id || '';
+                    }, 100);
+                    
                     new bootstrap.Modal(document.getElementById('examPackageModal')).show();
                 }
             } catch (error) {
@@ -4560,9 +5384,13 @@
         async function deleteExamPackage(id) {
             showConfirm('Are you sure you want to delete this package?', async () => {
                 try {
-                    const response = await fetch(`${API_BASE}/soal.php?action=delete_paket_tryout&id=${id}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    const response = await fetch(`${API_BASE}/soal.php?action=delete_paket_tryout`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify({ id })
                     });
                     const data = await response.json();
 
@@ -4587,12 +5415,12 @@
         async function loadExamSessions() {
             try {
                 const statusFilter = document.getElementById('filterSessionStatus').value;
-                const searchQuery = document.getElementById('searchExamSession').value;
+                const userFilter = document.getElementById('filterSessionUser').value;
                 
                 let url = `${API_BASE}/soal.php?action=get_sesi_ujian`;
                 const params = new URLSearchParams();
                 if (statusFilter) params.append('status', statusFilter);
-                if (searchQuery) params.append('search', searchQuery);
+                if (userFilter) params.append('user_id', userFilter);
                 if (params.toString()) url += `&${params.toString()}`;
                 
                 const response = await fetch(url, {
@@ -4617,17 +5445,19 @@
 
         function displayExamSessions(sessions) {
             const tbody = document.getElementById('examSessionsTable');
-            tbody.innerHTML = sessions.map(session => `
+            tbody.innerHTML = sessions.map(session => {
+                const statusDisplay = getStatusDisplay(session.status);
+                return `
                 <tr>
                     <td>${session.id}</td>
-                    <td>${session.user_nama || '-'}</td>
+                    <td>${session.user_nama || session.nama_peserta || '-'}</td>
                     <td>${session.paket_nama || '-'}</td>
                     <td>${new Date(session.waktu_mulai).toLocaleString('id-ID')}</td>
                     <td>${session.waktu_selesai ? new Date(session.waktu_selesai).toLocaleString('id-ID') : '-'}</td>
-                    <td><span class="badge ${getStatusBadgeClass(session.status)}">${session.status}</span></td>
+                    <td><span class="badge ${getStatusBadgeClass(session.status)}">${statusDisplay}</span></td>
                     <td>${session.nilai_total || '-'}</td>
                     <td>
-                        ${session.status === 'in_progress' ? `
+                        ${session.status === 'berjalan' ? `
                             <button class="btn btn-sm btn-warning" onclick="terminateSession(${session.id})">
                                 <i class="fas fa-stop"></i>
                             </button>
@@ -4637,20 +5467,54 @@
                         </button>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
+        }
+
+        function getStatusDisplay(status) {
+            switch(status) {
+                case 'berjalan': return 'In Progress';
+                case 'selesai': return 'Completed';
+                case 'timeout': return 'Timeout';
+                case 'dibatalkan': return 'Abandoned';
+                default: return status;
+            }
         }
 
         function getStatusBadgeClass(status) {
             switch(status) {
-                case 'in_progress': return 'bg-warning';
-                case 'completed': return 'bg-success';
-                case 'abandoned': return 'bg-danger';
+                case 'berjalan': return 'bg-warning';
+                case 'selesai': return 'bg-success';
+                case 'timeout': return 'bg-danger';
+                case 'dibatalkan': return 'bg-danger';
                 default: return 'bg-secondary';
             }
         }
 
         function refreshExamSessions() {
             loadExamSessions();
+        }
+
+        async function loadSessionUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/auth.php?action=get_users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById('filterSessionUser');
+                    select.innerHTML = '<option value="">All Users</option>';
+                    data.data.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = user.nama_lengkap || user.nama || `User ${user.id}`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
         }
 
         async function terminateSession(id) {
@@ -4704,13 +5568,13 @@
                     displayParticipants(data.data);
                 } else {
                     document.getElementById('participantsTable').innerHTML = `
-                        <tr><td colspan="9" class="text-center text-muted">No participants found</td></tr>
+                        <tr><td colspan="8" class="text-center text-muted">No participants found</td></tr>
                     `;
                 }
             } catch (error) {
                 console.error('Error loading participants:', error);
                 document.getElementById('participantsTable').innerHTML = `
-                    <tr><td colspan="9" class="text-center text-muted">Failed to load participants</td></tr>
+                    <tr><td colspan="8" class="text-center text-muted">Failed to load participants</td></tr>
                 `;
             }
         }
@@ -4720,7 +5584,6 @@
             tbody.innerHTML = participants.map(p => `
                 <tr>
                     <td>${p.id}</td>
-                    <td>${p.nama_peserta || '-'}</td>
                     <td>${p.user_nama || '-'}</td>
                     <td>${new Date(p.waktu_mulai).toLocaleString('id-ID')}</td>
                     <td>${p.waktu_selesai ? new Date(p.waktu_selesai).toLocaleString('id-ID') : '-'}</td>
@@ -4766,6 +5629,7 @@
             const formData = new FormData();
             formData.append('id', document.getElementById('bahanId').value);
             formData.append('kategori_id', document.getElementById('bahanKategoriId').value);
+            formData.append('topic_id', document.getElementById('bahanTopicId').value);
             formData.append('soal_id', document.getElementById('bahanSoalId').value);
             formData.append('judul', document.getElementById('bahanJudul').value);
             formData.append('konten', document.getElementById('bahanKonten').value);

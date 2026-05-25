@@ -14,6 +14,19 @@ function loadAuthToken() {
 // Load materials
 async function loadMaterials() {
     try {
+        // Try learning topics first
+        const topicsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_learning_topics'), {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const topicsData = await topicsResponse.json();
+        
+        if (topicsData.success && topicsData.data && topicsData.data.length > 0) {
+            // Use learning topics if available
+            displayLearningTopics(topicsData.data);
+            return;
+        }
+        
+        // Fallback to all materials
         const response = await fetch(AppConfig.apiUrl('soal.php?action=get_all_bahan_pelajaran'), {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
@@ -27,7 +40,70 @@ async function loadMaterials() {
         }
     } catch (error) {
         console.error('Error loading materials:', error);
-        displayErrorState();
+        // Fallback to all materials
+        try {
+            const response = await fetch(AppConfig.apiUrl('soal.php?action=get_all_bahan_pelajaran'), {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const data = await response.json();
+            
+            if (data.success && data.data) {
+                allMaterials = data.data;
+                displayMaterials(allMaterials);
+            } else {
+                displayErrorState();
+            }
+        } catch (fallbackError) {
+            console.error('Fallback also failed:', fallbackError);
+            displayErrorState();
+        }
+    }
+}
+
+// Display learning topics
+function displayLearningTopics(topics) {
+    const grid = document.getElementById('materialsGrid');
+    
+    if (!grid) return;
+    
+    grid.innerHTML = topics.map(topic => `
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">${topic.nama_topic || 'Topik'}</h5>
+                    <p class="card-text text-muted">${topic.deskripsi || 'Deskripsi topik'}</p>
+                    <p class="card-text"><small class="text-muted">Kategori: ${topic.nama_kategori || '-'}</small></p>
+                    <button class="btn btn-primary btn-sm" onclick="markTopicStudied(${topic.id})">
+                        <i class="fas fa-check"></i> Tandai Sudah Dipelajari
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Mark topic as studied
+async function markTopicStudied(topicId) {
+    try {
+        const response = await fetch(AppConfig.apiUrl('soal.php?action=mark_topic_studied'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ topic_id: topicId })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Topik ditandai sebagai sudah dipelajari!');
+            loadMaterials(); // Refresh
+        } else {
+            alert('Gagal menandai topik: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error marking topic:', error);
+        alert('Terjadi kesalahan saat menandai topik');
     }
 }
 

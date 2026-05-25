@@ -31,6 +31,20 @@ async function loadExamResult() {
     }
 
     try {
+        // Try to get session info first
+        try {
+            const sessionResponse = await fetch(AppConfig.apiUrl(`soal.php?action=get_sesi&sesi_id=${resultId}`), {
+                headers: RBAC.getAuthHeaders()
+            });
+            const sessionData = await sessionResponse.json();
+            if (sessionData.success && sessionData.data) {
+                // Session exists, could potentially resume
+                console.log('Session data:', sessionData.data);
+            }
+        } catch (sessionError) {
+            console.log('Session not available or ended:', sessionError);
+        }
+
         // Fetch exam result details
         const response = await fetch(AppConfig.apiUrl(`soal.php?action=get_exam_result&id=${resultId}`), {
             headers: RBAC.getAuthHeaders()

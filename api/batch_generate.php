@@ -383,21 +383,9 @@ function generateQuestions() {
     
     requireAdmin();
     
-    $input = json_decode(file_get_contents('php://input'), true);
-    $kategori_id = intval($input['kategori_id'] ?? 0);
-    $count = intval($input['count'] ?? 10);
-    $difficulty = $input['difficulty'] ?? 'sedang';
-    
-    // Include the AI question generator
-    require_once __DIR__ . '/../scripts/ai_question_generator.php';
-    
-    $generator = new AIQuestionGenerator($conn);
-    $questions = $generator->generateQuestionForAdmin($kategori_id, $count, $difficulty);
-    
     echo json_encode([
-        'success' => true,
-        'generated' => count($questions),
-        'questions' => $questions
+        'success' => false,
+        'error' => 'This feature has been deprecated. Please use the manual question creation or batch import from external sources.'
     ]);
 }
 

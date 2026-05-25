@@ -141,7 +141,7 @@ const perPage = 10;
                     // Store categories globally for dynamic lookups
                     window.categoriesData = data.data;
                     
-                    // Update all kategori dropdowns
+                    // Update all kategori dropdowns (exclude questionKategori - it's in a modal)
                     const dropdownIds = [
                         'filterKategori', 
                         'statsKategori', 
@@ -156,7 +156,8 @@ const perPage = 10;
                         'bahanKategoriId',
                         'tipsKategori',
                         'examPackageCategory',
-                        'aiGeneratorModalKategori'
+                        'aiGeneratorModalKategori',
+                        'topicCategoryFilter'
                     ];
                     
                     dropdownIds.forEach(id => {
@@ -168,22 +169,29 @@ const perPage = 10;
                             select.innerHTML = '';
                             select.appendChild(firstOption);
                             
-                            // Add categories
-                            data.data.forEach(kat => {
+                            data.data.forEach(cat => {
                                 const option = document.createElement('option');
-                                option.value = kat.nama; // Use nama for consistency
-                                option.textContent = `${kat.nama} - ${kat.deskripsi || ''}`;
+                                option.value = cat.nama;
+                                option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
                                 select.appendChild(option);
                             });
                             
-                            console.log(`Loaded ${select.options.length - 1} categories into ${id}`);
-                            
-                            // Restore previously selected value if it still exists
+                            // Restore previous value if it still exists
                             if (currentValue) {
-                                const exists = Array.from(select.options).some(opt => opt.value === currentValue);
-                                if (exists) {
-                                    select.value = currentValue;
-                                }
+                                select.value = currentValue;
+                            }
+                            
+                            console.log(`Loaded ${data.data.length} categories into ${id}`);
+                            
+                            // Add change listener specifically for questionKategori
+                            if (id === 'questionKategori') {
+                                select.removeEventListener('change', function() {
+                                    loadTopicsByKategori(this.value);
+                                });
+                                select.addEventListener('change', function() {
+                                    loadTopicsByKategori(this.value);
+                                });
+                                console.log('Added change listener to questionKategori');
                             }
                         } else {
                             console.warn(`Dropdown ${id} not found`);
@@ -192,6 +200,32 @@ const perPage = 10;
                 }
             } catch (error) {
                 console.error('Error loading kategori:', error);
+            }
+        }
+
+        // Load topics by kategori
+        async function loadTopicsByKategori(kategoriNama) {
+            try {
+                const response = await fetch(`${API_BASE}/soal.php?action=get_topics_by_kategori&kategori=${encodeURIComponent(kategoriNama)}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                const topicSelect = document.getElementById('questionTopic');
+                if (topicSelect) {
+                    topicSelect.innerHTML = '<option value="">Pilih Topik (Opsional)</option>';
+                    
+                    if (data.success && data.data && data.data.length > 0) {
+                        data.data.forEach(topic => {
+                            const option = document.createElement('option');
+                            option.value = topic.id;
+                            option.textContent = topic.nama_topic || topic.nama || 'Topik';
+                            topicSelect.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading topics:', error);
             }
         }
 
@@ -1228,8 +1262,32 @@ const perPage = 10;
             document.getElementById('questionId').value = '';
             document.getElementById('questionModalLabel').textContent = 'Tambah Soal';
             
-            // Load categories dynamically
-            await loadQuestionCategories();
+            // Ensure categories are loaded
+            if (!window.categoriesData || window.categoriesData.length === 0) {
+                await loadKategoriDropdowns();
+            }
+            
+            // Always populate questionKategori dropdown when modal opens
+            const questionKategori = document.getElementById('questionKategori');
+            if (questionKategori) {
+                const firstOption = questionKategori.options[0];
+                questionKategori.innerHTML = '';
+                questionKategori.appendChild(firstOption);
+                
+                if (window.categoriesData && window.categoriesData.length > 0) {
+                    window.categoriesData.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.nama;
+                        option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
+                        questionKategori.appendChild(option);
+                    });
+                    console.log('Populated questionKategori with', window.categoriesData.length, 'categories');
+                } else {
+                    console.error('window.categoriesData is empty or undefined');
+                }
+            } else {
+                console.error('questionKategori element not found in DOM');
+            }
             
             // Fix accessibility: Disable focus trap to prevent aria-hidden warnings
             const modalElement = document.getElementById('questionModal');
@@ -1726,8 +1784,47 @@ const perPage = 10;
         // Save question
         async function saveQuestion() {
             const questionId = document.getElementById('questionId').value;
+            
+            // Upload images first if any
+            const imageFields = [
+                'questionGambarPertanyaan',
+                'questionGambarOpsiA',
+                'questionGambarOpsiB',
+                'questionGambarOpsiC',
+                'questionGambarOpsiD',
+                'questionGambarOpsiE',
+                'questionGambarPembahasan'
+            ];
+            
+            const imagePaths = {};
+            
+            for (const fieldId of imageFields) {
+                const fileInput = document.getElementById(fieldId);
+                if (fileInput && fileInput.files.length > 0) {
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+                    
+                    try {
+                        const uploadResponse = await fetch(`${API_BASE}/upload_image.php`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const uploadData = await uploadResponse.json();
+                        
+                        if (uploadData.success) {
+                            // Map field ID to database column name
+                            const columnName = fieldId.replace('question', '').toLowerCase();
+                            imagePaths[columnName] = uploadData.data.url;
+                        }
+                    } catch (error) {
+                        console.error('Error uploading image:', error);
+                    }
+                }
+            }
+            
             const questionData = {
                 kategori: document.getElementById('questionKategori').value,
+                topic_id: document.getElementById('questionTopic').value || null,
                 pertanyaan: document.getElementById('questionPertanyaan').value,
                 opsi_a: document.getElementById('questionOpsiA').value,
                 opsi_b: document.getElementById('questionOpsiB').value,
@@ -1735,7 +1832,8 @@ const perPage = 10;
                 opsi_d: document.getElementById('questionOpsiD').value,
                 opsi_e: document.getElementById('questionOpsiE').value,
                 jawaban_benar: document.getElementById('questionJawaban').value,
-                pembahasan: document.getElementById('questionPembahasan').value
+                pembahasan: document.getElementById('questionPembahasan').value,
+                ...imagePaths
             };
 
             if (questionId) {
@@ -1779,6 +1877,31 @@ const perPage = 10;
 
                 if (data.success) {
                     const q = data.data;
+                    
+                    // Ensure categories are loaded
+                    if (!window.categoriesData || window.categoriesData.length === 0) {
+                        await loadKategoriDropdowns();
+                    }
+                    
+                    // Populate questionKategori dropdown BEFORE setting values
+                    const questionKategori = document.getElementById('questionKategori');
+                    if (questionKategori) {
+                        const firstOption = questionKategori.options[0];
+                        questionKategori.innerHTML = '';
+                        questionKategori.appendChild(firstOption);
+                        
+                        if (window.categoriesData && window.categoriesData.length > 0) {
+                            window.categoriesData.forEach(cat => {
+                                const option = document.createElement('option');
+                                option.value = cat.nama;
+                                option.textContent = `${cat.nama} - ${cat.deskripsi || ''}`;
+                                questionKategori.appendChild(option);
+                            });
+                            console.log('Populated questionKategori for edit with', window.categoriesData.length, 'categories');
+                        }
+                    }
+                    
+                    // Now set the form values
                     document.getElementById('questionId').value = q.id;
                     document.getElementById('questionKategori').value = getCategoryNameById(q.kategori_id);
                     document.getElementById('questionPertanyaan').value = q.pertanyaan;
@@ -1790,6 +1913,20 @@ const perPage = 10;
                     document.getElementById('questionJawaban').value = q.jawaban_benar;
                     document.getElementById('questionPembahasan').value = q.pemabahasan || q.pembahasan || '';
                     document.getElementById('questionModalLabel').textContent = 'Edit Soal';
+                    
+                    // Load topics for the selected kategori
+                    const kategoriNama = getCategoryNameById(q.kategori_id);
+                    console.log('Loading topics for kategori:', kategoriNama, 'from kategori_id:', q.kategori_id);
+                    loadTopicsByKategori(kategoriNama).then(() => {
+                        // Set topic value after topics are loaded
+                        if (q.topic_id) {
+                            document.getElementById('questionTopic').value = q.topic_id;
+                        }
+                    }).catch(err => {
+                        console.error('Failed to load topics:', err);
+                    });
+                    
+                    // Show modal AFTER everything is populated
                     new bootstrap.Modal(document.getElementById('questionModal')).show();
                 }
             } catch (error) {

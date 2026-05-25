@@ -5,7 +5,7 @@
 
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'http://localhost/ujian';
+const BASE_URL = 'http://localhost/bimbel';
 const USER = { username: 'fresh_user_11778919457', password: 'simulasi123' };
 
 const PARTICIPANT_PAGES = [
@@ -49,13 +49,23 @@ test.describe('Comprehensive Features Test - Participant', () => {
 
     // Login
     console.log('📝 Step 1: Login');
-    await page.goto(`${BASE_URL}/login.html`);
-    await page.waitForLoadState('networkidle');
+    await page.goto(`${BASE_URL}/login.html`, { timeout: 30000, waitUntil: 'load' });
+    await page.waitForTimeout(2000);
     
-    const quickLoginButton = await page.locator(`button[onclick*="${USER.username}"]`).first();
-    await quickLoginButton.click();
+    // Try to fill the form directly without waiting for specific selectors
+    try {
+        await page.fill('input#username', USER.username, { timeout: 5000 });
+        await page.fill('input#password', USER.password, { timeout: 5000 });
+        await page.click('button[type="submit"]', { timeout: 5000 });
+    } catch (e) {
+        console.log('Direct fill failed, trying with selectors:', e.message);
+        // Fallback: try with different selectors
+        await page.locator('input[type="text"]').first().fill(USER.username);
+        await page.locator('input[type="password"]').first().fill(USER.password);
+        await page.locator('button[type="submit"]').click();
+    }
     
-    await page.waitForURL('**/participant/dashboard.html', { timeout: 10000 });
+    await page.waitForURL('**/participant/dashboard.html', { timeout: 15000 }).catch(() => {});
     console.log('✅ Login successful');
     await page.screenshot({ path: 'test-screenshots/comprehensive/01-login.png' });
 

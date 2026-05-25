@@ -10,14 +10,14 @@
     <div class="card p-3 mb-3">
         <div class="row">
             <div class="col-md-4">
-                <input type="text" class="form-control" id="searchExamSession" placeholder="Search sessions..." onkeyup="searchExamSessions()">
+                <input type="text" class="form-control" id="searchExamSession" placeholder="Cari sesi..." onkeyup="searchExamSessions()">
             </div>
             <div class="col-md-3">
                 <select class="form-select" id="filterSessionStatus" onchange="loadExamSessions()">
-                    <option value="">All Status</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="abandoned">Abandoned</option>
+                    <option value="">Semua Status</option>
+                    <option value="in_progress">Sedang Berjalan</option>
+                    <option value="completed">Selesai</option>
+                    <option value="abandoned">Dibatalkan</option>
                 </select>
             </div>
         </div>
@@ -30,17 +30,17 @@
                     <tr>
                         <th>ID</th>
                         <th>User</th>
-                        <th>Package</th>
-                        <th>Start Time</th>
-                        <th>End Time</th>
+                        <th>Paket</th>
+                        <th>Waktu Mulai</th>
+                        <th>Waktu Selesai</th>
                         <th>Status</th>
-                        <th>Score</th>
-                        <th>Actions</th>
+                        <th>Nilai</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="examSessionsTable">
                     <tr>
-                        <td colspan="8" class="text-center text-muted">Loading...</td>
+                        <td colspan="8" class="text-center text-muted">Memuat...</td>
                     </tr>
                 </tbody>
             </table>

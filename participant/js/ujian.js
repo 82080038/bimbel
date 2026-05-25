@@ -50,6 +50,8 @@
         let selectedExamTypeId = null;
         let selectedPaketId = null;
         let selectedExamTypeDurasi = 60; // Default 60 minutes
+        let currentSessionId = null;
+        let currentAbility = 0; // CAT ability estimate
 
         // Load exam types from database
         async function loadExamTypes() {
@@ -148,9 +150,31 @@
                         <span class="option-letter">${o.val}.</span> ${o.text}
                     </label>`).join('');
 
+            // Handle passage display
+            let passageHTML = '';
+            if (question.passage_id && question.passage_judul && question.passage_isi) {
+                // Check if this is a new passage (different from previous question)
+                const prevQuestion = currentQuestionIndex > 0 ? currentQuestions[currentQuestionIndex - 1] : null;
+                const isNewPassage = !prevQuestion || prevQuestion.passage_id !== question.passage_id;
+                
+                if (isNewPassage) {
+                    passageHTML = `
+                        <div class="passage-container">
+                            <div class="passage-header">
+                                <h5><i class="fas fa-book-open"></i> ${question.passage_judul}</h5>
+                            </div>
+                            <div class="passage-content">
+                                ${question.passage_isi.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
             questionContainer.innerHTML = `
                 <div class="question-number">Soal ${currentQuestionIndex + 1}/${currentQuestions.length}</div>
                 <span class="category-badge category-${question.kategori_id}">${getCategoryName(question.kategori_id)}</span>
+                ${passageHTML}
                 <div class="question-text">${question.pertanyaan}</div>
                 <div class="options-container">${optionsHTML}
                 </div>
@@ -181,10 +205,63 @@
         }
 
         // Save answer to session storage
-        function saveAnswer(questionIndex, answer) {
+        async function saveAnswer(questionIndex, answer) {
             const savedAnswers = JSON.parse(sessionStorage.getItem('examAnswers') || '{}');
             savedAnswers[currentQuestions[questionIndex].id] = answer;
             sessionStorage.setItem('examAnswers', JSON.stringify(savedAnswers));
+            
+            // Track question appearance for analytics
+            if (currentSessionId && !isPracticeMode) {
+                try {
+                    const question = currentQuestions[questionIndex];
+                    await fetch(AppConfig.apiUrl('soal.php?action=track_question_appearance'), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        },
+                        body: JSON.stringify({
+                            sesi_id: currentSessionId,
+                            soal_id: question.id,
+                            is_correct: (answer === question.jawaban_benar)
+                        })
+                    }).catch(err => console.error('Error tracking question:', err));
+                } catch (error) {
+                    console.error('Error tracking question:', error);
+                }
+            }
+            
+            // Update ability estimate using CAT (if session exists)
+            if (currentSessionId && !isPracticeMode) {
+                try {
+                    const question = currentQuestions[questionIndex];
+                    const isCorrect = (answer === question.jawaban_benar);
+                    
+                    await fetch(AppConfig.apiUrl('soal.php?action=update_ability_estimate'), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        },
+                        body: JSON.stringify({
+                            sesi_id: currentSessionId,
+                            soal_id: question.id,
+                            is_correct: isCorrect,
+                            current_ability: currentAbility
+                        })
+                    }).then(response => response.json())
+                      .then(data => {
+                          if (data.success && data.new_ability !== undefined) {
+                              currentAbility = data.new_ability;
+                          }
+                      }).catch(err => {
+                          console.error('Error updating ability estimate:', err);
+                      });
+                } catch (error) {
+                    console.error('Error updating ability estimate:', error);
+                }
+            }
+            
             // Update navigation to show answered status
             updateQuestionNav();
         }
@@ -719,7 +796,7 @@
         }
 
         // Batalkan ujian yang sedang berlangsung
-        function batalkanUjian() {
+        async function batalkanUjian() {
             if (!examIsActive) return;
 
             const soalDijawab = Object.keys(JSON.parse(sessionStorage.getItem('examAnswers') || '{}')).length;
@@ -730,7 +807,7 @@
                 `Anda sudah menjawab <strong>${soalDijawab} dari ${totalSoal} soal</strong>.<br>` +
                 `<span class="text-danger">Semua jawaban akan hilang dan tidak dinilai.</span><br><br>` +
                 `Apakah Anda yakin ingin membatalkan ujian ini?`,
-                function() {
+                async function() {
                     // Confirmed — clear exam state
                     examIsActive = false;
                     window.onbeforeunload = null;
@@ -740,6 +817,22 @@
                     currentQuestions = [];
                     currentQuestionIndex = 0;
                     isPracticeMode = false;
+
+                    // Cancel exam session if exists
+                    if (currentSessionId) {
+                        try {
+                            await fetch(AppConfig.apiUrl('soal.php?action=cancel_exam'), {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                                },
+                                body: JSON.stringify({ sesi_id: currentSessionId })
+                            }).catch(err => console.error('Error canceling exam:', err));
+                        } catch (error) {
+                            console.error('Error canceling exam:', error);
+                        }
+                    }
 
                     // Return to welcome screen — hide all other screens
                     ['examScreen','historyScreen','resultScreen','discussionScreen'].forEach(id => {
@@ -899,6 +992,43 @@
                 if (data.success && data.data && data.data.length > 0) {
                     currentQuestions = data.data;
                     currentQuestionIndex = 0;
+                    currentAbility = 0; // Reset ability for new exam
+                    
+                    // Create exam session for CAT tracking
+                    if (!isPracticeMode) {
+                        try {
+                            const sessionResponse = await fetch(AppConfig.apiUrl('soal.php?action=simpan_sesi'), {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    soal_teracak: JSON.stringify(currentQuestions.map(q => q.id))
+                                })
+                            });
+                            const sessionData = await sessionResponse.json();
+                            if (sessionData.success && sessionData.sesi_id) {
+                                currentSessionId = sessionData.sesi_id;
+                                
+                                // Enable CAT for this session
+                                await fetch(AppConfig.apiUrl('soal.php?action=enable_cat'), {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({
+                                        sesi_id: currentSessionId,
+                                        enabled: true
+                                    })
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Error creating session:', error);
+                        }
+                    }
+                    
                     showExamScreen();
                     displayQuestion();
                     startTimer();
@@ -1163,6 +1293,19 @@
                 });
                 const weaknessData = await response.json();
                 
+                // Fetch category weakness for detailed analysis
+                let categoryWeaknessData = null;
+                try {
+                    const catResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_kategori_weakness'), {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        }
+                    });
+                    categoryWeaknessData = await catResponse.json();
+                } catch (catError) {
+                    console.log('Category weakness not available:', catError);
+                }
+                
                 // Fetch all learning materials (without soal_id filter)
                 const materialsResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_all_bahan_pelajaran'), {
                     headers: {
@@ -1322,6 +1465,24 @@
                         // Certificate exists, download it
                         const certificate = certData.data;
                         
+                        // Verify certificate validity
+                        try {
+                            const verifyResponse = await fetch(AppConfig.apiUrl('soal.php?action=verify_certificate'), {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                                },
+                                body: JSON.stringify({ hasil_id: examData.id })
+                            });
+                            const verifyData = await verifyResponse.json();
+                            if (verifyData.success && !verifyData.data.valid) {
+                                showToast('Sertifikat tidak valid. Silakan generate ulang.', 'warning');
+                            }
+                        } catch (verifyError) {
+                            console.log('Certificate verification not available:', verifyError);
+                        }
+                        
                         // Create certificate content
                         const certContent = `
                             ╔══════════════════════════════════════════════════════════════╗
@@ -1358,24 +1519,65 @@
                         
                         showToast('Sertifikat berhasil didownload!', 'success');
                     } else {
-                        // Generate new certificate
-                        const generateResponse = await fetch(AppConfig.apiUrl('soal.php?action=generate_sertifikat'), {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                            },
-                            body: JSON.stringify({
-                                hasil_id: examData.id,
-                                nama_peserta: localStorage.getItem('username') || 'Peserta'
-                            })
-                        });
-                        const generateData = await generateResponse.json();
-                        
-                        if (generateData.success) {
-                            showToast('Sertifikat berhasil dibuat! Silakan download kembali.', 'success');
-                        } else {
-                            showToast('Gagal membuat sertifikat', 'error');
+                        // Generate new certificate using generate_certificate endpoint
+                        try {
+                            const generateResponse = await fetch(AppConfig.apiUrl('soal.php?action=generate_certificate'), {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                                },
+                                body: JSON.stringify({
+                                    hasil_id: examData.id,
+                                    nama_peserta: localStorage.getItem('username') || 'Peserta'
+                                })
+                            });
+                            const generateData = await generateResponse.json();
+                            
+                            if (generateData.success) {
+                                showToast('Sertifikat berhasil dibuat! Silakan download kembali.', 'success');
+                            } else {
+                                // Fallback to generate_sertifikat
+                                const fallbackResponse = await fetch(AppConfig.apiUrl('soal.php?action=generate_sertifikat'), {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                                    },
+                                    body: JSON.stringify({
+                                        hasil_id: examData.id,
+                                        nama_peserta: localStorage.getItem('username') || 'Peserta'
+                                    })
+                                });
+                                const fallbackData = await fallbackResponse.json();
+                                
+                                if (fallbackData.success) {
+                                    showToast('Sertifikat berhasil dibuat! Silakan download kembali.', 'success');
+                                } else {
+                                    showToast('Gagal membuat sertifikat: ' + (fallbackData.error || 'Unknown error'), 'error');
+                                }
+                            }
+                        } catch (certError) {
+                            console.error('Error with generate_certificate, trying fallback:', certError);
+                            // Fallback to generate_sertifikat
+                            const fallbackResponse = await fetch(AppConfig.apiUrl('soal.php?action=generate_sertifikat'), {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                                },
+                                body: JSON.stringify({
+                                    hasil_id: examData.id,
+                                    nama_peserta: localStorage.getItem('username') || 'Peserta'
+                                })
+                            });
+                            const fallbackData = await fallbackResponse.json();
+                            
+                            if (fallbackData.success) {
+                                showToast('Sertifikat berhasil dibuat! Silakan download kembali.', 'success');
+                            } else {
+                                showToast('Gagal membuat sertifikat: ' + (fallbackData.error || 'Unknown error'), 'error');
+                            }
                         }
                     }
                 } else {

@@ -5,8 +5,8 @@
 
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'http://localhost/ujian';
-const API_BASE = 'http://localhost/ujian/api';
+const BASE_URL = 'http://localhost/bimbel';
+const API_BASE = 'http://localhost/bimbel/api';
 
 const API_ENDPOINTS = [
     { file: 'auth.php', actions: ['login', 'register'], method: 'POST', auth: false },
