@@ -5,7 +5,7 @@
     "version": "2.1",
     "status": "Production Ready",
     "branch": "kantor",
-    "last_updated": "24 Mei 2026 - Analisis gap lapangan: export database ke database/export_2026-05-24_14-24-03.sql, update .gitignore agar export_*.sql ter-track, tambah rencana selanjutnya di IMPROVEMENT_ROADMAP.md (anti-cheat, mode latihan, rate limiter, bookmark soal, OTP, sertifikat printable, forum, payment)",
+    "last_updated": "26 Mei 2026 - Comprehensive analysis completed, database exported (68 tables, 11MB), obsolete SQL files cleaned, CRUD operations verified across all components",
     "repository": "https://github.com/82080038/bimbel",
     "tech_stack": {
       "frontend": ["HTML5", "Bootstrap 5", "JavaScript ES6+", "PWA", "Chart.js", "Font Awesome 6"],
@@ -17,8 +17,8 @@
     }
   },
   "workspace": {
-    "root": "/opt/lampp/htdocs/bimbel",
-    "environment": "Linux with XAMPP 8.2.12-0",
+    "root": "c:\\xampp\\htdocs\\bimbel",
+    "environment": "Windows with XAMPP 8.2.12",
     "exclude_patterns": [
       "uploads/",
       "vendor/",
@@ -32,7 +32,7 @@
   },
   "code_structure": {
     "directories": {
-      "api": "API endpoints (16 files: auth, soal, analytics, courses, expert, gamification, notifications, rate_limiter, validator, export_database_web, add_internet_materials_v2, add_internet_materials_questions, pembahasan, batch_generate, csrf, middleware)",
+      "api": "API endpoints (18 files: auth, soal, analytics, courses, expert, gamification, notifications, rate_limiter, validator, export_database_web, add_internet_materials_v2, add_internet_materials_questions, pembahasan, batch_generate, csrf, middleware, upload_image)",
       "admin": "Admin panel interface (25 files including admin.html)",
       "participant": "Participant interface (38 files: dashboard, ujian, profile, materi, leaderboard, achievements, register, resume-ujian, expert_assistant + sections/ + js/ + css/ + components/)",
       "participant/sections": "HTML konten parsial (7 files: dashboard, ujian, profile, materi, leaderboard, achievements, register-content)",
@@ -72,9 +72,9 @@
     "name": "ujian_sekolah_kedinasan",
     "host": "localhost",
     "user": "root",
-    "password": "auto-detect (Linux: root, Windows: 8208)",
+    "password": "root (updated 16 Mei 2026)",
     "charset": "utf8mb4",
-    "tables": 62,
+    "tables": 68,
     "views": 4,
     "migration_scripts": [
       "migrate_course_management.php",
@@ -92,8 +92,7 @@
       "create_quick_test_users.sql",
       "exam_types.sql",
       "expert_system_schema.sql",
-      "export_2026-05-19_23-10-12.sql",
-      "export_2026-05-24_14-24-03.sql",
+      "export_2026-05-25_21-42-34.sql",
       "gamification.sql",
       "learning_progress_tables.sql",
       "migrate_drop_nama_peserta_add_tpa_psikologis.sql",

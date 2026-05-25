@@ -5,18 +5,18 @@
     "stack": ["php", "mysql", "javascript", "html", "bootstrap"],
     "framework": "vanilla-php",
     "version": "2.1",
-    "lastUpdated": "2026-05-24"
+    "lastUpdated": "2026-05-26"
   },
   "structure": {
     "api": {
       "path": "api/",
-      "files": ["auth.php", "soal.php", "pembahasan.php", "expert.php", "batch_generate.php", "csrf.php", "middleware.php", "rate_limiter.php", "validator.php"],
-      "description": "REST API endpoints dengan prepared statements untuk security"
+      "files": ["auth.php", "soal.php", "pembahasan.php", "expert.php", "batch_generate.php", "csrf.php", "middleware.php", "rate_limiter.php", "validator.php", "analytics.php", "courses.php", "gamification.php", "notifications.php", "export_database_web.php", "add_internet_materials_v2.php", "add_internet_materials_questions.php", "upload_image.php"],
+      "description": "REST API endpoints dengan prepared statements untuk security (18 files)"
     },
     "scripts": {
       "path": "scripts/",
-      "files": ["ai_question_generator.php", "batch_generate.php", "learning_recommendation_system.php", "educational_content_generator.php", "external_content_fetcher.php", "cleanup-unused-files.php", "backup.php", "analyze_soal_topics.php"],
-      "description": "Background scripts dan utilities untuk AI generation dan maintenance"
+      "files": ["batch_generate.php", "learning_recommendation_system.php", "educational_content_generator.php", "external_content_fetcher.php", "cleanup-unused-files.php", "backup.php", "analyze_soal_topics.php", "check_reminders.php", "logger.php", "minify_assets.php", "update_test_password.php"],
+      "description": "Background scripts dan utilities untuk maintenance dan content generation"
     },
     "database": {
       "path": "database/",
@@ -86,8 +86,8 @@
   },
   "database": {
     "name": "ujian_sekolah_kedinasan",
-    "password": "auto-detect (Linux: root, Windows: 8208)",
-    "tables": 62,
+    "password": "root (updated 16 Mei 2026)",
+    "tables": 68,
     "views": 4,
     "tableList": [
       "users",
@@ -154,8 +154,8 @@
     ],
     "indexes": "optimized",
     "backupScript": "scripts/backup.php",
-    "latestExport": "database/export_2026-05-24_14-24-03.sql",
-    "importCommand": "mysql -u root -proot -h 127.0.0.1 < database/export_2026-05-24_14-24-03.sql"
+    "latestExport": "database/export_2026-05-25_21-42-34.sql",
+    "importCommand": "mysql -u root -proot -h 127.0.0.1 < database/export_2026-05-25_21-42-34.sql"
   },
   "features": {
     "core": {

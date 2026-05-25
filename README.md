@@ -2,9 +2,9 @@
 
 Sistem ujian online modern dengan RBAC (Role-Based Access Control), dashboard komprehensif, dan analisa AI. Dirancang untuk sekolah kedinasan, CPNS, UTBK/SNBT, dan ujian seleksi lainnya.
 
-**Versi:** 2.0  
+**Versi:** 2.1  
 **Status:** Production Ready ✅  
-**Last Updated:** 21 Mei 2026
+**Last Updated:** 26 Mei 2026
 
 ## 📚 Table of Contents
 - [Fitur Utama](#-fitur-utama)
@@ -191,9 +191,9 @@ Realtime: Socket.IO
 
 ### Database Structure
 
-The application uses the following main tables:
+The application uses 68 database tables organized into the following main categories:
 - `users` - User accounts and authentication
-- `soal` - Exam questions
+- `soal` - Exam questions (with topic-based categorization)
 - `riwayat_ujian` - Exam history
 - `kategori` - Question categories
 - `paket_tryout` - Exam packages
@@ -206,6 +206,15 @@ The application uses the following main tables:
 - `notification_preferences` - User notification settings
 - `question_analytics` - Question performance analytics
 - `user_analytics` - User performance analytics
+- `courses` - Course management
+- `course_modules` - Course modules
+- `course_materials` - Course materials
+- `learning_paths` - Learning paths
+- `expert_knowledge` - Expert system knowledge base
+- `content_versions` - Content version control
+- `translations` - Multi-language support
+
+**Latest Database Export:** `database/export_2026-05-25_21-42-34.sql` (11MB, 68 tables)
 
 ### Exporting Database
 
@@ -261,14 +270,24 @@ php export_database.php
 /project-root
 ├── /admin              # Panel admin untuk manajemen
 │   └── admin.html      # Admin dashboard
-├── /api                # API endpoints (JSON)
+├── /api                # API endpoints (JSON) - 18 files
 │   ├── auth.php        # Authentication API
 │   ├── soal.php        # Exam questions API
 │   ├── gamification.php # Gamification API
 │   ├── notifications.php # Notification API
 │   ├── analytics.php   # Analytics API
 │   ├── courses.php     # Course management API
-│   └── middleware.php  # Authentication middleware
+│   ├── expert.php      # Expert system & AI API
+│   ├── pembahasan.php  # Discussion/explanation API
+│   ├── batch_generate.php # Batch question generation API
+│   ├── csrf.php        # CSRF token management
+│   ├── middleware.php  # Authentication middleware
+│   ├── rate_limiter.php # API rate limiting
+│   ├── validator.php  # Input validation
+│   ├── export_database_web.php # Database export via web
+│   ├── add_internet_materials_v2.php # Add questions from internet research
+│   ├── add_internet_materials_questions.php # Add questions from materials
+│   └── upload_image.php # Image upload handler
 ├── /assets             # Statis files
 │   ├── /images         # Gambar soal & jawaban
 │   ├── /audio          # File audio soal

@@ -5,11 +5,11 @@
 **Nama Project:** Bimbel Ujian Sekolah Kedinasan  
 **Tech Stack:** PHP, MySQL, JavaScript, HTML, Bootstrap  
 **Framework:** Vanilla PHP  
-**Database:** MySQL (ujian_sekolah_kedinasan)  
+**Database:** MySQL (ujian_sekolah_kedinasan) - 68 tables  
 **Branch Utama:** kantor (untuk development kantor)  
 **Repository:** https://github.com/82080038/bimbel  
-**Versi:** 2.0  
-**Terakhir Update:** 14 Mei 2026
+**Versi:** 2.1  
+**Terakhir Update:** 26 Mei 2026
 
 ## Struktur Project
 
@@ -20,25 +20,40 @@ bimbel/
 ├── participant/              # Halaman peserta
 │   ├── dashboard.html      # Dashboard peserta (dengan gamifikasi & notifikasi)
 │   └── ujian.html          # Halaman ujian (dengan swipe gestures & keyboard nav)
-├── api/                     # API endpoints
+├── api/                     # API endpoints (18 files)
 │   ├── auth.php           # Authentication
 │   ├── soal.php           # Soal & Tips & Triks
 │   ├── gamification.php   # Gamification API (XP, badges, achievements)
 │   ├── notifications.php  # Notification API (email, in-app, push)
 │   ├── analytics.php      # Analytics API (heatmap, funnel, performance)
 │   ├── courses.php        # Course management API
-│   └── middleware.php     # Authentication middleware
+│   ├── expert.php         # Expert system & AI API
+│   ├── pembahasan.php     # Discussion/explanation API
+│   ├── batch_generate.php # Batch question generation API
+│   ├── csrf.php           # CSRF token management
+│   ├── middleware.php     # Authentication middleware
+│   ├── rate_limiter.php   # API rate limiting
+│   ├── validator.php      # Input validation
+│   ├── export_database_web.php # Database export via web
+│   ├── add_internet_materials_v2.php # Add questions from internet research
+│   ├── add_internet_materials_questions.php # Add questions from materials
+│   └── upload_image.php   # Image upload handler
 ├── scripts/                 # Background scripts
 │   ├── check_reminders.php # Check & send pending exam reminders
 │   ├── minify_assets.php   # CSS/JS minification
-│   └── ai_question_generator.php
+│   ├── learning_recommendation_system.php # Learning recommendations
+│   ├── educational_content_generator.php # Educational content generation
+│   ├── external_content_fetcher.php # External content fetching
+│   ├── backup.php # Database backup
+│   ├── cleanup-unused-files.php # Cleanup unused files
+│   └── analyze_soal_topics.php # Analyze soal topics
 ├── database/                # Database schema & migrations
 │   ├── course_management.sql # Course management schema
 │   ├── gamification.sql    # Gamification schema
 │   ├── notifications.sql   # Notification system schema
 │   ├── analytics.sql       # Advanced analytics schema
 │   ├── content_management.sql # Content version control & translations
-│   └── export_*.sql        # Database exports with timestamps
+│   └── export_2026-05-25_21-42-34.sql # Latest database export (68 tables, 11MB)
 ├── js/                      # JavaScript modules
 │   ├── config.js          # Frontend configuration
 │   └── rbac.js            # Role-based access control
