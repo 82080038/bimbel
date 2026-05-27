@@ -1,0 +1,36 @@
+<!-- Statistics Section -->
+<div id="statisticsSection" class="hidden">
+    <h2 class="mb-4">Statistik Soal</h2>
+    
+    <div class="card p-3 mb-3">
+        <div class="row">
+            <div class="col-md-3">
+                <select class="form-select" id="statsKategori" onchange="loadSoalStatistics()">
+                    <option value="">Semua Kategori</option>
+                    <!-- Loaded dynamically -->
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Soal</th>
+                        <th>Kategori</th>
+                        <th>Muncul</th>
+                        <th>Benar</th>
+                        <th>Salah</th>
+                        <th>% Benar</th>
+                        <th>Prioritas</th>
+                    </tr>
+                </thead>
+                <tbody id="soalStatisticsTable">
+                    <!-- Statistics will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

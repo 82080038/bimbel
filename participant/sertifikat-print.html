@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sertifikat - {{nama_peserta}}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        @media print {
+            body { background: white; }
+            .no-print { display: none !important; }
+            .certificate-container { box-shadow: none !important; }
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .certificate-container {
+            background: white;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            border: 15px solid #667eea;
+        }
+        
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .certificate-logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+        
+        .certificate-title {
+            font-size: 42px;
+            font-weight: bold;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .certificate-subtitle {
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .certificate-body {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .recipient-name {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+            font-family: 'Georgia', serif;
+        }
+        
+        .achievement-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .score-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .score-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .score-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .certificate-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
+        
+        .signature-section {
+            text-align: center;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #333;
+            width: 200px;
+            margin: 10px 0;
+            padding-top: 5px;
+        }
+        
+        .qr-section {
+            text-align: center;
+        }
+        
+        #qrcode {
+            margin-bottom: 10px;
+        }
+        
+        .verification-code {
+            font-family: monospace;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 120px;
+            opacity: 0.03;
+            color: #667eea;
+            font-weight: bold;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        .action-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-container">
+        <div class="watermark">APLIKASI BIMBEL</div>
+        
+        <div class="certificate-header">
+            <div class="certificate-title">Sertifikat</div>
+            <div class="certificate-subtitle">Penyelesaian Ujian</div>
+        </div>
+        
+        <div class="certificate-body">
+            <p class="achievement-text">Dengan ini diberikan kepada:</p>
+            <div class="recipient-name" id="certName">{{nama_peserta}}</div>
+            <p class="achievement-text">
+                Atas keberhasilan menyelesaikan <strong id="certPaket">{{nama_paket}}</strong><br>
+                dengan hasil yang memuaskan
+            </p>
+            
+            <div class="score-section">
+                <h5>Detail Nilai</h5>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <div class="score-label">Total</div>
+                        <div class="score-value" id="certTotal">{{nilai_total}}</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">TWK</div>
+                        <div class="score-value" id="certTWK">{{nilai_twk}}</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">TIU</div>
+                        <div class="score-value" id="certTIU">{{nilai_tiu}}</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">TKP</div>
+                        <div class="score-value" id="certTKP">{{nilai_tkp}}</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">TPA</div>
+                        <div class="score-value" id="certTPA">{{nilai_tpa}}</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Psikologis</div>
+                        <div class="score-value" id="certPsikologis">{{nilai_psikologis}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="certificate-footer">
+            <div class="signature-section">
+                <div class="signature-line">
+                    <strong>Administrator</strong><br>
+                    <small>Aplikasi Bimbel</small>
+                </div>
+                <div id="certDate">{{tanggal}}</div>
+            </div>
+            
+            <div class="qr-section">
+                <div id="qrcode"></div>
+                <div class="verification-code" id="certCode">{{kode_verifikasi}}</div>
+                <small>Scan untuk verifikasi</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="action-buttons no-print">
+        <button class="btn btn-primary btn-lg" onclick="downloadPDF()">
+            <i class="fas fa-download"></i> Download PDF
+        </button>
+        <button class="btn btn-secondary btn-lg" onclick="window.print()">
+            <i class="fas fa-print"></i> Print
+        </button>
+        <button class="btn btn-info btn-lg" onclick="shareCertificate()">
+            <i class="fas fa-share-alt"></i> Share
+        </button>
+    </div>
+    
+    <script src="../js/config.js"></script>
+    <script>
+        // Get certificate data from URL or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const resultId = urlParams.get('id');
+        
+        async function loadCertificate() {
+            try {
+                // Fetch certificate data from API
+                const response = await fetch(AppConfig.apiUrl(`soal.php?action=get_sertifikat&id=${resultId}`), {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const cert = data.data;
+                    
+                    // Fill in certificate data
+                    document.getElementById('certName').textContent = cert.nama_peserta || 'Peserta';
+                    document.getElementById('certPaket').textContent = cert.nama_paket || 'Paket Ujian';
+                    document.getElementById('certTotal').textContent = cert.nilai_total || '0';
+                    document.getElementById('certTWK').textContent = cert.nilai_twk || '0';
+                    document.getElementById('certTIU').textContent = cert.nilai_tiu || '0';
+                    document.getElementById('certTKP').textContent = cert.nilai_tkp || '0';
+                    document.getElementById('certTPA').textContent = cert.nilai_tpa || '0';
+                    document.getElementById('certPsikologis').textContent = cert.nilai_psikologis || '0';
+                    document.getElementById('certDate').textContent = new Date(cert.tanggal).toLocaleDateString('id-ID', {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    document.getElementById('certCode').textContent = cert.kode_verifikasi || 'N/A';
+                    
+                    // Generate QR code
+                    new QRCode(document.getElementById('qrcode'), {
+                        text: `${window.location.origin}/verify.php?code=${cert.kode_verifikasi}`,
+                        width: 100,
+                        height: 100
+                    });
+                } else {
+                    alert('Gagal memuat sertifikat: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error loading certificate:', error);
+                // Use demo data if API fails
+                document.getElementById('certName').textContent = 'Demo Peserta';
+                document.getElementById('certTotal').textContent = '85';
+            }
+        }
+        
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            
+            // Add certificate content to PDF
+            doc.setFontSize(30);
+            doc.text('Sertifikat', 150, 30, { align: 'center' });
+            
+            doc.setFontSize(16);
+            doc.text('Diberikan kepada:', 150, 50, { align: 'center' });
+            
+            doc.setFontSize(24);
+            doc.setTextColor(102, 126, 234);
+            doc.text(document.getElementById('certName').textContent, 150, 70, { align: 'center' });
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            doc.text('Atas keberhasilan menyelesaikan ujian dengan nilai: ' + 
+                     document.getElementById('certTotal').textContent, 150, 90, { align: 'center' });
+            
+            // Save PDF
+            doc.save(`sertifikat-${document.getElementById('certName').textContent}.pdf`);
+        }
+        
+        function shareCertificate() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Sertifikat Ujian',
+                    text: `Saya telah menyelesaikan ujian dengan nilai ${document.getElementById('certTotal').textContent}!`,
+                    url: window.location.href
+                });
+            } else {
+                // Copy link to clipboard
+                navigator.clipboard.writeText(window.location.href);
+                alert('Link sertifikat disalin ke clipboard!');
+            }
+        }
+        
+        // Load certificate on page load
+        loadCertificate();
+    </script>
+</body>
+</html>

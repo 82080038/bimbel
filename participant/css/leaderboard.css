@@ -1,0 +1,178 @@
+/* Leaderboard Styles */
+.leaderboard-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 0;
+}
+
+.back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.back-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    color: #4f46e5;
+}
+
+.header-section {
+    text-align: center;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.header-section h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.header-section p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.filter-section {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.podium-section {
+    margin-bottom: 2rem;
+}
+
+.podium-card {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 15px;
+    margin: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.podium-card:hover {
+    transform: translateY(-10px);
+}
+
+.podium-card.gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #333;
+    order: 2;
+}
+
+.podium-card.silver {
+    background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+    color: #333;
+    order: 1;
+}
+
+.podium-card.bronze {
+    background: linear-gradient(135deg, #cd7f32 0%, #e8a862 100%);
+    color: #333;
+    order: 3;
+}
+
+.podium-card .rank-badge {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.podium-card .avatar {
+    margin: 1rem 0;
+    color: #333;
+}
+
+.podium-card h5 {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.podium-card .xp {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+.leaderboard-table-section {
+    margin-bottom: 2rem;
+}
+
+.leaderboard-table-section .card {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.leaderboard-table-section table {
+    margin-bottom: 0;
+}
+
+.leaderboard-table-section th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.leaderboard-table-section td {
+    vertical-align: middle;
+}
+
+.my-position-section {
+    margin-bottom: 2rem;
+}
+
+.my-position-section .card {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.rank-display {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.rank-display h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .header-section h1 {
+        font-size: 1.8rem;
+    }
+    
+    .podium-card {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+    
+    .podium-card .rank-badge {
+        font-size: 1.8rem;
+    }
+}

@@ -1,0 +1,21 @@
+<!-- Leaderboard Settings Section -->
+<div id="leaderboardSettingsSection" class="hidden">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Pengaturan Leaderboard</h2>
+        <button class="btn btn-primary" onclick="saveLeaderboardSettings()">
+            <i class="fas fa-save"></i> Simpan Pengaturan
+        </button>
+    </div>
+    
+    <div class="card p-3 mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="optOutLeaderboard" onchange="toggleLeaderboardOptOut()">
+            <label class="form-check-label" for="optOutLeaderboard">
+                Sembunyikan nama dari leaderboard (Opt-out)
+            </label>
+        </div>
+        <p class="text-muted small mt-2">
+            Jika diaktifkan, nama Anda tidak akan ditampilkan di leaderboard publik.
+        </p>
+    </div>
+</div>

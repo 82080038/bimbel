@@ -1,0 +1,190 @@
+:root {
+            --primary-color: #1e40af;
+            --secondary-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --dark-color: #1f2937;
+            --light-color: #f3f4f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .materi-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .filter-section {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .materi-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .materi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .materi-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .materi-icon.pdf {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .materi-icon.video {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .materi-icon.text {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .materi-icon.link {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .progress-indicator {
+            height: 6px;
+            border-radius: 3px;
+            background: #e5e7eb;
+            margin-top: 1rem;
+        }
+
+        .progress-bar-custom {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+
+        .badge-category {
+            background: var(--light-color);
+            color: var(--dark-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .materi-container {
+                padding: 1rem;
+            }
+
+            .header-section, .filter-section, .materi-card {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            /* Toast container - move to top on mobile to avoid covering content */
+            .toast-container.position-fixed.bottom-0.end-0 {
+                bottom: auto !important;
+                top: 1rem !important;
+                right: 0.5rem !important;
+                left: 0.5rem !important;
+            }
+            
+            /* Ensure modals are full width on very small screens */
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            
+            .modal-dialog-centered {
+                min-height: calc(100% - 1rem);
+            }
+            
+            /* Adjust modal content padding on mobile */
+            .modal-content {
+                border-radius: 0.5rem;
+            }
+            
+            .modal-body {
+                padding: 1rem;
+            }
+            
+            .modal-footer {
+                padding: 0.75rem 1rem;
+                flex-wrap: wrap;
+            }
+            
+            .modal-footer .btn {
+                flex: 1;
+                margin: 0.25rem 0;
+            }
+        }
+        
+        @media (min-width: 576px) and (max-width: 768px) {
+            .toast-container.position-fixed.bottom-0.end-0 {
+                right: 1rem !important;
+            }
+        }
+        
+        /* Ensure toasts have high z-index */
+        .toast-container {
+            z-index: 9999;
+        }
+

@@ -1,0 +1,45 @@
+<!-- Bahan Pelajaran Section -->
+<div id="bahanPelajaranSection" class="hidden">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Bahan Pelajaran</h2>
+        <button class="btn btn-success" onclick="showBahanPelajaranModal()">
+            <i class="fas fa-plus"></i> Tambah Bahan
+        </button>
+    </div>
+    
+    <div class="card p-3 mb-3">
+        <div class="row">
+            <div class="col-md-3">
+                <select class="form-select" id="bahanKategoriFilter" onchange="loadBahanPelajaran(1)">
+                    <option value="">Semua Kategori</option>
+                    <!-- Loaded dynamically -->
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Kategori</th>
+                        <th>Judul</th>
+                        <th>Soal ID</th>
+                        <th>Tipe</th>
+                        <th>File/URL</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="bahanPelajaranTable">
+                    <!-- Bahan pelajaran will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+        <nav>
+            <ul class="pagination justify-content-center" id="bahanPagination">
+                <!-- Pagination will be loaded here -->
+            </ul>
+        </nav>
+    </div>
+</div>

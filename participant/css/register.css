@@ -1,0 +1,138 @@
+body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem 0;
+        }
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .register-header h1 {
+            color: #1e40af;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .register-header p {
+            color: #6b7280;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+        .btn-register {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-weight: 600;
+            width: 100%;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.3);
+        }
+        .alert {
+            border-radius: 10px;
+            display: none;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .login-link a {
+            color: #1e40af;
+            text-decoration: none;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        .required::after {
+            content: " *";
+            color: #dc3545;
+        }
+        .form-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .strength-weak { background: #dc3545; }
+        .strength-medium { background: #ffc107; }
+        .strength-strong { background: #28a745; }
+
+        /* Responsive adjustments for Bootstrap components */
+        @media (max-width: 576px) {
+            /* Toast container - move to top on mobile to avoid covering content */
+            .toast-container.position-fixed.bottom-0.end-0 {
+                bottom: auto !important;
+                top: 1rem !important;
+                right: 0.5rem !important;
+                left: 0.5rem !important;
+            }
+            
+            /* Ensure modals are full width on very small screens */
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            
+            .modal-dialog-centered {
+                min-height: calc(100% - 1rem);
+            }
+            
+            /* Adjust modal content padding on mobile */
+            .modal-content {
+                border-radius: 0.5rem;
+            }
+            
+            .modal-body {
+                padding: 1rem;
+            }
+            
+            .modal-footer {
+                padding: 0.75rem 1rem;
+                flex-wrap: wrap;
+            }
+            
+            .modal-footer .btn {
+                flex: 1;
+                margin: 0.25rem 0;
+            }
+        }
+        
+        @media (min-width: 576px) and (max-width: 768px) {
+            .toast-container.position-fixed.bottom-0.end-0 {
+                right: 1rem !important;
+            }
+        }
+        
+        /* Ensure toasts have high z-index */
+        .toast-container {
+            z-index: 9999;
+        }
+

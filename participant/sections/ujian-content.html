@@ -1,0 +1,374 @@
+<button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Mode Gelap/Terang">
+    <i class="fas fa-moon" id="darkModeIcon"></i>
+</button>
+
+<div class="container">
+    <div class="main-container">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen">
+            <div class="welcome-card">
+                <h2><i class="fas fa-graduation-cap"></i> Aplikasi Ujian Sekolah Kedinasan</h2>
+                <p>Sistem Seleksi Kompetensi Dasar (SKD) dengan fitur lengkap: pilihan ganda, timer, pengacakan soal,
+                    dan pembahasan</p>
+            </div>
+
+            <div class="info-grid" id="passingGradeInfo">
+                <div class="info-card TWK">
+                    <i class="fas fa-landmark"></i>
+                    <h5>TWK</h5>
+                    <p>Tes Wawasan Kebangsaan<br><span id="twkSoalCount">30</span> Soal<br>Passing Grade: <span
+                            id="twkPassingGrade">65</span></p>
+                </div>
+                <div class="info-card TIU">
+                    <i class="fas fa-brain"></i>
+                    <h5>TIU</h5>
+                    <p>Tes Intelegensi Umum<br><span id="tiuSoalCount">35</span> Soal<br>Passing Grade: <span
+                            id="tiuPassingGrade">80</span></p>
+                </div>
+                <div class="info-card TKP">
+                    <i class="fas fa-user-check"></i>
+                    <h5>TKP</h5>
+                    <p>Tes Karakteristik Pribadi<br><span id="tkpSoalCount">35</span> Soal<br>Passing Grade: <span
+                            id="tkpPassingGrade">166</span></p>
+                </div>
+                <div class="info-card TPA">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h5>TPA</h5>
+                    <p>Tes Potensi Akademik<br>Bahasa, Numerik, Logika<br>Passing Grade: <span
+                            id="tpaPassingGrade">70</span></p>
+                </div>
+                <div class="info-card PSIKOLOGIS">
+                    <i class="fas fa-heart"></i>
+                    <h5>PSIKOLOGIS</h5>
+                    <p>Tes Psikologis<br>Kepribadian, Motivasi<br>Passing Grade: <span
+                            id="psikologisPassingGrade">166</span></p>
+                </div>
+            </div>
+
+            <div class="tips-section">
+                <h4><i class="fas fa-lightbulb"></i> Tips Mengerjakan Ujian:</h4>
+                <ul>
+                    <li><strong>Jangan terburu-buru</strong> - Kelola waktu dengan baik dan tetap tenang</li>
+                    <li><strong>Fokus dan teliti</strong> - Perhatikan setiap soal dengan seksama</li>
+                    <li><strong>Kerjakan yang bisa dulu</strong> - Lewati soal sulit dan kembali lagi nanti</li>
+                    <li><strong>Strategi pengerjaan</strong> - TWK dulu, lalu TKP, terakhir TIU (butuh waktu hitungan)
+                    </li>
+                </ul>
+            </div>
+
+            <div class="mb-3 p-3 rounded"
+                style="background: rgba(30,64,175,0.08); border-left: 4px solid var(--primary-color, #1e40af);">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-user-circle" style="font-size:1.5rem; color: var(--primary-color, #1e40af);"></i>
+                    <div>
+                        <div class="text-muted" style="font-size:0.8rem;">Peserta</div>
+                        <div class="fw-bold" id="namaPesertaDisplay" style="font-size:1.1rem;">Memuat...</div>
+                    </div>
+                </div>
+                <input type="hidden" id="namaPeserta">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Jenis Ujian:</label>
+                <select class="form-select form-select-lg" id="examTypeSelection">
+                    <option value="">Memuat jenis ujian...</option>
+                </select>
+                <small class="text-muted">Pilih jenis ujian sesuai kebutuhan Anda</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Pilih Paket Ujian:</label>
+                <select class="form-select form-select-lg" id="paketSelection" disabled>
+                    <option value="">Pilih jenis ujian terlebih dahulu</option>
+                </select>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-primary-custom btn-custom btn-lg" onclick="mulaiUjian()">
+                    <i class="fas fa-play"></i> Mulai Ujian
+                </button>
+                <button class="btn btn-success-custom btn-custom btn-lg" onclick="mulaiLatihan()">
+                    <i class="fas fa-dumbbell"></i> Mode Latihan
+                </button>
+                <button class="btn btn-warning-custom btn-custom btn-lg" onclick="lihatTips()">
+                    <i class="fas fa-book"></i> Lihat Tips & Trik
+                </button>
+                <button class="btn btn-info-custom btn-custom btn-lg" onclick="lihatRiwayat()">
+                    <i class="fas fa-history"></i> Riwayat Ujian
+                </button>
+            </div>
+        </div>
+
+        <!-- Exam Screen -->
+        <div id="examScreen" class="hidden exam-container">
+            <div class="header-section"
+                style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                <div>
+                    <h2><i class="fas fa-file-alt"></i> Ujian Berlangsung</h2>
+                    <p>Peserta: <span id="displayNama"></span></p>
+                </div>
+                <button class="btn btn-outline-danger btn-sm" onclick="batalkanUjian()"
+                    title="Batalkan ujian dan kembali ke menu">
+                    <i class="fas fa-times-circle"></i> Batalkan Ujian
+                </button>
+            </div>
+
+            <div class="timer-display">
+                <i class="fas fa-clock"></i> <span id="timer">100:00</span>
+            </div>
+
+            <div class="progress-bar-container">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <strong>Kemajuan:</strong>
+                    <span id="progressText">0 / 100</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="question-card question-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Soal <span id="questionNumber" class="badge bg-primary">1</span></h3>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-warning" onclick="flagQuestion('ragu')" id="flagButton_ragu">
+                            <i class="fas fa-question-circle"></i> Ragu
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="flagQuestion('skip')" id="flagButton_skip">
+                            <i class="fas fa-forward"></i> Lewati
+                        </button>
+                        <button class="btn btn-outline-info" onclick="flagQuestion('review')" id="flagButton_review">
+                            <i class="fas fa-redo"></i> Tinjau
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="toggleBookmark()" id="bookmarkBtn">
+                            <i class="fas fa-bookmark"></i> Tandai
+                        </button>
+                    </div>
+                </div>
+                <span class="category-badge category-TWK" id="categoryBadge">TWK</span>
+                <p class="question-text" id="questionText">Memuat soal...</p>
+
+                <div id="optionsContainer">
+                    <!-- Options will be loaded here -->
+                </div>
+            </div>
+
+            <div class="navigation-buttons">
+                <button class="btn btn-warning-custom btn-custom" onclick="sebelumnya()">
+                    <i class="fas fa-arrow-left"></i> Sebelumnya
+                </button>
+                <button class="btn btn-primary-custom btn-custom" onclick="selanjutnya()">
+                    Selanjutnya <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn btn-danger-custom btn-custom" onclick="jawabRandom()" id="jawabRandomBtn"
+                    style="display: none;">
+                    <i class="fas fa-random"></i> Jawab Acak (Pengembangan)
+                </button>
+                <button class="btn btn-success-custom btn-custom" onclick="selesaiUjian()">
+                    <i class="fas fa-check"></i> Selesai Ujian
+                </button>
+            </div>
+            <div style="text-align:center; margin-top:0.5rem;">
+                <button class="btn btn-outline-danger btn-sm" onclick="batalkanUjian()">
+                    <i class="fas fa-times-circle"></i> Batalkan &amp; Keluar Ujian
+                </button>
+            </div>
+
+            <div class="question-nav" id="questionNav">
+                <!-- Navigation will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="resultScreen" class="hidden">
+            <div class="header-section">
+                <h2><i class="fas fa-trophy"></i> Hasil Ujian</h2>
+                <p>Peserta: <span id="resultNama"></span></p>
+            </div>
+
+            <div class="result-card">
+                <h4>Nilai Total</h4>
+                <div class="score-display" id="totalScore">0</div>
+                <div class="pass-fail" id="passFail">-</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="result-card TWK">
+                        <h4><i class="fas fa-landmark"></i> TWK</h4>
+                        <div class="score-display" id="twkScore">0</div>
+                        <p>Passing Grade: <span id="passingGradeTWK">65</span></p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="result-card TIU">
+                        <h4><i class="fas fa-brain"></i> TIU</h4>
+                        <div class="score-display" id="tiuScore">0</div>
+                        <p>Passing Grade: <span id="passingGradeTIU">80</span></p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="result-card TKP">
+                        <h4><i class="fas fa-user-check"></i> TKP</h4>
+                        <div class="score-display" id="tkpScore">0</div>
+                        <p>Passing Grade: <span id="passingGradeTKP">166</span></p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="result-card TPA">
+                        <h4><i class="fas fa-graduation-cap"></i> TPA</h4>
+                        <div class="score-display" id="tpaScore">0</div>
+                        <p>Passing Grade: <span id="passingGradeTPA">0</span></p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="result-card PSIKOLOGIS">
+                        <h4><i class="fas fa-heart"></i> PSIKOLOGIS</h4>
+                        <div class="score-display" id="psikologisScore">0</div>
+                        <p>Passing Grade: <span id="passingGradePsikologis">0</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">🏆 Ranking Anda</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <h2 class="display-4" id="userRank">-</h2>
+                        <p class="text-muted">Peringkat Anda dari <span id="totalParticipants">0</span> peserta</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-primary-custom btn-custom btn-lg" onclick="lihatPembahasan()">
+                    <i class="fas fa-book-open"></i> Lihat Pembahasan
+                </button>
+                <button class="btn btn-success-custom btn-custom btn-lg" onclick="lihatRekomendasiBelajar()">
+                    <i class="fas fa-lightbulb"></i> Rekomendasi Belajar
+                </button>
+                <button class="btn btn-success-custom btn-custom btn-lg" onclick="ulangUjian()">
+                    <i class="fas fa-redo"></i> Ulangi Ujian
+                </button>
+                <button class="btn btn-info-custom btn-custom btn-lg" onclick="exportPDF()">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+                <button class="btn btn-purple-custom btn-custom btn-lg" onclick="downloadCertificate()">
+                    <i class="fas fa-certificate"></i> Sertifikat
+                </button>
+            </div>
+        </div>
+
+        <!-- Learning Recommendations Screen -->
+        <div id="learningScreen" class="hidden">
+            <div class="header-section">
+                <h2><i class="fas fa-lightbulb"></i> Rekomendasi Belajar</h2>
+                <p>Bahan pelajaran untuk soal yang salah atau ragu-ragu</p>
+            </div>
+
+            <div class="mb-3">
+                <button class="btn btn-secondary" onclick="kembaliKeHasil()">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Hasil
+                </button>
+            </div>
+
+            <div id="learningRecommendations">
+                <!-- Learning recommendations will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Discussion Screen -->
+        <div id="discussionScreen" class="hidden">
+            <div class="header-section">
+                <h2><i class="fas fa-book-open"></i> Pembahasan Soal</h2>
+                <p>Pelajari jawaban benar dan penjelasan lengkap</p>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Filter Berdasarkan Kategori:</label>
+                <select class="form-select" id="filterKategori" onchange="filterPembahasan()">
+                    <option value="semua">Semua Kategori</option>
+                    <!-- Kategori loaded dynamically from API -->
+                </select>
+            </div>
+
+            <div id="pembahasanContainer">
+                <!-- Discussions will be loaded here -->
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-primary-custom btn-custom" onclick="kembaliKeHasil()">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Hasil
+                </button>
+            </div>
+        </div>
+
+        <!-- Tips Screen -->
+        <div id="tipsScreen" class="hidden">
+            <div class="header-section">
+                <h2><i class="fas fa-lightbulb"></i> Tips & Trik Menyelesaikan Soal</h2>
+                <p>Strategi dan teknik untuk menghadapi ujian SKD</p>
+            </div>
+
+            <div id="tipsContainer">
+                <!-- Tips will be loaded here -->
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-primary-custom btn-custom" onclick="window.location.href='dashboard.html'">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+                </button>
+            </div>
+        </div>
+
+        <!-- History Screen -->
+        <div id="historyScreen" class="hidden">
+            <div class="header-section">
+                <h2><i class="fas fa-history"></i> Riwayat Ujian</h2>
+                <p>Lihat hasil ujian yang telah Anda selesaikan</p>
+            </div>
+
+            <div class="stats-card">
+                <h4><i class="fas fa-chart-bar"></i> Statistik</h4>
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h5>Total Ujian</h5>
+                            <div class="score-display" id="statTotalExams">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h5>Rata-rata Nilai</h5>
+                            <div class="score-display" id="statAvgScore">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h5>Tingkat Kelulusan</h5>
+                            <div class="score-display" id="statPassRate">0%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h5>Rata-rata TWK</h5>
+                            <div class="score-display" id="statAvgTWK">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="historyContainer">
+                <!-- History will be loaded here -->
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-primary-custom btn-custom" onclick="window.location.href='dashboard.html'">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

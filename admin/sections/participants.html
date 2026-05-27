@@ -1,0 +1,49 @@
+<!-- Participants Section -->
+<div id="participantsSection" class="hidden">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Partisipan</h2>
+        <button class="btn btn-primary" onclick="refreshParticipants()">
+            <i class="fas fa-sync"></i> Refresh
+        </button>
+    </div>
+    
+    <div class="card p-3 mb-3">
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" class="form-control" id="searchParticipant" placeholder="Cari partisipan..." onkeyup="searchParticipants()">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterParticipantStatus" onchange="loadParticipants()">
+                    <option value="">Semua Status</option>
+                    <option value="berjalan">Sedang Berjalan</option>
+                    <option value="selesai">Selesai</option>
+                    <option value="timeout">Timeout</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Waktu Mulai</th>
+                        <th>Waktu Selesai</th>
+                        <th>Durasi</th>
+                        <th>Status</th>
+                        <th>Estimasi Kemampuan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="participantsTable">
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">Memuat...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,117 @@
+{
+  "project_rules": {
+    "coding_standards": {
+      "php": {
+        "version": "8.0+",
+        "style": "PSR-12",
+        "security": {
+          "use_prepared_statements": true,
+          "password_hashing": "bcrypt",
+          "csrf_protection": true,
+          "xss_protection": true
+        }
+      },
+      "javascript": {
+        "use_appconfig": true,
+        "use_rbac": true,
+        "error_handling": "try-catch with user feedback"
+      },
+      "database": {
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_unicode_ci",
+        "naming": "snake_case"
+      }
+    },
+    
+    "api_endpoints": {
+      "authentication": "api/auth.php",
+      "questions": "api/soal.php",
+      "gamification": "api/gamification.php",
+      "notifications": "api/notifications.php",
+      "analytics": "api/analytics.php",
+      "courses": "api/courses.php",
+      "expert": "api/expert.php",
+      "pembahasan": "api/pembahasan.php",
+      "middleware": "api/middleware.php",
+      "csrf": "api/csrf.php",
+      "rate_limiter": "api/rate_limiter.php",
+      "validator": "api/validator.php"
+    },
+    
+    "file_structure": {
+      "api_files": [
+        "add_internet_materials_questions.php",
+        "add_internet_materials_v2.php",
+        "ai_question_analyzer.php",
+        "analytics.php",
+        "api_protection.php",
+        "auth.php",
+        "auto_complete_bahan_ajar.php",
+        "auto_link_materi.php",
+        "batch_generate.php",
+        "cache.php",
+        "courses.php",
+        "csrf.php",
+        "exam-phase-fixes.php",
+        "expert.php",
+        "export_database_web.php",
+        "gamification.php",
+        "get_materi.php",
+        "middleware.php",
+        "notifications.php",
+        "pembahasan.php",
+        "rate_limiter.php",
+        "soal.php",
+        "upload_image.php",
+        "validator.php"
+      ],
+      "database_exports": [
+        "export_2026-05-27_21-23-48.sql"
+      ],
+      "migration_scripts": [
+        "migrate_course_management.php",
+        "migrate_gamification.php",
+        "migrate_notifications.php",
+        "migrate_analytics.php",
+        "migrate_content_management.php"
+      ]
+    },
+    
+    "configuration": {
+      "base_url": "http://localhost/bimbel",
+      "api_url": "http://localhost/bimbel/api",
+      "database_name": "bimbel_db",
+      "database_host": "127.0.0.1",
+      "database_user": "root",
+      "database_password": "root"
+    },
+    
+    "testing": {
+      "framework": "Playwright",
+      "test_directory": "tests",
+      "config_file": "playwright.config.js",
+      "base_url": "http://localhost/bimbel"
+    },
+    
+    "gap_analysis": {
+      "missing_features": [
+        "Anti-cheat during exam",
+        "Separate practice mode",
+        "OTP verification for registration",
+        "Excel import for questions",
+        "Printable certificate template",
+        "Discussion forum",
+        "Payment system",
+        "Exam countdown widget",
+        "Question bookmarking",
+        "Rate limiter on login"
+      ],
+      "priority_fixes": [
+        "Fix URL inconsistencies (localhost/ujian -> localhost/bimbel)",
+        "Fix database name inconsistencies (ujian_sekolah_kedinasan -> bimbel_db)",
+        "Create comprehensive test suite",
+        "Update documentation with correct URLs"
+      ]
+    }
+  }
+}

@@ -1,0 +1,152 @@
+
+        <!-- Countdown Widget -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Jadwal Ujian Mendatang</h5>
+                </div>
+                <div class="card-body text-center" id="countdownContainer">
+                    <div class="countdown-display">
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="countdown-item">
+                                    <span class="countdown-number" id="countdown-days">00</span>
+                                    <span class="countdown-label">Hari</span>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="countdown-item">
+                                    <span class="countdown-number" id="countdown-hours">00</span>
+                                    <span class="countdown-label">Jam</span>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="countdown-item">
+                                    <span class="countdown-number" id="countdown-minutes">00</span>
+                                    <span class="countdown-label">Menit</span>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="countdown-item">
+                                    <span class="countdown-number" id="countdown-seconds">00</span>
+                                    <span class="countdown-label">Detik</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p class="text-muted mb-1">Ujian resmi berikutnya:</p>
+                        <h5 id="nextExamName">Memuat jadwal...</h5>
+                        <p class="text-primary" id="nextExamDate">-</p>
+                    </div>
+                    <button class="btn btn-primary mt-2" onclick="location.href='ujian.html'">
+                        <i class="fas fa-play me-2"></i>Mulai Latihan
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+        .countdown-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .countdown-item {
+            text-align: center;
+            color: white;
+        }
+        .countdown-number {
+            display: block;
+            font-size: 32px;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .countdown-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+        </style>
+        
+        <script>
+        // Countdown Timer Logic
+        let countdownInterval;
+        
+        function initCountdown() {
+            // Fetch next exam schedule from API
+            fetchNextExamSchedule();
+        }
+        
+        async function fetchNextExamSchedule() {
+            try {
+                const response = await fetch(AppConfig.apiUrl('soal.php?action=get_next_exam_schedule'), {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const exam = data.data;
+                    document.getElementById('nextExamName').textContent = exam.name || 'Ujian Resmi';
+                    document.getElementById('nextExamDate').textContent = new Date(exam.date).toLocaleDateString('id-ID', {
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                    });
+                    
+                    // Start countdown
+                    startCountdown(new Date(exam.date));
+                } else {
+                    document.getElementById('nextExamName').textContent = 'Belum ada jadwal';
+                    document.getElementById('nextExamDate').textContent = 'Tetap semangat berlatih!';
+                    document.getElementById('countdown-days').textContent = '00';
+                    document.getElementById('countdown-hours').textContent = '00';
+                    document.getElementById('countdown-minutes').textContent = '00';
+                    document.getElementById('countdown-seconds').textContent = '00';
+                }
+            } catch (error) {
+                console.error('Error fetching exam schedule:', error);
+                document.getElementById('nextExamName').textContent = 'Gagal memuat jadwal';
+            }
+        }
+        
+        function startCountdown(targetDate) {
+            // Clear existing interval
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const target = targetDate.getTime();
+                const distance = target - now;
+                
+                if (distance < 0) {
+                    // Countdown finished
+                    document.getElementById('countdown-days').textContent = '00';
+                    document.getElementById('countdown-hours').textContent = '00';
+                    document.getElementById('countdown-minutes').textContent = '00';
+                    document.getElementById('countdown-seconds').textContent = '00';
+                    document.getElementById('nextExamName').textContent = 'Ujian sedang berlangsung!';
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdown-days').textContent = String(days).padStart(2, '0');
+                document.getElementById('countdown-hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('countdown-minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('countdown-seconds').textContent = String(seconds).padStart(2, '0');
+            }
+            
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+        
+        // Initialize countdown when page loads
+        document.addEventListener('DOMContentLoaded', initCountdown);
+        </script>

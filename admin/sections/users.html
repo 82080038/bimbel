@@ -1,0 +1,48 @@
+<!-- User Management Section -->
+<div id="userManagementSection" class="hidden">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Manajemen User</h2>
+        <button class="btn btn-primary" onclick="showCreateUserModal()">
+            <i class="fas fa-user-plus"></i> Tambah User
+        </button>
+    </div>
+    
+    <div class="card p-3 mb-3">
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" class="form-control" id="searchUser" placeholder="Cari user..." onkeyup="searchUsers()">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterUserRole" onchange="loadUsers()">
+                    <option value="">Semua Role</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Nama Lengkap</th>
+                        <th>Role</th>
+                        <th>Telepon</th>
+                        <th>Sekolah</th>
+                        <th>Dibuat</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">Memuat...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

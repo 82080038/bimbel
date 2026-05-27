@@ -1,0 +1,90 @@
+{
+  "categories": [
+    {
+      "kode": "TWK",
+      "nama": "Tes Wawasan Kebangsaan",
+      "icon": "fas fa-landmark",
+      "deskripsi": "Menguji pengetahuan dan pemahaman tentang sejarah, ideologi, dan sistem ketatanegaraan Indonesia",
+      "materi": [
+        "Nasionalisme (pengertian, tujuan, sejarah, Pancasila, UUD 1945, bentuk-bentuk, nilai-nilai, Bhinneka Tunggal Ika, Bela Negara)",
+        "Integritas Nasional (pengertian, pentingnya, ciri warga berintegritas, nilai dasar)",
+        "Pilar Negara (Pancasila, UUD 1945, NKRI, Bhinneka Tunggal Ika)",
+        "Pancasila (ideologi, dasar negara, sejarah perumusan, nilai-nilai, Piagam Jakarta)",
+        "Sejarah Kemerdekaan Indonesia (penjajahan Belanda dan Jepang, Pergerakan Nasional, Proklamasi)",
+        "Bhinneka Tunggal Ika (sejarah, lambang negara, konsep dasar)",
+        "Demokrasi (sistem tata negara, sejarah, prinsip, macam-macam)",
+        "Kedaulatan Rakyat (teori kedaulatan, struktur ketatanegaraan)",
+        "Sistem Pemerintahan (presidensial, parlementer, semi presidensial)",
+        "Perundang-undangan Nasional (urutan, fungsi, proses pembuatan)",
+        "Hak Asasi Manusia (pengertian, instrumen internasional dan nasional)",
+        "Otonomi Daerah (pengertian, asas, prinsip, kewenangan)",
+        "Partisipasi Masyarakat dalam Perumusan Kebijakan Publik",
+        "Bela Negara (pengertian, tujuan, bentuk, contoh penerapan)",
+        "UUD 1945 (sejarah perumusan, konstitusi sebelumnya, amandemen)"
+      ]
+    },
+    {
+      "kode": "TIU",
+      "nama": "Tes Intelegensi Umum",
+      "icon": "fas fa-brain",
+      "deskripsi": "Menguji kemampuan verbal, numerik, dan logika berpikir",
+      "materi": [
+        "Kemampuan Verbal (Sinonim, Antonim, Analogi, Pemahaman Bacaan)",
+        "Kemampuan Numerik (Himpunan, Persentase, Perbandingan, Aritmatika Sosial, Aritmetika dan Geometri)",
+        "Deret Gambar (Figural) - Rotasi, Refleksi, Translasi, Skala",
+        "Teori Bilangan (Bilangan bulat, pecahan, desimal, positif/negatif, prima/komposit)",
+        "Operasi Bilangan Pecahan (Penjumlahan, pengurangan, perkalian, pembagian)",
+        "Kemampuan Logika (Deret Angka, Deret Huruf, Silogisme)"
+      ]
+    },
+    {
+      "kode": "TKP",
+      "nama": "Tes Karakteristik Pribadi",
+      "icon": "fas fa-user-check",
+      "deskripsi": "Menguji sikap kerja, perilaku sosial, kepemimpinan, dan integritas moral",
+      "materi": [
+        "Sikap Kerja (Disiplin, Tanggung Jawab, Kerjasama Tim, Inisiatif, Kreativitas, Etos Kerja)",
+        "Perilaku Sosial (Adaptasi, Komunikasi, Kerjasama, Manajemen Konflik)",
+        "Kepemimpinan (Pengambilan Keputusan, Motivasi Tim, Delegasi)",
+        "Integritas Moral (Pengertian, Pentingnya, Ciri ASN Berintegritas, Nilai Dasar)",
+        "Pelayanan Publik (Prinsip pelayanan, standar pelayanan prima)",
+        "Jejaring Kerja (Membangun hubungan kerja, manfaat jejaring)",
+        "Sosial Budaya (Keberagaman, penghargaan terhadap perbedaan)",
+        "Teknologi Informasi dan Komunikasi (Pemanfaatan TIK, kompetensi digital)",
+        "Profesionalisme (Ciri profesional, pengembangan profesi)"
+      ]
+    },
+    {
+      "kode": "TPA",
+      "nama": "Tes Potensi Akademik",
+      "icon": "fas fa-graduation-cap",
+      "deskripsi": "Menguji potensi akademik dalam matematika, bahasa, dan sains",
+      "materi": [
+        "Matematika Dasar (Aljabar, Aritmetika, Statistika)",
+        "Bahasa Indonesia (Tata bahasa, Pemahaman bacaan, Kosakata)",
+        "Bahasa Inggris (Grammar, Vocabulary, Reading Comprehension)",
+        "Sains (Fisika, Kimia, Biologi dasar)"
+      ]
+    },
+    {
+      "kode": "PSIKOLOGIS",
+      "nama": "Tes Psikologis",
+      "icon": "fas fa-puzzle-piece",
+      "deskripsi": "Menguji kepribadian, mental, dan kemampuan sosial",
+      "materi": [
+        "Tes IQ (Mengukur kecerdasan intelektual, berpikir abstrak, logis, rasional)",
+        "Tes Logika Aritmatika (Deret angka, logika angka, pola matematika)",
+        "Tes Analog Verbal (Sinonim, antonim, analogi kata, tata bahasa)",
+        "Tes Wartegg (Kreativitas, ketelitian, kepribadian)",
+        "Tes Spasial (Imajinasi visual, rotasi bentuk, pola geometris)",
+        "Tes Pauli/Kraepelin (Konsistensi, daya tahan, konsentrasi)",
+        "Tes Gambar Pohon (Aspek emosional, kepribadian, persepsi lingkungan)",
+        "Tes EPPS (Preferensi kepribadian, tanggung jawab, ambisi)",
+        "Tes MBTI (Tipe kepribadian, preferensi psikologis, potensi kerja)",
+        "Kepribadian (Karakter dan Temperamen, Motivasi dan Emosi, Kecerdasan Emosional)",
+        "Mental (Kestabilan Emosi, Ketahanan Stres, Konsentrasi, Keseimbangan Mental)",
+        "Sosial (Interaksi Sosial, Komunikasi, Empati)"
+      ]
+    }
+  ]
+}

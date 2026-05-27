@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materi Pembelajaran - Bimbel Sekolah Kedinasan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .learning-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .materi-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .materi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .materi-card .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+        }
+
+        .materi-card .card-body {
+            padding: 20px;
+        }
+
+        .progress-ring {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(#667eea var(--progress), #e0e0e0 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        .progress-ring::before {
+            content: '';
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+        }
+
+        .progress-text {
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .learning-view {
+            display: none;
+        }
+
+        .learning-view.active {
+            display: block;
+        }
+
+        .section-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-content h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .teacher-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .teacher-message {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .navigation-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: transform 0.3s;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .notes-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .notes-panel.open {
+            right: 0;
+        }
+
+        .notes-toggle {
+            position: fixed;
+            right: 30px;
+            top: 100px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: #ffc107;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+            z-index: 1001;
+        }
+
+        .category-filter {
+            margin-bottom: 30px;
+        }
+
+        .category-btn {
+            margin: 5px;
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-btn.active,
+        .category-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .quiz-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .quiz-option.correct {
+            background: #28a745;
+            border-color: #28a745;
+        }
+
+        .quiz-option.incorrect {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="learning-container">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold"
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                <i class="fas fa-graduation-cap"></i> Materi Pembelajaran
+            </h1>
+            <p class="lead text-muted">Belajar seperti diajar oleh guru profesional</p>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="category-filter text-center">
+            <button class="category-btn active" data-kategori="all">Semua</button>
+            <button class="category-btn" data-kategori="1">TWK</button>
+            <button class="category-btn" data-kategori="2">TIU</button>
+            <button class="category-btn" data-kategori="3">TKP</button>
+            <button class="category-btn" data-kategori="4">TPA</button>
+            <button class="category-btn" data-kategori="5">PSIKOLOGIS</button>
+            <button class="category-btn" data-kategori="16">SNBT</button>
+            <button class="category-btn" data-kategori="20">TNI</button>
+            <button class="category-btn" data-kategori="22">POLRI</button>
+            <button class="category-btn" data-kategori="24">BUMN</button>
+        </div>
+
+        <!-- Materi List View -->
+        <div id="materiListView" class="row">
+            <!-- Materi cards will be loaded here -->
+        </div>
+
+        <!-- Learning View -->
+        <div id="learningView" class="learning-view">
+            <button class="btn btn-outline-secondary mb-3" onclick="backToList()">
+                <i class="fas fa-arrow-left"></i> Kembali ke Daftar Materi
+            </button>
+
+            <!-- Teacher Introduction -->
+            <div class="section-content">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center">
+                        <div class="teacher-avatar">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-10">
+                        <h2 id="materiTitle">Judul Materi</h2>
+                        <p id="materiDescription" class="text-muted">Deskripsi materi</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher Message -->
+            <div class="teacher-message">
+                <i class="fas fa-quote-left text-muted me-2"></i>
+                <span id="teacherMessage">Selamat datang di materi ini! Mari kita pelajari bersama.</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Progress Pembelajaran</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress" style="height: 10px;">
+                    <div id="progressBar" class="progress-bar"
+                        style="width: 0%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+                </div>
+            </div>
+
+            <!-- Sections Container -->
+            <div id="sectionsContainer">
+                <!-- Sections will be loaded here -->
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quizSection" class="quiz-section" style="display: none;">
+                <h3><i class="fas fa-question-circle"></i> Quiz Pemahaman</h3>
+                <p id="quizQuestion">Pertanyaan quiz akan muncul di sini</p>
+                <div id="quizOptions">
+                    <!-- Quiz options will be loaded here -->
+                </div>
+                <button class="btn btn-light mt-3" onclick="checkAnswer()">Cek Jawaban</button>
+                <div id="quizFeedback" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons" id="navButtons" style="display: none;">
+        <button class="nav-btn" onclick="prevSection()" title="Sebelumnya">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="nav-btn" onclick="nextSection()" title="Selanjutnya">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- Notes Toggle -->
+    <button class="notes-toggle" id="notesToggle" style="display: none;" onclick="toggleNotes()">
+        <i class="fas fa-sticky-note"></i>
+    </button>
+
+    <!-- Notes Panel -->
+    <div class="notes-panel" id="notesPanel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4><i class="fas fa-sticky-note"></i> Catatan Saya</h4>
+            <button class="btn btn-sm btn-outline-secondary" onclick="toggleNotes()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <textarea id="notesTextarea" class="form-control" rows="10"
+            placeholder="Tulis catatan Anda di sini..."></textarea>
+        <button class="btn btn-primary mt-3" onclick="saveNotes()">
+            <i class="fas fa-save"></i> Simpan Catatan
+        </button>
+        <div id="savedNotes" class="mt-3">
+            <!-- Saved notes will be loaded here -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentMateri = null;
+        let currentSectionIndex = 0;
+        let sections = [];
+        let userId = 1; // Should be from session
+
+        // Load materi list
+        function loadMateriList(kategoriId = null) {
+            const url = kategoriId
+                ? `../../api/get_materi.php?action=list&kategori_id=${kategoriId}`
+                : '../../api/get_materi.php?action=list';
+
+            console.log('Loading materi from:', url);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Materi data received:', data);
+                    if (data.success) {
+                        renderMateriList(data.data);
+                    } else {
+                        console.error('Failed to load materi:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading materi:', error);
+                });
+        }
+
+        // Render materi cards
+        function renderMateriList(materiList) {
+            const container = document.getElementById('materiListView');
+            container.innerHTML = materiList.map(materi => `
+                <div class="col-md-4 mb-4">
+                    <div class="card materi-card" onclick="openMateri(${materi.id})">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">${materi.judul}</h5>
+                            <small>${materi.nama_kategori || ''}</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress-ring" style="--progress: ${materi.user_progress?.progress_percent || 0}%;">
+                                <span class="progress-text">${materi.user_progress?.progress_percent || 0}%</span>
+                            </div>
+                            <p class="card-text text-muted small">${materi.deskripsi?.substring(0, 100) || ''}...</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-info">${materi.tingkat_kesulitan || 'intermediate'}</span>
+                                <span class="text-muted small"><i class="fas fa-clock"></i> ${materi.durasi_menit || 30} menit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open materi
+        function openMateri(materiId) {
+            fetch(`../../api/get_materi.php?action=detail&materi_id=${materiId}&user_id=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentMateri = data.data;
+                        sections = data.data.sections || [];
+                        currentSectionIndex = 0;
+
+                        document.getElementById('materiListView').style.display = 'none';
+                        document.getElementById('learningView').classList.add('active');
+                        document.getElementById('navButtons').style.display = 'flex';
+                        document.getElementById('notesToggle').style.display = 'block';
+
+                        document.getElementById('materiTitle').textContent = currentMateri.judul;
+                        document.getElementById('materiDescription').textContent = currentMateri.deskripsi;
+
+                        updateProgress();
+                        renderSection();
+                    }
+                });
+        }
+
+        // Render current section
+        function renderSection() {
+            if (sections.length === 0) {
+                document.getElementById('sectionsContainer').innerHTML = `
+                    <div class="section-content">
+                        <h3>Konten Materi</h3>
+                        <p>${currentMateri.deskripsi || 'Konten materi akan ditampilkan di sini.'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const section = sections[currentSectionIndex];
+            document.getElementById('sectionsContainer').innerHTML = `
+                <div class="section-content">
+                    <h3>Bagian ${currentSectionIndex + 1}: ${section.judul_section}</h3>
+                    <div class="teacher-message">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        <span>Poin penting: ${section.konten}</span>
+                    </div>
+                    <p class="lead">${section.konten}</p>
+                </div>
+            `;
+
+            // Show quiz on last section
+            if (currentSectionIndex === sections.length - 1) {
+                showQuiz();
+            }
+        }
+
+        // Navigation
+        function nextSection() {
+            if (currentSectionIndex < sections.length - 1) {
+                currentSectionIndex++;
+                renderSection();
+                updateProgress();
+            }
+        }
+
+        function prevSection() {
+            if (currentSectionIndex > 0) {
+                currentSectionIndex--;
+                renderSection();
+                updateProgress();
+            }
+        }
+
+        // Update progress
+        function updateProgress() {
+            const progress = sections.length > 0
+                ? Math.round(((currentSectionIndex + 1) / sections.length) * 100)
+                : 0;
+
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressPercent').textContent = progress + '%';
+
+            // Save progress to server
+            if (currentMateri) {
+                fetch(`api/get_materi.php?action=progress&user_id=${userId}&materi_id=${currentMateri.id}&progress_percent=${progress}`)
+                    .then(response => response.json());
+            }
+        }
+
+        // Back to list
+        function backToList() {
+            document.getElementById('materiListView').style.display = 'flex';
+            document.getElementById('learningView').classList.remove('active');
+            document.getElementById('navButtons').style.display = 'none';
+            document.getElementById('notesToggle').style.display = 'none';
+            document.getElementById('notesPanel').classList.remove('open');
+        }
+
+        // Notes
+        function toggleNotes() {
+            document.getElementById('notesPanel').classList.toggle('open');
+        }
+
+        function saveNotes() {
+            const noteText = document.getElementById('notesTextarea').value;
+            if (currentMateri && noteText) {
+                fetch('api/get_materi.php?action=notes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        materi_id: currentMateri.id,
+                        note_text: noteText
+                    })
+                }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Catatan disimpan!');
+                        }
+                    });
+            }
+        }
+
+        // Quiz
+        function showQuiz() {
+            document.getElementById('quizSection').style.display = 'block';
+            document.getElementById('quizQuestion').textContent = 'Apakah Anda sudah memahami materi ini?';
+            document.getElementById('quizOptions').innerHTML = `
+                <div class="quiz-option" onclick="selectOption(this, 'A')">Ya, sudah paham</div>
+                <div class="quiz-option" onclick="selectOption(this, 'B')">Belum sepenuhnya</div>
+                <div class="quiz-option" onclick="selectOption(this, 'C')">Perlu ulang materi</div>
+            `;
+        }
+
+        let selectedAnswer = null;
+
+        function selectOption(element, answer) {
+            document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('active'));
+            element.classList.add('active');
+            selectedAnswer = answer;
+        }
+
+        function checkAnswer() {
+            if (selectedAnswer) {
+                document.getElementById('quizFeedback').innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Terima kasih atas feedback Anda!
+                    </div>
+                `;
+            }
+        }
+
+        // Category filter
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const kategoriId = this.dataset.kategori === 'all' ? null : this.dataset.kategori;
+                loadMateriList(kategoriId);
+            });
+        });
+
+        // Initial load
+        loadMateriList();
+    </script>
+</body>
+
+</html>
