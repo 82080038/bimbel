@@ -2,9 +2,9 @@
 
 Sistem ujian online modern dengan RBAC (Role-Based Access Control), dashboard komprehensif, dan analisa AI. Dirancang untuk sekolah kedinasan, CPNS, UTBK/SNBT, dan ujian seleksi lainnya.
 
-**Versi:** 2.1  
+**Versi:** 2.2  
 **Status:** Production Ready ✅  
-**Last Updated:** 26 Mei 2026
+**Last Updated:** 29 Mei 2026
 
 ## 📚 Table of Contents
 - [Fitur Utama](#-fitur-utama)
@@ -214,7 +214,7 @@ The application uses 68 database tables organized into the following main catego
 - `content_versions` - Content version control
 - `translations` - Multi-language support
 
-**Latest Database Export:** `database/export_2026-05-25_21-42-34.sql` (11MB, 68 tables)
+**Latest Database Export:** `database/bimbel_db.sql` (11MB, 68 tables, updated 29 Mei 2026)
 
 ### Exporting Database
 
@@ -436,6 +436,64 @@ When making database changes:
 ---
 
 ## 🧪 Testing
+
+### Playwright E2E Testing
+
+The project includes comprehensive Playwright test suites for end-to-end testing.
+
+#### Installation
+```bash
+npm install
+npx playwright install chromium
+```
+
+#### Running Tests
+
+**Headless mode (CI/CD):**
+```bash
+npx playwright test
+```
+
+**Headed mode (browser visible):**
+```bash
+npx playwright test --headed
+```
+
+**Specific test file:**
+```bash
+npx playwright test tests/full-app-test.spec.js
+npx playwright test tests/headed-menu-test.spec.js
+```
+
+#### Test Coverage
+
+**full-app-test.spec.js** (87 tests):
+- Login page (form validation, quick-login buttons)
+- Redirect & entry points
+- Participant pages (9 pages)
+- Admin pages (14 sections)
+- API endpoints (15 endpoints)
+- RBAC protection
+- Frontend config & JS
+- Performance & responsiveness
+- Full user flows
+
+**headed-menu-test.spec.js** (10 tests):
+- Login page elements
+- Register link
+- Admin sidebar menu items
+- Admin all sections navigation
+- Participant all pages
+- CRUD operations (modal open)
+- Search functionality
+- Profile edit form
+- Mobile responsive
+- Full integration flow
+
+#### Test Results
+- Latest run: 29 Mei 2026
+- Full app test: **87/87 PASSED** ✅
+- Headed menu test: **10/10 PASSED** ✅
 
 ### Manual Testing Checklist
 

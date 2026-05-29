@@ -4,272 +4,244 @@ description: Development workflow for the application
 
 # Development Workflow
 
-## 1. Setup Development Environment
+## Environment Aktual (Komputer Ini)
 
-### Prerequisites
-- PHP 8.0+
-- MySQL 8.0+ / MariaDB 10.3+
-- XAMPP (Linux/Mac/Windows)
-- Node.js (for Playwright testing)
+| Komponen | Nilai |
+|---|---|
+| OS | Linux |
+| XAMPP | `/opt/lampp` |
+| PHP | 8.2.12 → `/opt/lampp/bin/php` |
+| MySQL | 10.4.32-MariaDB → `/opt/lampp/bin/mysql` |
+| Node.js | 18.19.1 |
+| npm | 9.2.0 |
+| Project path | `/opt/lampp/htdocs/bimbel` |
+| Web URL | http://localhost/bimbel |
+| phpMyAdmin | http://localhost/phpmyadmin |
+| Git remote | https://github.com/82080038/bimbel.git |
+
+## 1. Setup Development Environment (Komputer Baru)
+
+### Prasyarat
+- XAMPP for Linux (sudah terinstall di `/opt/lampp`)
+- Node.js 18+
 - Git
 
-### Installation Steps
+### Langkah Instalasi
 
 1. **Clone repository**
    ```bash
    cd /opt/lampp/htdocs
-   git clone <repository-url> bimbel
-   cd bimbel
+   git clone https://github.com/82080038/bimbel.git bimbel
    ```
 
-2. **Configure database**
-   - Update `config.php` with your database credentials
-   - Current configuration:
-     - DB_HOST: 127.0.0.1
-     - DB_USER: root
-     - DB_PASS: root
-     - DB_NAME: bimbel_db
+2. **Konfigurasi database sudah benar** — `config.php` sudah dikonfigurasi untuk Linux:
+   - `DB_HOST`: `127.0.0.1`
+   - `DB_USER`: `root`
+   - `DB_PASS`: `root`
+   - `DB_NAME`: `bimbel_db`
 
-3. **Create database**
-   ```sql
-   CREATE DATABASE bimbel_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   ```
-
-4. **Import database**
+3. **Start XAMPP**
    ```bash
-   mysql -u root -p bimbel_db < database/export_2026-05-27_21-23-48.sql
+   sudo /opt/lampp/lampp start
    ```
 
-5. **Run migrations**
+4. **Import database** (gunakan file dump utama)
    ```bash
-   php migrate_course_management.php
-   php migrate_gamification.php
-   php migrate_notifications.php
-   php migrate_analytics.php
-   php migrate_content_management.php
+   # PENTING: Selalu gunakan FOREIGN_KEY_CHECKS=0 karena constraint pada expert_assistance_log
+   { printf 'SET FOREIGN_KEY_CHECKS=0; DROP DATABASE IF EXISTS `bimbel_db`; CREATE DATABASE `bimbel_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci; USE `bimbel_db`; SET FOREIGN_KEY_CHECKS=0;\n'; cat database/bimbel_db.sql; printf '\nSET FOREIGN_KEY_CHECKS=1;\n'; } | /opt/lampp/bin/mysql -h127.0.0.1 -uroot -proot
    ```
 
-6. **Install Node dependencies**
+5. **Install Node dependencies** (untuk Playwright testing)
    ```bash
    npm install
    ```
 
-7. **Start XAMPP**
-   - Start Apache
-   - Start MySQL
-
-8. **Access application**
-   - Open browser: http://localhost/bimbel
-   - Login page: http://localhost/bimbel/login.html
+6. **Akses aplikasi**
+   - Halaman utama: http://localhost/bimbel
+   - Login: http://localhost/bimbel/login.html
    - Admin panel: http://localhost/bimbel/admin/admin.html
-   - Participant dashboard: http://localhost/bimbel/participant/dashboard.html
+   - Dashboard peserta: http://localhost/bimbel/participant/dashboard.html
+   - phpMyAdmin: http://localhost/phpmyadmin
 
 ## 2. Development Workflow
 
-### Making Changes
+### Membuat Fitur Baru
 
-1. **Create a branch**
+1. **Buat branch**
    ```bash
-   git checkout -b feature/your-feature-name
+   git checkout -b feature/nama-fitur
    ```
 
-2. **Make your changes**
-   - Update code files
-   - Add/update database schema in `database/` folder
-   - Create migration script if needed
-   - Update documentation
+2. **Edit kode** — ikuti panduan:
+   - PHP: selalu `require_once 'config.php'` dan `checkDatabaseConnection()` di awal file API
+   - JS: gunakan `AppConfig.apiUrl('nama_endpoint.php')` untuk URL API (bukan hardcode)
+   - DB query: selalu gunakan prepared statements (`$stmt = $conn->prepare(...)`)
 
-3. **Test your changes**
-   - Run migration scripts
-   - Test API endpoints
-   - Test UI changes
-   - Run Playwright tests
+3. **Test perubahan** — cek endpoint via browser atau curl
 
-4. **Commit changes**
+4. **Commit**
    ```bash
    git add .
-   git commit -m "feat: description of your feature"
+   git commit -m "feat: deskripsi fitur"
    ```
 
-5. **Push and create pull request**
+5. **Push ke main**
    ```bash
-   git push origin feature/your-feature-name
+   git push origin main
    ```
 
-### Database Changes
+### Perubahan Database
 
-When making database changes:
-1. Create SQL schema file in `database/` folder
-2. Create migration script in root directory
-3. Run migration to test
-4. Document the change in README.md
-5. Export database after migration:
+1. Buat file SQL schema di folder `database/`
+2. Buat migration script di root (lihat contoh `migrate_course_management.php`)
+3. Jalankan migration:
    ```bash
-   php export_database.php
+   /opt/lampp/bin/php migrate_nama.php
    ```
+4. Update dump utama setelah skema berubah:
+   ```bash
+   /opt/lampp/bin/php export_database.php
+   ```
+   Atau via phpMyAdmin → Export → database `bimbel_db` → simpan ke `database/bimbel_db.sql`
 
-### Code Style Guidelines
+### Panduan Kode
 
-- Use PHP 8.0+ features
-- Follow PSR-12 coding standards
-- Use prepared statements for all SQL queries
-- Add comments for complex logic
-- Use descriptive variable names
-- Use AppConfig for all URLs in JavaScript
-- Use RBAC for access control
+- PHP 8.2+, PSR-12
+- Prepared statements untuk semua query SQL
+- `AppConfig` (dari `js/config.js`) untuk semua URL di JavaScript
+- `js/rbac.js` untuk kontrol akses berbasis role
+- Timezone: `Asia/Jakarta`
 
 ## 3. Testing
 
-### Manual Testing Checklist
+### Checklist Manual
 
-- [ ] User registration and login
-- [ ] Exam creation and taking
-- [ ] Score calculation
-- [ ] Gamification XP awarding
-- [ ] Notification sending
-- [ ] Admin dashboard functionality
-- [ ] Mobile responsiveness
-- [ ] Accessibility features
+- [ ] Registrasi dan login user
+- [ ] Buat dan ikuti ujian
+- [ ] Kalkulasi skor
+- [ ] Gamification XP
+- [ ] Notifikasi
+- [ ] Admin dashboard
+- [ ] Responsif mobile
 
-### Running Playwright Tests
+### Playwright Tests
 
 ```bash
-# Run all tests
+# Install (sekali saja)
+npm install
+
+# Jalankan semua test
 npx playwright test
 
-# Run tests in headed mode
+# Mode headed (dengan browser terbuka)
 npx playwright test --headed
 
-# Run specific test file
-npx playwright test tests/your-test.spec.js
+# File test tertentu
+npx playwright test tests/nama.spec.js
 
-# Run tests with UI
+# Dengan UI interaktif
 npx playwright test --ui
 ```
 
-### API Testing
+### API Testing via curl
 
-Use curl or Postman to test API endpoints:
 ```bash
-# Example: Login
-curl -X POST http://localhost/bimbel/api/auth.php?action=login \
+# Login
+curl -X POST "http://localhost/bimbel/api/auth.php?action=login" \
   -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"test123"}'
+  -d '{"username":"admin","password":"admin123"}'
+
+# Cek koneksi DB via PHP CLI
+/opt/lampp/bin/php -r 'require "config.php"; echo isset($conn) && !$conn->connect_error ? "DB OK\n" : "DB FAIL\n";'
 ```
 
-## 4. Deployment
+## 4. Deployment ke Produksi
 
-### Pre-Deployment Checklist
+### Checklist Pre-Deployment
 
-- [ ] Update `config.php` with production database credentials
-- [ ] Change debug mode to false in `config/app.php`
-- [ ] Update BASE_URL in `config/app.php` and `js/config.js`
-- [ ] Run all migrations
-- [ ] Test all functionality
-- [ ] Export database backup
-- [ ] Clear any cache/temporary files
+- [ ] Update `config.php` dengan credential DB produksi
+- [ ] Set `ENVIRONMENT = 'production'` di `config/app.php`
+- [ ] Set `DEBUG_MODE = false`
+- [ ] Update `BASE_URL` di `config/app.php`
+- [ ] Export database backup terbaru
+- [ ] Test semua fitur
 
-### Deployment Steps
+### Langkah Deploy
 
-1. **Upload files to server**
-   - Use FTP, SFTP, or Git
-   - Ensure all files are uploaded
-   - Set proper file permissions (755 for directories, 644 for files)
-
-2. **Configure production environment**
-   ```php
-   // config/app.php
-   define('ENVIRONMENT', 'production');
-   define('BASE_URL', 'https://your-production-domain.com');
-   define('DEBUG_MODE', false);
-   ```
-
-3. **Create production database**
-   ```sql
-   CREATE DATABASE bimbel_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   ```
-
-4. **Import database schema**
+1. Upload file via Git / SFTP
+2. Set permission: `chmod -R 755 . && chmod -R 644 *.php *.html`
+3. Buat DB produksi dan import dump:
    ```bash
-   mysql -u username -p bimbel_db < database/export_2026-05-27_21-23-48.sql
+   { printf 'SET FOREIGN_KEY_CHECKS=0; DROP DATABASE IF EXISTS `bimbel_db`; CREATE DATABASE `bimbel_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci; USE `bimbel_db`; SET FOREIGN_KEY_CHECKS=0;\n'; cat database/bimbel_db.sql; printf '\nSET FOREIGN_KEY_CHECKS=1;\n'; } | mysql -uUSER -pPASS
    ```
-
-5. **Run migrations**
-   ```bash
-   php migrate_course_management.php
-   php migrate_gamification.php
-   php migrate_notifications.php
-   php migrate_analytics.php
-   php migrate_content_management.php
-   ```
-
-6. **Configure web server**
-   - Apache: Ensure mod_rewrite is enabled
-   - Nginx: Configure PHP-FPM
-   - Set document root to project directory
-
-7. **Test production deployment**
-   - Test login functionality
-   - Test exam functionality
-   - Test admin panel
-   - Test API endpoints
+4. Jalankan migration scripts
+5. Test login dan fitur utama
 
 ## 5. Troubleshooting
 
-### Common Issues
+### Database Connection Failed
+- Cek XAMPP: `sudo /opt/lampp/lampp status`
+- Start XAMPP: `sudo /opt/lampp/lampp start`
+- Cek credential di `config.php`: `DB_PASS = 'root'`
 
-#### Database Connection Failed
-**Error:** "Could not connect to database"
-**Solution:**
-- Check MySQL service is running
-- Verify credentials in `config.php`
-- Ensure database exists
-- Check firewall settings
+### Error Import SQL: Foreign Key Constraint
+- **Penyebab**: constraint `expert_assistance_log_ibfk_3` pada tabel `expert_assistance_log`
+- **Solusi**: Selalu wrap import dengan `SET FOREIGN_KEY_CHECKS=0` dan `SET FOREIGN_KEY_CHECKS=1`
 
-#### Migration Failed
-**Error:** "Migration failed"
-**Solution:**
-- Check SQL syntax in schema file
-- Ensure user has CREATE TABLE permissions
-- Check for existing tables with same name
-- Review error messages for specific issues
+### API Returns 401
+- Cek header `Authorization` atau cookie session
+- Lihat logika di `api/middleware.php`
 
-#### API Returns 401 Unauthorized
-**Error:** "Invalid API key"
-**Solution:**
-- Ensure Authorization header is set
-- Check API key in database
-- Verify user role has permission
-- Check middleware.php for auth logic
+### Session Tidak Persist
+- Cek `session.save_path` di `/opt/lampp/etc/php.ini`
+- Pastikan folder session writable
 
-#### Session Not Persisting
-**Error:** User logged out automatically
-**Solution:**
-- Check session.save_path in php.ini
-- Ensure session directory is writable
-- Check cookie settings
-- Verify session timeout configuration
+### PHP CLI tidak ditemukan
+```bash
+# Gunakan binary XAMPP, bukan php system
+/opt/lampp/bin/php namafile.php
+```
 
 ## 6. Quick Reference
 
-### Important Files
-- `config.php` - Database configuration
-- `config/app.php` - Application configuration
-- `js/config.js` - Frontend configuration
-- `index.php` - Entry point with RBAC
-- `playwright.config.js` - Test configuration
+### File Penting
+| File | Fungsi |
+|---|---|
+| `config.php` | Konfigurasi DB + koneksi mysqli |
+| `config/app.php` | Konfigurasi app, session, security |
+| `js/config.js` | AppConfig — URL frontend |
+| `js/rbac.js` | Role-based access control |
+| `index.php` | Entry point dengan RBAC |
+| `api/auth.php` | Login, register, logout |
+| `api/soal.php` | CRUD soal (file terbesar ~130KB) |
+| `api/middleware.php` | Auth middleware semua API |
 
-### Important Directories
-- `api/` - API endpoints
-- `admin/` - Admin panel
-- `participant/` - Participant dashboard
-- `database/` - SQL schemas and exports
-- `scripts/` - Utility scripts
-- `assets/` - Static assets
+### Kredensial Default
+| Role | Username | Password |
+|---|---|---|
+| Admin | `admin` | `admin123` |
+| Test User | `testuser` | `test123` |
 
-### Default Credentials
-- Admin: admin / admin123
-- Test User: testuser / test123
+### Database
+- **File dump utama**: `database/bimbel_db.sql` (≈3.5MB)
+- **Total tabel**: 68 (64 tabel + 4 view)
+- **Total soal**: 2.867
+- **Total users**: 7
 
-### Database Export
-Latest export: `database/export_2026-05-27_21-23-48.sql`
+### Perintah Cepat
+```bash
+# Start XAMPP
+sudo /opt/lampp/lampp start
+
+# Cek status XAMPP
+sudo /opt/lampp/lampp status
+
+# Masuk MySQL CLI
+/opt/lampp/bin/mysql -h127.0.0.1 -uroot -proot -D bimbel_db
+
+# Jalankan PHP script
+/opt/lampp/bin/php nama_script.php
+
+# Git sync dari remote
+git fetch origin main && git reset --hard origin/main
+```

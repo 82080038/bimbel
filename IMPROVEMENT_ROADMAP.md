@@ -172,33 +172,39 @@ Berdasarkan penelitian internet tentang best practices untuk Exam Management Sys
 
 ## 📊 Status Implementasi
 
-### Fase 1 (Segera - 1-2 minggu)
-- [ ] Sistem notifikasi dasar
-- [ ] Gamification badges & achievements
-- [ ] Discussion forum dasar
-- [ ] PWA offline page
+### Fase 1 (Sudah Selesai ✅)
+- [x] Sistem notifikasi in-app
+- [x] Gamification badges & achievements & XP
+- [x] Course management & learning paths
+- [x] Bookmarks soal (tabel `answer_heatmap`, kolom bookmark di DB)
+- [x] Passages / soal cerita (tabel `passages`)
+- [x] Exam types (tabel `exam_types`)
+- [x] Sertifikat (tabel `sertifikat`, halaman `sertifikat-print.html`)
+- [x] Expert system / AI recommendation
+- [x] Analytics & funnel analysis
 
-### Fase 2 (Menengah - 1 bulan)
-- [ ] Course management & learning paths
-- [ ] Advanced proctoring (browser lockdown)
-- [ ] Certification tracking
-- [ ] Mobile optimization
+### Fase 2 (Dalam Progress / Prioritas Tinggi)
+- [ ] Anti-cheat saat ujian (browser lockdown, tab switching detection)
+- [ ] Mode latihan terpisah dari ujian resmi
+- [ ] Rate limiter aktif di login (`api/auth.php`)
+- [ ] Import soal dari Excel/CSV
+- [ ] Verifikasi OTP saat registrasi
 
-### Fase 3 (Lanjutan - 2-3 bulan)
-- [ ] Social learning lengkap
-- [ ] Integration capabilities
-- [ ] Accessibility compliance
-- [ ] Advanced analytics
+### Fase 3 (Backlog)
+- [ ] Forum diskusi / tanya jawab peserta
+- [ ] Pembayaran / paket premium (Midtrans/Xendit)
+- [ ] Countdown jadwal ujian resmi (CPNS, IPDN, UTBK)
+- [ ] CAT (Adaptive Testing) aktif di frontend
+- [ ] SSO Google / Microsoft
 
 ---
 
 ## 📝 Catatan
 
-- **Status saat ini**: Aplikasi sudah memiliki foundation yang baik dengan RBAC, AI features, basic exam system, Content Generation, dan System Maintenance
-- **Prioritas**: Fokus pada fitur yang memberikan value terbesar untuk pengguna (Course Management, Gamification, Notifikasi)
-- **Timeline**: Sesuaikan dengan sumber daya dan kebutuhan bisnis
-- **Testing**: Setiap fitur harus diuji sebelum deployment
-- **Documentation**: Update dokumentasi setelah implementasi fitur
+- **Status saat ini (29 Mei 2026)**: 68 tabel DB aktif, 2.867 soal, fitur inti (ujian, gamification, notifikasi, course, expert system, sertifikat, analytics) sudah live
+- **Prioritas sekarang**: Anti-cheat, mode latihan, rate limiter login — effort rendah, impact tinggi
+- **Testing**: Playwright tersedia di `tests/`, jalankan dengan `npx playwright test`
+- **Git**: Push ke `main` branch di `https://github.com/82080038/bimbel.git`
 
 ---
 
@@ -295,27 +301,31 @@ Berdasarkan penelitian internet tentang best practices untuk Exam Management Sys
 
 ---
 
-### 📊 Ringkasan Status (Update 24 Mei 2026)
+### 📊 Ringkasan Status (Update 29 Mei 2026)
 
 | Kategori | Status |
 |----------|--------|
 | Core exam system (ujian, timer, auto-save) | ✅ Selesai |
 | Gamification (XP, badges, streak) | ✅ Selesai |
 | Notifikasi in-app | ✅ Selesai |
-| RBAC & autentikasi dasar | ✅ Selesai |
+| RBAC & autentikasi | ✅ Selesai |
+| Course management & learning paths | ✅ Selesai |
+| Expert system / AI recommendation | ✅ Selesai |
+| Analytics & heatmap | ✅ Selesai |
+| Passages / soal cerita | ✅ Selesai |
+| Exam types | ✅ Selesai |
+| Sertifikat digital | ✅ Selesai (tabel + halaman print) |
 | IRT / CAT backend | ✅ Selesai (belum terhubung ke frontend) |
 | Anti-cheat ujian | ❌ Belum |
 | Mode latihan terpisah | ❌ Belum |
 | OTP verifikasi registrasi | ❌ Belum |
-| Import Excel soal | ❌ Belum (tercantum di README tapi tidak ada file) |
-| Sertifikat printable | ⚠️ Parsial (data ada, template belum) |
+| Import Excel soal | ❌ Belum |
 | Forum diskusi | ❌ Belum |
 | Pembayaran / paket premium | ❌ Belum |
 | Countdown jadwal ujian | ❌ Belum |
-| Bookmark soal | ❌ Belum |
-| Rate limiter aktif di login | ❌ Belum (file ada, tidak dipakai) |
+| Rate limiter aktif di login | ❌ Belum (file ada, belum dipakai di auth.php) |
 
 ---
 
-**Last Updated**: 25 Mei 2026  
-**Version**: 1.2
+**Last Updated**: 29 Mei 2026  
+**Version**: 1.3

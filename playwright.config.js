@@ -12,10 +12,12 @@ module.exports = defineConfig({
   use: {
     baseURL: 'http://localhost/bimbel',
     headless: false,
-    viewport: { width: 1280, height: 720 },
-    screenshot: 'only-on-failure',
-    video: 'off',
-    trace: 'off',
+    viewport: { width: 1366, height: 768 },
+    screenshot: 'on',
+    video: 'on-first-retry',
+    trace: 'on-first-retry',
+    actionTimeout: 15000,
+    navigationTimeout: 20000,
   },
   projects: [
     {

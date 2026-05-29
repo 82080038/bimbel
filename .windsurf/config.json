@@ -1,64 +1,142 @@
 {
-  "project_name": "Aplikasi Ujian Sekolah Kedinasan",
+  "project_name": "Aplikasi Ujian Sekolah Kedinasan (Bimbel)",
   "project_version": "2.1",
-  "status": "Production Ready",
-  "last_updated": "2026-05-27",
+  "status": "Active Development",
+  "last_updated": "2026-05-29",
   "workspace_root": "/opt/lampp/htdocs/bimbel",
   "base_url": "http://localhost/bimbel",
   "api_url": "http://localhost/bimbel/api",
   "database_name": "bimbel_db",
   "database_host": "127.0.0.1",
-  "php_version": "8.3.6",
-  "mysql_version": "8.0.45",
-  
+  "database_user": "root",
+  "database_password": "root",
+
+  "environment": {
+    "os": "Linux (Ubuntu/Debian)",
+    "xampp_path": "/opt/lampp",
+    "php_version": "8.2.12",
+    "php_binary": "/opt/lampp/bin/php",
+    "mysql_version": "10.4.32-MariaDB",
+    "mysql_binary": "/opt/lampp/bin/mysql",
+    "node_version": "18.19.1",
+    "npm_version": "9.2.0",
+    "webserver": "Apache (XAMPP)",
+    "start_xampp": "sudo /opt/lampp/lampp start",
+    "stop_xampp": "sudo /opt/lampp/lampp stop",
+    "restart_xampp": "sudo /opt/lampp/lampp restart"
+  },
+
+  "git": {
+    "remote": "https://github.com/82080038/bimbel.git",
+    "main_branch": "main",
+    "current_branch": "main",
+    "last_commit": "04349f2b - Initial commit - Aplikasi Ujian Sekolah Kedinasan with comprehensive testing"
+  },
+
+  "database": {
+    "name": "bimbel_db",
+    "host": "127.0.0.1",
+    "user": "root",
+    "password": "root",
+    "charset": "utf8mb4",
+    "collation": "utf8mb4_general_ci",
+    "total_tables": 68,
+    "total_soal": 2867,
+    "total_users": 7,
+    "latest_sql_dump": "database/bimbel_db.sql",
+    "import_command": "SET FOREIGN_KEY_CHECKS=0; source database/bimbel_db.sql; SET FOREIGN_KEY_CHECKS=1;",
+    "phpmyadmin_url": "http://localhost/phpmyadmin",
+    "tables": [
+      "achievements", "analisis_kelemahan", "answer_heatmap", "badges",
+      "bahan_pelajaran", "content_versions", "courses", "course_materials",
+      "course_modules", "course_prerequisites", "daily_challenges",
+      "exam_analytics", "exam_reminders", "exam_types",
+      "expert_assistance_log", "expert_knowledge", "expert_knowledge_category",
+      "expert_learning_recommendation", "funnel_analytics", "hasil_ujian",
+      "kategori_soal", "leaderboard_optout", "learning_paths",
+      "learning_path_courses", "learning_recommendations", "learning_topics",
+      "level_rewards", "materi_pelajaran", "media_uploads", "notifications",
+      "notification_preferences", "notification_templates", "paket_blueprint",
+      "paket_tryout", "participant_learning_progress", "passages",
+      "question_analytics", "question_pattern", "rekomendasi_belajar",
+      "sertifikat", "sesi_ujian", "soal", "soal_frequency",
+      "soal_materi_mapping", "soal_topik", "supported_languages",
+      "tips_soal", "tips_tricks", "tips_umum", "topics", "topik_pelajaran",
+      "translations", "users", "user_achievements", "user_analytics",
+      "user_badges", "user_course_progress", "user_daily_challenges",
+      "user_learning_paths", "user_material_progress", "user_module_progress",
+      "user_streak", "user_xp", "xp_transactions"
+    ],
+    "views": [
+      "v_analisis_kelemahan_lengkap", "v_bahan_pelajaran_lengkap",
+      "v_rekomendasi_belajar", "v_soal_statistics"
+    ]
+  },
+
   "directories": {
     "api": {
       "path": "api",
       "count": 24,
-      "description": "API endpoints for authentication, exams, gamification, analytics, courses, notifications, expert system"
+      "description": "API endpoints: auth, soal, gamification, analytics, courses, notifications, expert system, batch, AI"
     },
     "admin": {
       "path": "admin",
       "count": 26,
-      "description": "Admin panel with components, CSS, JS, and sections"
+      "description": "Admin panel - single page app (admin.html) dengan 20 sections modular"
     },
     "participant": {
       "path": "participant",
       "count": 44,
-      "description": "Participant dashboard, exam interface, profile, certificates"
+      "description": "Participant: dashboard, ujian, materi, profile, achievements, certificate, leaderboard"
     },
     "database": {
       "path": "database",
-      "count": 36,
-      "description": "SQL schemas, migrations, and database exports"
+      "count": 38,
+      "description": "SQL schemas, migrasi, dan export. File utama: bimbel_db.sql"
     },
     "scripts": {
       "path": "scripts",
       "count": 48,
-      "description": "Utility scripts for batch operations, analysis, and automation"
-    },
-    "assets": {
-      "path": "assets",
-      "count": 4,
-      "description": "Static assets - images, audio, PDF, uploads"
+      "description": "Utility scripts PHP & Python: batch soal, backup, analisis, content generator"
     },
     "config": {
       "path": "config",
       "count": 1,
-      "description": "Application configuration files"
+      "description": "app.php - konfigurasi aplikasi, environment, session, security"
     },
     "js": {
       "path": "js",
       "count": 4,
-      "description": "Shared JavaScript files"
+      "description": "Shared JS: config.js (AppConfig), rbac.js, number-formatter.js, error-handler.js"
     },
     "tests": {
       "path": "tests",
-      "count": 0,
-      "description": "Test files (Playwright)"
+      "count": 6,
+      "description": "Playwright test files"
     }
   },
-  
+
+  "key_files": {
+    "db_config": "config.php",
+    "app_config": "config/app.php",
+    "frontend_config": "js/config.js",
+    "entry_point": "index.php",
+    "login": "login.html",
+    "register": "register.html",
+    "admin_panel": "admin/admin.html",
+    "participant_dashboard": "participant/dashboard.html",
+    "rbac": "js/rbac.js",
+    "api_auth": "api/auth.php",
+    "api_soal": "api/soal.php",
+    "api_gamification": "api/gamification.php",
+    "api_middleware": "api/middleware.php"
+  },
+
+  "default_credentials": {
+    "admin": {"username": "admin", "password": "admin123"},
+    "test_user": {"username": "testuser", "password": "test123"}
+  },
+
   "features": {
     "rbac": true,
     "gamification": true,
@@ -68,25 +146,32 @@
     "ai_features": true,
     "expert_system": true,
     "content_generation": true,
-    "system_maintenance": true
+    "system_maintenance": true,
+    "bookmarks": true,
+    "passages": true,
+    "exam_types": true,
+    "materi_pelajaran": true,
+    "certificate": true,
+    "leaderboard": true
   },
-  
+
   "testing": {
     "framework": "Playwright",
     "config_file": "playwright.config.js",
     "test_directory": "tests",
-    "test_count": 0,
-    "last_test_run": null,
-    "test_status": "pending"
+    "base_url": "http://localhost/bimbel",
+    "run_command": "npx playwright test",
+    "install_deps": "npm install"
   },
-  
+
   "issues": {
     "critical": 0,
     "high": 0,
     "medium": 0,
-    "low": 0
+    "low": 0,
+    "notes": "Import database memerlukan SET FOREIGN_KEY_CHECKS=0 karena constraint pada expert_assistance_log"
   },
-  
+
   "documentation": {
     "files": [
       "README.md",
@@ -95,7 +180,7 @@
       "DEVELOPER_GUIDE.md",
       "SETUP_NEW_COMPUTER.md",
       "QUESTION_TYPES_ANALYSIS.md",
-      "TEST_REPORT_2026-05-26_FINAL.md"
+      "COMPREHENSIVE_ANALYSIS_REPORT_2026-05-27.md"
     ]
   }
 }

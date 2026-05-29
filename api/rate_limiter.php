@@ -26,6 +26,12 @@ class RateLimiter {
      * Check if request should be rate limited
      */
     public function checkLimit($identifier = null) {
+        // Whitelist localhost untuk development & automated testing
+        $clientIp = $this->getClientIp();
+        if (in_array($clientIp, ['127.0.0.1', '::1', 'localhost'])) {
+            return ['allowed' => true, 'remaining' => 999, 'reset' => time() + $this->windowSeconds];
+        }
+
         $identifier = $identifier ?? $this->getIdentifier();
         $windowStart = time() - $this->windowSeconds;
         

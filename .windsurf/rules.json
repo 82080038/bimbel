@@ -1,28 +1,55 @@
 {
   "project_rules": {
+    "environment": {
+      "os": "Linux",
+      "php_version": "8.2.12",
+      "php_binary": "/opt/lampp/bin/php",
+      "mysql_version": "10.4.32-MariaDB",
+      "mysql_binary": "/opt/lampp/bin/mysql",
+      "node_version": "18.19.1",
+      "xampp_start": "sudo /opt/lampp/lampp start",
+      "project_path": "/opt/lampp/htdocs/bimbel",
+      "web_url": "http://localhost/bimbel",
+      "phpmyadmin_url": "http://localhost/phpmyadmin"
+    },
+
     "coding_standards": {
       "php": {
-        "version": "8.0+",
+        "version": "8.2+",
         "style": "PSR-12",
+        "timezone": "Asia/Jakarta",
         "security": {
           "use_prepared_statements": true,
-          "password_hashing": "bcrypt",
+          "password_hashing": "bcrypt (password_hash / password_verify)",
           "csrf_protection": true,
-          "xss_protection": true
-        }
+          "xss_protection": true,
+          "always_require_config_php": true,
+          "always_call_checkDatabaseConnection": true
+        },
+        "notes": "Selalu include config.php terlebih dahulu. Gunakan $conn (mysqli) untuk query DB."
       },
       "javascript": {
         "use_appconfig": true,
+        "appconfig_file": "js/config.js",
         "use_rbac": true,
-        "error_handling": "try-catch with user feedback"
+        "rbac_file": "js/rbac.js",
+        "error_handling": "try-catch with user feedback",
+        "notes": "Selalu gunakan AppConfig.apiUrl() untuk URL API, bukan hardcode."
       },
       "database": {
         "charset": "utf8mb4",
-        "collation": "utf8mb4_unicode_ci",
-        "naming": "snake_case"
+        "collation": "utf8mb4_general_ci",
+        "naming": "snake_case",
+        "engine": "InnoDB",
+        "import_note": "Selalu gunakan SET FOREIGN_KEY_CHECKS=0 saat restore dump SQL karena foreign key constraint pada expert_assistance_log"
+      },
+      "python_scripts": {
+        "location": "scripts/",
+        "purpose": "Generate soal, scrape materi, analisis konten, download gambar",
+        "note": "Jalankan dari root project: python3 scripts/nama_script.py"
       }
     },
-    
+
     "api_endpoints": {
       "authentication": "api/auth.php",
       "questions": "api/soal.php",
@@ -35,9 +62,13 @@
       "middleware": "api/middleware.php",
       "csrf": "api/csrf.php",
       "rate_limiter": "api/rate_limiter.php",
-      "validator": "api/validator.php"
+      "validator": "api/validator.php",
+      "get_materi": "api/get_materi.php",
+      "upload_image": "api/upload_image.php",
+      "batch_generate": "api/batch_generate.php",
+      "ai_question_analyzer": "api/ai_question_analyzer.php"
     },
-    
+
     "file_structure": {
       "api_files": [
         "add_internet_materials_questions.php",
@@ -65,8 +96,12 @@
         "upload_image.php",
         "validator.php"
       ],
+      "database_primary_dump": "database/bimbel_db.sql",
       "database_exports": [
-        "export_2026-05-27_21-23-48.sql"
+        "database/bimbel_db.sql",
+        "database/export_2026-05-27_21-23-48.sql",
+        "database/export_2026-05-26_final.sql",
+        "database/export_2026-05-26.sql"
       ],
       "migration_scripts": [
         "migrate_course_management.php",
@@ -74,43 +109,62 @@
         "migrate_notifications.php",
         "migrate_analytics.php",
         "migrate_content_management.php"
+      ],
+      "shared_js": [
+        "js/config.js",
+        "js/rbac.js",
+        "js/number-formatter.js",
+        "js/error-handler.js"
       ]
     },
-    
+
     "configuration": {
       "base_url": "http://localhost/bimbel",
       "api_url": "http://localhost/bimbel/api",
       "database_name": "bimbel_db",
       "database_host": "127.0.0.1",
       "database_user": "root",
-      "database_password": "root"
+      "database_password": "root",
+      "session_name": "bimbel_session",
+      "timezone": "Asia/Jakarta"
     },
-    
+
+    "default_credentials": {
+      "admin": {"username": "admin", "password": "admin123"},
+      "test_user": {"username": "testuser", "password": "test123"}
+    },
+
     "testing": {
       "framework": "Playwright",
       "test_directory": "tests",
       "config_file": "playwright.config.js",
-      "base_url": "http://localhost/bimbel"
+      "base_url": "http://localhost/bimbel",
+      "install": "npm install",
+      "run_all": "npx playwright test",
+      "run_headed": "npx playwright test --headed"
     },
-    
+
+    "git_workflow": {
+      "remote": "https://github.com/82080038/bimbel.git",
+      "main_branch": "main",
+      "feature_branch_format": "feature/nama-fitur",
+      "commit_format": "feat: deskripsi | fix: deskripsi | docs: deskripsi",
+      "push_to_main": "git push origin main"
+    },
+
     "gap_analysis": {
       "missing_features": [
         "Anti-cheat during exam",
         "Separate practice mode",
         "OTP verification for registration",
         "Excel import for questions",
-        "Printable certificate template",
         "Discussion forum",
-        "Payment system",
-        "Exam countdown widget",
-        "Question bookmarking",
-        "Rate limiter on login"
+        "Payment system"
       ],
       "priority_fixes": [
-        "Fix URL inconsistencies (localhost/ujian -> localhost/bimbel)",
-        "Fix database name inconsistencies (ujian_sekolah_kedinasan -> bimbel_db)",
-        "Create comprehensive test suite",
-        "Update documentation with correct URLs"
+        "Pastikan semua URL konsisten menggunakan http://localhost/bimbel",
+        "Database name selalu bimbel_db (bukan ujian_sekolah_kedinasan)",
+        "Selalu update database/bimbel_db.sql setelah perubahan skema"
       ]
     }
   }

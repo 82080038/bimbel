@@ -2308,7 +2308,44 @@
             fetchCsrfToken();
             loadKategoriDropdowns();
             hideAllSections();
-            showSection('dashboard');
+
+            // Hash-based routing: check URL hash and navigate to appropriate section
+            const hashToSection = {
+                'soal': 'questions',
+                'kategori': 'categories',
+                'users': 'userManagement',
+                'gamification': 'gamificationTracking',
+                'notifications': 'notifications',
+                'courses': 'courseManagement',
+                'irt': 'irt',
+                'examSessions': 'examSessions',
+                'blueprint': 'blueprint',
+                'topics': 'topics',
+                'maintenance': 'systemMaintenance',
+                'tips': 'tips',
+                'partisipan': 'participants',
+                'statistik': 'statistics',
+                'leaderboard': 'leaderboardSettings',
+                'tryout': 'examPackages',
+                'bahan': 'bahanPelajaran',
+                'hasil': 'results',
+                'content': 'contentGeneration'
+            };
+            
+            // Handle hash routing with small delay to ensure hash is available
+            setTimeout(() => {
+                const hash = window.location.hash.replace('#', '');
+                const targetSection = hash && hashToSection[hash] ? hashToSection[hash] : (hash || 'dashboard');
+                showSection(targetSection);
+            }, 100);
+            
+            // Listen for hash changes
+            window.addEventListener('hashchange', function() {
+                const hash = window.location.hash.replace('#', '');
+                const targetSection = hash && hashToSection[hash] ? hashToSection[hash] : (hash || 'dashboard');
+                hideAllSections();
+                showSection(targetSection);
+            });
 
             // Update admin UI
             const userRoleDisplay = document.getElementById('userRoleDisplay');
