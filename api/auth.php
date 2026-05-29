@@ -67,51 +67,65 @@ switch ($action) {
 function login() {
     global $conn;
     
-    $data = json_decode(file_get_contents('php://input'), true);
-    
-    $username = $conn->real_escape_string($data['username'] ?? '');
-    $password = $data['password'] ?? '';
-    
-    // Use proper password hashing with password_verify
-    $sql = "SELECT id, username, password, role, api_key, nama_lengkap FROM users WHERE username = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($user = $result->fetch_assoc()) {
-        // Verify password using password_verify (secure method)
-        if (password_verify($password, $user['password'])) {
-            // Generate API key if not exists
-            if (!$user['api_key']) {
-                $api_key = generateApiKey();
-                $sql_update = "UPDATE users SET api_key = ?, last_login = NOW() WHERE id = ?";
-                $stmt_update = $conn->prepare($sql_update);
-                $stmt_update->bind_param("si", $api_key, $user['id']);
-                $stmt_update->execute();
-                $user['api_key'] = $api_key;
-            } else {
-                $sql_update = "UPDATE users SET last_login = NOW() WHERE id = ?";
-                $stmt_update = $conn->prepare($sql_update);
-                $stmt_update->bind_param("i", $user['id']);
-                $stmt_update->execute();
-            }
-            
-            echo json_encode([
-                'success' => true,
-                'user' => [
-                    'id' => $user['id'],
-                    'username' => $user['username'],
-                    'nama_lengkap' => $user['nama_lengkap'] ?: $user['username'],
-                    'role' => $user['role'],
-                    'api_key' => $user['api_key']
-                ]
-            ]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'Invalid password']);
+    try {
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
+            return;
         }
-    } else {
-        echo json_encode(['success' => false, 'error' => 'User not found']);
+        
+        $username = $data['username'] ?? '';
+        $password = $data['password'] ?? '';
+        
+        if (empty($username) || empty($password)) {
+            echo json_encode(['success' => false, 'error' => 'Username and password are required']);
+            return;
+        }
+        
+        // Use proper password hashing with password_verify
+        $sql = "SELECT id, username, password, role, api_key, nama_lengkap FROM users WHERE username = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($user = $result->fetch_assoc()) {
+            // Verify password using password_verify (secure method)
+            if (password_verify($password, $user['password'])) {
+                // Generate API key if not exists
+                if (!$user['api_key']) {
+                    $api_key = generateApiKey();
+                    $sql_update = "UPDATE users SET api_key = ?, last_login = NOW() WHERE id = ?";
+                    $stmt_update = $conn->prepare($sql_update);
+                    $stmt_update->bind_param("si", $api_key, $user['id']);
+                    $stmt_update->execute();
+                    $user['api_key'] = $api_key;
+                } else {
+                    $sql_update = "UPDATE users SET last_login = NOW() WHERE id = ?";
+                    $stmt_update = $conn->prepare($sql_update);
+                    $stmt_update->bind_param("i", $user['id']);
+                    $stmt_update->execute();
+                }
+                
+                echo json_encode([
+                    'success' => true,
+                    'user' => [
+                        'id' => $user['id'],
+                        'username' => $user['username'],
+                        'nama_lengkap' => $user['nama_lengkap'] ?: $user['username'],
+                        'role' => $user['role'],
+                        'api_key' => $user['api_key']
+                    ]
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Invalid password']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'User not found']);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Login error: ' . $e->getMessage()]);
     }
 }
 

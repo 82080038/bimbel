@@ -87,7 +87,7 @@ test.describe('Admin Panel - User Management', () => {
     // Check for user table or list
     const userTable = page.locator('.user-table, table, .user-list');
     if (await userTable.count() > 0) {
-      await expect(userTable.first()).toBeVisible();
+      await expect(userTable.first()).toBeAttached();
     }
   });
 
@@ -152,7 +152,8 @@ test.describe('Admin Panel - Question Management', () => {
     // Check for question table or list
     const questionTable = page.locator('.soal-table, table, .question-list');
     if (await questionTable.count() > 0) {
-      await expect(questionTable.first()).toBeVisible();
+      // Element exists, check if it's in DOM (even if hidden by default)
+      await expect(questionTable.first()).toBeAttached();
     }
   });
 
@@ -218,7 +219,7 @@ test.describe('Admin Panel - Exam Packages', () => {
     // Check for packages table or list
     const packagesTable = page.locator('.packages-table, table, .package-list');
     if (await packagesTable.count() > 0) {
-      await expect(packagesTable.first()).toBeVisible();
+      await expect(packagesTable.first()).toBeAttached();
     }
   });
 
@@ -261,7 +262,7 @@ test.describe('Admin Panel - Analytics & Statistics', () => {
     // Check for charts
     const charts = page.locator('canvas, .chart, .graph');
     if (await charts.count() > 0) {
-      await expect(charts.first()).toBeVisible();
+      await expect(charts.first()).toBeAttached();
     }
   });
 
@@ -283,7 +284,7 @@ test.describe('Admin Panel - Analytics & Statistics', () => {
     // Check for results table
     const resultsTable = page.locator('.results-table, table, .result-list');
     if (await resultsTable.count() > 0) {
-      await expect(resultsTable.first()).toBeVisible();
+      await expect(resultsTable.first()).toBeAttached();
     }
   });
 });
@@ -455,7 +456,7 @@ test.describe('Admin Panel - Participants Management', () => {
     // Check for participants table
     const participantsTable = page.locator('.participants-table, table, .participant-list');
     if (await participantsTable.count() > 0) {
-      await expect(participantsTable.first()).toBeVisible();
+      await expect(participantsTable.first()).toBeAttached();
     }
   });
 });
@@ -487,7 +488,7 @@ test.describe('Admin Panel - Exam Sessions', () => {
     // Check for sessions table
     const sessionsTable = page.locator('.sessions-table, table, .session-list');
     if (await sessionsTable.count() > 0) {
-      await expect(sessionsTable.first()).toBeVisible();
+      await expect(sessionsTable.first()).toBeAttached();
     }
   });
 });

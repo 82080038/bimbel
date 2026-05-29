@@ -58,46 +58,51 @@ if (basename($_SERVER['SCRIPT_FILENAME']) === basename(__FILE__)) {
 function getQuestionAnalytics() {
     global $conn;
     
-    $user = requireAuth();
-    
-    $limit = intval($_GET['limit'] ?? 20);
-    $offset = intval($_GET['offset'] ?? 0);
-    
-    $sql = "SELECT qa.*, s.pertanyaan, s.kategori_id 
-            FROM question_analytics qa
-            JOIN soal s ON qa.question_id = s.id
-            ORDER BY qa.difficulty_score DESC
-            LIMIT ? OFFSET ?";
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('ii', $limit, $offset);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $analytics = [];
-    while ($row = $result->fetch_assoc()) {
-        $analytics[] = $row;
+    try {
+        $user = requireAuth();
+        
+        $limit = intval($_GET['limit'] ?? 20);
+        $offset = intval($_GET['offset'] ?? 0);
+        
+        $sql = "SELECT qa.*, s.pertanyaan, s.kategori_id 
+                FROM question_analytics qa
+                JOIN soal s ON qa.question_id = s.id
+                ORDER BY qa.difficulty_score DESC
+                LIMIT ? OFFSET ?";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('ii', $limit, $offset);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $analytics = [];
+        while ($row = $result->fetch_assoc()) {
+            $analytics[] = $row;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $analytics]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Failed to get question analytics: ' . $e->getMessage()]);
     }
-    
-    echo json_encode(['success' => true, 'data' => $analytics]);
 }
 
 function getUserAnalytics() {
     global $conn;
 
-    $user = requireAuth();
-    $uid = $user['id'];
+    try {
+        $user = requireAuth();
+        $uid = $user['id'];
 
-    $stmt = $conn->prepare("
-        SELECT
-            COUNT(*) as total_exams,
-            COALESCE(AVG(nilai_total), 0) as avg_score,
-            COALESCE(MAX(nilai_total), 0) as best_score,
-            SUM(durasi_menit) as total_study_time,
-            SUM(CASE WHEN status_lulus = 'LULUS' THEN 1 ELSE 0 END) as total_lulus,
-            COALESCE(AVG(nilai_twk), 0) as avg_twk,
-            COALESCE(AVG(nilai_tiu), 0) as avg_tiu,
-            COALESCE(AVG(nilai_tkp), 0) as avg_tkp,
+        $stmt = $conn->prepare("
+            SELECT
+                COUNT(*) as total_exams,
+                COALESCE(AVG(nilai_total), 0) as avg_score,
+                COALESCE(MAX(nilai_total), 0) as best_score,
+                SUM(durasi_menit) as total_study_time,
+                SUM(CASE WHEN status_lulus = 'LULUS' THEN 1 ELSE 0 END) as total_lulus,
+                COALESCE(AVG(nilai_twk), 0) as avg_twk,
+                COALESCE(AVG(nilai_tiu), 0) as avg_tiu,
+                COALESCE(AVG(nilai_tkp), 0) as avg_tkp,
             COALESCE(AVG(nilai_tpa), 0) as avg_tpa,
             COALESCE(AVG(nilai_psikologis), 0) as avg_psikologis,
             COALESCE(MIN(nilai_total), 0) as worst_score,
@@ -111,6 +116,9 @@ function getUserAnalytics() {
     $analytics = $stmt->get_result()->fetch_assoc();
 
     echo json_encode(['success' => true, 'data' => $analytics]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Failed to get user analytics: ' . $e->getMessage()]);
+    }
 }
 
 function getUserDetailedAnalytics() {

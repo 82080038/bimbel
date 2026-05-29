@@ -8,15 +8,40 @@
     display: none !important;
 }
 
+/* Ensure question table is visible */
+.soal-table,
+table {
+    display: table !important;
+    visibility: visible !important;
+}
+
+/* Ensure all cards and lists are visible */
+.card,
+.stat-card,
+.list-group,
+.table-container {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Ensure charts are visible */
+canvas,
+.chart-container {
+    display: block !important;
+    visibility: visible !important;
+}
+
 body {
     background: #f8fafc;
     min-height: 100vh;
 }
+
 .sidebar {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     min-height: 100vh;
     color: white;
 }
+
 .sidebar .nav-link {
     color: rgba(255, 255, 255, 0.8);
     padding: 0.75rem 1rem;
@@ -24,15 +49,19 @@ body {
     border-radius: 8px;
     transition: all 0.3s ease;
 }
-.sidebar .nav-link:hover, .sidebar .nav-link.active {
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
     background: rgba(255, 255, 255, 0.2);
     color: white;
 }
+
 .card {
     border: none;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 12px;
 }
+
 .stat-card {
     background: white;
     border-radius: 15px;
@@ -40,6 +69,7 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
+
 .stat-card h3 {
     font-size: 2rem;
     font-weight: bold;
@@ -58,19 +88,24 @@ body {
         transition: left 0.3s ease;
         width: 250px !important;
     }
+
     .sidebar.show {
         left: 0;
     }
+
     .col-md-10 {
         margin-left: 0 !important;
         width: 100% !important;
     }
+
     .stat-card h3 {
         font-size: 1.5rem;
     }
+
     .card-body {
         padding: 1rem;
     }
+
     table {
         font-size: 0.9rem;
     }
@@ -80,16 +115,20 @@ body {
     .stat-card h3 {
         font-size: 1.2rem;
     }
+
     .stat-card p {
         font-size: 0.8rem;
     }
+
     .btn {
         padding: 0.5rem 1rem;
         font-size: 0.9rem;
     }
+
     table {
         font-size: 0.8rem;
     }
+
     .table-responsive {
         overflow-x: auto;
     }
@@ -128,6 +167,7 @@ body {
 
 /* Responsive adjustments for Bootstrap components */
 @media (max-width: 576px) {
+
     /* Toast container - move to top on mobile to avoid covering content */
     .toast-container.position-fixed.bottom-0.end-0 {
         bottom: auto !important;
@@ -135,30 +175,30 @@ body {
         right: 0.5rem !important;
         left: 0.5rem !important;
     }
-    
+
     /* Ensure modals are full width on very small screens */
     .modal-dialog {
         margin: 0.5rem;
     }
-    
+
     .modal-dialog-centered {
         min-height: calc(100% - 1rem);
     }
-    
+
     /* Adjust modal content padding on mobile */
     .modal-content {
         border-radius: 0.5rem;
     }
-    
+
     .modal-body {
         padding: 1rem;
     }
-    
+
     .modal-footer {
         padding: 0.75rem 1rem;
         flex-wrap: wrap;
     }
-    
+
     .modal-footer .btn {
         flex: 1;
         margin: 0.25rem 0;

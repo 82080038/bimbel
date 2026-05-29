@@ -130,11 +130,15 @@ function getUserXPData($user_id) {
 function getUserXP() {
     global $conn;
     
-    $user = requireAuth();
-    
-    $xp = getUserXPData($user['id']);
-    
-    echo json_encode(['success' => true, 'data' => $xp]);
+    try {
+        $user = requireAuth();
+        
+        $xp = getUserXPData($user['id']);
+        
+        echo json_encode(['success' => true, 'data' => $xp]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Failed to get user XP: ' . $e->getMessage()]);
+    }
 }
 
 function addXP() {

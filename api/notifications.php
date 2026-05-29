@@ -57,55 +57,63 @@ if (basename($_SERVER['SCRIPT_FILENAME']) === basename(__FILE__)) {
 function getNotifications() {
     global $conn;
     
-    $user = requireAuth();
-    
-    $limit = intval($_GET['limit'] ?? 10);
-    $unread_only = isset($_GET['unread_only']) && $_GET['unread_only'] === 'true';
-    
-    $sql = "SELECT n.* FROM notifications n WHERE n.user_id = ?";
-    $params = [$user['id']];
-    
-    if ($unread_only) {
-        $sql .= " AND n.status = 'pending'";
+    try {
+        $user = requireAuth();
+        
+        $limit = intval($_GET['limit'] ?? 10);
+        $unread_only = isset($_GET['unread_only']) && $_GET['unread_only'] === 'true';
+        
+        $sql = "SELECT n.* FROM notifications n WHERE n.user_id = ?";
+        $params = [$user['id']];
+        
+        if ($unread_only) {
+            $sql .= " AND n.status = 'pending'";
+        }
+        
+        $sql .= " ORDER BY n.created_at DESC LIMIT ?";
+        $params[] = $limit;
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param(str_repeat('i', count($params)), ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $notifications = [];
+        while ($row = $result->fetch_assoc()) {
+            $notifications[] = $row;
+        }
+        
+        // Mark as read when fetched
+        if (!$unread_only) {
+            markNotificationsAsRead($user['id']);
+        }
+        
+        echo json_encode(['success' => true, 'data' => $notifications]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Failed to get notifications: ' . $e->getMessage()]);
     }
-    
-    $sql .= " ORDER BY n.created_at DESC LIMIT ?";
-    $params[] = $limit;
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param(str_repeat('i', count($params)), ...$params);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $notifications = [];
-    while ($row = $result->fetch_assoc()) {
-        $notifications[] = $row;
-    }
-    
-    // Mark as read when fetched
-    if (!$unread_only) {
-        markNotificationsAsRead($user['id']);
-    }
-    
-    echo json_encode(['success' => true, 'data' => $notifications]);
 }
 
 function markAsRead() {
     global $conn;
     
-    $data = json_decode(file_get_contents('php://input'), true);
-    $user = requireAuth();
+    try {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $user = requireAuth();
+        
+        $notification_id = $data['notification_id'] ?? 0;
     
-    $notification_id = $data['notification_id'] ?? 0;
-    
-    $sql = "UPDATE notifications SET status = 'sent' WHERE id = ? AND user_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('ii', $notification_id, $user['id']);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['success' => false, 'error' => $conn->error]);
+        $sql = "UPDATE notifications SET status = 'sent' WHERE id = ? AND user_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('ii', $notification_id, $user['id']);
+        
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => $conn->error]);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Failed to mark as read: ' . $e->getMessage()]);
     }
 }
 

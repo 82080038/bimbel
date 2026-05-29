@@ -125,48 +125,52 @@ switch ($action) {
 // Get expert knowledge based on question analysis
 function getExpertKnowledge() {
     global $conn;
-    
-    $kategori_id = $_GET['kategori_id'] ?? null;
-    $keywords = $_GET['keywords'] ?? '';
-    
-    $sql = "SELECT ek.*, kc.nama_kategori as kategori_nama 
-            FROM expert_knowledge ek
-            JOIN expert_knowledge_category kc ON ek.kategori_id = kc.id
-            WHERE ek.is_active = 1";
-    
-    $params = [];
-    $types = "";
-    
-    if ($kategori_id) {
-        $sql .= " AND ek.sub_kategori = ?";
-        $params[] = $kategori_id;
-        $types .= "s";
+
+    try {
+        $kategori_id = $_GET['kategori_id'] ?? null;
+        $keywords = $_GET['keywords'] ?? '';
+
+        $sql = "SELECT ek.*, kc.nama_kategori as kategori_nama
+                FROM expert_knowledge ek
+                JOIN expert_knowledge_category kc ON ek.kategori_id = kc.id
+                WHERE ek.is_active = 1";
+
+        $params = [];
+        $types = "";
+
+        if ($kategori_id) {
+            $sql .= " AND ek.sub_kategori = ?";
+            $params[] = $kategori_id;
+            $types .= "s";
+        }
+
+        if ($keywords) {
+            $sql .= " AND (ek.kunci_kata LIKE ? OR ek.judul LIKE ? OR ek.konten LIKE ?)";
+            $keyword_pattern = "%$keywords%";
+            $params[] = $keyword_pattern;
+            $params[] = $keyword_pattern;
+            $params[] = $keyword_pattern;
+            $types .= "sss";
+        }
+
+        $sql .= " ORDER BY ek.prioritas DESC, ek.id DESC";
+
+        $stmt = $conn->prepare($sql);
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $knowledge = [];
+        while ($row = $result->fetch_assoc()) {
+            $knowledge[] = $row;
+        }
+
+        echo json_encode(['success' => true, 'data' => $knowledge]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Failed to get expert knowledge: ' . $e->getMessage()]);
     }
-    
-    if ($keywords) {
-        $sql .= " AND (ek.kunci_kata LIKE ? OR ek.judul LIKE ? OR ek.konten LIKE ?)";
-        $keyword_pattern = "%$keywords%";
-        $params[] = $keyword_pattern;
-        $params[] = $keyword_pattern;
-        $params[] = $keyword_pattern;
-        $types .= "sss";
-    }
-    
-    $sql .= " ORDER BY ek.prioritas DESC, ek.id DESC";
-    
-    $stmt = $conn->prepare($sql);
-    if (!empty($params)) {
-        $stmt->bind_param($types, ...$params);
-    }
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $knowledge = [];
-    while ($row = $result->fetch_assoc()) {
-        $knowledge[] = $row;
-    }
-    
-    echo json_encode(['success' => true, 'data' => $knowledge]);
 }
 
 // Get expert help for a specific question

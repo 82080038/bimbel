@@ -19,9 +19,15 @@ function getCsrfToken() {
     return generateCsrfToken();
 }
 
-// Get CSRF token endpoint
-if (isset($_GET['action']) && $_GET['action'] === 'get_token') {
-    header('Content-Type: application/json');
-    echo json_encode(['csrf_token' => getCsrfToken()]);
+// Get CSRF token endpoint - only output when directly accessed
+if (basename($_SERVER['PHP_SELF']) === 'csrf.php') {
+    if (isset($_GET['action']) && $_GET['action'] === 'get_token') {
+        header('Content-Type: application/json');
+        echo json_encode(['csrf_token' => getCsrfToken()]);
+    } else {
+        // Return error if called without action parameter
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Invalid action. Use ?action=get_token']);
+    }
 }
 ?>

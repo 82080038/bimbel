@@ -111,40 +111,44 @@ if (basename($_SERVER['SCRIPT_FILENAME']) === basename(__FILE__)) {
 function listCourses() {
     global $conn;
 
-    $kategori = $_GET['kategori'] ?? '';
-    $status = $_GET['status'] ?? 'published';
+    try {
+        $kategori = $_GET['kategori'] ?? '';
+        $status = $_GET['status'] ?? 'published';
 
-    // Handle both numeric ID and string name (courses table uses kategori name as VARCHAR)
-    if ($kategori && is_numeric($kategori)) {
-        $kategori_map = [1 => 'TWK', 2 => 'TIU', 3 => 'TKP', 4 => 'TPA', 5 => 'PSIKOLOGIS'];
-        $kategori = $kategori_map[intval($kategori)] ?? $kategori;
-    }
+        // Handle both numeric ID and string name (courses table uses kategori name as VARCHAR)
+        if ($kategori && is_numeric($kategori)) {
+            $kategori_map = [1 => 'TWK', 2 => 'TIU', 3 => 'TKP', 4 => 'TPA', 5 => 'PSIKOLOGIS'];
+            $kategori = $kategori_map[intval($kategori)] ?? $kategori;
+        }
 
-    $sql = "SELECT c.*,
-            (SELECT COUNT(*) FROM course_modules WHERE course_id = c.id) as module_count,
-            (SELECT COUNT(*) FROM user_course_progress WHERE course_id = c.id) as enrolled_count
-            FROM courses c
-            WHERE status = ?";
+        $sql = "SELECT c.*,
+                (SELECT COUNT(*) FROM course_modules WHERE course_id = c.id) as module_count,
+                (SELECT COUNT(*) FROM user_course_progress WHERE course_id = c.id) as enrolled_count
+                FROM courses c
+                WHERE status = ?";
 
-    $params = [$status];
-    if ($kategori) {
-        $sql .= " AND kategori = ?";
-        $params[] = $kategori;
+        $params = [$status];
+        if ($kategori) {
+            $sql .= " AND kategori = ?";
+            $params[] = $kategori;
+        }
+        
+        $sql .= " ORDER BY urutan ASC, created_at DESC";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param(str_repeat('s', count($params)), ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $courses = [];
+        while ($row = $result->fetch_assoc()) {
+            $courses[] = $row;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $courses]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Failed to get courses: ' . $e->getMessage()]);
     }
-    
-    $sql .= " ORDER BY urutan ASC, created_at DESC";
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param(str_repeat('s', count($params)), ...$params);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $courses = [];
-    while ($row = $result->fetch_assoc()) {
-        $courses[] = $row;
-    }
-    
-    echo json_encode(['success' => true, 'data' => $courses]);
 }
 
 function getCourse() {

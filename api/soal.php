@@ -322,106 +322,114 @@ switch ($action) {
 function getSoalByKategori() {
     global $conn;
     
-    $kategori = $_GET['kategori'] ?? 'TWK';
-    $limit = intval($_GET['limit'] ?? 30);
-    
-    $kategori_map = [
-        'TWK' => 1,
-        'TIU' => 2,
-        'TKP' => 3,
-        'TPA' => 4,
-        'PSIKOLOGIS' => 5
-    ];
+    try {
+        $kategori = $_GET['kategori'] ?? 'TWK';
+        $limit = intval($_GET['limit'] ?? 30);
+        
+        $kategori_map = [
+            'TWK' => 1,
+            'TIU' => 2,
+            'TKP' => 3,
+            'TPA' => 4,
+            'PSIKOLOGIS' => 5
+        ];
 
-    // Handle both numeric ID and string name
-    if (is_numeric($kategori)) {
-        $kategori_id = intval($kategori);
-    } else {
-        $kategori_id = $kategori_map[$kategori] ?? 1;
+        // Handle both numeric ID and string name
+        if (is_numeric($kategori)) {
+            $kategori_id = intval($kategori);
+        } else {
+            $kategori_id = $kategori_map[$kategori] ?? 1;
+        }
+        
+        $sql = "SELECT s.id, s.pertanyaan, s.opsi_a, s.opsi_b, s.opsi_c, s.opsi_d, s.opsi_e, s.jawaban_benar, 
+                s.passage_id, s.nomor_urutan_dalam_passage,
+                p.judul as passage_judul, p.isi_cerita as passage_isi
+                FROM soal s 
+                LEFT JOIN passages p ON s.passage_id = p.id
+                WHERE s.kategori_id = ? 
+                ORDER BY s.passage_id, s.nomor_urutan_dalam_passage, RAND() 
+                LIMIT ?";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $kategori_id, $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $soal = [];
+        while ($row = $result->fetch_assoc()) {
+            $soal[] = $row;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $soal]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Failed to get questions by category: ' . $e->getMessage()]);
     }
-    
-    $sql = "SELECT s.id, s.pertanyaan, s.opsi_a, s.opsi_b, s.opsi_c, s.opsi_d, s.opsi_e, s.jawaban_benar, 
-            s.passage_id, s.nomor_urutan_dalam_passage,
-            p.judul as passage_judul, p.isi_cerita as passage_isi
-            FROM soal s 
-            LEFT JOIN passages p ON s.passage_id = p.id
-            WHERE s.kategori_id = ? 
-            ORDER BY s.passage_id, s.nomor_urutan_dalam_passage, RAND() 
-            LIMIT ?";
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $kategori_id, $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $soal = [];
-    while ($row = $result->fetch_assoc()) {
-        $soal[] = $row;
-    }
-    
-    echo json_encode(['success' => true, 'data' => $soal]);
 }
 
 function getSoalAcak() {
     global $conn;
     
-    // Get random questions for each category
-    $sql_twk = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, kategori_id 
-                FROM soal WHERE kategori_id = 1 ORDER BY RAND() LIMIT " . JUMLAH_SOAL_TWK;
-    $sql_tiu = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, kategori_id 
-                FROM soal WHERE kategori_id = 2 ORDER BY RAND() LIMIT " . JUMLAH_SOAL_TIU;
-    $sql_tkp = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, kategori_id 
-                FROM soal WHERE kategori_id = 3 ORDER BY RAND() LIMIT " . JUMLAH_SOAL_TKP;
-    $sql_tpa = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, kategori_id 
-                FROM soal WHERE kategori_id = 4 ORDER BY RAND() LIMIT 15";
-    $sql_psiko = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, kategori_id 
-                FROM soal WHERE kategori_id = 5 ORDER BY RAND() LIMIT 15";
-    
-    $result_twk = $conn->query($sql_twk);
-    $result_tiu = $conn->query($sql_tiu);
-    $result_tkp = $conn->query($sql_tkp);
-    $result_tpa = $conn->query($sql_tpa);
-    $result_psiko = $conn->query($sql_psiko);
-    
-    $soal = [];
-    
-    // Add TWK questions (numbered 1-30)
-    $num = 1;
-    while ($row = $result_twk->fetch_assoc()) {
-        $row['nomor'] = $num++;
-        $row['kategori'] = 'TWK';
-        $soal[] = $row;
+    try {
+        // Get random questions for each category
+        $sql_twk = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, kategori_id 
+                    FROM soal WHERE kategori_id = 1 ORDER BY RAND() LIMIT " . JUMLAH_SOAL_TWK;
+        $sql_tiu = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, kategori_id 
+                    FROM soal WHERE kategori_id = 2 ORDER BY RAND() LIMIT " . JUMLAH_SOAL_TIU;
+        $sql_tkp = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, kategori_id 
+                    FROM soal WHERE kategori_id = 3 ORDER BY RAND() LIMIT " . JUMLAH_SOAL_TKP;
+        $sql_tpa = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, kategori_id 
+                    FROM soal WHERE kategori_id = 4 ORDER BY RAND() LIMIT 15";
+        $sql_psiko = "SELECT id, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban_benar, kategori_id 
+                    FROM soal WHERE kategori_id = 5 ORDER BY RAND() LIMIT 15";
+        
+        $result_twk = $conn->query($sql_twk);
+        $result_tiu = $conn->query($sql_tiu);
+        $result_tkp = $conn->query($sql_tkp);
+        $result_tpa = $conn->query($sql_tpa);
+        $result_psiko = $conn->query($sql_psiko);
+        
+        $soal = [];
+        
+        // Add TWK questions (numbered 1-30)
+        $num = 1;
+        while ($row = $result_twk->fetch_assoc()) {
+            $row['nomor'] = $num++;
+            $row['kategori'] = 'TWK';
+            $soal[] = $row;
+        }
+        
+        // Add TIU questions (numbered 31-65)
+        while ($row = $result_tiu->fetch_assoc()) {
+            $row['nomor'] = $num++;
+            $row['kategori'] = 'TIU';
+            $soal[] = $row;
+        }
+        
+        // Add TKP questions (numbered 66-100)
+        while ($row = $result_tkp->fetch_assoc()) {
+            $row['nomor'] = $num++;
+            $row['kategori'] = 'TKP';
+            $soal[] = $row;
+        }
+        
+        // Add TPA questions (numbered 101-115)
+        while ($row = $result_tpa->fetch_assoc()) {
+            $row['nomor'] = $num++;
+            $row['kategori'] = 'TPA';
+            $soal[] = $row;
+        }
+        
+        // Add PSIKOLOGIS questions (numbered 116-130)
+        while ($row = $result_psiko->fetch_assoc()) {
+            $row['nomor'] = $num++;
+            $row['kategori'] = 'PSIKOLOGIS';
+            $soal[] = $row;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $soal]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Failed to get random questions: ' . $e->getMessage()]);
     }
-    
-    // Add TIU questions (numbered 31-65)
-    while ($row = $result_tiu->fetch_assoc()) {
-        $row['nomor'] = $num++;
-        $row['kategori'] = 'TIU';
-        $soal[] = $row;
-    }
-    
-    // Add TKP questions (numbered 66-100)
-    while ($row = $result_tkp->fetch_assoc()) {
-        $row['nomor'] = $num++;
-        $row['kategori'] = 'TKP';
-        $soal[] = $row;
-    }
-    
-    // Add TPA questions (numbered 101-115)
-    while ($row = $result_tpa->fetch_assoc()) {
-        $row['nomor'] = $num++;
-        $row['kategori'] = 'TPA';
-        $soal[] = $row;
-    }
-    
-    // Add PSIKOLOGIS questions (numbered 116-130)
-    while ($row = $result_psiko->fetch_assoc()) {
-        $row['nomor'] = $num++;
-        $row['kategori'] = 'PSIKOLOGIS';
-        $soal[] = $row;
-    }
-    
-    echo json_encode(['success' => true, 'data' => $soal]);
 }
 
 function getSoalById() {
@@ -1011,26 +1019,30 @@ function getTopicsByKategori() {
 function getExamTypes() {
     global $conn;
 
-    $sql = "SELECT id, code, name, description, icon, color, is_active,
-                   passing_grade_twk, passing_grade_tiu, passing_grade_tkp,
-                   passing_grade_tpa, passing_grade_psikologis, passing_grade_total,
-                   durasi_menit, jumlah_soal
-            FROM exam_types
-            WHERE is_active = TRUE
-            ORDER BY id";
+    try {
+        $sql = "SELECT id, code, name, description, icon, color, is_active,
+                       passing_grade_twk, passing_grade_tiu, passing_grade_tkp,
+                       passing_grade_tpa, passing_grade_psikologis, passing_grade_total,
+                       durasi_menit, jumlah_soal
+                FROM exam_types
+                WHERE is_active = TRUE
+                ORDER BY id";
 
-    $result = $conn->query($sql);
+        $result = $conn->query($sql);
 
-    $types = [];
-    while ($row = $result->fetch_assoc()) {
-        $types[] = $row;
+        $types = [];
+        while ($row = $result->fetch_assoc()) {
+            $types[] = $row;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'data' => $types,
+            'count' => count($types)
+        ]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Failed to get exam types: ' . $e->getMessage()]);
     }
-
-    echo json_encode([
-        'success' => true,
-        'data' => $types,
-        'count' => count($types)
-    ]);
 }
 
 function getPassingGrades() {

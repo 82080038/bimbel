@@ -18,6 +18,7 @@ module.exports = defineConfig({
     trace: 'on-first-retry',
     actionTimeout: 15000,
     navigationTimeout: 20000,
+    ignoreHTTPSErrors: true,
   },
   projects: [
     {
