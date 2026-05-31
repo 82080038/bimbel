@@ -4356,9 +4356,28 @@
                         }
                     }
 
-                    // Now set the form values
+                    // Load topics for the selected kategori BEFORE setting kategori value
+                    console.log('Loading topics for kategori_id:', q.kategori_id);
+                    try {
+                        await loadTopicsByKategori(q.kategori_id, 'questionTopic');
+                        // Set topic value after topics are loaded
+                        if (q.learning_topic_id) {
+                            document.getElementById('questionTopic').value = q.learning_topic_id;
+                        }
+                    } catch (err) {
+                        console.error('Failed to load topics:', err);
+                    }
+
+                    // Now set the form values (after topics are loaded to avoid onchange race condition)
                     document.getElementById('questionId').value = q.id;
-                    document.getElementById('questionKategori').value = q.kategori_id;
+
+                    // Temporarily remove onchange event to prevent triggering loadTopicsByKategori
+                    const originalOnchange = questionKategori.getAttribute('onchange');
+                    questionKategori.removeAttribute('onchange');
+                    questionKategori.value = q.kategori_id;
+                    // Restore onchange event after setting value
+                    questionKategori.setAttribute('onchange', originalOnchange);
+
                     document.getElementById('questionPertanyaan').value = q.pertanyaan;
                     document.getElementById('questionOpsiA').value = q.opsi_a;
                     document.getElementById('questionOpsiB').value = q.opsi_b;
@@ -4368,18 +4387,6 @@
                     document.getElementById('questionJawaban').value = q.jawaban_benar;
                     document.getElementById('questionPembahasan').value = q.pemabahasan || q.pembahasan || '';
                     document.getElementById('questionModalLabel').textContent = 'Edit Soal';
-
-                    // Load topics for the selected kategori BEFORE showing modal
-                    console.log('Loading topics for kategori_id:', q.kategori_id);
-                    try {
-                        await loadTopicsByKategori(q.kategori_id, 'questionTopic');
-                        // Set topic value after topics are loaded
-                        if (q.topic_id) {
-                            document.getElementById('questionTopic').value = q.topic_id;
-                        }
-                    } catch (err) {
-                        console.error('Failed to load topics:', err);
-                    }
 
                     // Show modal AFTER everything is populated
                     const modal = new bootstrap.Modal(document.getElementById('questionModal'));
