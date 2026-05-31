@@ -327,14 +327,12 @@ async function handleProfileFormSubmit(e) {
     }
 }
 
-// Initialize on load
-document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication
+// Called by profile.html after components are injected into DOM
+function initAfterLoad() {
     if (!RBAC.isAuthenticated()) {
         window.location.href = '../login.html';
         return;
     }
 
-    // Load components first (which will then load data)
-    loadProfileComponents();
-});
+    loadProfileData();
+}

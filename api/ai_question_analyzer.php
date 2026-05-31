@@ -61,10 +61,13 @@ function analyzeQuestion() {
     $analysis = performDeepAnalysis($soal);
     
     // Update soal with analysis results
+    $bloom_escaped = $conn->real_escape_string($analysis['bloom_level']);
+    $cognitive_escaped = $conn->real_escape_string($analysis['cognitive_load']);
+    $learning_escaped = $conn->real_escape_string($analysis['learning_objective']);
     $updateSql = "UPDATE soal SET 
-                 bloom_level = '{$analysis['bloom_level']}',
-                 cognitive_load = '{$analysis['cognitive_load']}',
-                 learning_objective = '{$conn->real_escape_string($analysis['learning_objective'])}'
+                 bloom_level = '{$bloom_escaped}',
+                 cognitive_load = '{$cognitive_escaped}',
+                 learning_objective = '{$learning_escaped}'
                  WHERE id = $soal_id";
     $conn->query($updateSql);
     
@@ -209,10 +212,11 @@ function suggestLearningMaterials($key_concepts, $kategori_id) {
     $materi = [];
     
     foreach ($key_concepts as $concept) {
+        $concept_escaped = $conn->real_escape_string($concept);
         $sql = "SELECT id, judul, deskripsi FROM materi 
                 WHERE kategori_id = $kategori_id 
                 AND is_active = 1 
-                AND (judul LIKE '%$concept%' OR deskripsi LIKE '%$concept%')
+                AND (judul LIKE '%{$concept_escaped}%' OR deskripsi LIKE '%{$concept_escaped}%')
                 LIMIT 3";
         $result = $conn->query($sql);
         
@@ -384,10 +388,13 @@ function batchAnalyzeQuestions() {
         
         $analysis = performDeepAnalysis($soal);
         
+        $bloom_escaped = $conn->real_escape_string($analysis['bloom_level']);
+        $cognitive_escaped = $conn->real_escape_string($analysis['cognitive_load']);
+        $learning_escaped = $conn->real_escape_string($analysis['learning_objective']);
         $updateSql = "UPDATE soal SET 
-                     bloom_level = '{$analysis['bloom_level']}',
-                     cognitive_load = '{$analysis['cognitive_load']}',
-                     learning_objective = '{$conn->real_escape_string($analysis['learning_objective'])}'
+                     bloom_level = '{$bloom_escaped}',
+                     cognitive_load = '{$cognitive_escaped}',
+                     learning_objective = '{$learning_escaped}'
                      WHERE id = $soal_id";
         $conn->query($updateSql);
         

@@ -116,8 +116,9 @@ function linkSingleSoal() {
             $checkResult = $conn->query($checkSql);
             
             if ($checkResult->num_rows == 0) {
+                $relevance_float = floatval($relevance);
                 $insertSql = "INSERT INTO materi_soal (materi_id, soal_id, relevance_score, auto_linked) 
-                             VALUES ({$materi['id']}, $soal_id, $relevance, 1)";
+                             VALUES ({$materi['id']}, $soal_id, $relevance_float, 1)";
                 $conn->query($insertSql);
                 $linkedCount++;
             }
@@ -178,8 +179,9 @@ function linkBatchSoal() {
                 $checkResult = $conn->query($checkSql);
                 
                 if ($checkResult->num_rows == 0) {
+                    $relevance_float = floatval($relevance);
                     $insertSql = "INSERT INTO materi_soal (materi_id, soal_id, relevance_score, auto_linked) 
-                                 VALUES ({$materi['id']}, $soal_id, $relevance, 1)";
+                                 VALUES ({$materi['id']}, $soal_id, $relevance_float, 1)";
                     $conn->query($insertSql);
                     $totalLinked++;
                 }

@@ -271,6 +271,9 @@ switch ($action) {
     case 'update_ability_estimate':
         updateAbilityEstimate();
         break;
+    case 'check_cat_termination':
+        checkCATTermination();
+        break;
     case 'serve_file':
         serveFile();
         break;
@@ -468,27 +471,47 @@ function simpanSesi() {
         return;
     }
 
-    // soal_teracak can be array or JSON string
-    if (isset($data['soal_teracak']) && is_array($data['soal_teracak'])) {
-        $soal_teracak = json_encode($data['soal_teracak']);
-    } elseif (isset($data['soal_teracak']) && is_string($data['soal_teracak'])) {
-        $soal_teracak = $data['soal_teracak'];
+    // Check if CAT mode is enabled
+    $cat_enabled = isset($data['cat_enabled']) ? ($data['cat_enabled'] ? 1 : 0) : 0;
+    $exam_type_id = isset($data['exam_type_id']) ? intval($data['exam_type_id']) : null;
+    $paket_id = isset($data['paket_id']) ? intval($data['paket_id']) : null;
+
+    // For CAT mode, soal_teracak is not needed (questions selected dynamically)
+    // For non-CAT mode, soal_teracak is required
+    if ($cat_enabled) {
+        $soal_teracak = null; // CAT mode: questions selected dynamically
+        $ability_estimate = 0.0; // Start with average ability
+        $confidence_level = 0.3; // Initial confidence
+        $ability_history = json_encode([0.0]); // Track ability from start
     } else {
-        echo json_encode(['success' => false, 'error' => 'Format soal tidak valid']);
-        return;
+        // soal_teracak can be array or JSON string
+        if (isset($data['soal_teracak']) && is_array($data['soal_teracak'])) {
+            $soal_teracak = json_encode($data['soal_teracak']);
+        } elseif (isset($data['soal_teracak']) && is_string($data['soal_teracak'])) {
+            $soal_teracak = $data['soal_teracak'];
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Format soal tidak valid']);
+            return;
+        }
+
+        if (strlen($soal_teracak) > 100000) {
+            echo json_encode(['success' => false, 'error' => 'Data soal terlalu besar']);
+            return;
+        }
+
+        $ability_estimate = 0.0;
+        $confidence_level = 0.0;
+        $ability_history = null;
     }
 
-    if (strlen($soal_teracak) > 100000) {
-        echo json_encode(['success' => false, 'error' => 'Data soal terlalu besar']);
-        return;
-    }
-
-    $sql = "INSERT INTO sesi_ujian (user_id, durasi_menit, soal_teracak, status) VALUES (?, ?, ?, 'berjalan')";
+    $sql = "INSERT INTO sesi_ujian (user_id, durasi_menit, soal_teracak, status, cat_enabled, ability_estimate, confidence_level, ability_history, exam_type_id, paket_id) 
+            VALUES (?, ?, ?, 'berjalan', ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iis", $user_id, $durasi, $soal_teracak);
+    $stmt->bind_param("iisdiddsi", $user_id, $durasi, $soal_teracak, $cat_enabled, $ability_estimate, $confidence_level, $ability_history, $exam_type_id, $paket_id);
 
     if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'sesi_id' => $conn->insert_id]);
+        $sesi_id = $conn->insert_id;
+        echo json_encode(['success' => true, 'sesi_id' => $sesi_id, 'cat_enabled' => $cat_enabled]);
     } else {
         echo json_encode(['success' => false, 'error' => $conn->error]);
     }
@@ -824,11 +847,13 @@ function generateSertifikatInternal($hasil_id, $user_id, $nama_peserta, $nilai_t
     
     $issue_date = date('Y-m-d H:i:s');
     $expiry_date = date('Y-m-d H:i:s', strtotime('+5 years'));
+    $verification_code = md5($user_id . $hasil_id . $issue_date);
+    $qr_code = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . $verification_code;
     
-    $sql = "INSERT INTO sertifikat (hasil_id, user_id, nomor_sertifikat, uuid, status, issue_date, expiry_date) 
-            VALUES (?, ?, ?, ?, 'active', ?, ?)";
+    $sql = "INSERT INTO sertifikat (hasil_id, user_id, verification_code, qr_code, issued_at, expires_at) 
+            VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iissss", $hasil_id, $user_id, $cert_number, $uuid, $issue_date, $expiry_date);
+    $stmt->bind_param("iissss", $hasil_id, $user_id, $verification_code, $qr_code, $issue_date, $expiry_date);
     $stmt->execute();
 }
 
@@ -3447,28 +3472,36 @@ function getNextQuestionCAT() {
         return;
     }
     
-    // Get answered question IDs for this session
-    $sql_answered = "SELECT jawaban_peserta FROM hasil_ujian WHERE sesi_id = $sesi_id";
-    $result_answered = $conn->query($sql_answered);
-    $answered_data = $result_answered->fetch_assoc();
+    // Get answered question IDs from session (jawaban_sementara)
+    $sql_session = "SELECT jawaban_sementara FROM sesi_ujian WHERE id = $sesi_id";
+    $result_session = $conn->query($sql_session);
+    $session_data = $result_session->fetch_assoc();
     
     $answered_ids = [];
-    if ($answered_data && $answered_data['jawaban_peserta']) {
-        $answered_ids = json_decode($answered_data['jawaban_peserta'], true);
-        $answered_ids = array_keys($answered_ids);
+    if ($session_data && $session_data['jawaban_sementara']) {
+        $answered_data = json_decode($session_data['jawaban_sementara'], true);
+        if (is_array($answered_data)) {
+            $answered_ids = array_keys($answered_data);
+        }
     }
     
     // Get next question based on IRT parameters
     // Select question with difficulty (irt_b) closest to current ability
+    // Using Fisher information: maximize information at current ability
     $answered_ids_str = implode(',', array_map('intval', $answered_ids));
     $where_answered = !empty($answered_ids_str) ? "AND s.id NOT IN ($answered_ids_str)" : "";
     
-    $sql = "SELECT s.*, ABS(s.irt_b - $current_ability) as distance
+    // Fisher information approximation: I(theta) = a^2 * P(theta) * (1-P(theta))
+    // For simplicity, we use distance-based selection with quality filter
+    $sql = "SELECT s.*, 
+            ABS(s.irt_b - $current_ability) as distance,
+            s.discrimination_index
             FROM soal s
             WHERE s.kategori_id = $kategori_id
             AND s.irt_b IS NOT NULL
+            AND s.item_quality IN ('excellent', 'good', 'fair')
             $where_answered
-            ORDER BY distance ASC, RAND()
+            ORDER BY distance ASC, s.discrimination_index DESC, RAND()
             LIMIT 1";
     $result = $conn->query($sql);
     $question = $result->fetch_assoc();
@@ -3476,19 +3509,34 @@ function getNextQuestionCAT() {
     if ($question) {
         echo json_encode(['success' => true, 'data' => $question]);
     } else {
-        // Fallback to random question if no IRT data
-        $sql_fallback = "SELECT s.* FROM soal s
+        // Fallback: try with lower quality items
+        $sql_fallback = "SELECT s.*, ABS(s.irt_b - $current_ability) as distance
+                        FROM soal s
                         WHERE s.kategori_id = $kategori_id
+                        AND s.irt_b IS NOT NULL
                         $where_answered
-                        ORDER BY RAND()
+                        ORDER BY distance ASC, RAND()
                         LIMIT 1";
         $result_fallback = $conn->query($sql_fallback);
         $question_fallback = $result_fallback->fetch_assoc();
         
         if ($question_fallback) {
-            echo json_encode(['success' => true, 'data' => $question_fallback, 'fallback' => true]);
+            echo json_encode(['success' => true, 'data' => $question_fallback]);
         } else {
-            echo json_encode(['success' => false, 'error' => 'No questions available']);
+            // Final fallback: random question without IRT
+            $sql_final = "SELECT s.* FROM soal s
+                        WHERE s.kategori_id = $kategori_id
+                        $where_answered
+                        ORDER BY RAND()
+                        LIMIT 1";
+            $result_final = $conn->query($sql_final);
+            $question_final = $result_final->fetch_assoc();
+            
+            if ($question_final) {
+                echo json_encode(['success' => true, 'data' => $question_final]);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'No more questions available for this category']);
+            }
         }
     }
 }
@@ -3507,6 +3555,20 @@ function updateAbilityEstimate() {
         return;
     }
     
+    // Get current session data
+    $sql_session = "SELECT ability_history, jawaban_sementara FROM sesi_ujian WHERE id = $sesi_id";
+    $result_session = $conn->query($sql_session);
+    $session_data = $result_session->fetch_assoc();
+    
+    // Count number of questions answered in this session
+    $n_questions = 0;
+    if ($session_data && $session_data['jawaban_sementara']) {
+        $answered_data = json_decode($session_data['jawaban_sementara'], true);
+        if (is_array($answered_data)) {
+            $n_questions = count($answered_data);
+        }
+    }
+    
     // Get IRT parameters for the question
     $sql = "SELECT irt_a, irt_b, irt_c FROM soal WHERE id = $soal_id";
     $result = $conn->query($sql);
@@ -3515,44 +3577,118 @@ function updateAbilityEstimate() {
     if (!$soal_data || $soal_data['irt_b'] === null) {
         // No IRT data, use simple adjustment
         $new_ability = $current_ability + ($is_correct ? 0.1 : -0.1);
-        $confidence = 0.3;
+        $confidence = min(0.95, 0.3 + 0.05 * $n_questions);
     } else {
         $irt_a = floatval($soal_data['irt_a']);
         $irt_b = floatval($soal_data['irt_b']);
         $irt_c = floatval($soal_data['irt_c']);
         
-        // Simplified ability update using IRT
+        // Simplified ability update using IRT 3PL model
         // P(correct) = c + (1-c) / (1 + exp(-a(theta - b)))
         $p_correct = $irt_c + (1 - $irt_c) / (1 + exp(-$irt_a * ($current_ability - $irt_b)));
         
         // Update ability based on difference between actual and predicted
-        $learning_rate = 0.5;
+        // Learning rate decreases as more questions are answered
+        $learning_rate = max(0.1, 0.5 - 0.02 * $n_questions);
         $new_ability = $current_ability + $learning_rate * ($is_correct - $p_correct);
         
-        // Calculate confidence based on number of questions answered
-        $sql_count = "SELECT COUNT(*) as count FROM hasil_ujian WHERE sesi_id = $sesi_id";
-        $result_count = $conn->query($sql_count);
-        $count_data = $result_count->fetch_assoc();
-        $n_questions = $count_data['count'] ?? 1;
+        // Clamp ability to reasonable range (-3 to +3)
+        $new_ability = max(-3.0, min(3.0, $new_ability));
         
-        $confidence = min(0.95, 0.3 + 0.1 * $n_questions);
+        // Calculate confidence based on number of questions answered
+        $confidence = min(0.95, 0.3 + 0.05 * $n_questions);
     }
+    
+    // Update ability history
+    $ability_history = [];
+    if ($session_data && $session_data['ability_history']) {
+        $ability_history = json_decode($session_data['ability_history'], true);
+        if (!is_array($ability_history)) {
+            $ability_history = [];
+        }
+    }
+    $ability_history[] = $new_ability;
+    $ability_history_json = json_encode($ability_history);
     
     // Update ability estimate in session
     $sql_update = "UPDATE sesi_ujian 
-                  SET ability_estimate = $new_ability, confidence_level = $confidence
-                  WHERE id = $sesi_id";
-    $result = $conn->query($sql_update);
+                  SET ability_estimate = ?, confidence_level = ?, ability_history = ?
+                  WHERE id = ?";
+    $stmt = $conn->prepare($sql_update);
+    $stmt->bind_param("ddsi", $new_ability, $confidence, $ability_history_json, $sesi_id);
     
-    if ($result) {
+    if ($stmt->execute()) {
         echo json_encode([
             'success' => true,
             'new_ability' => $new_ability,
-            'confidence' => $confidence
+            'confidence' => $confidence,
+            'n_questions' => $n_questions
         ]);
     } else {
         echo json_encode(['success' => false, 'error' => $conn->error]);
     }
+}
+
+function checkCATTermination() {
+    global $conn;
+    
+    $data = json_decode(file_get_contents('php://input'), true);
+    $sesi_id = intval($data['sesi_id'] ?? 0);
+    
+    if ($sesi_id === 0) {
+        echo json_encode(['success' => false, 'error' => 'Invalid session ID']);
+        return;
+    }
+    
+    // Get session data
+    $sql = "SELECT confidence_level, ability_estimate, jawaban_sementara FROM sesi_ujian WHERE id = $sesi_id";
+    $result = $conn->query($sql);
+    $session = $result->fetch_assoc();
+    
+    if (!$session) {
+        echo json_encode(['success' => false, 'error' => 'Session not found']);
+        return;
+    }
+    
+    $confidence = floatval($session['confidence_level']);
+    $ability = floatval($session['ability_estimate']);
+    
+    // Count questions answered
+    $n_questions = 0;
+    if ($session['jawaban_sementara']) {
+        $answered = json_decode($session['jawaban_sementara'], true);
+        if (is_array($answered)) {
+            $n_questions = count($answered);
+        }
+    }
+    
+    // Termination criteria
+    $should_terminate = false;
+    $termination_reason = '';
+    
+    // Criterion 1: Confidence level reached (SE < 0.30, confidence > 0.70)
+    if ($confidence >= 0.70 && $n_questions >= 10) {
+        $should_terminate = true;
+        $termination_reason = 'Confidence level reached (confidence >= 0.70)';
+    }
+    
+    // Criterion 2: Maximum questions reached (default 30 per category)
+    if ($n_questions >= 30) {
+        $should_terminate = true;
+        $termination_reason = 'Maximum questions reached (30)';
+    }
+    
+    // Criterion 3: No more questions available
+    // This will be checked by getNextQuestionCAT, but we can also check here
+    
+    echo json_encode([
+        'success' => true,
+        'should_terminate' => $should_terminate,
+        'termination_reason' => $termination_reason,
+        'confidence' => $confidence,
+        'ability' => $ability,
+        'n_questions' => $n_questions
+    ]);
 }
 
 function serveFile() {

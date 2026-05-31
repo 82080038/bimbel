@@ -25,7 +25,7 @@ window.loadPembahasan = async function (resultId) {
             html += '<div class="pembahasan-item ' + statusClass + '">';
             html += '<div class="pembahasan-header">';
             html += '<h5>Soal ' + (index + 1) + ' <span class="badge bg-' + (isCorrect ? 'success' : 'danger') + '">' + (isCorrect ? 'Benar' : 'Salah') + '</span></h5>';
-            html += '<span class="category-badge">' + item.kategori + '</span>';
+            html += '<span class="category-badge">' + (item.nama_kategori || item.kategori || 'Umum') + '</span>';
             html += '</div>';
             html += '<div class="pembahasan-content">';
 

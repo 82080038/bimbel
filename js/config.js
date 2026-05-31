@@ -235,11 +235,74 @@ AppConfig.init();
 // Try to load from storage (in case of production override)
 AppConfig.loadFromStorage();
 
+// Register service worker for PWA support
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/bimbel/sw.js')
+            .then((registration) => {
+                console.log('SW registered:', registration.scope);
+            })
+            .catch((error) => {
+                console.log('SW registration failed:', error);
+            });
+    });
+}
+
 // Make available globally
 window.AppConfig = AppConfig;
 
 // Backward compatibility - alias for old code
 window.API_BASE = AppConfig.API_URL;
+
+// Field name mapping for database vs JavaScript consistency
+AppConfig.fieldNames = {
+    learningTopics: { name: 'topic_name', category: 'kategori', description: 'description' },
+    bahanPelajaran: { title: 'judul', type: 'tipe', content: 'konten', categoryName: 'nama_kategori', categoryId: 'kategori_id', filePath: 'file_path', url: 'url' },
+    kategori: { code: 'kode', name: 'nama' }
+};
+
+// Category ID mapping for filtering
+AppConfig.categoryMap = {
+    'TWK': 1,
+    'TIU': 2,
+    'TKP': 3,
+    'TPA': 4,
+    'PSIKOLOGIS': 5
+};
+
+// Centralized fetch helper with error handling
+AppConfig.fetchAPI = async function(endpoint, options = {}) {
+    const url = endpoint.startsWith('http') ? endpoint : this.apiUrl(endpoint);
+    
+    const defaultOptions = {
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    };
+    
+    if (localStorage.getItem('authToken')) {
+        defaultOptions.headers['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
+    }
+    
+    try {
+        const response = await fetch(url, { ...defaultOptions, ...options });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = '/bimbel/login.html';
+                return { success: false, error: 'Unauthorized' };
+            }
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(`API Error (${endpoint}):`, error);
+        return { success: false, error: error.message };
+    }
+};
 
 // Export for module systems (if needed)
 if (typeof module !== 'undefined' && module.exports) {

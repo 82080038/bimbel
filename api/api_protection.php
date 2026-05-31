@@ -345,17 +345,17 @@ class APIProtection {
         $attempts = $this->cache->get($cacheKey) ?? 0;
         $attempts++;
         
-        if ($attempts > 50) { // 50 suspicious requests
+        if ($attempts > 200) { // 200 suspicious requests per 5 minutes
             $this->logSecurityEvent('suspicious_activity_blocked', [
                 'attempts' => $attempts,
                 'ip' => $ip
             ]);
             
             header('Content-Type: application/json');
-            http_response_code(403);
+            http_response_code(429); // Use 429 Too Many Requests instead of 403
             echo json_encode([
                 'success' => false,
-                'error' => 'Access temporarily blocked due to suspicious activity'
+                'error' => 'Too many requests. Please slow down.'
             ]);
             exit();
         }

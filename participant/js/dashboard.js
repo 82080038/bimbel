@@ -466,7 +466,7 @@
                     dashboardContent.innerHTML = contentHTML;
                 }
 
-                const modalsResponse = await fetch('components/modals.html');
+                const modalsResponse = await fetch('components/modals-shared.html');
                 const modalsHTML = await modalsResponse.text();
                 const modalsContainer = document.getElementById('modalsContainer');
                 if (modalsContainer) {
@@ -771,6 +771,16 @@
                 return;
             }
             
+            // Calculate dominant category from nilai fields
+            const examScores = {
+                'TWK': examData.nilai_twk || 0,
+                'TIU': examData.nilai_tiu || 0,
+                'TKP': examData.nilai_tkp || 0,
+                'TPA': examData.nilai_tpa || 0,
+                'PSIKOLOGIS': examData.nilai_psikologis || 0
+            };
+            const examDominantCategory = Object.entries(examScores).sort((a, b) => b[1] - a[1])[0][0];
+            
             const kategoriNames = {
                 'TWK': 'Tes Wawasan Kebangsaan',
                 'TIU': 'Tes Intelegensia Umum',
@@ -785,7 +795,7 @@
             lastExamCard.innerHTML = `
                 <div class="last-exam-info">
                     <div class="exam-category">
-                        <span class="badge bg-primary">${kategoriNames[examData.kategori] || 'Ujian Umum'}</span>
+                        <span class="badge bg-primary">${kategoriNames[examDominantCategory] || 'Ujian Umum'}</span>
                     </div>
                     <div class="exam-score">
                         <h3>${formatScore(safeParseFloat(examData.nilai_total, 0))}</h3>
@@ -909,8 +919,12 @@
                 return;
             }
             
-            materialsList.innerHTML = materials.slice(0, 5).map(material => {
-                const iconClass = material.jenis_file === 'pdf' ? 'pdf' : 'text';
+            // Filter materials related to weak categories if weakness data available
+            let displayMaterials = materials;
+            
+            // Show materials that match user's weak categories, or fallback to latest
+            materialsList.innerHTML = displayMaterials.slice(0, 5).map(material => {
+                const iconClass = material.tipe === 'pdf' ? 'pdf' : 'text';
                 const filePath = material.file_path && material.file_path !== 'null' ? material.file_path : null;
                 const linkHtml = filePath
                     ? `<a href="${filePath}" target="_blank" class="material-link"><i class="fas fa-external-link-alt"></i></a>`
@@ -918,12 +932,12 @@
                 return `
                     <div class="material-item">
                         <div class="material-icon ${iconClass}">
-                            <i class="fas fa-file-${material.jenis_file === 'pdf' ? 'pdf' : 'alt'}"></i>
+                            <i class="fas fa-file-${material.tipe === 'pdf' ? 'pdf' : 'alt'}"></i>
                         </div>
                         <div class="material-content">
                             <div class="material-title">${material.judul}</div>
                             <div class="material-meta">
-                                <span>${material.kategori || 'Umum'}</span>
+                                <span>${material.nama_kategori || material.kategori || 'Umum'}</span>
                                 <span>•</span>
                                 <span>${formatDate(material.created_at, 'short')}</span>
                             </div>
@@ -950,6 +964,16 @@
             }
             
             timeline.innerHTML = activities.map(activity => {
+                // Calculate dominant category from nilai fields
+                const scores = {
+                    'TWK': activity.nilai_twk || 0,
+                    'TIU': activity.nilai_tiu || 0,
+                    'TKP': activity.nilai_tkp || 0,
+                    'TPA': activity.nilai_tpa || 0,
+                    'PSIKOLOGIS': activity.nilai_psikologis || 0
+                };
+                const dominantCategory = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+                
                 const kategoriNames = {
                     'TWK': 'Tes Wawasan Kebangsaan',
                     'TIU': 'Tes Intelegensia Umum',
@@ -965,7 +989,7 @@
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
-                            <div class="timeline-title">Selesai ${kategoriNames[activity.kategori] || 'Ujian'}</div>
+                            <div class="timeline-title">Selesai ${kategoriNames[dominantCategory] || 'Ujian'}</div>
                             <div class="timeline-date">${formatDate(activity.tanggal_ujian, 'long')}</div>
                             <div class="timeline-score">
                                 <span class="badge bg-${statusClass}">${formatScore(safeParseFloat(activity.nilai_total, 0))}</span>

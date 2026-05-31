@@ -1,0 +1,27 @@
+{
+  "name": "Ujian Sekolah Kedinasan",
+  "short_name": "Ujian Kedinasan",
+  "description": "Sistem Seleksi Kompetensi Dasar (SKD) untuk sekolah kedinasan",
+  "start_url": "/bimbel/index.php",
+  "display": "standalone",
+  "background_color": "#1e40af",
+  "theme_color": "#1e40af",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/bimbel/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/bimbel/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "id",
+  "dir": "ltr"
+}

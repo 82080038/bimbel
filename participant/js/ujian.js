@@ -53,6 +53,8 @@ let selectedExamTypeDurasi = 60; // Will be updated from exam type selection
 let selectedExamTypeData = null; // Store full exam type data
 let currentSessionId = null;
 let currentAbility = 0; // CAT ability estimate
+let isCATMode = false; // Whether CAT mode is enabled
+let currentKategoriId = null; // Current category for CAT question selection
 // ==========================================
 // ANTI-CHEAT SYSTEM
 // ==========================================
@@ -285,8 +287,9 @@ async function loadExamTypes() {
 
             data.data.forEach(type => {
                 const option = document.createElement('option');
-                option.value = type.code;
+                option.value = type.id; // Use ID instead of code
                 option.textContent = type.name;
+                option.dataset.code = type.code; // Store code for reference
                 option.dataset.durasi = type.durasi_menit;
                 option.dataset.jumlah = type.jumlah_soal;
                 if (select) select.appendChild(option);
@@ -555,7 +558,7 @@ async function saveAnswer(questionIndex, answer) {
             const question = currentQuestions[questionIndex];
             const isCorrect = (answer === question.jawaban_benar);
 
-            await fetch(AppConfig.apiUrl('soal.php?action=update_ability_estimate'), {
+            const response = await fetch(AppConfig.apiUrl('soal.php?action=update_ability_estimate'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -567,14 +570,12 @@ async function saveAnswer(questionIndex, answer) {
                     is_correct: isCorrect,
                     current_ability: currentAbility
                 })
-            }).then(response => response.json())
-                .then(data => {
-                    if (data.success && data.new_ability !== undefined) {
-                        currentAbility = data.new_ability;
-                    }
-                }).catch(err => {
-                    console.error('Error updating ability estimate:', err);
-                });
+            });
+            const data = await response.json();
+            if (data.success && data.new_ability !== undefined) {
+                currentAbility = data.new_ability;
+                console.log(`Ability updated: ${currentAbility.toFixed(2)}, Confidence: ${data.confidence.toFixed(2)}, Questions: ${data.n_questions}`);
+            }
         } catch (error) {
             console.error('Error updating ability estimate:', error);
         }
@@ -862,7 +863,9 @@ function showResultScreen(resultData) {
 // Load passing grades
 async function loadPassingGrades() {
     try {
-        const response = await fetch(AppConfig.apiUrl('soal.php?action=get_passing_grades'));
+        const response = await fetch(AppConfig.apiUrl('soal.php?action=get_passing_grades'), {
+            headers: RBAC.getAuthHeaders()
+        });
         const data = await response.json();
 
         if (data.success && data.data) {
@@ -905,10 +908,21 @@ function displayHistory(historyData) {
     const historyContainer = document.getElementById('historyContainer');
     if (!historyContainer) return;
 
-    historyContainer.innerHTML = historyData.map(exam => `
+    historyContainer.innerHTML = historyData.map(exam => {
+        // Calculate dominant category from nilai fields
+        const scores = {
+            'TWK': exam.nilai_twk || 0,
+            'TIU': exam.nilai_tiu || 0,
+            'TKP': exam.nilai_tkp || 0,
+            'TPA': exam.nilai_tpa || 0,
+            'PSIKOLOGIS': exam.nilai_psikologis || 0
+        };
+        const dominantCategory = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+        
+        return `
                 <div class="history-item">
                     <div class="history-header">
-                        <h4>${getCategoryName(exam.kategori)}</h4>
+                        <h4>${dominantCategory}</h4>
                         <span class="history-date">${formatDate(exam.tanggal_ujian, 'long')}</span>
                     </div>
                     <div class="history-details">
@@ -922,7 +936,8 @@ function displayHistory(historyData) {
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+    }).join('');
 }
 
 // Update flag buttons
@@ -1285,7 +1300,9 @@ const EXAM_TYPE_KATEGORI_MAP = {
 // Load paket list filtered by exam type code
 async function loadPaketByExamType(examTypeCode, paketSelect) {
     try {
-        const response = await fetch(AppConfig.apiUrl('soal.php?action=get_paket'));
+        const response = await fetch(AppConfig.apiUrl('soal.php?action=get_paket'), {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+        });
         const data = await response.json();
         if (data.success && data.data.length > 0) {
             const allowedKategori = EXAM_TYPE_KATEGORI_MAP[examTypeCode.toUpperCase()] || [];
@@ -1343,75 +1360,236 @@ async function mulaiUjian() {
     const paketId = paketSelect && paketSelect.value ? paketSelect.value : null;
     selectedPaketId = paketId ? parseInt(paketId) : null;
 
+    // Check if CAT mode is enabled (from checkbox or config)
+    const catCheckbox = document.getElementById('catModeCheckbox');
+    isCATMode = catCheckbox ? catCheckbox.checked : false;
+
+    try {
+        if (isCATMode) {
+            // CAT Mode: Create session first, then load questions dynamically
+            await startCATMode(token);
+        } else {
+            // Traditional Mode: Load all questions upfront
+            await startTraditionalMode(token, paketId);
+        }
+    } catch (error) {
+        console.error('Error starting exam:', error);
+        showToast('Terjadi kesalahan saat memulai ujian', 'error');
+    }
+}
+
+async function startCATMode(token) {
+    try {
+        console.log('Starting CAT mode with exam_type_id:', selectedExamTypeId, 'durasi:', selectedExamTypeDurasi);
+        
+        // Create session with CAT enabled
+        const sessionResponse = await fetch(AppConfig.apiUrl('soal.php?action=simpan_sesi'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                cat_enabled: true,
+                durasi_menit: selectedExamTypeDurasi,
+                exam_type_id: selectedExamTypeId,
+                paket_id: selectedPaketId
+            })
+        });
+        const sessionData = await sessionResponse.json();
+        
+        console.log('Session response:', sessionData);
+        
+        if (!sessionData.success || !sessionData.sesi_id) {
+            throw new Error(sessionData.error || 'Failed to create CAT session');
+        }
+        
+        currentSessionId = sessionData.sesi_id;
+        currentAbility = 0;
+        currentQuestions = [];
+        currentQuestionIndex = 0;
+        
+        // Start with first category (TWK = 1)
+        currentKategoriId = 1;
+        
+        // Load first question for CAT
+        const loaded = await loadNextCATQuestion(token);
+        
+        if (!loaded || currentQuestions.length === 0) {
+            throw new Error('Failed to load first CAT question');
+        }
+        
+        showExamScreen();
+        displayQuestion();
+        startTimer();
+        
+        // Hide Jawab Random button in production
+        if (!isPracticeMode) {
+            const jawabRandomBtn = document.getElementById('jawabRandomBtn');
+            if (jawabRandomBtn) jawabRandomBtn.style.display = 'none';
+        }
+        
+        showToast('CAT Mode Aktif - Soal disesuaikan dengan kemampuan Anda', 'info');
+    } catch (error) {
+        console.error('Error in startCATMode:', error);
+        showToast('Gagal memulai CAT Mode: ' + error.message, 'error');
+    }
+}
+
+async function startTraditionalMode(token, paketId) {
     const url = paketId
         ? AppConfig.apiUrl(`soal.php?action=get_soal_by_paket&paket_id=${paketId}`)
         : AppConfig.apiUrl('soal.php?action=get_soal_acak');
 
-    try {
-        const response = await fetch(url, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (response.status === 401) {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userRole');
-            window.location.href = '../login.html';
-            return;
+    const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (response.status === 401) {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userRole');
+        window.location.href = '../login.html';
+        return;
+    }
+    
+    const data = await response.json();
+    if (!data.success || !data.data || data.data.length === 0) {
+        showToast(data.error || 'Tidak ada soal tersedia untuk paket ini', 'error');
+        return;
+    }
+    
+    currentQuestions = data.data;
+    currentQuestionIndex = 0;
+    currentAbility = 0;
+
+    // Create exam session for tracking (non-CAT)
+    if (!isPracticeMode) {
+        try {
+            const sessionResponse = await fetch(AppConfig.apiUrl('soal.php?action=simpan_sesi'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    cat_enabled: false,
+                    soal_teracak: JSON.stringify(currentQuestions.map(q => q.id)),
+                    durasi_menit: selectedExamTypeDurasi,
+                    exam_type_id: selectedExamTypeId,
+                    paket_id: selectedPaketId
+                })
+            });
+            const sessionData = await sessionResponse.json();
+            if (sessionData.success && sessionData.sesi_id) {
+                currentSessionId = sessionData.sesi_id;
+            }
+        } catch (error) {
+            console.error('Error creating session:', error);
         }
-        const data = await response.json();
-        if (data.success && data.data && data.data.length > 0) {
-            currentQuestions = data.data;
-            currentQuestionIndex = 0;
-            currentAbility = 0; // Reset ability for new exam
+    }
 
-            // Create exam session for CAT tracking
-            if (!isPracticeMode) {
-                try {
-                    const sessionResponse = await fetch(AppConfig.apiUrl('soal.php?action=simpan_sesi'), {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            soal_teracak: JSON.stringify(currentQuestions.map(q => q.id))
-                        })
-                    });
-                    const sessionData = await sessionResponse.json();
-                    if (sessionData.success && sessionData.sesi_id) {
-                        currentSessionId = sessionData.sesi_id;
+    showExamScreen();
+    displayQuestion();
+    startTimer();
+    
+    // Hide Jawab Random button in production
+    if (!isPracticeMode) {
+        const jawabRandomBtn = document.getElementById('jawabRandomBtn');
+        if (jawabRandomBtn) jawabRandomBtn.style.display = 'none';
+    }
+}
 
-                        // Enable CAT for this session
-                        await fetch(AppConfig.apiUrl('soal.php?action=enable_cat'), {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({
-                                sesi_id: currentSessionId,
-                                enabled: true
-                            })
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error creating session:', error);
-                }
-            }
-
-            showExamScreen();
-            displayQuestion();
-            startTimer();
-            // Hide Jawab Random button in production (only show in practice mode)
-            if (!isPracticeMode) {
-                const jawabRandomBtn = document.getElementById('jawabRandomBtn');
-                if (jawabRandomBtn) jawabRandomBtn.style.display = 'none';
-            }
+async function loadNextCATQuestion(token) {
+    try {
+        if (!currentSessionId || !currentKategoriId) {
+            console.error('Missing session or category for CAT');
+            return false;
+        }
+        
+        console.log('Loading CAT question for session:', currentSessionId, 'category:', currentKategoriId, 'ability:', currentAbility);
+        
+        // Check termination criteria
+        const terminationResponse = await fetch(AppConfig.apiUrl('soal.php?action=check_cat_termination'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                sesi_id: currentSessionId
+            })
+        });
+        const terminationData = await terminationResponse.json();
+        
+        console.log('Termination check:', terminationData);
+        
+        if (terminationData.success && terminationData.should_terminate) {
+            // Move to next category or finish exam
+            return await handleCATTermination(terminationData.termination_reason, token);
+        }
+        
+        // Get next question based on current ability
+        const questionResponse = await fetch(AppConfig.apiUrl('soal.php?action=get_next_question_cat'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                sesi_id: currentSessionId,
+                kategori_id: currentKategoriId,
+                current_ability: currentAbility
+            })
+        });
+        const questionData = await questionResponse.json();
+        
+        console.log('Question response:', questionData);
+        
+        if (questionData.success && questionData.data) {
+            currentQuestions.push(questionData.data);
+            currentQuestionIndex = currentQuestions.length - 1;
+            console.log('Question loaded successfully, total questions:', currentQuestions.length);
+            return true;
         } else {
-            showToast(data.error || 'Tidak ada soal tersedia untuk paket ini', 'error');
+            console.log('No more questions in this category, moving to next');
+            // No more questions in this category, move to next
+            return await moveToNextCategory(token);
         }
     } catch (error) {
-        console.error('Error loading questions:', error);
-        showToast('Terjadi kesalahan saat memuat soal', 'error');
+        console.error('Error loading CAT question:', error);
+        return false;
+    }
+}
+
+async function moveToNextCategory(token) {
+    const categoryOrder = [1, 2, 3, 4, 5]; // TWK, TIU, TKP, TPA, PSIKOLOGIS
+    const currentIndex = categoryOrder.indexOf(currentKategoriId);
+    
+    if (currentIndex < categoryOrder.length - 1) {
+        currentKategoriId = categoryOrder[currentIndex + 1];
+        return await loadNextCATQuestion(token);
+    } else {
+        // All categories done, finish exam
+        await finalizeExam();
+        return false;
+    }
+}
+
+async function handleCATTermination(reason, token) {
+    console.log('CAT Termination:', reason);
+    
+    // Check if we should move to next category or finish
+    const categoryOrder = [1, 2, 3, 4, 5];
+    const currentIndex = categoryOrder.indexOf(currentKategoriId);
+    
+    if (currentIndex < categoryOrder.length - 1) {
+        showToast(`${reason}. Lanjut ke kategori berikutnya.`, 'info');
+        currentKategoriId = categoryOrder[currentIndex + 1];
+        return await loadNextCATQuestion(token);
+    } else {
+        showToast(`${reason}. Ujian selesai.`, 'info');
+        await finalizeExam();
+        return false;
     }
 }
 
@@ -1591,6 +1769,11 @@ function toggleBookmark() {
 
 // Previous question
 function sebelumnya() {
+    if (isCATMode) {
+        // CAT Mode: Cannot go back in adaptive testing
+        showToast('CAT Mode tidak mendukung navigasi mundur', 'warning');
+        return;
+    }
     if (currentQuestionIndex > 0) {
         currentQuestionIndex--;
         displayQuestion();
@@ -1598,10 +1781,20 @@ function sebelumnya() {
 }
 
 // Next question
-function selanjutnya() {
-    if (currentQuestionIndex < currentQuestions.length - 1) {
-        currentQuestionIndex++;
-        displayQuestion();
+async function selanjutnya() {
+    if (isCATMode) {
+        // CAT Mode: Load next question dynamically
+        const token = localStorage.getItem('authToken');
+        const loaded = await loadNextCATQuestion(token);
+        if (loaded) {
+            displayQuestion();
+        }
+    } else {
+        // Traditional Mode: Move to next index
+        if (currentQuestionIndex < currentQuestions.length - 1) {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
     }
 }
 
@@ -1718,10 +1911,10 @@ function displayRekomendasi(weaknessData, materialsData) {
     const recommendationsContainer = document.getElementById('learningRecommendations');
     if (!recommendationsContainer) return;
 
-    // Filter materials based on weak categories
+    // Filter materials based on weak categories (use nama_kategori field)
     const weakCategories = weaknessData.filter(w => w.persen_benar < 70).map(w => w.nama_kategori);
     const relevantMaterials = materialsData.filter(m =>
-        weakCategories.includes(m.kategori) || !m.kategori
+        weakCategories.includes(m.nama_kategori) || !m.nama_kategori
     );
 
     if (relevantMaterials.length === 0) {
@@ -1736,20 +1929,20 @@ function displayRekomendasi(weaknessData, materialsData) {
     }
 
     recommendationsContainer.innerHTML = relevantMaterials.map(material => {
-        // Construct file path based on the uploads folder structure
-        const filePath = material.file_path || `../uploads/bahan_pelajaran/text/${material.file_name}`;
+        // Use file_path from API response
+        const filePath = material.file_path || '#';
 
         return `
                 <div class="recommendation-item">
                     <div class="recommendation-header">
-                        <h5>${material.judul || material.nama}</h5>
-                        <span class="badge bg-primary">${material.kategori || 'Umum'}</span>
+                        <h5>${material.judul || 'Tanpa Judul'}</h5>
+                        <span class="badge bg-primary">${material.nama_kategori || 'Umum'}</span>
                     </div>
                     <div class="recommendation-content">
-                        <p>${material.deskripsi || material.konten || 'Bahan pelajaran untuk meningkatkan pemahaman'}</p>
-                        <a href="${filePath}" target="_blank" class="btn btn-primary-custom btn-sm">
-                            <i class="fas fa-download"></i> Download
-                        </a>
+                        <p>${material.konten ? material.konten.substring(0, 150) + '...' : 'Bahan pelajaran untuk meningkatkan pemahaman'}</p>
+                        ${filePath !== '#' ? `<a href="${filePath}" target="_blank" class="btn btn-primary-custom btn-sm">
+                            <i class="fas fa-external-link-alt"></i> Buka Materi
+                        </a>` : ''}
                     </div>
                 </div>
             `;
