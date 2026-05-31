@@ -7,6 +7,9 @@ tests/test-screenshots/
 tests/*.png
 tests/test-output.log
 tests/test-result.png
+playwright-screenshots/
+playwright-report/
+test-results/
 
 # Node modules
 tests/node_modules/
@@ -42,4 +45,5 @@ Thumbs.db
 *.temp
 __pycache__/
 *.pyc
-test-results/
+check_hasil_*.php
+test_api.php
